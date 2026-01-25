@@ -1,0 +1,156 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: white;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background:none;
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    color:#60a5fa;
+}
+
+.btn-outline1 {
+    background: rgb(29, 45, 5);
+    border: 2px solid #3b82f6;
+    color: white;
+}
+
+.btn-outline1:hover {
+    background: #66d646;
+    color:black;
+}
+
+/* Hero Styles */
+.hero {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../stuff/gmr_landing_page.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.4);
+    z-index: -1;
+}
+
+.hero-content {
+    max-width: 800px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.description {
+    background: rgba(0, 0, 0, 0.3); /* Black with 50% transparency */
+    backdrop-filter: blur(5px); /* Add blur effect for better transparency */
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+
+.description p {
+    font-size: 1.125rem;
+    line-height: 1.7;
+}
+
+.buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.buttons .btn {
+    padding: 0.75rem 2rem;
+    font-size: 1.125rem;
+}
+.btn1-outline1 {
+    background: transparent;
+    border: 2px solid #1d5c06;
+    color: white;
+    width:160px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    backdrop-filter: blur(5px);
+    position: absolute;
+    top:100px;
+    right:200px;    
+}
+
+.btn1-outline1:hover {
+    background: #55c853;
+}
+
+.btn1-outline2 {
+    background: transparent;
+    border: 2px solid #2f7393;
+    color: white;
+    width:160px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    backdrop-filter: blur(5px);
+    position: absolute;
+    top:100px;
+    right:400px;    
+}
+
+.btn1-outline2:hover {
+    background: #217887;
+}
+
+.logout-btn1{
+    background: transparent;
+    border: 2px solid #842924;
+    color: white;
+    width:100px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    backdrop-filter: blur(5px);
+    position: absolute;
+    top:100px;
+    right:50px;
+}
+
+.logout-btn1:hover {
+    background: #4f070e;
+}

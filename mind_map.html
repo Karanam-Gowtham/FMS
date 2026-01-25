@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>File Hub Navigation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9fafb;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    ul.tree {
+      list-style-type: none;
+      padding-left: 20px;
+    }
+
+    ul.tree li {
+      margin: 6px 0;
+      cursor: pointer;
+      position: relative;
+    }
+
+    ul.tree li::before {
+      content: "▶";
+      position: absolute;
+      left: -15px;
+      transition: transform 0.2s;
+    }
+
+    ul.tree li.open::before {
+      transform: rotate(90deg);
+    }
+
+    ul.tree li span {
+      padding: 4px 8px;
+      display: inline-block;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    /* bold if parent has children */
+    ul.tree li.has-children > span {
+      font-weight: bold;
+    }
+
+    ul.tree li span:hover {
+      background: #e3e7ff;
+    }
+
+    ul.tree ul {
+      display: none;
+      margin-left: 20px;
+    }
+
+    ul.tree li.open > ul {
+      display: block;
+    }
+
+    .info-box {
+      background: #eef3ff;
+      border-left: 4px solid #4f46e5;
+      padding: 10px;
+      margin: 8px 0 8px 25px;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .info-box.active {
+      display: block;
+    }
+
+    .role {
+      font-weight: bold;
+      color: #1d4ed8;
+    }
+
+    .restricted {
+      color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <h1>📂 File Hub Navigation</h1>
+
+  <ul class="tree">
+    <li><span>Central</span>
+      <ul>
+        <li><span>NAAC</span>
+          <ul>
+            <li><span>AQARs Files</span>
+              <ul>
+                <li><span>Logins</span>
+                  <ul>
+                    <li><span onclick="toggleInfo('faculty-naac')">Faculty</span>
+                      <div id="faculty-naac" class="info-box">
+                        <span class="role">Faculty</span><br>
+                        ✅ Can upload and access <b>only their own files</b>.
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('dept-naac')">Dept Coordinator</span>
+                      <div id="dept-naac" class="info-box">
+                        <span class="role">Dept Coordinator</span><br>
+                        ✅ Can upload and access their own files.<br>
+                        ✅ Can access <b>faculty files</b> in their department.<br>
+                        ❌ <span class="restricted">Cannot access other Dept Coordinator files.</span>
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('central-naac')">Central Coordinator</span>
+                      <div id="central-naac" class="info-box">
+                        <span class="role">Central Coordinator</span><br>
+                        ✅ Can upload and access their own files.<br>
+                        ✅ Can access <b>faculty files</b><br>
+                        ❌ <span class="restricted">Cannot access other Central Coordinator files.</span>
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('criteria-naac')">Criteria Coordinator</span>
+                      <div id="criteria-naac" class="info-box">
+                        <span class="role">Criteria Coordinator</span><br>
+                        ✅ Can upload and access their own files.<br>
+                        ✅ Can access <b>Dept Coordinator and Central Coordinator files</b>.<br>
+                        ❌ <span class="restricted">Cannot access other Criteria Coordinator files.</span>
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('hod-naac')">HOD</span>
+                      <div id="hod-naac" class="info-box">
+                        <span class="role">HOD</span><br>
+                        ✅ Full access to:<br>
+                        - All Faculty files<br>
+                        - All Dept Coordinator files
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li><span>NBA</span>
+          <ul>
+            <li><span>AQARs Files</span>
+              <ul>
+                <li><span>Logins</span>
+                  <ul>
+                    <li><span onclick="toggleInfo('faculty-nba')">Faculty</span>
+                      <div id="faculty-nba" class="info-box">
+                        <span class="role">Faculty</span><br>
+                        ✅ Can upload and access <b>only their own files</b>.
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('dept-nba')">Dept Coordinator</span>
+                      <div id="dept-nba" class="info-box">
+                        <span class="role">Dept Coordinator</span><br>
+                        ✅ Can upload and access their own files.<br>
+                        ✅ Can access <b>faculty files</b> in their department.<br>
+                        ❌ <span class="restricted">Cannot access other Dept Coordinator files.</span>
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('central-nba')">Central Coordinator</span>
+                      <div id="central-nba" class="info-box">
+                        <span class="role">Central Coordinator</span><br>
+                        ✅ Can upload and access their own files.<br>
+                        ✅ Can access <b>faculty files</b><br>
+                        ❌ <span class="restricted">Cannot access other Central Coordinator files.</span>
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('criteria-nba')">Criteria Coordinator</span>
+                      <div id="criteria-nba" class="info-box">
+                        <span class="role">Criteria Coordinator</span><br>
+                        ✅ Can upload and access their own files.<br>
+                        ✅ Can access <b>Dept Coordinator and Central Coordinator files</b>.<br>
+                        ❌ <span class="restricted">Cannot access other Criteria Coordinator files.</span>
+                      </div>
+                    </li>
+                    <li><span onclick="toggleInfo('hod-nba')">HOD</span>
+                      <div id="hod-nba" class="info-box">
+                        <span class="role">HOD</span><br>
+                        ✅ Full access to:<br>
+                        - All Faculty files<br>
+                        - All Dept Coordinator files
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li><span>NCC → Upload Files</span></li>
+        <li><span>Sports → Upload Files</span></li>
+        <li><span>Clubs → Upload Files</span></li>
+        <li><span>NSS → Upload Files</span></li>
+        <li><span>Women Empowerment → Upload Files</span></li>
+        <li><span>IIC → Upload Files</span></li>
+        <li><span>PASH → Upload Files</span></li>
+        <li><span>Antiragging → Upload Files</span></li>
+        <li><span>SAC → Upload Files</span></li>
+      </ul>
+    </li>
+
+    <li><span>Dept</span>
+      <ul>
+        <li><span>CSE</span>
+          <ul>
+            <li><span>Achievements</span>
+              <ul>
+                <li><span>FDPS Attended  → Upload Files</span></li>
+                <li><span>FDPS Organized  → Upload Files</span></li>
+                <li><span>Papers Published  → Upload Files</span></li>
+                <li><span>Conferences Published → Upload Files</span></li>
+                <li><span>Patents → Upload Files</span></li>
+              </ul>
+            </li>
+            <li><span>Dept Files</span>
+              <ul>
+                <li><span>Admin Files  → Upload Files</span></li>
+                <li><span>Faculty Files  → Upload Files</span></li>
+                <li><span>Student Related Files  → Upload Files</span></li>
+                <li><span>Exam Section Files  → Upload Files</span></li>
+                <li><span>Student Activities</span>
+                  <ul>
+                    <li><span>Journal Papers  → Upload Files</span></li>
+                    <li><span>Conference Papers  → Upload Files</span></li>
+                    <li><span>Projects  → Upload Files</span></li>
+                    <li><span>Internships  → Upload Files</span></li>
+                    <li><span>SIH  → Upload Files</span></li>
+                    <li><span>GATE  → Upload Files</span></li>
+                    <li><span>Hackathons  → Upload Files</span></li>
+                    <li><span>Professional Bodies  → Upload Files</span></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+  <script>
+    // Expand/Collapse tree
+    document.querySelectorAll("ul.tree li span").forEach(span => {
+      span.addEventListener("click", function(e) {
+        let parentLi = this.parentElement;
+        if (parentLi.querySelector("ul")) {
+          parentLi.classList.toggle("open");
+          e.stopPropagation();
+        }
+      });
+    });
+
+    // Mark li elements with children
+    document.querySelectorAll("ul.tree li").forEach(li => {
+      if (li.querySelector("ul")) {
+        li.classList.add("has-children");
+      }
+    });
+
+    // Show/Hide role info
+    function toggleInfo(id) {
+      const box = document.getElementById(id);
+      box.classList.toggle("active");
+    }
+  </script>
+</body>
+</html>

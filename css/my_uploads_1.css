@@ -1,0 +1,213 @@
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #1e40af;
+    --success-color: #16a34a;
+    --danger-color: #dc2626;
+    --background-color: #f1f5f9;
+    --card-background: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+select, .b1 {
+    width: 300px;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #1e3a8a;
+    border-radius: 8px;
+    background-color: #f0f4f8;
+    color: #1e3a8a;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+}
+
+select:focus, .b1:focus {
+    border-color: #2563eb;
+    background-color: #ffffff;
+}
+
+.b1 {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    transition: background-color 0.3s ease;
+}
+
+.b1:hover {
+    background-color: #2563eb;
+}
+.container111 {
+    width:350px;
+    margin-left:400px;
+    max-width: 1300px;
+    padding: 30px;
+    background: var(--card-background);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.container11 {
+    margin: 0px auto 40px;
+    max-width: 1300px;
+    padding: 30px;
+    background: var(--card-background);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.header-section {
+    margin-top:70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 2.25rem;
+    font-weight: 700;
+}
+
+.download-excel {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.download-excel:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    text-align: left;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+tr:hover {
+    background-color: #f1f5f9;
+}
+
+button {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+button#view {
+    background-color: var(--success-color);
+    color: white;
+}
+
+button#view:hover {
+    filter: brightness(110%);
+    transform: translateY(-1px);
+}
+
+button#down {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+button#down:hover {
+    filter: brightness(110%);
+    transform: translateY(-1px);
+}
+
+button#del {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+button#del:hover {
+    filter: brightness(110%);
+    transform: translateY(-1px);
+}
+
+.no-files {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 24px;
+}
+
+.error-message {
+    background-color: #fee2e2;
+    color: var(--danger-color);
+    padding: 12px;
+    border-radius: 6px;
+    margin: 16px 0;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .container11 {
+        margin: 80px 20px 40px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .header-section {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    h1 {
+        font-size: 1.875rem;
+    }
+}
