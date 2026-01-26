@@ -40,6 +40,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             if ($designation == "dept_coordinator") {
                 $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ?");
+                if (!$stmt) {
+                     // Output error inside script tag to ensure it is seen if possible, or just die.
+                     // Since we are inside specific logic, die() will stop the script and show the text.
+                     die("Database Prepare Error (dept_coordinator): " . $conn->error);
+                }
                 $stmt->bind_param("ss", $userid, $password);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -302,6 +307,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php if ($login_error): ?>
     <script>
         alert("Invalid username or password. Please try again.");
+        var designation = "<?php echo isset($_POST['designation']) ? htmlspecialchars($_POST['designation']) : ''; ?>";
+        if (designation) {
+            document.getElementById("designation").value = designation;
+            showLogin();
+        }
     </script>
     <?php endif; ?>
 

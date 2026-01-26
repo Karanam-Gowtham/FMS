@@ -1,42 +1,52 @@
 <?php
 ob_start(); // Start output buffering
-    include './connection.php';
-    include './header.php';
+include './connection.php';
 
-    // Retrieve designation from URL
-    $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
-    $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
+// Retrieve designation from URL or POST
+$event = isset($_REQUEST['event']) ? htmlspecialchars($_REQUEST['event']) : '';
+$designation = isset($_REQUEST['designation']) ? htmlspecialchars($_REQUEST['designation']) : '';
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Get form values
-        $year = isset($_POST['year']) ? $_POST['year'] : '';
-        $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get form values
+    $year = isset($_POST['year']) ? $_POST['year'] : '';
+    $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
 
-        // Redirect based on designation
-        switch ($designation) {
-            case 'faculty':
-                header("Location: criteria.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-                exit();
-            case 'dept_coordinator':
-                header("Location: ./admin/criteria_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-                exit();
-            
-            case 'central_coordinator':
-                header("Location: ./admin/criteria_cent_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-                exit();
-            case 'criteria_coordinator':
-                header("Location: ./admin/criteria_cri_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-                exit();
-            case 'hod':
-                header("Location: ./HOD/hod_faculty_files.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-                exit();
-            case 'admin':
-                header("Location: ./HOD/acd_year_aa.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-                exit();
-            default:
-                echo "<script>alert('Invalid Designation!');</script>";
-        }
+    // Clean buffer before redirect
+    ob_end_clean();
+
+    // Redirect based on designation
+    switch ($designation) {
+        case 'faculty':
+            header("Location: criteria.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+            exit();
+        case 'dept_coordinator':
+            header("Location: ./admin/criteria_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+            exit();
+        
+        case 'central_coordinator':
+            header("Location: ./admin/criteria_cent_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+            exit();
+        case 'criteria_coordinator':
+            header("Location: ./admin/criteria_cri_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+            exit();
+        case 'hod':
+            header("Location: ./HOD/hod_faculty_files.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+            exit();
+        case 'admin':
+            header("Location: ./HOD/acd_year_aa.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+            exit();
+        default:
+            // If designation is invalid, we might want to show an alert, but since we are before HTML, 
+            // we can trigger a script via echo, but we cleaned the buffer.
+            // Be careful not to break HTML structure later.
+            // Better to handle default case by falling through to page render with an error message variable.
+            echo "<script>alert('Invalid Designation!');</script>";
+            // Re-start buffering since we continued
+            ob_start();
     }
+}
+
+include './header.php';
 ?>
 
 

@@ -14,10 +14,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['signIn'])) {
         $userid = $_POST['userid'];
         $password = $_POST['password'];
+        $department = $_POST['department'];
 
-        // Query to check if the user exists with the entered credentials
-        $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");
-        $stmt->bind_param("ss", $userid, $password);
+        // Query to check if the user exists with the entered credentials and department
+        $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ? AND dept = ?");
+        $stmt->bind_param("sss", $userid, $password, $department);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -37,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             $login_stmt->close();
         } else {
-            echo "<script>alert('Wrong User ID or password!');</script>";
+            echo "<script>alert('Wrong User ID, Password or Department!');</script>";
         }
         $stmt->close();
     }
@@ -139,6 +140,19 @@ include("header.php");
                 <h1 id="hav">Faculty<br>Log In</h1>
                 <input type="text" name="userid" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />
+                
+                <select name="department" id="dept" required style="margin-bottom: 15px; padding: 10px; border-radius: 5px; border: none; font-size: 1em;">
+                    <option value="" disabled selected>Select Department</option>
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="MECH">MECH</option>
+                    <option value="CIVIL">CIVIL</option>
+                    <option value="AIML">AIML</option>
+                    <option value="AIDS">AIDS</option>
+                    <option value="IT">IT</option>
+                    <option value="BSH">BSH</option>
+                </select>
                 <button type="submit" name="signIn" class="button1">Log In</button>
             </form>
         </div>

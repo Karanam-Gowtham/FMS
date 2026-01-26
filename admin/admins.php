@@ -14,12 +14,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $designation = trim($_POST['designation']);
 
         if ($designation == "faculty") {
-            $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");
-            $stmt->bind_param("ss", $userid, $password);
+            $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ? AND dept = ?");
+            $stmt->bind_param("sss", $userid, $password, $dept);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
+                // Check if already logged in logic can be here or just proceed
                 $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
                 $login_stmt->bind_param("ss", $userid, $password);
                 if ($login_stmt->execute() === TRUE) {
@@ -30,13 +31,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $login_stmt->close();
             } else {
-                $error_message = "Invalid username or password.";
+                $error_message = "Invalid username, password, or department mismatch.";
             }
             $stmt->close();
         } else {
             if ($designation == "dept_coordinator") {
-                $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ?");
-                $stmt->bind_param("ss", $userid, $password);
+                $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ? AND department = ?");
+                $stmt->bind_param("sss", $userid, $password, $dept);
                 $stmt->execute();
                 $result = $stmt->get_result();
             
@@ -49,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     header("Location: ../dc_acd_year.php?dept=$dept");
                     exit();
                 } else {
-                    $login_error = true; // Incorrect login
+                    $error_message = "Invalid username, password, or department mismatch.";
                 }
             
             

@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `project-k`
+-- Database: `project-fms`
 --
 
 -- --------------------------------------------------------
@@ -2203,6 +2203,7 @@ INSERT INTO `reg_cri_cord` (`id`, `userid`, `password`) VALUES
 
 CREATE TABLE `reg_dept_cord` (
   `userid` varchar(255) NOT NULL,
+  `department` varchar(100) DEFAULT NULL,
   `password` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -2210,17 +2211,17 @@ CREATE TABLE `reg_dept_cord` (
 -- Dumping data for table `reg_dept_cord`
 --
 
-INSERT INTO `reg_dept_cord` (`userid`, `password`) VALUES
-('dept_cord1', 123),
-('dept_cord10', 123),
-('dept_cord2', 123),
-('dept_cord3', 123),
-('dept_cord4', 123),
-('dept_cord5', 123),
-('dept_cord6', 123),
-('dept_cord7', 123),
-('dept_cord8', 123),
-('dept_cord9', 123);
+INSERT INTO `reg_dept_cord` (`userid`, `department`, `password`) VALUES
+('dept_cord1', 'CSE', 123),
+('dept_cord10', NULL, 123),
+('dept_cord2', 'AIML', 123),
+('dept_cord3', 'AIDS', 123),
+('dept_cord4', 'IT', 123),
+('dept_cord5', 'ECE', 123),
+('dept_cord6', 'EEE', 123),
+('dept_cord7', 'MECH', 123),
+('dept_cord8', 'CIVIL', 123),
+('dept_cord9', 'BSH', 123);
 
 -- --------------------------------------------------------
 
