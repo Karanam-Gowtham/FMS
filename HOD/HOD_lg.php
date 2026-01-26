@@ -1,5 +1,6 @@
 <?php
 session_start();
+include '../includes/connection.php';
 include 'header_hod.php';
 
 $dept = isset($_GET['dept']) ? htmlspecialchars($_GET['dept']) : '';
@@ -8,34 +9,36 @@ if (isset($_POST['signIn'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    if (!empty($dept)) {
-        // Department specific validation
-        $expected_user = strtolower($dept) . '-hod';
-        
-        if ($username === $expected_user && $password === '123') {
-            $_SESSION['h_username'] = $username;
-            // You might want to store the dept in session if needed later
-            $_SESSION['dept'] = $dept; 
-            header("Location: see_uploads.php");
-            exit();
+    $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $db_dept = strtoupper($row['department']);
+
+        if (!empty($dept)) {
+            // Department specific validation
+            if ($db_dept === strtoupper($dept)) {
+                $_SESSION['h_username'] = $username;
+                $_SESSION['dept'] = $dept; 
+                header("Location: see_uploads.php");
+                exit();
+            } else {
+                echo "<script>alert('Invalid login for " . $dept . " department. This user belongs to " . $db_dept . "');</script>";
+            }
         } else {
-            echo "<script>alert('Invalid login for " . $dept . " department. Expected user: " . $expected_user . "');</script>";
-        }
-    } else {
-        // Fallback if no department selected (or direct access)
-        // Check against any valid department pattern if strict mode is not required, 
-        // but user asked for authentication based on dept clicked.
-        // We will allow login if the username format is correct (e.g. cse-hod)
-        
-        if (preg_match('/^([a-zA-Z0-9]+)-hod$/', $username, $matches) && $password === '123') {
+            // Fallback if no department selected (or direct access)
              $_SESSION['h_username'] = $username;
-             $_SESSION['dept'] = strtoupper($matches[1]);
+             $_SESSION['dept'] = $db_dept;
              header("Location: see_uploads.php");
              exit();
-        } else {
-             echo "<script>alert('Invalid login. Please select a department or use correct credentials.');</script>";
         }
+    } else {
+         echo "<script>alert('Invalid User ID or Password.');</script>";
     }
+    $stmt->close();
 }
 ?>
 

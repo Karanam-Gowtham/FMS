@@ -59,88 +59,6 @@ CREATE TABLE `admin_login` (
 
 INSERT INTO `admin_login` (`Username`, `Password`) VALUES
 ('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
-('chandu', '123'),
 ('chandu', '123');
 
 -- --------------------------------------------------------
@@ -2803,6 +2721,38 @@ ALTER TABLE `s_events`
 --
 ALTER TABLE `s_journal_tab`
   MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- Table structure for table `reg_hod`
+--
+
+CREATE TABLE `reg_hod` (
+  `userid` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `department` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `reg_hod`
+--
+
+INSERT INTO `reg_hod` (`userid`, `password`, `department`) VALUES
+('cse-hod', '123', 'CSE'),
+('ece-hod', '123', 'ECE'),
+('eee-hod', '123', 'EEE'),
+('mech-hod', '123', 'MECH'),
+('civil-hod', '123', 'CIVIL'),
+('aiml-hod', '123', 'AIML'),
+('aids-hod', '123', 'AIDS'),
+('it-hod', '123', 'IT'),
+('bsh-hod', '123', 'BSH');
+
+--
+-- Indexes for table `reg_hod`
+--
+
+ALTER TABLE `reg_hod`
+  ADD PRIMARY KEY (`userid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

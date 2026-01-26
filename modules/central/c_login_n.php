@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
                 $_SESSION['admin'] = $userid;
                 ob_end_clean();
-                header("Location: ./HOD/acd_year_aa.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                header("Location: ./hod/acd_year_aa.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
                 exit();
             } else {
                 $login_error = true; // <-- Added

@@ -54,11 +54,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             
             
-            } elseif ($designation == "hod" && $userid == "hod" && $password == "123") {
-                $_SESSION['h_username'] = $userid;
-                ob_end_clean();
-                header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
-                exit();
+            } elseif ($designation == "hod") {
+                $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    // Validate that the HOD belongs to the selected department
+                    if (strtoupper($row['department']) === strtoupper($dept)) {
+                        $_SESSION['h_username'] = $userid;
+                        $_SESSION['dept'] = $dept;
+                        ob_end_clean();
+                        header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
+                        exit();
+                    } else {
+                        $error_message = "Invalid login. You are not the HOD of " . htmlspecialchars($dept) . ".";
+                    }
+                } else {
+                    $error_message = "Invalid username or password for HOD.";
+                }
+                $stmt->close();
             } elseif ($designation == "central_coordinator" && $userid == "central" && $password == "123") {
                 $_SESSION['h_username'] = $userid;
                 ob_end_clean();
@@ -67,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
                 $_SESSION['admin'] = $userid;
                 ob_end_clean();
-                header("Location: ../HOD/acd_year_aa.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
+                header("Location: ../hod/acd_year_aa.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
                 exit();
             } else {
                 $error_message = "Invalid username or password.";
