@@ -1,8 +1,5 @@
 <?php
     include("../../includes/connection.php");
-?>
-<?php
-    include("../../includes/connection.php");
 
     // Handle Registration Logic
     $message = "";
