@@ -2,7 +2,7 @@
 ob_start(); // Start output buffering at the very top
 session_start();
 include 'header_admin.php';
-include 'connection.php';
+include '../includes/connection.php';
 
 $dept = isset($_GET['dept']) ? $_GET['dept'] : '';
 $error_message = ""; // Error message for popup
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($login_stmt->execute() === TRUE) {
                     $_SESSION['username'] = $userid;
                     ob_end_clean(); // Clear buffer before redirect
-                    header("Location: ../acd_year.php?dept=$dept");
+                    header("Location: ../modules/faculty/acd_year.php?dept=$dept");
                     exit();
                 }
                 $login_stmt->close();
@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     ob_end_clean();
             
                     // Redirect only after successful login
-                    header("Location: ../dc_acd_year.php?dept=$dept");
+                    header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=$dept");
                     exit();
                 } else {
                     $error_message = "Invalid username, password, or department mismatch.";
@@ -57,12 +57,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($designation == "hod" && $userid == "hod" && $password == "123") {
                 $_SESSION['h_username'] = $userid;
                 ob_end_clean();
-                header("Location: ../cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
+                header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
                 exit();
             } elseif ($designation == "central_coordinator" && $userid == "central" && $password == "123") {
                 $_SESSION['h_username'] = $userid;
                 ob_end_clean();
-                header("Location: ../cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
+                header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
                 exit();
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
                 $_SESSION['admin'] = $userid;
@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>FMS</title>
     <style>
         body {
-            background-image: url('../stuff/gmr_landing_page.jpg');
+            background-image: url('../assets/img/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
@@ -267,7 +267,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="password" placeholder="Password" name="password" required>
             <button class="btnl" type="submit" name="signIn">Login</button>
         </form>
-        <p id="register" class="register" style="display: none;">Don't have an account? <a href="../reg.php" class="reg">Register here</a>...</p>
+        <p id="register" class="register" style="display: none;">Don't have an account? <a href="../modules/auth/reg.php" class="reg">Register here</a>...</p>
     </div>
 </div>
 
@@ -277,7 +277,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (designation) {
             if (designation === "faculty" && "<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>") {
-                window.location.href = "../acd_year.php?dept=<?php echo $dept; ?>";
+                window.location.href = "../modules/faculty/acd_year.php?dept=<?php echo $dept; ?>";
                 return;
             }
 

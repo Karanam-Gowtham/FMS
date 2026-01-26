@@ -221,7 +221,7 @@
         <div class="container1">
             <a class="a_" href="./index.php">
                 <div class="logo">
-                    <img src="../stuff/gmr_logo.jpg" width="140" height="47" alt="GMR Logo">
+                    <img src="../assets/img/gmr_logo.jpg" width="140" height="47" alt="GMR Logo">
                 </div>
             </a>
 
