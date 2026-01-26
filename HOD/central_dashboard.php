@@ -1,6 +1,6 @@
 <?php
 include "header_hod.php";
-include "connection.php";
+include "../includes/connection.php";
 
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
@@ -19,7 +19,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
     <style>
             body {
                 font-family: 'Poppins', sans-serif;
-                background-image: url('../stuff/gmr_landing_page.jpg');
+                background-image: url('../assets/img/gmr_landing_page.jpg');
                 background-size: cover;
                 background-position: center;
                 color: #ffffff;

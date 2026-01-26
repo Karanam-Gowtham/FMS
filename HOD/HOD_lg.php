@@ -1,5 +1,42 @@
 <?php
-    include 'header_hod.php';
+session_start();
+include 'header_hod.php';
+
+$dept = isset($_GET['dept']) ? htmlspecialchars($_GET['dept']) : '';
+
+if (isset($_POST['signIn'])) {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    if (!empty($dept)) {
+        // Department specific validation
+        $expected_user = strtolower($dept) . '-hod';
+        
+        if ($username === $expected_user && $password === '123') {
+            $_SESSION['h_username'] = $username;
+            // You might want to store the dept in session if needed later
+            $_SESSION['dept'] = $dept; 
+            header("Location: see_uploads.php");
+            exit();
+        } else {
+            echo "<script>alert('Invalid login for " . $dept . " department. Expected user: " . $expected_user . "');</script>";
+        }
+    } else {
+        // Fallback if no department selected (or direct access)
+        // Check against any valid department pattern if strict mode is not required, 
+        // but user asked for authentication based on dept clicked.
+        // We will allow login if the username format is correct (e.g. cse-hod)
+        
+        if (preg_match('/^([a-zA-Z0-9]+)-hod$/', $username, $matches) && $password === '123') {
+             $_SESSION['h_username'] = $username;
+             $_SESSION['dept'] = strtoupper($matches[1]);
+             header("Location: see_uploads.php");
+             exit();
+        } else {
+             echo "<script>alert('Invalid login. Please select a department or use correct credentials.');</script>";
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -10,7 +47,7 @@
     <title>Login</title>
     <style>
         body {
-            background-image: url('../stuff/gmr_landing_page.jpg');
+            background-image: url('../assets/img/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
@@ -93,7 +130,7 @@
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
-                <h1 id="hav">HOD<br>Log In</h1>
+                <h1 id="hav">HOD<br>Log In <?php if($dept) echo "($dept)"; ?></h1>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />
                 <button type="submit" name="signIn" class="button1">Log In</button>
@@ -101,22 +138,4 @@
         </div>
     </div>
     </body>
-</html>
-<script type="text/javascript">
-    document.querySelector("form").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent form from submitting
-
-        // Get username and password values
-        var username = document.querySelector("input[name='username']").value;
-        var password = document.querySelector("input[name='password']").value;
-
-        // Validate username and password
-        if (username === "hod" && password === "123") {
-            // Redirect to the desired page (e.g., admin dashboard)
-            window.location.href = "see_uploads.php"; // Change to your dashboard URL
-        } else {
-            alert("Invalid login. Please try again.");
-        }
-    });
-</script>
 </html>

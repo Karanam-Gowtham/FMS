@@ -1,16 +1,15 @@
 <?php
 session_start(); // Start session
-include 'header.php'; // Include the header
-?>
+include "includes/connection.php";
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FMS</title>
-    <link rel="stylesheet" href="./css/index1.css">
+// Define extra head content (CSS/Styles) before including the header
+$extra_head = '<link rel="stylesheet" href="' . $base_url . 'assets/css/index1.css">
     <style>
+        /* Hero Background Image Override */
+        .hero::before {
+            background-image: url("' . $base_url . 'assets/img/gmr_landing_page.jpg");
+        }
+
         /* Header Styles */
 header {
     position: fixed;
@@ -155,9 +154,10 @@ nav {
     }
 }
 
-</style>
-</head>
-<body>
+</style>';
+
+include 'includes/header.php'; // Include the header
+?>
     <main class="hero">
         <div class="container">
             <div class="hero-content">
@@ -165,7 +165,7 @@ nav {
                     // Check if the user is logged in
                     if (isset($_SESSION['username'])) {
                         // Logout logic when button is clicked?>
-                        <a href="./edit_profile.php"><button class="btn1-outline1">Edit Profile</button></a><?php
+                        <a href="modules/faculty/edit_profile.php"><button class="btn1-outline1">Edit Profile</button></a><?php
                         if (isset($_POST['logout'])) {
                             session_unset();  // Unset all session variables
                             session_destroy(); // Destroy the session

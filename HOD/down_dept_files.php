@@ -1,5 +1,5 @@
 <?php
-include "connection.php";
+include "../includes/connection.php";
 
 // Check connection
 if ($conn->connect_error) {

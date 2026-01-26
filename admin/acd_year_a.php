@@ -11,7 +11,7 @@
     <style>
             body {
                 font-family: 'Poppins', sans-serif;
-                background-image: url('../stuff/gmr_landing_page.jpg');
+                background-image: url('../assets/img/gmr_landing_page.jpg');
                 background-size: cover;
                 background-position: center;
                 color: #ffffff;

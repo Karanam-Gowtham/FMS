@@ -1,6 +1,6 @@
 <?php
 // Include database connection
-include 'connection.php';
+include '../includes/connection.php';
 include "./header_hod.php";
 
 $success = "";
