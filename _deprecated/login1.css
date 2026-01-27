@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.admin-login-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+	background-color: #035542;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	width:250px;
+}
+
+.admin-login-btn:hover {
+    background-color: #23c854;
+  
+}
+
+.my-uploads-btn:hover {
+  background-color: #0056b3;
+}
+
+.admin-login-btn1 {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+	background-color: #6a35dc;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	width:200px;
+  }
+  
+  .admin-login-btn1:hover {
+	background-color: #236dc8;
+    
+  }
+  
+  .my-uploads-btn1:hover {
+    background-color: #0056b3;
+  }
+
+body {
+    background: url('./stuff/gmr_landing_page.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    height: 100vh;
+}
+
+.container {
+  background-color: rgba(99, 122, 143, 0.8);
+  border-radius: 10px;
+  width: 768px;
+  max-width: 100%;
+  min-height: 480px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 14px 30px black;
+  transition: transform 0.6s ease-in-out;
+}
+
+.form-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: transform 0.6s ease-in-out;
+}
+
+.sign-up-container,
+.sign-in-container {
+    width: 50%;
+    z-index: 1;
+    padding: 0 0px;
+    transition: transform 0.6s ease-in-out;
+}
+
+.sign-up-container {
+    left: 0;
+    opacity: 0;
+}
+
+.sign-in-container {
+    left: 0;
+    z-index: 2;
+}
+
+form {
+    background-color: rgb(55, 85, 106);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100%;
+    text-align: center;
+}
+
+#hav {
+    color: rgb(56, 189, 189);
+    font-weight: bold;
+    margin-bottom: 0px;
+}
+
+#vit{
+    color:rgb(219, 70, 70);
+    font-weight: bold;
+    margin-bottom: 50px;
+}
+
+input {
+    background-color: rgb(215, 210, 210);
+    border: none;
+    width: 70%;
+    margin: 8px 0;
+    padding: 12px 15px;
+    border-radius: 10px;
+}
+
+button {
+    border-radius: 20px;
+    border:none;
+    box-shadow: 0 0 5px;
+    background-color: rgba(35, 144, 211, 0.5);
+    color: aqua;
+    font-size: 12px;
+    padding: 12px 45px;
+    letter-spacing: 1px;
+    transition: transform 0.3s ease;
+    margin-top:30px;
+
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 100;
+    transition: transform 0.6s ease-in-out;
+}
+
+.overlay {
+    background: linear-gradient(to right, rgb(241, 191, 97),rgb(239, 152, 59), rgb(181, 184, 106));
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: white;
+    position: relative;
+    left: -100%;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+}
+
+.overlay-panel {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px;
+    text-align: center;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    flex-direction: column;
+}
+
+.overlay-left {
+    transform: translateX(-20%);
+}
+
+.overlay-right {
+    right: 0;
+    transform: translateX(0);
+}
+
+.container.right-panel-active .sign-in-container {
+    transform: translateX(100%);
+}
+
+.container.right-panel-active .sign-up-container {
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+}
+
+.container.right-panel-active .overlay-container {
+    transform: translateX(-100%);
+}
+
+.container.right-panel-active .overlay {
+    transform: translateX(50%);
+}
+
+.container.right-panel-active .overlay-left {
+    transform: translateX(0%);
+}
+
+.container.right-panel-active .overlay-right {
+    transform: translateX(20%);
+}
+
+#vit {
+    font-family: 'Copperplate', Papyrus, fantasy;
+    color:brown;
+}
+
+#signIn {
+    color: rgb(7, 64, 64);
+}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FMS</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <style>
+        /* Header Styles */
+        header {
+            position: fixed;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 1rem 0;
+            z-index: 100;
+        }
+
+        header .container1 {
+            display: flex;
+            justify-content:space-between;
+            align-items: center;
+            padding: 0px 50px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #60a5fa;
+        }
+
+        .logo svg {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .logo span {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .a_ {
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .btn_h {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: none;
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            color: #60a5fa;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3b82f6;
+            color: white;
+
+            position: relative;
+        }
+
+        .btn-outline:hover {
+            background: #3b82f6;
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 30%;
+            background-color: rgba(0, 0, 0, 0.9);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            margin-top: 1px;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+
+        /* Mobile menu styles */
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 0.4rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 110;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            transition: all 0.3s;
+        }
+        .hm{
+            margin-right:10vw;
+        }
+        .cn{
+            margin-right: 10vw;
+        }
+        .dp{
+            margin-right: 7vw;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                width: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .dropdown {
+                width: 100%;
+            }
+
+            .dropdown-content {
+                position: relative;
+                width: 100%;
+                display: none;
+                opacity: 0;
+                transform: translateY(-10px);
+                transition: opacity 0.3s ease, transform 0.3s ease;
+            }
+
+            .dropdown:hover .dropdown-content {
+                display: block;
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .btn-outline {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .dropdown-content a {
+                padding: 15px;
+                border-radius: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                margin: 2px 0;
+            }
+
+            .dropdown-content a:first-child {
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+
+            .dropdown-content a:last-child {
+                border-bottom-left-radius: 4px;
+                border-bottom-right-radius: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container1">
+            <a class="a_" href="./index.php">
+                <div class="logo">
+                    <img src="../assets/img/gmr_logo.jpg" width="140" height="47" alt="GMR Logo">
+                </div>
+            </a>
+
+            <button class="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="nav-menu">
+                <a class="a_" href="../index.php">
+                    <button class="btn btn-primary hm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                        Home
+                    </button>
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-outline cn">Central</button>
+                    <div class="dropdown-content">
+                        <a class="a_" href="../c_login_n.php?event=NAAC">NAAC</a>
+                        <a class="a_" href="../c_login_n.php?event=NBA">NBA</a>
+                        <a class="a_" href="../c_login.php?event=NCC">NCC</a>
+                        <a class="a_" href="../c_login.php?event=Sports">Sports</a>
+                        <a class="a_" href="../c_login.php?event=NSS">NSS</a>
+                        <a class="a_" href="../c_login.php?event=Women_Empowerment">Women Empowerment</a>
+                        <a class="a_" href="../c_login.php?event=IIC">IIC</a>
+                        <a class="a_" href="../c_login.php?event=PASH">PASH</a>
+                        <a class="a_" href="../c_login.php?event=Antiragging">Antiragging</a>
+                        <a class="a_" href="../c_login.php?event=SAC">SAC</a>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline dp">Department</button>
+                    <div class="dropdown-content">
+                        <a class="a_" href="admins.php?dept=CSE">CSE</a>
+                        <a class="a_" href="admins.php?dept=AIML">AIML</a>
+                        <a class="a_" href="admins.php?dept=AIDS">AIDS</a>
+                        <a class="a_" href="admins.php?dept=IT">IT</a>
+                        <a class="a_" href="admins.php?dept=ECE">ECE</a>
+                        <a class="a_" href="admins.php?dept=EEE">EEE</a>
+                        <a class="a_" href="admins.php?dept=MECH">MECH</a>
+                        <a class="a_" href="admins.php?dept=CIVIL">CIVIL</a>
+                        <a class="a_" href="admins.php?dept=BSH">BSH</a>
+                    </div>
+                </div>
+                <a href="../pdf_merger.php"><button class="btn dp btn-outline">Pdf Merger</button></a>
+            </nav>
+        </div>
+    </header>
+
+    <script>
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

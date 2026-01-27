@@ -1,0 +1,109 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 12px 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #d32f2f;
+}
+
+.container {
+    text-align: center;
+    color: white;
+    padding: 100px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.content h1 {
+    font-size: 36px;
+    margin-bottom: 60px;
+}
+
+.content p {
+    font-size: 18px;
+    margin-bottom: 40px;
+}
+
+.buttons {
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 18px;
+    text-decoration: none;
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.fdps {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.papers {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.patents {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+}
+
+.btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(2px);
+}
+
+@media (max-width: 600px) {
+    .content h1 {
+        font-size: 28px;
+    }
+
+    .content p {
+        font-size: 16px;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+    }
+}
