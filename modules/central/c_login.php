@@ -41,15 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </script>";
     }
 }
-include '../../includes/header.php';
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+$extra_head = "
     <style>
         body {
             background-image: url('../../assets/img/gmr_landing_page.jpg');
@@ -188,8 +181,11 @@ include '../../includes/header.php';
         color: rgb(29, 78, 216);
     }
     </style>
-</head>
-<body>
+";
+
+include '../../includes/header.php';
+?>
+
 <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">

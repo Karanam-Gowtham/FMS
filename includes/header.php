@@ -292,10 +292,6 @@ ob_start(); // Start output buffering
             navMenu.classList.toggle('active');
         });
     </script>
-</body>
-</html>
-
-
 <?php
 ob_flush(); // Flush output to prevent header issues
 ?>

@@ -219,7 +219,7 @@
 <body>
     <header>
         <div class="container1">
-            <a class="a_" href="./index.php">
+            <a class="a_" href="../index.php">
                 <div class="logo">
                     <img src="../assets/img/gmr_logo.jpg" width="140" height="47" alt="GMR Logo">
                 </div>
@@ -244,16 +244,16 @@
                 <div class="dropdown">
                     <button class="btn btn-outline cn">Central</button>
                     <div class="dropdown-content">
-                        <a class="a_" href="../c_login_n.php?event=NAAC">NAAC</a>
-                        <a class="a_" href="../c_login_n.php?event=NBA">NBA</a>
-                        <a class="a_" href="../c_login.php?event=NCC">NCC</a>
-                        <a class="a_" href="../c_login.php?event=Sports">Sports</a>
-                        <a class="a_" href="../c_login.php?event=NSS">NSS</a>
-                        <a class="a_" href="../c_login.php?event=Women_Empowerment">Women Empowerment</a>
-                        <a class="a_" href="../c_login.php?event=IIC">IIC</a>
-                        <a class="a_" href="../c_login.php?event=PASH">PASH</a>
-                        <a class="a_" href="../c_login.php?event=Antiragging">Antiragging</a>
-                        <a class="a_" href="../c_login.php?event=SAC">SAC</a>
+                        <a class="a_" href="../modules/central/c_login_n.php?event=NAAC">NAAC</a>
+                        <a class="a_" href="../modules/central/c_login_n.php?event=NBA">NBA</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=NCC">NCC</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=Sports">Sports</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=NSS">NSS</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=IIC">IIC</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=PASH">PASH</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=Antiragging">Antiragging</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=SAC">SAC</a>
                     </div>
                 </div>
                 <div class="dropdown">
@@ -271,7 +271,7 @@
                     </div>
                 </div>
                 <a href="../dashboard.php"><button class="btn dp btn-outline">Dashboard</button></a>
-                <a href="../pdf_merger.php"><button class="btn dp btn-outline">Pdf Merger</button></a>
+                <a href="../modules/common/pdf_merger.php"><button class="btn dp btn-outline">Pdf Merger</button></a>
             </nav>
         </div>
     </header>
@@ -285,5 +285,4 @@
             navMenu.classList.toggle('active');
         });
     </script>
-</body>
-</html>
+

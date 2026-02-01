@@ -1,11 +1,10 @@
 <?php
 ob_start(); // Start output buffering at the very top
 session_start();
-include '../../includes/header.php';
 include '../../includes/connection.php';
 
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
-$login_error = false; // <-- Added
+$login_error = false; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['signIn'])) {
@@ -14,8 +13,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $designation = trim($_POST['designation']);
 
         if ($designation == "faculty") {
-            if ($_SESSION['username']) {
+            if (isset($_SESSION['username'])) {
                 header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                exit(); 
             }
 
             $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");
@@ -34,15 +34,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $login_stmt->close();
             } else {
-                $login_error = true; // <-- Added
+                $login_error = true; 
             }
             $stmt->close();
         } else {
             if ($designation == "dept_coordinator") {
                 $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ?");
                 if (!$stmt) {
-                     // Output error inside script tag to ensure it is seen if possible, or just die.
-                     // Since we are inside specific logic, die() will stop the script and show the text.
                      die("Database Prepare Error (dept_coordinator): " . $conn->error);
                 }
                 $stmt->bind_param("ss", $userid, $password);
@@ -54,11 +52,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                     ob_end_clean();
             
-                    // Redirect only after successful login
                     header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
                     exit();
                 } else {
-                    $login_error = true; // Incorrect login
+                    $login_error = true; 
                 }
             }
             elseif ($designation == "central_coordinator"){
@@ -72,11 +69,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                     ob_end_clean();
             
-                    // Redirect only after successful login
                     header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
                     exit();
                 } else {
-                    $login_error = true; // Incorrect login
+                    $login_error = true; 
                 }
             }
             elseif ($designation == "criteria_coordinator") {
@@ -90,11 +86,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                     ob_end_clean();
             
-                    // Redirect only after successful login
                     header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
                     exit();
                 } else {
-                    $login_error = true; // Incorrect login
+                    $login_error = true; 
                 }
             }
             elseif ($designation == "hod" && $userid == "hod" && $password == "123") {
@@ -108,19 +103,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: ./hod/acd_year_aa.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
                 exit();
             } else {
-                $login_error = true; // <-- Added
+                $login_error = true; 
             }
         }
     }
 }
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FMS</title>
+$extra_head = "
     <style>
         body {
             background-image: url('../../assets/img/gmr_landing_page.jpg');
@@ -238,8 +227,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: rgb(29, 78, 216);
         }
     </style>
-</head>
-<body>
+";
+
+include '../../includes/header.php';
+?>
+
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">

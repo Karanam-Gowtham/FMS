@@ -1,7 +1,5 @@
 <?php
-    include "../../includes/connection.php";
-
-
+include "../../includes/connection.php";
     
 session_start();
 
@@ -10,7 +8,6 @@ if (!isset($_SESSION['h_username'])) {
 }
 
 $username = $_SESSION['h_username'];
-
 
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
@@ -24,16 +21,7 @@ if (isset($_GET['designation'])) {
     $desg = " ";
 }
 
-include '../../includes/header.php';
-?>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMRIT Feedback Center</title>
+$extra_head = "
     <style>
         /* Reset and base styles */
 * {
@@ -206,6 +194,7 @@ body {
 }
 .icon {
     color: white;
+    font-size: 1.25rem;
 }
 
 .card-content h3 {
@@ -217,10 +206,12 @@ body {
     font-size: larger;
     margin-left: -17px;
 }
-        </style>
+    </style>
+";
 
-</head>
-<body>
+include '../../includes/header.php';
+?>
+
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">
