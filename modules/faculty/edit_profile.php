@@ -19,13 +19,16 @@ $extra_head = "
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5; 
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../../assets/img/gmr_landing_page.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             margin: 0;
             padding-top: 100px; /* Ensure enough space for header */
             min-height: 100vh;
         }
         .container11 {
-            max-width: 800px; 
+            max-width: 500px; 
             margin: 30px auto 50px auto; 
             padding: 40px; 
             background: #ffffff; 
@@ -181,15 +184,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container11">
         <h1>Edit Profile</h1>
         <?php
-        $photo_path = htmlspecialchars($user['photo_path']);
-        // Check relative path depths. We are in modules/faculty.
-        // ../../uploads/ works if uploads is at root.
-        // ../../assets/img/ works if assets is at root.
-        $img_src = ($photo_path) ? $photo_path : "../../assets/img/profile_icon.png";
+        $photo_path = isset($user['photo_path']) ? trim($user['photo_path']) : '';
         
-        // Ensure path starts correctly if it's just a filename
-        if ($photo_path && strpos($photo_path, '/') === false) {
-             $img_src = "../../uploads/" . $photo_path;
+        // Determine the correct image source
+        // Handles paths stored as "uploads/..." (from registration) or "../../uploads/..." (from edits)
+        $img_src = "../../assets/img/profile_icon.png"; // Default
+        
+        if ($photo_path) {
+            // If path starts exactly with "uploads/", it's from reg.php, so we need to go up two levels
+            if (strpos($photo_path, 'uploads/') === 0) {
+                $img_src = "../../" . $photo_path;
+            } 
+            // If it's just a filename (no slashes), assume it's in uploads
+            elseif (strpos($photo_path, '/') === false) {
+                 $img_src = "../../uploads/" . $photo_path;
+            } 
+            // Otherwise assume it's a valid relative path (like ../../uploads/...)
+            else {
+                 $img_src = $photo_path;
+            }
         }
 
         echo "<img src='" . $img_src . "' class='profile-image' alt='Profile Photo' onerror=\"this.src='../../assets/img/profile_icon.png'\">";
