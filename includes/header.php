@@ -277,6 +277,7 @@ ob_start(); // Start output buffering
                         <a class="a_" href="<?php echo $base_url; ?>admin/admins.php?dept=BSH">BSH</a>
                     </div>
                 </div>
+                <a href="<?php echo $base_url; ?>dashboard.php"><button class="btn dp btn-outline">Dashboard</button></a>
                 <a href="<?php echo $base_url; ?>modules/common/pdf_merger.php"><button class="btn dp btn-outline">Pdf Merger</button></a>
             </nav>
         </div>

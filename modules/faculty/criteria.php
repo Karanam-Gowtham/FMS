@@ -233,7 +233,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
                             echo "<td class='description'>$description</td>";
                         
                             // Search for matching files
-                            $templateFolder = 'templates_docs/';
+                            $templateFolder = '../../assets/templates/templates_docs/';
                             $pattern = $templateFolder . preg_replace('/[^A-Za-z0-9()._-]/', '_', $criteriaNo) . '.*';
                             $files = glob($pattern);
                         

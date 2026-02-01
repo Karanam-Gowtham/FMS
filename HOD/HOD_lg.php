@@ -1,9 +1,6 @@
 <?php
 session_start();
-<<<<<<< HEAD
 include '../includes/connection.php';
-=======
->>>>>>> a396f4d9449544b3c4823761d67298f1dea8c007
 include 'header_hod.php';
 
 $dept = isset($_GET['dept']) ? htmlspecialchars($_GET['dept']) : '';
@@ -12,7 +9,6 @@ if (isset($_POST['signIn'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-<<<<<<< HEAD
     $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
@@ -43,36 +39,6 @@ if (isset($_POST['signIn'])) {
          echo "<script>alert('Invalid User ID or Password.');</script>";
     }
     $stmt->close();
-=======
-    if (!empty($dept)) {
-        // Department specific validation
-        $expected_user = strtolower($dept) . '-hod';
-        
-        if ($username === $expected_user && $password === '123') {
-            $_SESSION['h_username'] = $username;
-            // You might want to store the dept in session if needed later
-            $_SESSION['dept'] = $dept; 
-            header("Location: see_uploads.php");
-            exit();
-        } else {
-            echo "<script>alert('Invalid login for " . $dept . " department. Expected user: " . $expected_user . "');</script>";
-        }
-    } else {
-        // Fallback if no department selected (or direct access)
-        // Check against any valid department pattern if strict mode is not required, 
-        // but user asked for authentication based on dept clicked.
-        // We will allow login if the username format is correct (e.g. cse-hod)
-        
-        if (preg_match('/^([a-zA-Z0-9]+)-hod$/', $username, $matches) && $password === '123') {
-             $_SESSION['h_username'] = $username;
-             $_SESSION['dept'] = strtoupper($matches[1]);
-             header("Location: see_uploads.php");
-             exit();
-        } else {
-             echo "<script>alert('Invalid login. Please select a department or use correct credentials.');</script>";
-        }
-    }
->>>>>>> a396f4d9449544b3c4823761d67298f1dea8c007
 }
 ?>
 

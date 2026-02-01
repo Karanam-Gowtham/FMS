@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($designation == "faculty") {
             if ($_SESSION['username']) {
-                header("Location: c_aqar_files.php?designation=" . urlencode($designation));
+                header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
             }
 
             $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");

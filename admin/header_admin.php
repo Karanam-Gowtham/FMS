@@ -270,6 +270,7 @@
                         <a class="a_" href="admins.php?dept=BSH">BSH</a>
                     </div>
                 </div>
+                <a href="../dashboard.php"><button class="btn dp btn-outline">Dashboard</button></a>
                 <a href="../pdf_merger.php"><button class="btn dp btn-outline">Pdf Merger</button></a>
             </nav>
         </div>
