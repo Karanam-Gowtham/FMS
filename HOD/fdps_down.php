@@ -1,5 +1,5 @@
 <?php
-include "../connection.php";
+include "../includes/connection.php";
 
 session_start();
 
@@ -27,7 +27,7 @@ if (isset($_POST['download_excel'])) {
     $branch = $_POST['branch'] ?? '';
 
     // Open a new database connection
-    include "../connection.php";
+    include "../includes/connection.php";
 
     // Set headers for Excel file download
     header("Content-Type: application/vnd.ms-excel");

@@ -1,5 +1,5 @@
 <?php
-include("connection.php"); // Include your database connection file
+include("../includes/connection.php"); // Include your database connection file
 
 session_start(); // Start session for user authentication
 

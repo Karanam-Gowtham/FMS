@@ -1,5 +1,5 @@
 <?php
-include("connection.php");
+include("../includes/connection.php");
 include "header_admin.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';

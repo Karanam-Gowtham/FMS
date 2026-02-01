@@ -1,5 +1,5 @@
 <?php
-include("connection.php");
+include("../includes/connection.php");
 
 // Enable error reporting for debugging
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);

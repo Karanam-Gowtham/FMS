@@ -1,5 +1,5 @@
 <?php
-include("connection.php");
+include("../includes/connection.php");
 
 $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
 $subCriteria = isset($_POST['subCriteria']) ? $_POST['subCriteria'] : '';

@@ -1,5 +1,5 @@
 <?php
-    include("connection.php");
+    include("../includes/connection.php");
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
