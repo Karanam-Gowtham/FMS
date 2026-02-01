@@ -165,19 +165,9 @@ include 'includes/header.php'; // Include the header
                     // Check if the user is logged in
                     if (isset($_SESSION['username'])) {
                         // Logout logic when button is clicked?>
-                        <a href="modules/faculty/edit_profile.php"><button class="btn1-outline1">Edit Profile</button></a><?php
-                        if (isset($_POST['logout'])) {
-                            session_unset();  // Unset all session variables
-                            session_destroy(); // Destroy the session
-                            echo"<script>alert('YOU successfully loged out'); window.location.href='index.php';</script>"; // Redirect to the login page"
-                            
-                        }
-                        // Display the logout button if the user is logged in
-                        echo '<form method="POST">
-                                <button type="submit" name="logout" class="logout-btn1">Logout</button>
-                              </form>';
-                    } 
-
+                        <a href="modules/faculty/edit_profile.php"><button class="btn1-outline1" style="position: absolute; top: 90px; right: 20px; z-index: 2000 !important; white-space: nowrap;">Edit Profile</button></a><?php
+                        // Logout logic previously here is now handled by header and top-page logic if needed
+                    }
                 ?>
                 
                 

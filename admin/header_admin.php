@@ -23,7 +23,9 @@ ob_start(); // Start output buffering
             display: flex;
             justify-content:space-between;
             align-items: center;
-            padding: 0px 50px;
+            padding: 0px 20px;
+            max-width: 100vw;
+            box-sizing: border-box;
         }
 
         .logo {
@@ -50,16 +52,17 @@ ob_start(); // Start output buffering
         nav {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 0.5rem;
         }
 
-        .btn_h {
+        .btn {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
+            gap: 0.3rem;
+            padding: 0.3rem 0.5rem;
             border-radius: 0.5rem;
-            font-weight: 600;
+            font-weight: 500;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -224,7 +227,7 @@ ob_start(); // Start output buffering
         <div class="container1">
             <a class="a_" href="../index.php">
                 <div class="logo">
-                    <img src="../assets/img/gmr_logo.jpg" width="140" height="47" alt="GMR Logo">
+                    <img src="../assets/img/gmr_logo.jpg" width="100" height="34" alt="GMR Logo">
                 </div>
             </a>
 
@@ -274,11 +277,44 @@ ob_start(); // Start output buffering
                         <a class="a_" href="admins.php?dept=BSH">BSH</a>
                     </div>
                 </div>
-                <a href="../dashboard.php"><button class="btn dp btn-outline">Dashboard</button></a>
-                <a href="../modules/common/pdf_merger.php"><button class="btn dp btn-outline">Pdf Merger</button></a>
+                <button class="btn dp btn-outline" onclick="openDashboard()">Dashboard</button>
+                <a href="../modules/common/pdf_merger.php"><button class="btn dp btn-outline" style="white-space: nowrap;">Pdf Merger</button></a>
+                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
+                    <a href="../modules/auth/logout.php"><button class="btn dp btn-outline" style="border-color: #dc3545; color: white; white-space: nowrap;">Logout</button></a>
+                <?php endif; ?>
             </nav>
         </div>
     </header>
+
+    <!-- Dashboard Modal -->
+    <div id="dashboardModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999;">
+        <div style="position:relative; width:90%; height:90%; background:white; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.5); overflow:hidden; margin: 2.5% auto;">
+            <button onclick="closeDashboard()" style="position:absolute; top:10px; right:15px; font-size:30px; line-height:30px; font-weight:bold; color:#333; background:white; border:none; cursor:pointer; z-index:10000; padding:0 5px; border-radius:50%;">&times;</button>
+            <iframe id="dashboardFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openDashboard() {
+            var modal = document.getElementById('dashboardModal');
+            var frame = document.getElementById('dashboardFrame');
+            // Use absolute path to ensure it loads from anywhere
+            var dashboardUrl = "/mini/FMS/dashboard.php?mode=iframe";
+            
+            if (!frame.src || frame.src === 'about:blank' || frame.src.indexOf('dashboard.php') === -1) {
+                frame.src = dashboardUrl;
+            }
+            modal.style.display = "block";
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeDashboard() {
+            document.getElementById('dashboardModal').style.display = "none";
+            document.body.style.overflow = "auto";
+            var frame = document.getElementById('dashboardFrame');
+            frame.contentWindow.location.reload(); 
+        }
+    </script>
 
     <script>
         // Mobile menu toggle

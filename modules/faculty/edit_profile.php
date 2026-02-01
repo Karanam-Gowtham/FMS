@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'connection.php';
+require_once '../../includes/connection.php';
 
 if (empty($_SESSION['username'])) {
     ?>
@@ -11,6 +11,88 @@ if (empty($_SESSION['username'])) {
     <?php
     exit;
 }
+
+
+// Define styles in $extra_head before including header
+$extra_head = "
+    <link rel='stylesheet' href='../../assets/css/index1.css'>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5; 
+            margin: 0;
+            padding-top: 100px; /* Ensure enough space for header */
+            min-height: 100vh;
+        }
+        .container11 {
+            max-width: 800px; 
+            margin: 30px auto 50px auto; 
+            padding: 40px; 
+            background: #ffffff; 
+            border-radius: 8px; 
+            border: 1px solid #ddd; /* Simple border instead of heavy shadow */
+            position: relative;
+        }
+        h1 { 
+            text-align: center; 
+            color: #333; 
+            margin-bottom: 30px; 
+            font-size: 2em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .profile-image { 
+            display:block; 
+            margin:0 auto 30px; 
+            width:150px; 
+            height:150px; 
+            border-radius:50%; 
+            object-fit:cover; 
+            border: 3px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        label { 
+            font-weight: 600; 
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+        input, select, textarea {
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 5px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px;
+            box-sizing: border-box; 
+            font-size: 1rem;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #2575fc;
+            outline: none;
+        }
+        button[type='submit'] { 
+            background-color: #4CAF50; 
+            color: white; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+        button[type='submit']:hover { 
+            background-color: #45a049;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+    </style>
+";
 
 include "../../includes/header.php";
 $username = $_SESSION['username'];
@@ -25,11 +107,26 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 } else {
-    echo "<p>User data not found. Please <a href='./logout.php'>log in again</a>.</p>";
+    echo "<p style='text-align:center; margin-top:100px;'>User data not found. Please <a href='../../modules/auth/logout.php'>log in again</a>.</p>";
     exit;
 }
 
-// Handle update
+// Fetch user data FIRST
+$query = "SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid 
+          FROM reg_tab WHERE userid = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $user = $result->fetch_assoc();
+} else {
+    echo "<p style='text-align:center; margin-top:100px;'>User data not found. Please <a href='../../modules/auth/logout.php'>log in again</a>.</p>";
+    exit;
+}
+
+// NOW handle Update (using $user for defaults if needed)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $faculty_name = $_POST['faculty_name'];
     $designation = $_POST['designation'];
@@ -47,11 +144,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     // Handle photo
-    $photo_path = $_FILES['photo_path']['name'];
-    if ($photo_path) {
+    if (isset($_FILES['photo_path']) && $_FILES['photo_path']['error'] === UPLOAD_ERR_OK) {
         $target_dir = "../../uploads/";
+        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+        
         $target_file = $target_dir . uniqid() . "_" . basename($_FILES["photo_path"]["name"]);
-        move_uploaded_file($_FILES["photo_path"]["tmp_name"], $target_file);
+        if(move_uploaded_file($_FILES["photo_path"]["tmp_name"], $target_file)) {
+             // Success
+        } else {
+             $target_file = $user['photo_path']; // Fallback
+        }
     } else {
         $target_file = $user['photo_path'];
     }
@@ -68,44 +170,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($update_stmt->execute()) {
         echo "<script>alert('Profile updated successfully!'); window.location.href='edit_profile.php';</script>";
+        // Update local object to reflect changes immediately if we don't redirect (but we do redirect)
     } else {
         echo "<script>alert('Failed to update profile. Try again.');</script>";
     }
 }
+
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #8f69b8, #2575fc); }
-        .container11 {
-            max-width: 800px; margin: 50px auto; padding: 20px;
-            background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 { text-align: center; color: #4CAF50; margin-bottom: 20px; }
-        .profile-image { display:block; margin:0 auto 20px; width:150px; height:150px; border-radius:50%; object-fit:cover; }
-        label { font-weight: bold; }
-        input, select, textarea {
-            width: 97%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;
-        }
-        button { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #45a049; }
-        header{
-            margin-top:-50px;
-            margin-left:-8px;
-        }
-    </style>
-</head>
-<body>
     <div class="container11">
         <h1>Edit Profile</h1>
         <?php
         $photo_path = htmlspecialchars($user['photo_path']);
-        echo "<img src='" . ($photo_path ?: "../../uploads/default_pic.png") . "' class='profile-image'>";
+        // Check relative path depths. We are in modules/faculty.
+        // ../../uploads/ works if uploads is at root.
+        // ../../assets/img/ works if assets is at root.
+        $img_src = ($photo_path) ? $photo_path : "../../assets/img/profile_icon.png";
+        
+        // Ensure path starts correctly if it's just a filename
+        if ($photo_path && strpos($photo_path, '/') === false) {
+             $img_src = "../../uploads/" . $photo_path;
+        }
+
+        echo "<img src='" . $img_src . "' class='profile-image' alt='Profile Photo' onerror=\"this.src='../../assets/img/profile_icon.png'\">";
         ?>
         <form method="post" enctype="multipart/form-data">
             <label>Name:</label>
@@ -180,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <textarea name="experience"><?= htmlspecialchars($user['experience']); ?></textarea>
 
             <label>Password:</label>
-            <input type="input" name="password" value="<?= htmlspecialchars($user['password']); ?>" required>
+            <input type="text" name="password" value="<?= htmlspecialchars($user['password']); ?>" required>
             
             <label>Upload New Photo:</label>
             <input type="file" name="photo_path" accept="image/*">

@@ -1,5 +1,8 @@
 <?php
 session_start();
+// Fallback: If session is empty but cookie exists, try to re-attach (though session_start does this usually)
+// The issue might be that iframe considers it a separate context if cookies are strict.
+// For now, let's assume standard session behavior.
 include 'includes/connection.php';
 
 // Auto-migrate tables
@@ -282,7 +285,7 @@ if ($result) {
             background: #f4f4f9;
             color: #333;
             margin: 0;
-            padding-top: 80px;
+            padding-top: <?php echo (isset($_GET['mode']) && $_GET['mode'] == 'iframe') ? '20px' : '80px'; ?>;
         }
         .container {
             max-width: 1200px;
@@ -390,7 +393,11 @@ if ($result) {
 </head>
 <body>
 
-<?php include 'includes/header.php'; ?>
+<?php 
+if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
+    include 'includes/header.php'; 
+}
+?>
 
 <div class="container">
     <div class="dashboard-card">

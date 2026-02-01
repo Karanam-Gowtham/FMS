@@ -13,7 +13,7 @@ header .container1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding:0px 50px ;
+    padding: 0px 20px;
 }
 
 .logo {
@@ -33,14 +33,14 @@ header .container1 {
     font-weight: bold;
 }
 
-a{
+a {
     text-decoration: none;
 }
 
 nav {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 
@@ -48,7 +48,7 @@ nav {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.8rem;
     border-radius: 0.5rem;
     font-weight: 600;
     cursor: pointer;
@@ -62,7 +62,7 @@ nav {
 }
 
 .btn-primary:hover {
-    color:#60a5fa;
+    color: #60a5fa;
 }
 
 .btn-outline {
@@ -74,12 +74,15 @@ nav {
 .btn-outline:hover {
     background: #3b82f6;
 }
+
 .nav-menu {
-    display: none; /* Hide by default */
+    display: none;
+    /* Hide by default */
 }
 
 .nav-menu.active {
-    display: flex; /* Show when active */
+    display: flex;
+    /* Show when active */
 }
 
 
@@ -141,4 +144,3 @@ nav {
         display: flex;
     }
 }
-

@@ -209,7 +209,6 @@ $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation
                     </svg>
                 </a>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"><?php echo htmlspecialchars($designation); ?>  </a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span>
             </div>
         </div>
     </nav>
