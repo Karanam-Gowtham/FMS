@@ -1,10 +1,13 @@
+<?php
+ob_start(); // Start output buffering
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FMS</title>
-    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../assets/css/header.css">
     <style>
         /* Header Styles */
         header {
@@ -248,6 +251,7 @@
                         <a class="a_" href="../modules/central/c_login_n.php?event=NBA">NBA</a>
                         <a class="a_" href="../modules/central/c_login.php?event=NCC">NCC</a>
                         <a class="a_" href="../modules/central/c_login.php?event=Sports">Sports</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=Clubs">Clubs</a>
                         <a class="a_" href="../modules/central/c_login.php?event=NSS">NSS</a>
                         <a class="a_" href="../modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
                         <a class="a_" href="../modules/central/c_login.php?event=IIC">IIC</a>
@@ -285,4 +289,7 @@
             navMenu.classList.toggle('active');
         });
     </script>
+<?php
+ob_flush(); // Flush output to prevent header issues
+?>
 
