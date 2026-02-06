@@ -3,13 +3,16 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 26, 2026 at 09:26 AM
+-- Generation Time: Dec 09, 2025 at 12:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
+CREATE DATABASE IF NOT EXISTS `project-fms` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `project-fms`;
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -20,13 +23,13 @@ SET time_zone = "+00:00";
 --
 -- Database: `project-fms`
 --
-
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `academic_year`
 --
 
+DROP TABLE IF EXISTS `academic_year`;
 CREATE TABLE `academic_year` (
   `year` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -48,6 +51,7 @@ INSERT INTO `academic_year` (`year`) VALUES
 -- Table structure for table `admin_login`
 --
 
+DROP TABLE IF EXISTS `admin_login`;
 CREATE TABLE `admin_login` (
   `Username` varchar(30) NOT NULL,
   `Password` varchar(30) NOT NULL
@@ -58,7 +62,6 @@ CREATE TABLE `admin_login` (
 --
 
 INSERT INTO `admin_login` (`Username`, `Password`) VALUES
-('chandu', '123'),
 ('chandu', '123');
 
 -- --------------------------------------------------------
@@ -67,6 +70,7 @@ INSERT INTO `admin_login` (`Username`, `Password`) VALUES
 -- Table structure for table `admin_reg`
 --
 
+DROP TABLE IF EXISTS `admin_reg`;
 CREATE TABLE `admin_reg` (
   `Username` varchar(30) NOT NULL,
   `Password` varchar(20) NOT NULL
@@ -85,6 +89,7 @@ INSERT INTO `admin_reg` (`Username`, `Password`) VALUES
 -- Table structure for table `a_cri_files`
 --
 
+DROP TABLE IF EXISTS `a_cri_files`;
 CREATE TABLE `a_cri_files` (
   `id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
@@ -115,6 +120,7 @@ INSERT INTO `a_cri_files` (`id`, `username`, `academic_year`, `criteria`, `crite
 -- Table structure for table `a_c_files`
 --
 
+DROP TABLE IF EXISTS `a_c_files`;
 CREATE TABLE `a_c_files` (
   `id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
@@ -144,6 +150,7 @@ INSERT INTO `a_c_files` (`id`, `username`, `academic_year`, `criteria`, `criteri
 -- Table structure for table `a_files`
 --
 
+DROP TABLE IF EXISTS `a_files`;
 CREATE TABLE `a_files` (
   `id` int(255) NOT NULL,
   `username` varchar(200) NOT NULL,
@@ -187,6 +194,7 @@ INSERT INTO `a_files` (`id`, `username`, `academic_year`, `Dept`, `criteria`, `c
 -- Table structure for table `central_files`
 --
 
+DROP TABLE IF EXISTS `central_files`;
 CREATE TABLE `central_files` (
   `id` int(11) NOT NULL,
   `event` varchar(255) DEFAULT NULL,
@@ -221,6 +229,7 @@ INSERT INTO `central_files` (`id`, `event`, `acd_year`, `club_name`, `event_name
 -- Table structure for table `conference_tab`
 --
 
+DROP TABLE IF EXISTS `conference_tab`;
 CREATE TABLE `conference_tab` (
   `id` int(255) NOT NULL,
   `username` varchar(100) NOT NULL,
@@ -253,6 +262,7 @@ INSERT INTO `conference_tab` (`id`, `username`, `branch`, `paper_title`, `from_d
 -- Table structure for table `contact_form`
 --
 
+DROP TABLE IF EXISTS `contact_form`;
 CREATE TABLE `contact_form` (
   `id` int(11) NOT NULL,
   `full_name` varchar(255) NOT NULL,
@@ -277,6 +287,7 @@ INSERT INTO `contact_form` (`id`, `full_name`, `email`, `phone`, `subject`, `mes
 -- Table structure for table `criteria`
 --
 
+DROP TABLE IF EXISTS `criteria`;
 CREATE TABLE `criteria` (
   `SI_no` int(10) NOT NULL,
   `Sub_no` varchar(30) NOT NULL,
@@ -620,6 +631,7 @@ INSERT INTO `criteria` (`SI_no`, `Sub_no`, `Des`, `year`) VALUES
 -- Table structure for table `criteria1`
 --
 
+DROP TABLE IF EXISTS `criteria1`;
 CREATE TABLE `criteria1` (
   `SI_no` int(10) NOT NULL,
   `Sub_no` varchar(30) NOT NULL,
@@ -963,6 +975,7 @@ INSERT INTO `criteria1` (`SI_no`, `Sub_no`, `Des`, `year`) VALUES
 -- Table structure for table `criteria2`
 --
 
+DROP TABLE IF EXISTS `criteria2`;
 CREATE TABLE `criteria2` (
   `SI_no` int(10) NOT NULL,
   `Sub_no` varchar(30) NOT NULL,
@@ -1306,6 +1319,7 @@ INSERT INTO `criteria2` (`SI_no`, `Sub_no`, `Des`, `year`) VALUES
 -- Table structure for table `dc_up_files`
 --
 
+DROP TABLE IF EXISTS `dc_up_files`;
 CREATE TABLE `dc_up_files` (
   `id` int(11) NOT NULL,
   `Username` varchar(100) NOT NULL,
@@ -1331,6 +1345,7 @@ INSERT INTO `dc_up_files` (`id`, `Username`, `file_name`, `acd_year`, `Main_file
 -- Table structure for table `dept_files`
 --
 
+DROP TABLE IF EXISTS `dept_files`;
 CREATE TABLE `dept_files` (
   `id` int(255) NOT NULL,
   `username` varchar(300) NOT NULL,
@@ -1370,6 +1385,7 @@ INSERT INTO `dept_files` (`id`, `username`, `dept`, `academic_year`, `file_type`
 -- Table structure for table `fdps_org_tab`
 --
 
+DROP TABLE IF EXISTS `fdps_org_tab`;
 CREATE TABLE `fdps_org_tab` (
   `id` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
@@ -1399,7 +1415,7 @@ CREATE TABLE `fdps_org_tab` (
 INSERT INTO `fdps_org_tab` (`id`, `username`, `branch`, `title`, `date_from`, `date_to`, `organised_by`, `location`, `certificate`, `brochure`, `fdp_schedule_invitation`, `attendance_forms`, `feedback_forms`, `fdp_report`, `photo1`, `photo2`, `photo3`, `submission_time`, `year`) VALUES
 (2, 'chandu', 'AIML', 'fdps org', '2025-04-03', '2025-04-25', 'gmr', 'rajam', 'uploads/certificates/application.pdf', 'uploads/certificates/6.3.4(A).pdf', 'uploads/certificates/OTR-10006610694.pdf', 'uploads/certificates/e808d2b7e299109e704918e5691e62a2b27410c1b8de9365c6fb4c199553f881_encrypt_signedFinal (5).pdf', 'uploads/certificates/AWS-certificate (4).pdf', 'uploads/certificates/copy_of_pancard.pdf', 'uploads/certificates/DALL·E 2025-03-25 15.06.29 - A young computer science student sitting at a desk, coding on a laptop. Multiple screens display code, deep learning models, and a React.js project. A.webp', 'uploads/certificates/img.jpg', 'uploads/certificates/ai-generated-animal-160.webp', '2025-04-08 20:06:59', '2022-23'),
 (3, 'chandu', 'CSE', 'file_fpds_org', '2025-04-01', '2025-04-01', 'gmr', 'rajam', 'uploads/certificates/hall ticket of nptel.pdf', 'uploads/certificates/22341A0552.pdf', 'uploads/certificates/bussiness.pdf', 'uploads/certificates/NPTEL fee reciept.pdf', 'uploads/certificates/IBM_machine_learning_with_python.pdf', 'uploads/certificates/software_engineering_coursera.pdf', 'uploads/certificates/tvs_epic6.jpg', 'uploads/certificates/supervisor signature.jpg', 'uploads/certificates/tvs_epic6.jpg', '2025-04-11 16:24:32', '2022-23'),
-(4, 'chandu', 'CSE', 'fdps', '2025-07-03', '2025-07-01', 'gmr', 'rajam', 'uploads/certificates/Mars Rover _Problem Statement_AndinoHack.pdf', 'uploads/certificates/colleges_eapcet.pdf', 'uploads/certificates/eapcet colleges_ cse_and_mec.pdf', 'uploads/certificates/4.1.3(B).pdf', 'uploads/certificates/Handout_BTech_2024-25_EEE_3rd_Sem_ECA.pdf', 'uploads/certificates/colleges_eapcet.pdf', 'uploads/certificates/prabhas-3.jpg', 'uploads/certificates/898644.jpg', 'uploads/certificates/202978.jpg', '2025-07-28 00:17:37', '2024-25');
+(4, 'chandu', 'CSE', 'fdps', '2025-07-03', '2025-07-03', 'gmr', 'rajam', 'uploads/certificates/Mars Rover _Problem Statement_AndinoHack.pdf', 'uploads/certificates/colleges_eapcet.pdf', 'uploads/certificates/eapcet colleges_ cse_and_mec.pdf', 'uploads/certificates/4.1.3(B).pdf', 'uploads/certificates/Handout_BTech_2024-25_EEE_3rd_Sem_ECA.pdf', 'uploads/certificates/colleges_eapcet.pdf', 'uploads/certificates/prabhas-3.jpg', 'uploads/certificates/898644.jpg', 'uploads/certificates/202978.jpg', '2025-07-28 00:17:37', '2024-25');
 
 -- --------------------------------------------------------
 
@@ -1407,6 +1423,7 @@ INSERT INTO `fdps_org_tab` (`id`, `username`, `branch`, `title`, `date_from`, `d
 -- Table structure for table `fdps_tab`
 --
 
+DROP TABLE IF EXISTS `fdps_tab`;
 CREATE TABLE `fdps_tab` (
   `id` int(255) NOT NULL,
   `username` varchar(200) NOT NULL,
@@ -1439,6 +1456,7 @@ INSERT INTO `fdps_tab` (`id`, `username`, `branch`, `title`, `date_from`, `date_
 -- Table structure for table `files`
 --
 
+DROP TABLE IF EXISTS `files`;
 CREATE TABLE `files` (
   `id` int(255) NOT NULL,
   `UserName` varchar(30) NOT NULL,
@@ -1450,8 +1468,8 @@ CREATE TABLE `files` (
   `faculty_name` varchar(30) NOT NULL,
   `ext_or_int` varchar(20) NOT NULL,
   `uploaded_at` datetime(6) NOT NULL,
-  `file_name` varchar(255) NOT NULL,
-  `file_path` varchar(500) NOT NULL,
+  `file_name` varchar(30) NOT NULL,
+  `file_path` varchar(60) NOT NULL,
   `criteria` int(20) NOT NULL,
   `criteria_no` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1514,6 +1532,7 @@ INSERT INTO `files` (`id`, `UserName`, `description`, `academic_year`, `branch`,
 -- Table structure for table `files5_1_1and2`
 --
 
+DROP TABLE IF EXISTS `files5_1_1and2`;
 CREATE TABLE `files5_1_1and2` (
   `id` int(11) NOT NULL,
   `UserName` varchar(100) DEFAULT NULL,
@@ -1550,6 +1569,7 @@ INSERT INTO `files5_1_1and2` (`id`, `UserName`, `academic_year`, `faculty_name`,
 -- Table structure for table `files5_1_3`
 --
 
+DROP TABLE IF EXISTS `files5_1_3`;
 CREATE TABLE `files5_1_3` (
   `id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
@@ -1578,6 +1598,7 @@ INSERT INTO `files5_1_3` (`id`, `username`, `academic_year`, `faculty_name`, `pr
 -- Table structure for table `files5_1_4`
 --
 
+DROP TABLE IF EXISTS `files5_1_4`;
 CREATE TABLE `files5_1_4` (
   `id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
@@ -1607,6 +1628,7 @@ INSERT INTO `files5_1_4` (`id`, `username`, `faculty_name`, `academic_year`, `ye
 -- Table structure for table `files5_2_1`
 --
 
+DROP TABLE IF EXISTS `files5_2_1`;
 CREATE TABLE `files5_2_1` (
   `id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
@@ -1635,6 +1657,7 @@ INSERT INTO `files5_2_1` (`id`, `username`, `faculty_name`, `academic_year`, `st
 -- Table structure for table `files5_2_2`
 --
 
+DROP TABLE IF EXISTS `files5_2_2`;
 CREATE TABLE `files5_2_2` (
   `id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
@@ -1663,6 +1686,7 @@ INSERT INTO `files5_2_2` (`id`, `username`, `faculty_name`, `academic_year`, `st
 -- Table structure for table `files5_2_3`
 --
 
+DROP TABLE IF EXISTS `files5_2_3`;
 CREATE TABLE `files5_2_3` (
   `id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
@@ -1689,6 +1713,7 @@ INSERT INTO `files5_2_3` (`id`, `username`, `faculty_name`, `academic_year`, `re
 -- Table structure for table `files5_3_1`
 --
 
+DROP TABLE IF EXISTS `files5_3_1`;
 CREATE TABLE `files5_3_1` (
   `id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
@@ -1718,6 +1743,7 @@ INSERT INTO `files5_3_1` (`id`, `username`, `faculty_name`, `academic_year`, `aw
 -- Table structure for table `files5_3_3`
 --
 
+DROP TABLE IF EXISTS `files5_3_3`;
 CREATE TABLE `files5_3_3` (
   `id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
@@ -1744,6 +1770,7 @@ INSERT INTO `files5_3_3` (`id`, `username`, `faculty_name`, `academic_year`, `ev
 -- Table structure for table `login_pg`
 --
 
+DROP TABLE IF EXISTS `login_pg`;
 CREATE TABLE `login_pg` (
   `userid` varchar(30) NOT NULL,
   `password` varchar(20) NOT NULL
@@ -1985,11 +2012,7 @@ INSERT INTO `login_pg` (`userid`, `password`) VALUES
 ('chandug', '123'),
 ('chandu@gmail.com', '123'),
 ('chandu@gmail.com', '123'),
-('chandu@gmail.com', '123'),
-('demo@gmail.com', '123'),
-('demo@gmail.com', '123'),
-('demo@gmail.com', '123'),
-('demo@gmail.com', '123');
+('chandu@gmail.com', '123');
 
 -- --------------------------------------------------------
 
@@ -1997,6 +2020,7 @@ INSERT INTO `login_pg` (`userid`, `password`) VALUES
 -- Table structure for table `patents_table`
 --
 
+DROP TABLE IF EXISTS `patents_table`;
 CREATE TABLE `patents_table` (
   `id` int(255) NOT NULL,
   `Username` varchar(300) NOT NULL,
@@ -2032,6 +2056,7 @@ INSERT INTO `patents_table` (`id`, `Username`, `branch`, `patent_title`, `date_o
 -- Table structure for table `published_tab`
 --
 
+DROP TABLE IF EXISTS `published_tab`;
 CREATE TABLE `published_tab` (
   `id` int(255) NOT NULL,
   `username` varchar(200) NOT NULL,
@@ -2066,6 +2091,7 @@ INSERT INTO `published_tab` (`id`, `username`, `branch`, `paper_title`, `journal
 -- Table structure for table `reg_central_cord`
 --
 
+DROP TABLE IF EXISTS `reg_central_cord`;
 CREATE TABLE `reg_central_cord` (
   `userid` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL
@@ -2094,6 +2120,7 @@ INSERT INTO `reg_central_cord` (`userid`, `password`) VALUES
 -- Table structure for table `reg_cri_cord`
 --
 
+DROP TABLE IF EXISTS `reg_cri_cord`;
 CREATE TABLE `reg_cri_cord` (
   `id` int(11) NOT NULL,
   `userid` varchar(100) NOT NULL,
@@ -2123,9 +2150,9 @@ INSERT INTO `reg_cri_cord` (`id`, `userid`, `password`) VALUES
 -- Table structure for table `reg_dept_cord`
 --
 
+DROP TABLE IF EXISTS `reg_dept_cord`;
 CREATE TABLE `reg_dept_cord` (
   `userid` varchar(255) NOT NULL,
-  `department` varchar(100) DEFAULT NULL,
   `password` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -2133,17 +2160,17 @@ CREATE TABLE `reg_dept_cord` (
 -- Dumping data for table `reg_dept_cord`
 --
 
-INSERT INTO `reg_dept_cord` (`userid`, `department`, `password`) VALUES
-('dept_cord1', 'CSE', 123),
-('dept_cord10', NULL, 123),
-('dept_cord2', 'AIML', 123),
-('dept_cord3', 'AIDS', 123),
-('dept_cord4', 'IT', 123),
-('dept_cord5', 'ECE', 123),
-('dept_cord6', 'EEE', 123),
-('dept_cord7', 'MECH', 123),
-('dept_cord8', 'CIVIL', 123),
-('dept_cord9', 'BSH', 123);
+INSERT INTO `reg_dept_cord` (`userid`, `password`) VALUES
+('dept_cord1', 123),
+('dept_cord10', 123),
+('dept_cord2', 123),
+('dept_cord3', 123),
+('dept_cord4', 123),
+('dept_cord5', 123),
+('dept_cord6', 123),
+('dept_cord7', 123),
+('dept_cord8', 123),
+('dept_cord9', 123);
 
 -- --------------------------------------------------------
 
@@ -2151,6 +2178,7 @@ INSERT INTO `reg_dept_cord` (`userid`, `department`, `password`) VALUES
 -- Table structure for table `reg_pg`
 --
 
+DROP TABLE IF EXISTS `reg_pg`;
 CREATE TABLE `reg_pg` (
   `name` varchar(20) NOT NULL,
   `userid` varchar(20) NOT NULL,
@@ -2182,6 +2210,7 @@ INSERT INTO `reg_pg` (`name`, `userid`, `email`, `password`) VALUES
 -- Table structure for table `reg_tab`
 --
 
+DROP TABLE IF EXISTS `reg_tab`;
 CREATE TABLE `reg_tab` (
   `id` int(11) NOT NULL,
   `faculty_name` varchar(150) NOT NULL,
@@ -2211,8 +2240,7 @@ CREATE TABLE `reg_tab` (
 --
 
 INSERT INTO `reg_tab` (`id`, `faculty_name`, `designation`, `qualification`, `dept`, `pern_no`, `dob`, `gender`, `address`, `email`, `aadhar`, `pan`, `userid`, `password`, `phone`, `experience`, `photo_path`, `doj`, `exp_cert_path`, `edu_cert_path`, `created_at`) VALUES
-(1, 'chandu', 'professor', 'B.Tech', 'CSE', '12345', '2005-07-07', 'Male', '2-72 first street gollagandi sompeta mandal srikakulam dist Andhra Pradesh', 'chandu@gmail.com', '123456789781', 'ABCDE1234Z', 'chandu@gmail.com', '123', '6281865140', '1.2years at Aitam as assistance professor', 'uploads/68d1579567e99_Generated Image September 16, 2025 - 11_35PM.png', '2022-07-07', 'uploads/68d1579567af8_exp_Declararion_form.pdf', 'uploads/68d1579567d7d_edu_Document 8.pdf', '2025-09-22 14:05:09'),
-(2, 'Demo user', 'Faculty', 'B.Tech', 'AIDS', '123456789', '2005-01-01', 'Male', 'Rajam', 'demo@gmail.com', '123123123123', 'ABCDE1234F', 'demo@gmail.com', '123', '1234567890', '0', 'uploads/6976eac0e96b5_profile.png', '2026-01-01', 'uploads/6976eac0e9361_exp_Fms Database – Interactive Documentation (1).pdf', 'uploads/6976eac0e958a_edu_Fms Database – Interactive Documentation (1).pdf', '2026-01-26 04:17:04');
+(1, 'chandu', 'professor', 'B.Tech', 'CSE', '12345', '2005-07-07', 'Male', '2-72 first street gollagandi sompeta mandal srikakulam dist Andhra Pradesh', 'chandu@gmail.com', '123456789781', 'ABCDE1234Z', 'chandu@gmail.com', '123', '6281865140', '1.2years at Aitam as assistance professor', 'uploads/68d1579567e99_Generated Image September 16, 2025 - 11_35PM.png', '2022-07-07', 'uploads/68d1579567af8_exp_Declararion_form.pdf', 'uploads/68d1579567d7d_edu_Document 8.pdf', '2025-09-22 14:05:09');
 
 -- --------------------------------------------------------
 
@@ -2220,6 +2248,7 @@ INSERT INTO `reg_tab` (`id`, `faculty_name`, `designation`, `qualification`, `de
 -- Table structure for table `s_bodies`
 --
 
+DROP TABLE IF EXISTS `s_bodies`;
 CREATE TABLE `s_bodies` (
   `ID` int(255) NOT NULL,
   `Username` varchar(255) NOT NULL,
@@ -2245,7 +2274,7 @@ INSERT INTO `s_bodies` (`ID`, `Username`, `acd_year`, `branch`, `Body`, `event_n
 (1, '', '', '', 'CSI', 'event1', '2025-01-14', '2025-01-31', 'gmr', 'rajam', '2nd', 'uploads/gmr_landing_page (1).jpg', 'chandru', '05-01-2025 19:34:58'),
 (2, 'chandu', '2022-23', 'CSE', 'ISTE', 'radio auditions', '2025-04-02', '2025-04-30', 'gmr', 'rajam', 'Participated', 'uploads/BASAVADURGA_22341A0312_1733812438576.pdf', 'kalyan', '16-04-2025 20:04:41'),
 (3, 'chandu', '2022-23', 'AIML', 'ISTE', 'radio auditions', '2025-04-02', '2025-04-30', 'gmr', 'rajam', 'Participated', 'uploads/BASAVADURGA_22341A0312_1733812438576.pdf', 'kalyan', '16-04-2025 20:05:04'),
-(4, 'chandu', '2024-25', 'AIML', 'ISTE', 'radio auditions', '2025-07-17', '2025-07-02', 'gmr', 'rajam', 'Participated', 'uploads/Mars Rover _Problem Statement_AndinoHack.pdf', 'chandu', '27-07-2025 23:41:07');
+(4, 'chandu', '2024-25', 'AIML', 'ISTE', 'radio auditions', '2025-07-17', '2025-07-17', 'gmr', 'rajam', 'Participated', 'uploads/Mars Rover _Problem Statement_AndinoHack.pdf', 'chandu', '27-07-2025 23:41:07');
 
 -- --------------------------------------------------------
 
@@ -2253,6 +2282,7 @@ INSERT INTO `s_bodies` (`ID`, `Username`, `acd_year`, `branch`, `Body`, `event_n
 -- Table structure for table `s_conference_tab`
 --
 
+DROP TABLE IF EXISTS `s_conference_tab`;
 CREATE TABLE `s_conference_tab` (
   `id` int(255) NOT NULL,
   `Username` varchar(255) NOT NULL,
@@ -2277,8 +2307,8 @@ CREATE TABLE `s_conference_tab` (
 INSERT INTO `s_conference_tab` (`id`, `Username`, `acd_year`, `uploaded_by`, `branch`, `paper_title`, `from_date`, `to_date`, `organised_by`, `location`, `certificate_path`, `paper_type`, `paper_file_path`, `submission_time`) VALUES
 (1, '', 0, 'chandu', '', 'paper1', '2025-01-01', '2025-01-31', 'gmr', 'rajam', 'uploads/gmr_landing_page (1).jpg', 'participated', '', '2025-01-05 13:52:55'),
 (2, '', 0, 'sekhar', '', 'papert', '2025-01-01', '2025-01-31', 'gmrit', 'rajam', 'uploads/gmr_landing_page (1).jpg', 'participated', '', '05-01-2025 13:01:26'),
-(3, 'chandu', 2022, 'chandrasekhar', 'CSE', 'yolo', '2025-04-30', '2025-04-23', 'aitam', 'tekkali', 'uploads/BASAVADURGA_22341A0312_1733812438576.pdf', 'participated', '', '16-04-2025 19:04:48'),
-(4, 'chandu', 2022, 'chandrasekhar', 'CSE', 'yolo', '2025-04-30', '2025-04-23', 'aitam', 'tekkali', 'uploads/BASAVADURGA_22341A0312_1733812438576.pdf', 'participated', '', '16-04-2025 19:04:02');
+(3, 'chandu', 2022, 'chandrasekhar', 'CSE', 'yolo', '2025-04-30', '2025-04-30', 'aitam', 'tekkali', 'uploads/BASAVADURGA_22341A0312_1733812438576.pdf', 'participated', '', '16-04-2025 19:04:48'),
+(4, 'chandu', 2022, 'chandrasekhar', 'CSE', 'yolo', '2025-04-30', '2025-04-30', 'aitam', 'tekkali', 'uploads/BASAVADURGA_22341A0312_1733812438576.pdf', 'participated', '', '16-04-2025 19:04:02');
 
 -- --------------------------------------------------------
 
@@ -2286,6 +2316,7 @@ INSERT INTO `s_conference_tab` (`id`, `Username`, `acd_year`, `uploaded_by`, `br
 -- Table structure for table `s_events`
 --
 
+DROP TABLE IF EXISTS `s_events`;
 CREATE TABLE `s_events` (
   `ID` int(255) NOT NULL,
   `Username` varchar(100) NOT NULL,
@@ -2321,6 +2352,7 @@ INSERT INTO `s_events` (`ID`, `Username`, `branch`, `acd_year`, `activity`, `eve
 -- Table structure for table `s_journal_tab`
 --
 
+DROP TABLE IF EXISTS `s_journal_tab`;
 CREATE TABLE `s_journal_tab` (
   `id` int(255) NOT NULL,
   `Username` varchar(255) NOT NULL,
@@ -2696,7 +2728,7 @@ ALTER TABLE `reg_cri_cord`
 -- AUTO_INCREMENT for table `reg_tab`
 --
 ALTER TABLE `reg_tab`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `s_bodies`
@@ -2721,97 +2753,74 @@ ALTER TABLE `s_events`
 --
 ALTER TABLE `s_journal_tab`
   MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- Table structure for table `reg_hod`
---
-
-CREATE TABLE `reg_hod` (
-  `userid` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `department` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `reg_hod`
---
-
-INSERT INTO `reg_hod` (`userid`, `password`, `department`) VALUES
-('cse-hod', '123', 'CSE'),
-('ece-hod', '123', 'ECE'),
-('eee-hod', '123', 'EEE'),
-('mech-hod', '123', 'MECH'),
-('civil-hod', '123', 'CIVIL'),
-('aiml-hod', '123', 'AIML'),
-('aids-hod', '123', 'AIDS'),
-('it-hod', '123', 'IT'),
-('bsh-hod', '123', 'BSH');
-
---
--- Indexes for table `reg_hod`
---
-
-ALTER TABLE `reg_hod`
-  ADD PRIMARY KEY (`userid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-CREATE TABLE approval_roles (
-    role_id INT AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(50) NOT NULL,
-    role_order INT NOT NULL
-);
+-- Enhancements and Fixes
+ALTER TABLE `files` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
-INSERT INTO approval_roles (role_name, role_order) VALUES
-('FACULTY', 1),
-('DEPT_COORD', 2),
-('HOD', 3),
-('CENTRAL_COORD', 4);
+ALTER TABLE `files5_1_1and2` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_1_1and2` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
+ALTER TABLE `files5_1_3` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_1_3` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
-CREATE TABLE documents (
-    document_id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255),
-    created_by INT,
-    is_active TINYINT(1) DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+ALTER TABLE `files5_1_4` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_1_4` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
+ALTER TABLE `files5_2_1` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_2_1` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
-CREATE TABLE document_versions (
-    version_id INT AUTO_INCREMENT PRIMARY KEY,
-    document_id INT NOT NULL,
-    version_number INT NOT NULL,
-    file_path VARCHAR(500),
-    uploaded_by INT,
-    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_current TINYINT(1) DEFAULT 1,
+ALTER TABLE `files5_2_2` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_2_2` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
-    FOREIGN KEY (document_id) REFERENCES documents(document_id)
-);
+ALTER TABLE `files5_2_3` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_2_3` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
+ALTER TABLE `files5_3_1` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_3_1` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
-CREATE TABLE document_role_flow (
-    flow_id INT AUTO_INCREMENT PRIMARY KEY,
-    version_id INT NOT NULL,
-    current_role_id INT NOT NULL,
-    status ENUM('PENDING','UNDER_REVIEW','APPROVED') DEFAULT 'PENDING',
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+ALTER TABLE `files5_3_3` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `files5_3_3` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
-    FOREIGN KEY (version_id) REFERENCES document_versions(version_id),
-    FOREIGN KEY (current_role_id) REFERENCES approval_roles(role_id)
-);
+ALTER TABLE `conference_tab` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `conference_tab` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
+ALTER TABLE `published_tab` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `published_tab` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
 
-CREATE TABLE role_flow_logs (
-    log_id INT AUTO_INCREMENT PRIMARY KEY,
-    version_id INT NOT NULL,
-    role_id INT NOT NULL,
-    action ENUM('APPROVED','SENT_BACK') NOT NULL,
-    comments TEXT,
-    action_by INT,
-    action_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+ALTER TABLE `fdps_tab` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `fdps_tab` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
+
+ALTER TABLE `fdps_org_tab` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `fdps_org_tab` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
+
+ALTER TABLE `patents_table` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `patents_table` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
+
+ALTER TABLE `s_bodies` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `s_bodies` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
+
+ALTER TABLE `s_conference_tab` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `s_conference_tab` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
+
+ALTER TABLE `s_events` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `s_events` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
+
+ALTER TABLE `s_journal_tab` ADD COLUMN IF NOT EXISTS `status` VARCHAR(50) DEFAULT 'Pending Dept Coordinator';
+ALTER TABLE `s_journal_tab` ADD COLUMN IF NOT EXISTS `rejection_reason` TEXT;
+
+-- Fix Data Types and Missing Columns for Role Management
+ALTER TABLE `reg_dept_cord` MODIFY COLUMN `password` VARCHAR(255) NOT NULL;
+ALTER TABLE `reg_dept_cord` ADD COLUMN IF NOT EXISTS `department` VARCHAR(100);
+
+-- Set Default Department for dept_cord1 (Correction)
+UPDATE `reg_dept_cord` SET `department` = 'CSE' WHERE `userid` = 'dept_cord1';
+
+-- Fix Missing Keys for Admin Tables
+ALTER TABLE `admin_login` ADD PRIMARY KEY (`Username`);
+ALTER TABLE `admin_reg` ADD PRIMARY KEY (`Username`);

@@ -177,12 +177,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 // If old path started with ../../, maintain that convention
                 if (strpos($old_path, '../../') === 0) {
                     $db_path = '../../' . $target_file;
-                } elseif (strpos($old_path, 'uploads/') === 0 && strpos($old_path, '../../') === false) {
-                     // If it was just uploads/..., keep it that way (dashboard relative)
+                // If it was just uploads/..., keep it that way (dashboard relative)
                      // But if the original script expects ../../, we might be breaking it?
                      // Usually standardizing on ../../uploads is safer if modules use it.
                      // But let's respect the current DB value's style.
                 }
+
+                // --- Fix: Delete Old File ---
+                // We derived $target_rel_root earlier which is the relative path from dashboard.php
+                if (!empty($target_rel_root) && file_exists($target_rel_root)) {
+                    unlink($target_rel_root);
+                }
+                // ----------------------------
 
                 // Update DB
                 $update_sql = "UPDATE $table_name SET $path_col = ?";
