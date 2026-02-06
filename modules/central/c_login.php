@@ -1,12 +1,13 @@
 <?php
+require_once "../../includes/session.php";
+require_once "../../includes/csrf.php";
 include "../../includes/connection.php";
 
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
-    
-session_start();
 $event = $_GET['event'] ?? 'Unknown';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
     $email = $_POST['email'];
     $password = $_POST['password'];
 
@@ -27,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $credentials[$event]['email'] === $email && 
         $credentials[$event]['password'] === $password) {
         // Redirect to the dashboard with the event value
+        session_regenerate_id(true);
         $_SESSION['c_cord'] = $email;
         echo "<script>
             alert('Login successful! ');
@@ -208,6 +210,7 @@ include '../../includes/header.php';
             <p class="error"><?php echo $error; ?></p>
         <?php endif; ?>
         <form method="POST" action="">
+            <?php echo csrf_field(); ?>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>

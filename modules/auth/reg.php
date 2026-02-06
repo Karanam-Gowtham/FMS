@@ -1,9 +1,15 @@
 <?php
-    include("../../includes/connection.php");
+    require_once '../../includes/session.php';
+    require_once '../../includes/connection.php';
+    require_once '../../includes/csrf.php';
 
     // Handle Registration Logic
     $message = "";
     $msg_type = "";
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        csrf_validate();
+    }
     
     if (isset($_POST['register'])) {
         $faculty_name = trim($_POST['faculty_name']);
@@ -238,6 +244,7 @@
         <?php endif; ?>
 
         <form method="post" action="" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
             
             <label for="faculty_name">Faculty Name:</label>
             <input type="text" name="faculty_name" required value="<?php echo isset($_POST['faculty_name']) ? htmlspecialchars($_POST['faculty_name']) : ''; ?>">
@@ -334,4 +341,3 @@
         </form>
     </div>
 </div>
-

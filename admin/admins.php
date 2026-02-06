@@ -1,11 +1,16 @@
 <?php
 ob_start(); // Start output buffering at the very top
-session_start();
+require_once '../includes/session.php';
+require_once '../includes/csrf.php';
 include 'header_admin.php';
 include '../includes/connection.php';
 
 $dept = isset($_GET['dept']) ? $_GET['dept'] : '';
 $error_message = ""; // Error message for popup
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
+}
 
 if (isset($_POST['logout'])) {
     session_unset();
@@ -78,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
                     $login_stmt->bind_param("ss", $userid, $password);
                     if ($login_stmt->execute() === TRUE) {
+                        session_regenerate_id(true);
                         $_SESSION['username'] = $userid;
                         ob_end_clean(); // Clear buffer before redirect
                         header("Location: ../modules/faculty/acd_year.php?dept=$dept");
@@ -100,6 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $result = $stmt->get_result();
             
                 if ($result->num_rows > 0) {
+                    session_regenerate_id(true);
                     $_SESSION['a_username'] = $userid;
                     $stmt->close();
                     ob_end_clean();
@@ -122,6 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $row = $result->fetch_assoc();
                     // Validate that the HOD belongs to the selected department
                     if (strtoupper($row['department']) === strtoupper($dept)) {
+                        session_regenerate_id(true);
                         $_SESSION['h_username'] = $userid;
                         $_SESSION['dept'] = $dept;
                         ob_end_clean();
@@ -135,6 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $stmt->close();
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
+                session_regenerate_id(true);
                 $_SESSION['admin'] = $userid;
                 ob_end_clean();
                 header("Location: ../hod/acd_year_aa.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
@@ -354,6 +363,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h2 id="welcomeMessage"></h2>
         <h4>Please login</h4>
         <form method="POST">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="designation" id="designationHidden">
             <input type="text" placeholder="Username" name="userid" required>
             <input type="password" placeholder="Password" name="password" required>

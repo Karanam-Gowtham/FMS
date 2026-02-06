@@ -1,6 +1,7 @@
 <?php
-session_start(); // Start the session
-include("../../includes/connection.php");
+require_once '../../includes/session.php';
+require_once '../../includes/connection.php';
+require_once '../../includes/csrf.php';
 
 // Check if the user is already logged in
 if (isset($_SESSION['username'])) {
@@ -10,6 +11,7 @@ if (isset($_SESSION['username'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    csrf_validate();
     // Handling Sign In
     if (isset($_POST['signIn'])) {
         $userid = $_POST['userid'];
@@ -28,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $login_stmt->bind_param("ss", $userid, $password);
 
             if ($login_stmt->execute() === TRUE) {
+                session_regenerate_id(true);
                 // Set session variable upon successful login
                 $_SESSION['username'] = $userid;
                 echo "<script>alert('You logged in successfully!');</script>";
@@ -137,6 +140,7 @@ include("../../includes/header.php");
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
+                <?php echo csrf_field(); ?>
                 <h1 id="hav">Faculty<br>Log In</h1>
                 <input type="text" name="userid" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />
