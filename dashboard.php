@@ -11,6 +11,12 @@ $tables = [
     'files5_1_1and2', 
     'files5_1_3', 
     'files5_1_4', 
+    'files5_2_1',
+    'files5_2_2',
+    's_journal_tab',
+    's_conference_tab',
+    's_events',
+    's_bodies',
     'fdps_tab', 
     'fdps_org_tab', 
     'conference_tab', 
@@ -31,6 +37,36 @@ foreach ($tables as $table) {
             $conn->query("ALTER TABLE $table ADD COLUMN rejection_reason TEXT");
         }
     }
+}
+
+// --- Ensure Rejection History Table Exists ---
+$check_history = $conn->query("SHOW TABLES LIKE 'rejection_history'");
+if ($check_history->num_rows == 0) {
+    $conn->query("CREATE TABLE rejection_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        file_id INT NOT NULL,
+        table_name VARCHAR(100) NOT NULL,
+        rejected_by VARCHAR(100),
+        rejection_reason TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+}
+
+// --- AJAX Handler for History ---
+if (isset($_GET['action']) && $_GET['action'] == 'get_history' && isset($_GET['file_id'], $_GET['table_name'])) {
+    $fid = intval($_GET['file_id']);
+    $tbl = $_GET['table_name'];
+    $stmt = $conn->prepare("SELECT rejected_by, rejection_reason, created_at FROM rejection_history WHERE file_id = ? AND table_name = ? ORDER BY created_at DESC");
+    $stmt->bind_param("is", $fid, $tbl);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $history = [];
+    while($r = $res->fetch_assoc()) {
+        $history[] = $r;
+    }
+    header('Content-Type: application/json');
+    echo json_encode($history);
+    exit;
 }
 
 
@@ -79,80 +115,106 @@ if (!$role) {
 }
 
 // --- Handle Re-upload ---
+// --- Handle Re-upload ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reupload') {
     $file_id = intval($_POST['file_id']);
     $table_name = $_POST['table_name'];
     
-    // Verify ownership/permission
-    // (Simplified: relies on previous query filtering)
-    
-    if (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {
-        // Fetch existing path to determine directory
-        $stmt = $conn->prepare("SELECT file_path FROM $table_name WHERE id = ?");
+    // Schema Map for File Columns
+    $table_schema_map = [
+        'files' => ['path' => 'file_path', 'name' => 'file_name'],
+        'files5_1_1and2' => ['path' => 'file_path', 'name' => 'file_name'],
+        'files5_1_3' => ['path' => 'file_path', 'name' => 'file_name'],
+        'files5_1_4' => ['path' => 'file_path', 'name' => 'file_name'],
+        'files5_2_1' => ['path' => 'file_path', 'name' => 'file_name'],
+        'files5_2_2' => ['path' => 'file_path', 'name' => 'file_name'],
+        'fdps_tab' => ['path' => 'certificate', 'name' => null],
+        'fdps_org_tab' => ['path' => 'certificate', 'name' => null],
+        'conference_tab' => ['path' => 'certificate_path', 'name' => null],
+        'published_tab' => ['path' => 'paper_file', 'name' => null],
+        'patents_table' => ['path' => 'patent_file', 'name' => null],
+        's_journal_tab' => ['path' => 'paper_file', 'name' => null],
+        's_conference_tab' => ['path' => 'certificate_path', 'name' => null],
+        's_events' => ['path' => 'certificate_path', 'name' => null],
+        's_bodies' => ['path' => 'certificate_path', 'name' => null]
+    ];
+
+    if (!array_key_exists($table_name, $table_schema_map)) {
+        echo "<script>alert('Error: Table configuration not found.');</script>";
+    } elseif (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {
+        
+        $path_col = $table_schema_map[$table_name]['path'];
+        $name_col = $table_schema_map[$table_name]['name'];
+
+        // Fetch existing path
+        $stmt = $conn->prepare("SELECT $path_col FROM $table_name WHERE id = ?");
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
         $res = $stmt->get_result();
+        
         if ($row = $res->fetch_assoc()) {
-            $old_path = $row['file_path'];
-            $dir = dirname($old_path) . '/';
-            $filename = basename($_FILES['new_file']['name']);
-            // Avoid relative path issues if dirname returns . or ..
-            // Better: use hardcoded base if possible, or trust existing structure.
-            // Let's rely on relative path from dashboard (root) to uploads.
-            // Old path might be "../../uploads/..." stored in DB.
-            // We are in root. So we need to adjust.
-            // If DB has "../../uploads/file.pdf", and we are in root, that path is invalid relative to root.
-            // But we can just use the same string if we don't resolve it.
-            // Actually, we need to move the file to the physical location.
-            // If DB says "../../uploads/", implies logic was in "modules/faculty/".
-            // From root, it is just "uploads/".
-            // Let's try to normalize.
+            $old_path = $row[$path_col];
             
-            // Heuristic: Replace "../../" with "" to get path relative to root
-            $target_rel_root = str_replace('../../', '', $old_path); 
-            // If it was "uploads/file.pdf", it stays.
-            // But we want to keep the directory.
+            // Normalize directory resolution
+            $target_rel_root = str_replace('../../', '', $old_path);
             $target_dir = dirname($target_rel_root);
-            if (!is_dir($target_dir)) {
-                mkdir($target_dir, 0777, true);
+            
+            // Fallback if directory seems empty or root
+            if ($target_dir == '.' || empty($target_dir)) {
+                $target_dir = 'uploads'; 
             }
             
+            if (!is_dir($target_dir)) {
+                @mkdir($target_dir, 0777, true);
+            }
+            
+            $filename = basename($_FILES['new_file']['name']);
             $target_file = $target_dir . '/' . uniqid() . '_' . $filename;
             
             if (move_uploaded_file($_FILES['new_file']['tmp_name'], $target_file)) {
-                // Determine DB path to save (restore ../../ if needed)
-                // If old path had ../../, prepend it.
+                // Determine DB path to save (restore ../../ if used previously)
                 $db_path = $target_file;
+                // If old path started with ../../, maintain that convention
                 if (strpos($old_path, '../../') === 0) {
                     $db_path = '../../' . $target_file;
+                } elseif (strpos($old_path, 'uploads/') === 0 && strpos($old_path, '../../') === false) {
+                     // If it was just uploads/..., keep it that way (dashboard relative)
+                     // But if the original script expects ../../, we might be breaking it?
+                     // Usually standardizing on ../../uploads is safer if modules use it.
+                     // But let's respect the current DB value's style.
                 }
-                
+
                 // Update DB
-                // Also reset status ?? 
-                // If Faculty re-uploads: Status -> 'Pending Dept Coordinator'
-                // If Dept Coord re-uploads (fixing HOD rejection): Status -> 'Pending HOD'? 
-                // Or stay 'Pending Dept Coordinator' until they click 'Approve'?
-                // Usually re-upload implies fixing.
-                // Let's reset status to 'Pending Dept Coordinator' if Faculty acts.
-                // If Dept Coord acts, they probably want to Approve next. Status stays same?
-                // User said "upload again".
-                // I will just update the file. Status update is manual (Approve) for reviewers.
-                // For Faculty, we MUST reset status to 'Pending Dept Coordinator' so it gets reviewed again.
-                
-                $update_sql = "UPDATE $table_name SET file_path = ?, file_name = ?";
-                if ($role == 'Faculty') {
-                    $update_sql .= ", status = 'Pending Dept Coordinator', rejection_reason = NULL";
+                $update_sql = "UPDATE $table_name SET $path_col = ?";
+                $params = [$db_path];
+                $types = "s";
+
+                if ($name_col) {
+                    $update_sql .= ", $name_col = ?";
+                    $params[] = $filename;
+                    $types .= "s";
                 }
+
+                if ($role == 'Faculty') {
+                    $update_sql .= ", status = ?, rejection_reason = NULL";
+                    $params[] = 'Pending Dept Coordinator';
+                    $types .= "s";
+                }
+                
                 $update_sql .= " WHERE id = ?";
+                $params[] = $file_id;
+                $types .= "i";
                 
                 $stmt = $conn->prepare($update_sql);
-                $stmt->bind_param("ssi", $db_path, $filename, $file_id);
+                $stmt->bind_param($types, ...$params);
                 $stmt->execute();
                 
                 echo "<script>alert('File re-uploaded successfully!');</script>";
             } else {
                 echo "<script>alert('Failed to move uploaded file.');</script>";
             }
+        } else {
+            echo "<script>alert('File record not found.');</script>";
         }
     }
 }
@@ -185,6 +247,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
             $stmt = $conn->prepare("UPDATE $table_name SET status = ?, rejection_reason = ? WHERE id = ?");
             $stmt->bind_param("ssi", $new_status, $reason, $file_id);
             $stmt->execute();
+            
+            // Log to History
+            if ($action == 'reject') {
+                $hist_stmt = $conn->prepare("INSERT INTO rejection_history (file_id, table_name, rejected_by, rejection_reason) VALUES (?, ?, ?, ?)");
+                $rejected_by_str = $role . " (" . $user_id . ")";
+                $hist_stmt->bind_param("isss", $file_id, $table_name, $rejected_by_str, $reason);
+                $hist_stmt->execute();
+            }
         }
     }
 }
@@ -252,7 +322,26 @@ $queries[] = build_query('conference_tab', 'id', 'username', 'paper_title', 'sub
 $queries[] = build_query('published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
 
 // 9. patents_table
+// 9. patents_table
 $queries[] = build_query('patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id, $dept);
+
+// 10. files5_2_1 (Placement Details)
+$queries[] = build_query('files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+
+// 11. files5_2_2 (Higher Education)
+$queries[] = build_query('files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+
+// 12. s_journal_tab (Journal Papers)
+$queries[] = build_query('s_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
+
+// 13. s_conference_tab (Conference Papers) - Note: s_conference_tab has certificate_path and paper_file_path. Using certificate_path primarily or paper depending?
+$queries[] = build_query('s_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
+
+// 14. s_events (Student Activities: Projects, Internships, etc.)
+$queries[] = build_query('s_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+
+// 15. s_bodies (Professional Bodies)
+$queries[] = build_query('s_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
 
 
 // Combine all
@@ -451,6 +540,7 @@ if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
                                 <?php if ($file['rejection_reason']): ?>
                                     <br><small style="color:red;"><?php echo htmlspecialchars($file['rejection_reason']); ?></small>
                                 <?php endif; ?>
+                                <br><a href="#" onclick="openHistoryModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>'); return false;" style="font-size:0.8em; color:#666;">View History</a>
                             </td>
                             <td>
                                 <?php
@@ -527,6 +617,19 @@ if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
     </div>
 </div>
 
+<div id="historyModal" class="modal">
+    <div class="modal-content" style="width: 500px;">
+        <span class="close" onclick="closeHistoryModal()">&times;</span>
+        <h3>Rejection History</h3>
+        <div id="historyContent" style="max-height: 300px; overflow-y: auto;">
+            <p>Loading...</p>
+        </div>
+        <div class="btn-toolbar">
+            <button type="button" class="action-btn" onclick="closeHistoryModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <script>
     function openRejectModal(id, tableName) {
         document.getElementById('reject_file_id').value = id;
@@ -553,6 +656,41 @@ if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
         if (event.target == document.getElementById('reuploadModal')) {
             closeReuploadModal();
         }
+        if (event.target == document.getElementById('historyModal')) {
+            closeHistoryModal();
+        }
+    }
+    
+    function openHistoryModal(id, tableName) {
+        document.getElementById('historyModal').style.display = "block";
+        const contentDiv = document.getElementById('historyContent');
+        contentDiv.innerHTML = '<p>Loading...</p>';
+        
+        fetch('dashboard.php?action=get_history&file_id=' + id + '&table_name=' + tableName)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    contentDiv.innerHTML = '<p>No history found.</p>';
+                } else {
+                    let html = '<ul style="list-style:none; padding:0;">';
+                    data.forEach(item => {
+                        html += '<li style="border-bottom:1px solid #eee; padding:10px 0;">';
+                        html += '<strong>' + item.rejected_by + '</strong> <small style="color:#888;">' + item.created_at + '</small><br>';
+                        html += '<span style="color:#d9534f;">' + item.rejection_reason + '</span>';
+                        html += '</li>';
+                    });
+                    html += '</ul>';
+                    contentDiv.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                contentDiv.innerHTML = '<p style="color:red;">Error loading history.</p>';
+                console.error('Error:', error);
+            });
+    }
+    
+    function closeHistoryModal() {
+        document.getElementById('historyModal').style.display = "none";
     }
 </script>
 

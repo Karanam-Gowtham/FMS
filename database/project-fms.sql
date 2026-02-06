@@ -1450,8 +1450,8 @@ CREATE TABLE `files` (
   `faculty_name` varchar(30) NOT NULL,
   `ext_or_int` varchar(20) NOT NULL,
   `uploaded_at` datetime(6) NOT NULL,
-  `file_name` varchar(30) NOT NULL,
-  `file_path` varchar(60) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
   `criteria` int(20) NOT NULL,
   `criteria_no` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
