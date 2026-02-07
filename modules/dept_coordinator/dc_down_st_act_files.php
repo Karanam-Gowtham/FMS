@@ -16,11 +16,11 @@ ob_start();
 
 $main_select = $_POST['main_select'] ?? '';
 $bodies_sub_select = $_POST['bodies_sub_select'] ?? '';
-$branch_select = $_POST['branch_select'] ?? '';
+$branch_select = isset($_GET['dept']) ? $_GET['dept'] : ($_POST['branch_select'] ?? '');
 // Handle bulk actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
     $main_select = $_POST['main_select'] ?? '';
-    $branch_select = $_POST['branch_select'] ?? '';
+    $branch_select = isset($_GET['dept']) ? $_GET['dept'] : ($_POST['branch_select'] ?? '');
     $selectedFiles = $_POST['selected_files'];
     $action = $_POST['action'];
 
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1>Retrieve Student Activity files</h1>
         <div class="filter-section">
         <div class="form">
-    <form method="POST" action="">
+            <form method="POST" action="">
                 <div class="main_select_div">
                     <label for="main-select" id="l1">Select Category:</label>
                     <select id="main-select" name="main_select">
@@ -388,6 +388,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 <br>
                 <div>
+                    <?php 
+                        $preselected_branch = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['branch_select']) ? $_POST['branch_select'] : '');
+                        
+                        // Ensure $branch_select is also updated if not set by POST
+                        if (empty($branch_select) && !empty($preselected_branch)) {
+                            $branch_select = $preselected_branch;
+                        }
+
+                        if ($preselected_branch) {
+                            echo '<input type="hidden" name="branch_select" value="' . htmlspecialchars($preselected_branch) . '">';
+                            // echo '<label>Department: <strong>' . htmlspecialchars($preselected_branch) . '</strong></label>'; // Optional: Display dept name
+                        } else {
+                    ?>
                     <label for="branch-select">Select Branch:</label>
                     <select id="branch-select" name="branch_select">
                         <option value="" disabled selected>Choose an option</option>
@@ -401,6 +414,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <option value="CIVIL" <?= $branch_select == 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
                         <option value="BSH" <?= $branch_select == 'BSH' ? 'selected' : '' ?>>BSH</option>
                     </select>
+                    <?php } ?>
                 </div><br>
                 <div class="btn-div">
                     <button type="submit" class="btn11 btn" name="submit_button">Submit</button>
@@ -414,23 +428,25 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="container111">
 
         <?php
-       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+       $preselected_branch = isset($_GET['dept']) ? $_GET['dept'] : '';
+       $preselected_catg = isset($_GET['file_type1']) ? $_GET['file_type1'] : '';
 
-        $main_select = $_POST['main_select'] ?? '';
+       if ($_SERVER['REQUEST_METHOD'] === 'POST' || ($preselected_branch && $preselected_catg)) {
+            $main_select = isset($_POST['main_select']) ? $_POST['main_select'] : $preselected_catg;
         $bodies_sub_select = $_POST['bodies_sub_select'] ?? '';
-        $branch_select = $_POST['branch_select'] ?? '';
+        $branch_select = isset($_GET['dept']) ? $_GET['dept'] : ($_POST['branch_select'] ?? '');
     
         switch($main_select) {
             case 'Journals':
                 echo "<div class='container11'>
                         <h2>Student Journals</h2>";
             
-                echo "<form method='POST' class='ex_b'>
+                echo "<form method='POST' class='ex_b' action='?dept=" . htmlspecialchars($branch_select) . "'>
                         <input type='hidden' name='branch_select' value='" . htmlspecialchars($branch_select) . "'>
                         <button type='submit' class='ex_bt' name='export_sjournal'>Export to Excel</button>
                       </form>";
             
-                $sql_sjournal = "SELECT * FROM s_journal_tab WHERE branch = ?";
+                $sql_sjournal = "SELECT * FROM s_journal_tab WHERE branch = ? AND status = 'Accepted'";
                 $stmt_sjournal = $conn->prepare($sql_sjournal);
                 $stmt_sjournal->bind_param("s", $branch_select);
                 $stmt_sjournal->execute();
@@ -494,12 +510,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 case 'Conferences':
                     echo "<div class='container11'>
                             <h2>Student Conferences</h2>";
-                    echo "<form method='POST' class='ex_b'>
+                    echo "<form method='POST' class='ex_b' action='?dept=" . htmlspecialchars($branch_select) . "'>
                             <input type='hidden' name='branch_select' value='" . htmlspecialchars($branch_select) . "'>
                             <button type='submit' class='ex_bt' name='export_sconference'>Export to Excel</button>
                           </form>";
                 
-                    $sql_sconference = "SELECT * FROM s_conference_tab WHERE branch = ?";
+                    $sql_sconference = "SELECT * FROM s_conference_tab WHERE branch = ? AND status = 'Accepted'";
                     $stmt_sconference = $conn->prepare($sql_sconference);
                     $stmt_sconference->bind_param("s",$branch_select);
                     $stmt_sconference->execute();
@@ -577,13 +593,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         
                         echo "<div class='container11'>
                                 <h2>Student Professional Bodies</h2>";
-                        echo "<form method='POST' class='ex_b'>
+                        echo "<form method='POST' class='ex_b' action='?dept=" . htmlspecialchars($branch_select) . "'>
                                 <input type='hidden' name='bodies_sub_select' value='" . htmlspecialchars($bodies_sub_select) . "'>
                                 <input type='hidden' name='branch_select' value='" . htmlspecialchars($branch_select) . "'>
                                 <button type='submit' class='ex_bt' name='export_sbodies'>Export to Excel</button>
                               </form>";
                     
-                        $sql_sbodies = "SELECT * FROM s_bodies WHERE Body = ? and branch = ?";
+                        $sql_sbodies = "SELECT * FROM s_bodies WHERE Body = ? and branch = ? AND status = 'Accepted'";
                         $stmt_sbodies = $conn->prepare($sql_sbodies);
                         $stmt_sbodies->bind_param("ss", $bodies_sub_select,$branch_select);
                         $stmt_sbodies->execute();
@@ -652,13 +668,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         case 'SIH':
                             echo "<div class='container11'>
                             <h2>Student Projects</h2>";
-                            echo "<form method='POST' class='ex_b'>
+                            echo "<form method='POST' class='ex_b' action='?dept=" . htmlspecialchars($branch_select) . "'>
                                     <input type='hidden' name='main_select' value='" . htmlspecialchars($main_select) . "'>
                                     <input type='hidden' name='branch_select' value='" . htmlspecialchars($branch_select) . "'>
                                     <button type='submit' class='ex_bt' name='export_sevents'>Export to Excel</button>
                                 </form>";
 
-                            $sql_sevents = "SELECT * FROM s_events WHERE branch = ? and activity = ?";
+                            $sql_sevents = "SELECT * FROM s_events WHERE branch = ? and activity = ? AND status = 'Accepted'";
                             $stmt_sevents = $conn->prepare($sql_sevents);
                             $stmt_sevents->bind_param("ss",$branch_select,$main_select);
                             $stmt_sevents->execute();

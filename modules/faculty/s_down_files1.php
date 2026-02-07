@@ -14,13 +14,9 @@ if (isset($_GET['dept'])) {
 }
 ob_start();
 
-$main_select = $_POST['main_select'] ?? '';
-$bodies_sub_select = $_POST['bodies_sub_select'] ?? '';
-$branch_select = $_POST['branch_select'] ?? '';
-// Handle bulk actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
-    $main_select = $_POST['main_select'] ?? '';
-    $branch_select = $_POST['branch_select'] ?? '';
+    $main_select = $_REQUEST['main_select'] ?? '';
+    $bodies_sub_select = $_REQUEST['bodies_sub_select'] ?? '';
+    $branch_select = $_REQUEST['branch_select'] ?? '';
     $selectedFiles = $_POST['selected_files'];
     $action = $_POST['action'];
 
@@ -68,8 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $stmt->bind_param("i", $fileId);
             $stmt->execute();
         }
+        
+        $redirectUrl = "s_down_files1.php?dept=" . urlencode($dept) . 
+                       "&main_select=" . urlencode($main_select) . 
+                       "&branch_select=" . urlencode($branch_select) . 
+                       "&bodies_sub_select=" . urlencode($bodies_sub_select);
 
-        echo "<script>alert('Records deleted successfully.'); window.location.href = window.location.href;</script>";
+        echo "<script>alert('Records deleted successfully.'); window.location.href = '$redirectUrl';</script>";
         exit;
     }
 

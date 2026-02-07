@@ -364,6 +364,14 @@ include("../../includes/header.php");
             <h1><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?> Files</h1>
             <form method="POST" class="filter-form">
             <input type="hidden" name="action_F" value="<?php echo htmlspecialchars($catg); ?>">
+            <?php 
+                $preselected_dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['dept']) ? $_POST['dept'] : '');
+                
+                if ($preselected_dept) {
+                    echo '<input type="hidden" name="dept" value="' . htmlspecialchars($preselected_dept) . '">';
+                    // echo '<h2>Department: ' . htmlspecialchars($preselected_dept) . '</h2>'; // Optional: Display dept name
+                } else {
+            ?>
                 <select name="dept" id="dept">
                     <option value="" disabled selected>Select Department</option>
                     <option value="CSE" <?= isset($_POST['dept']) && $_POST['dept'] == 'CSE' ? 'selected' : '' ?>>CSE</option>
@@ -375,19 +383,21 @@ include("../../includes/header.php");
                     <option value="MECH" <?= isset($_POST['dept']) && $_POST['dept'] == 'MECH' ? 'selected' : '' ?>>MECH</option>
                     <option value="CIVIL" <?= isset($_POST['dept']) && $_POST['dept'] == 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
                     <option value="BSH" <?= isset($_POST['dept']) && $_POST['dept'] == 'BSH' ? 'selected' : '' ?>>BSH</option>
-
                 </select>
+            <?php } ?>
                 <button type="submit" name = "sel_btn" class="filter-button">Show Results</button>
             </form>
         </div>
 
         <?php
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['sel_btn']) && isset($_POST['dept']) && isset($_POST['action_F'])) {
-                $dept = $_POST['dept'];
-                $category = $_POST['action_F'];
-            
+        $preselected_dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['dept']) ? $_POST['dept'] : '');
+        $preselected_catg = isset($_GET['action_F']) ? $_GET['action_F'] : (isset($_POST['action_F']) ? $_POST['action_F'] : $catg);
 
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' || ($preselected_dept && $preselected_catg)) {
+            if ((isset($_POST['sel_btn']) && isset($_POST['dept']) && isset($_POST['action_F'])) || ($preselected_dept && $preselected_catg)) {
+                $dept = $preselected_dept;
+                $category = $preselected_catg;
+            
             switch($category) {
                 case 'fdps':
                     // Display FDPs Attended
@@ -398,7 +408,7 @@ include("../../includes/header.php");
                             <button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button>
                           </form>";
                 
-                    $sql_fdps = "SELECT * FROM fdps_tab WHERE branch = ?";
+                    $sql_fdps = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
                     $stmt_fdps = $conn->prepare($sql_fdps);
                     $stmt_fdps->bind_param("s", $dept);
                     $stmt_fdps->execute();
@@ -458,7 +468,7 @@ include("../../includes/header.php");
                             <button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button>
                           </form>";
                     
-                    $sql_fdps_org = "SELECT * FROM fdps_org_tab WHERE branch = ?";
+                    $sql_fdps_org = "SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'";
                     $stmt_fdps_org = $conn->prepare($sql_fdps_org);
                     $stmt_fdps_org->bind_param("s", $dept);
                     $stmt_fdps_org->execute();
@@ -548,7 +558,7 @@ include("../../includes/header.php");
                                 <button type='submit' class='ex_bt' name='export_published'>Export to Excel</button>
                               </form>";
                     
-                        $sql_published = "SELECT * FROM published_tab WHERE branch = ?";
+                        $sql_published = "SELECT * FROM published_tab WHERE branch = ? AND status = 'Accepted'";
                         $stmt_published = $conn->prepare($sql_published);
                         $stmt_published->bind_param("s", $dept);
                         $stmt_published->execute();
@@ -619,7 +629,7 @@ include("../../includes/header.php");
                                     <button type='submit' class='ex_bt' name='export_conference'>Export to Excel</button>
                                   </form>";
                         
-                            $sql_conference = "SELECT * FROM conference_tab WHERE Branch = ?";
+                            $sql_conference = "SELECT * FROM conference_tab WHERE Branch = ? AND status = 'Accepted'";
                             $stmt_conference = $conn->prepare($sql_conference);
                             $stmt_conference->bind_param("s", $dept);
                             $stmt_conference->execute();
@@ -700,7 +710,7 @@ include("../../includes/header.php");
                                 <button type='submit' class='ex_bt' name='export_patent'>Export to Excel</button>
                               </form>";
                     
-                        $sql_patents = "SELECT * FROM patents_table WHERE branch = ?";
+                        $sql_patents = "SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'";
                         $stmt_patents = $conn->prepare($sql_patents);
                         $stmt_patents->bind_param("s", $dept);
                         $stmt_patents->execute();

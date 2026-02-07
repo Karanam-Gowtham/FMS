@@ -119,7 +119,7 @@
     }
 
     // Prepare Extra Head CSS for header.php
-    $extra_head = "
+    $extra_head = <<<CSS
     <style>
         /* Override body background to match visual design */
         body {
@@ -192,6 +192,31 @@
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 16px;
+            color: #0f172a;
+        }
+
+        .registration-form input::placeholder,
+        .registration-form textarea::placeholder {
+            color: #475569;
+        }
+
+        .registration-form input[type="file"] {
+            color: #0f172a;
+            background-color: #fff;
+        }
+
+        .registration-form input[type="file"]::file-selector-button {
+            background: #0ea5e9;
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        .registration-form input[type="file"]::file-selector-button:hover {
+            background: #0284c7;
         }
 
         .registration-form input:focus, .registration-form select:focus, .registration-form textarea:focus {
@@ -228,7 +253,7 @@
         .alert-success { background-color: #d1fae5; color: #065f46; border: 1px solid #34d399; }
         .alert-danger { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
     </style>
-    ";
+    CSS;
 
     include '../../includes/header.php'; 
 ?>

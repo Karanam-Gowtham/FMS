@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("sssssssssssss",$username, $year, $Branch, $activity, $event_name, $from_date, $to_date, $organised_by, $location, $participation_status, $certificate_path, $uploaded_by, $submission_time);
 
     if ($stmt->execute()) {
-        echo "<script>alert('Event submitted successfully!');</script>";
+        echo "<script>alert('Event submitted successfully!'); window.location.href='student_act.php?event=student_act&dept=" . urlencode($dept) . "';</script>";
     } else {
         echo "<script>alert('Error: " . addslashes($stmt->error) . "');</script>";
     }

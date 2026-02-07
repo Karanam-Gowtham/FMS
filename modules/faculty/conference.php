@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("ssssssssssss", $user,$dept, $paper_title, $from_date, $to_date, $organised_by, $location, $certificate_path, $paper_type, $paper_file_path, $submission_time,$year);
 
     if ($stmt->execute()) {
-    echo "<script>alert('Submission successful!');</script>";
+    echo "<script>alert('Submission successful!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
 
 } else {
     echo "<script>showPopup('Error: " . addslashes($stmt->error) . "');</script>";

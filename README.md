@@ -40,25 +40,26 @@ This system is particularly useful for automating the collection of data require
 
 3.  **Database Configuration**:
     *   Open `phpMyAdmin` (typically at `http://localhost/phpmyadmin`).
-    *   Create a new database named `project-fms` (or update `connection.php` if you choose a different name).
-    *   Import the provided SQL dump file: `project-fms.sql`.
+    *   Create a new database named `project-fms` (or update `includes/connection.php` if you choose a different name).
+    *   Import the SQL dump at `database/project-fms` (no extension).
     *   *Note: See `DATABASE_README.md` for detailed database documentation.*
 
-4.  **Configure Connection**:
-    *   Open `connection.php` and verify the credentials:
+4.  **Configure Connection & Sessions**:
+    *   Open `includes/connection.php` and verify the credentials:
         ```php
         $conn = mysqli_connect("localhost", "root", "", "project-fms");
         ```
-    *   Update the username/password if your local setup differs from the default.
+      Update if your local setup differs.
+    *   Sessions and CSRF protection are centralized in `includes/session.php` and `includes/csrf.php`. Any new form that mutates data should include `csrf_field()` and call `csrf_validate()` on POST.
 
 5.  **Run the Application**:
     *   Open your web browser and navigate to `http://localhost/FMS/`.
 
-## Directory Structure
+## Directory Structure (high level)
 
-*   `/admin`: Administrative modules and scripts.
-*   `/css`: Stylesheets for the application.
-*   `/uploads`: Default directory for storing uploaded user documents.
-*   `connection.php`: Database connection configuration.
-*   `index.php`: Main entry point/dashboard.
-*   `login.php`: User authentication page.
+*   `/admin`, `/HOD`, `/modules`: Role-specific UI and actions.
+*   `/includes`: Core utilities (`connection.php`, `session.php`, `csrf.php`).
+*   `/assets`: Static assets (CSS, JS, templates).
+*   `/uploads`: User-uploaded files (served by the app; ensure this is not executable).
+*   `database/project-fms`: SQL dump.
+*   `index.php`: Landing page and shared header wiring.

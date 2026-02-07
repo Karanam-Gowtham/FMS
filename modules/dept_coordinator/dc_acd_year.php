@@ -252,50 +252,35 @@ body {
 
             
     <div class="feedback-grid">
-            <form method="POST" action="dc_down_fdps_files.php?&dept=<?php echo"$dept" ?>">
-                    <input type="hidden" name="action_name" value="fdps">
-                    <button type="submit" class="feedback-card">
-                        <div class="card-content">
-                            <h3>View FDPS Attended Files</h3>
-                        </div>
-                    </button>
-                </form>
+            <a href="dc_down_fdps_files.php?dept=<?php echo urlencode($dept); ?>&action_F=fdps" class="feedback-card">
+                <div class="card-content">
+                    <h3>View FDPS Attended Files</h3>
+                </div>
+            </a>
 
-                <form method="POST" action="dc_down_fdps_files.php?&dept=<?php echo"$dept" ?>">
-                    <input type="hidden" name="action_name" value="fdps_org">
-                    <button type="submit" class="feedback-card">
-                        <div class="card-content">
-                            <h3>View FDPS Organized Files</h3>
-                        </div>
-                    </button>
-                </form>
+            <a href="dc_down_fdps_files.php?dept=<?php echo urlencode($dept); ?>&action_F=fdps_org" class="feedback-card">
+                <div class="card-content">
+                    <h3>View FDPS Organized Files</h3>
+                </div>
+            </a>
 
-                <form method="POST" action="dc_down_fdps_files.php?&dept=<?php echo"$dept" ?>">
-                    <input type="hidden" name="action_name" value="published">
-                    <button type="submit" class="feedback-card">
-                        <div class="card-content">
-                            <h3>View Papers Published Files</h3>
-                        </div>
-                    </button>
-                </form>
+            <a href="dc_down_fdps_files.php?dept=<?php echo urlencode($dept); ?>&action_F=published" class="feedback-card">
+                <div class="card-content">
+                    <h3>View Papers Published Files</h3>
+                </div>
+            </a>
 
-                <form method="POST" action="dc_down_fdps_files.php?&dept=<?php echo"$dept" ?>">
-                    <input type="hidden" name="action_name" value="conference">
-                    <button type="submit" class="feedback-card">
-                        <div class="card-content">
-                            <h3>View Conferences Published Files</h3>
-                        </div>
-                    </button>
-                </form>
+            <a href="dc_down_fdps_files.php?dept=<?php echo urlencode($dept); ?>&action_F=conference" class="feedback-card">
+                <div class="card-content">
+                    <h3>View Conferences Published Files</h3>
+                </div>
+            </a>
 
-                <form method="POST" action="dc_down_fdps_files.php?&dept=<?php echo"$dept" ?>">
-                    <input type="hidden" name="action_name" value="patents">
-                    <button type="submit" class="feedback-card">
-                        <div class="card-content">
-                            <h3>View Patents Files</h3>
-                        </div>
-                    </button>
-                </form>
+            <a href="dc_down_fdps_files.php?dept=<?php echo urlencode($dept); ?>&action_F=patents" class="feedback-card">
+                <div class="card-content">
+                    <h3>View Patents Files</h3>
+                </div>
+            </a>
             </div>
 
         <div class="container">
@@ -313,50 +298,35 @@ body {
 
             <div class="feedback-grid1">
 
-                    <form method="POST" action="dc_down_dept_files.php?&dept=<?php echo"$dept" ?>">
-                        <input type="hidden" name="file_type1" value="admin">
-                        <button type="submit" class="feedback-card">
-                            <div class="card-content">
-                                <h3>Admin Files</h3>
-                            </div>
-                        </button>
-                    </form>
+            <a href="dc_down_dept_files.php?dept=<?php echo urlencode($dept); ?>&file_type1=admin" class="feedback-card">
+                <div class="card-content">
+                    <h3>Admin Files</h3>
+                </div>
+            </a>
 
-                    <form method="POST" action="dc_down_dept_files.php?&dept=<?php echo"$dept" ?>">
-                        <input type="hidden" name="file_type1" value="faculty">
-                        <button type="submit" class="feedback-card">
-                            <div class="card-content">
-                                <h3>Faculty Files</h3>
-                            </div>
-                        </button>
-                    </form>
+            <a href="dc_down_dept_files.php?dept=<?php echo urlencode($dept); ?>&file_type1=faculty" class="feedback-card">
+                <div class="card-content">
+                    <h3>Faculty Files</h3>
+                </div>
+            </a>
 
-                    <form method="POST" action="dc_down_dept_files.php?&dept=<?php echo"$dept" ?>">
-                        <input type="hidden" name="file_type1" value="student">
-                        <button type="submit" class="feedback-card">
-                            <div class="card-content">
-                                <h3>Student Related Files</h3>
-                            </div>
-                        </button>
-                    </form>
+            <a href="dc_down_dept_files.php?dept=<?php echo urlencode($dept); ?>&file_type1=student" class="feedback-card">
+                <div class="card-content">
+                    <h3>Student Related Files</h3>
+                </div>
+            </a>
 
-                    <form method="POST" action="dc_down_dept_files.php?&dept=<?php echo"$dept" ?>">
-                        <input type="hidden" name="file_type1" value="exam_section">
-                        <button type="submit" class="feedback-card">
-                            <div class="card-content">
-                                <h3>Exam Section Files</h3>
-                            </div>
-                        </button>
-                    </form>
+            <a href="dc_down_dept_files.php?dept=<?php echo urlencode($dept); ?>&file_type1=exam_section" class="feedback-card">
+                <div class="card-content">
+                    <h3>Exam Section Files</h3>
+                </div>
+            </a>
 
-                    <form method="POST" action="dc_down_st_act_files.php?&dept=<?php echo"$dept" ?>">
-                        <input type="hidden" name="file_type1" value="Student Activities Files">
-                        <button type="submit" class="feedback-card">
-                            <div class="card-content">
-                                <h3>Student Activities Files</h3>
-                            </div>
-                        </button>
-                    </form>
+            <a href="dc_down_st_act_files.php?dept=<?php echo urlencode($dept); ?>&file_type1=Student%20Activities%20Files" class="feedback-card">
+                <div class="card-content">
+                    <h3>Student Activities Files</h3>
+                </div>
+            </a>
 
                 </div>
 

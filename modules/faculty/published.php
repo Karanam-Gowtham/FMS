@@ -64,7 +64,7 @@
                             VALUES ('$user', '$dept', '$paper_title', '$journal_name', '$indexing', '$date_of_submission', '$quality_factor', '$impact_factor', '$payment', '$submission_time', '$file_destination','$year')";
 
                     if ($conn->query($sql) === TRUE) {
-                        echo "<script>alert('Details and paper uploaded successfully');</script>";
+                        echo "<script>alert('Details and paper uploaded successfully'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
                     } else {
                         echo "Error: " . $sql . "<br>" . $conn->error;
                     }

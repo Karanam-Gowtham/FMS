@@ -22,7 +22,7 @@ if (isset($_GET['dept'])) {
 
 // Connect to the database
 
-include("./header.php");
+include("../../includes/header.php");
 
 
 

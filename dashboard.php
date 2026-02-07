@@ -56,7 +56,14 @@ if ($check_history->num_rows == 0) {
 if (isset($_GET['action']) && $_GET['action'] == 'get_history' && isset($_GET['file_id'], $_GET['table_name'])) {
     $fid = intval($_GET['file_id']);
     $tbl = $_GET['table_name'];
-    $stmt = $conn->prepare("SELECT rejected_by, rejection_reason, created_at FROM rejection_history WHERE file_id = ? AND table_name = ? ORDER BY created_at DESC");
+    // Collapse duplicate rejection messages (same user + reason) keeping most recent timestamp
+    $stmt = $conn->prepare("
+        SELECT rejected_by, rejection_reason, MAX(created_at) AS created_at
+        FROM rejection_history
+        WHERE file_id = ? AND table_name = ?
+        GROUP BY rejected_by, rejection_reason
+        ORDER BY created_at DESC
+    ");
     $stmt->bind_param("is", $fid, $tbl);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -153,42 +160,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $res = $stmt->get_result();
         
         if ($row = $res->fetch_assoc()) {
-            $old_path = $row[$path_col];
-            
-            // Normalize directory resolution
-            $target_rel_root = str_replace('../../', '', $old_path);
-            $target_dir = dirname($target_rel_root);
-            
-            // Fallback if directory seems empty or root
-            if ($target_dir == '.' || empty($target_dir)) {
-                $target_dir = 'uploads'; 
+            $old_path = $row[$path_col]; // what the DB stores (may start with ../../)
+
+            // Build filesystem path relative to project root
+            $relative = $old_path;
+            if (strpos($relative, '../../') === 0) {
+                $relative = substr($relative, 6); // drop ../../
             }
-            
+            $relative = ltrim($relative, '/');
+            $fs_path = __DIR__ . '/' . $relative;
+            $target_dir = dirname($fs_path);
+
             if (!is_dir($target_dir)) {
                 @mkdir($target_dir, 0777, true);
             }
-            
-            $filename = basename($_FILES['new_file']['name']);
-            $target_file = $target_dir . '/' . uniqid() . '_' . $filename;
-            
-            if (move_uploaded_file($_FILES['new_file']['tmp_name'], $target_file)) {
-                // Determine DB path to save (restore ../../ if used previously)
-                $db_path = $target_file;
-                // If old path started with ../../, maintain that convention
-                if (strpos($old_path, '../../') === 0) {
-                    $db_path = '../../' . $target_file;
-                // If it was just uploads/..., keep it that way (dashboard relative)
-                     // But if the original script expects ../../, we might be breaking it?
-                     // Usually standardizing on ../../uploads is safer if modules use it.
-                     // But let's respect the current DB value's style.
-                }
 
-                // --- Fix: Delete Old File ---
-                // We derived $target_rel_root earlier which is the relative path from dashboard.php
-                if (!empty($target_rel_root) && file_exists($target_rel_root)) {
-                    unlink($target_rel_root);
-                }
-                // ----------------------------
+            // Remove old file to truly replace
+            if (file_exists($fs_path)) {
+                @unlink($fs_path);
+            }
+
+            if (move_uploaded_file($_FILES['new_file']['tmp_name'], $fs_path)) {
+                // Keep the same DB path so references remain stable
+                $db_path = $old_path;
+                $filename = basename($fs_path);
 
                 // Update DB
                 $update_sql = "UPDATE $table_name SET $path_col = ?";

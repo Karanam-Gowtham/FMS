@@ -12,10 +12,10 @@ if (!isset($_SESSION['a_username'])) {
 $username = $_SESSION['a_username'];
 
 // Get file_type from previous page
-$action1 = isset($_POST['file_type1']) ? $_POST['file_type1'] : '';
+$action1 = isset($_GET['file_type1']) ? $_GET['file_type1'] : (isset($_POST['file_type1']) ? $_POST['file_type1'] : '');
 
 // Get selected branch from current page
-$selected_branch = $_POST['selected_branch'] ?? '';
+$selected_branch = isset($_GET['dept']) ? $_GET['dept'] : ($_POST['selected_branch'] ?? '');
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -341,6 +341,12 @@ include "../../includes/header.php";
 
     <div class="filter-section">
         <form method="POST" class="filter-form">
+            <?php
+            $preselected_branch = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['selected_branch']) ? $_POST['selected_branch'] : '');
+            if ($preselected_branch) {
+                echo '<input type="hidden" name="selected_branch" value="' . htmlspecialchars($preselected_branch) . '">';
+            } else {
+            ?>
             <label for="selected_branch">Select Department:</label>
             <select name="selected_branch" id="selected_branch" required>
                 <option value="" disabled selected>-- Select Branch --</option>
@@ -354,6 +360,7 @@ include "../../includes/header.php";
                 <option value="CIVIL" <?= $selected_branch === 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
                 <option value="BSH" <?= $selected_branch === 'BSH' ? 'selected' : '' ?>>BSH</option>
             </select>
+            <?php } ?>
             <input type="hidden" name="file_type1" value="<?= htmlspecialchars($action1) ?>">
             <button type="submit" class="filter-button">Show Files</button>
         </form>

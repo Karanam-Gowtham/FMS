@@ -52,7 +52,7 @@
 
 
             if ($conn->query($sql) === TRUE) {
-                echo "<script>alert('Details uploaded successfully');</script>";
+                echo "<script>alert('Details uploaded successfully'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
             } else {
                 echo "Error: " . $sql . "<br>" . $conn->error;
             }

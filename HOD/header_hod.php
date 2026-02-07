@@ -328,5 +328,5 @@ ob_start(); // Start output buffering
         });
     </script>
 <?php
-ob_flush(); // Flush output to prevent header issues
+// Intentionally leave output buffering active to allow redirects after including this header.
 ?>

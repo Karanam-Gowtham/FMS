@@ -58,7 +58,7 @@ if (isset($_GET['activity'])) {
                             VALUES ('$username' ,'$uploaded_by','$Branch','$year', '$paper_title', '$journal_name', '$indexing', '$date_of_submission', '$quality_factor', '$impact_factor', '$payment', '$submission_time', '$file_destination')";
 
                     if ($conn->query($sql) === TRUE) {
-                        echo "<script>alert('Details and paper uploaded successfully');</script>";
+                        echo "<script>alert('Details and paper uploaded successfully'); window.location.href='student_act.php?event=student_act&dept=" . urlencode($dept) . "';</script>";
                     } else {
                         echo "Error: " . $sql . "<br>" . $conn->error;
                     }

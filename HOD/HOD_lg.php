@@ -1,44 +1,80 @@
 <?php
-session_start();
+require_once '../includes/session.php';
+require_once '../includes/csrf.php';
 include '../includes/connection.php';
 include 'header_hod.php';
 
 $dept = isset($_GET['dept']) ? htmlspecialchars($_GET['dept']) : '';
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
+}
 
 if (isset($_POST['signIn'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
-    $stmt->bind_param("ss", $username, $password);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Prefer reg_hod table if it exists; otherwise fall back to reg_dept_cord
+    $tableName = 'reg_dept_cord';
+    $chk = $conn->query("SHOW TABLES LIKE 'reg_hod'");
+    if ($chk && $chk->num_rows > 0) {
+        $tableName = 'reg_hod';
+    }
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $db_dept = strtoupper($row['department']);
+    $hasDeptCol = false;
+    $colChk = $conn->query("SHOW COLUMNS FROM {$tableName} LIKE 'department'");
+    if ($colChk && $colChk->num_rows > 0) {
+        $hasDeptCol = true;
+    }
 
-        if (!empty($dept)) {
-            // Department specific validation
-            if ($db_dept === strtoupper($dept)) {
+    if ($hasDeptCol) {
+        $stmt = $conn->prepare("SELECT userid, department, password FROM {$tableName} WHERE userid = ? AND password = ?");
+    } else {
+        // No department column; still allow login, dept will be taken from URL if provided
+        $stmt = $conn->prepare("SELECT userid, password FROM {$tableName} WHERE userid = ? AND password = ?");
+    }
+
+    if ($stmt) {
+        $stmt->bind_param("ss", $username, $password);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $db_dept = $hasDeptCol ? strtoupper($row['department']) : '';
+
+            if (!empty($dept) && !empty($db_dept)) {
+                if ($db_dept === strtoupper($dept)) {
+                    session_regenerate_id(true);
+                    $_SESSION['h_username'] = $username;
+                    $_SESSION['dept'] = $dept; 
+                    if (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    header("Location: see_uploads.php");
+                    exit();
+                } else {
+                    $error = "Invalid login for $dept department. This user belongs to $db_dept.";
+                }
+            } else {
+                // If department column missing or no dept in URL, proceed but set session dept best-effort
+                session_regenerate_id(true);
                 $_SESSION['h_username'] = $username;
-                $_SESSION['dept'] = $dept; 
+                $_SESSION['dept'] = !empty($dept) ? $dept : $db_dept;
+                if (ob_get_level()) {
+                    ob_end_clean();
+                }
                 header("Location: see_uploads.php");
                 exit();
-            } else {
-                echo "<script>alert('Invalid login for " . $dept . " department. This user belongs to " . $db_dept . "');</script>";
             }
         } else {
-            // Fallback if no department selected (or direct access)
-             $_SESSION['h_username'] = $username;
-             $_SESSION['dept'] = $db_dept;
-             header("Location: see_uploads.php");
-             exit();
+            $error = "Invalid User ID or Password.";
         }
+        $stmt->close();
     } else {
-         echo "<script>alert('Invalid User ID or Password.');</script>";
+        $error = "Login unavailable (DB prepare failed). Please ensure 'reg_hod' table exists.";
     }
-    $stmt->close();
 }
 ?>
 
@@ -133,7 +169,11 @@ if (isset($_POST['signIn'])) {
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
+                <?php echo csrf_field(); ?>
                 <h1 id="hav">HOD<br>Log In <?php if($dept) echo "($dept)"; ?></h1>
+                <?php if (!empty($error)): ?>
+                    <div style="color:#ffb4b4; margin-bottom:10px;"><?php echo htmlspecialchars($error); ?></div>
+                <?php endif; ?>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />
                 <button type="submit" name="signIn" class="button1">Log In</button>

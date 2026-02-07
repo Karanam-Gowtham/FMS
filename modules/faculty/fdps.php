@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 VALUES ('$user','$dept', '$title', '$date_from', '$date_to', '$organised_by', '$location', '$target_file' , '$submission_time','$year')";
 
         if ($conn->query($sql) === TRUE) {
-            echo "<script>alert('Records uploaded successfully');</script>";
+            echo "<script>alert('Records uploaded successfully'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
 
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;

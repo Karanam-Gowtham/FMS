@@ -9,24 +9,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        $stmt = $conn->prepare("SELECT * FROM Admin_reg WHERE Username = ? AND Password = ?");
+        // Use reg_dept_cord table instead of Admin_reg
+        $stmt = $conn->prepare("SELECT department FROM reg_dept_cord WHERE userid = ? AND password = ?");
         $stmt->bind_param("ss", $username, $password);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            $login_stmt = $conn->prepare("INSERT INTO Admin_login (Username, Password) VALUES (?, ?)");
-            $login_stmt->bind_param("ss", $username, $password);
-
-            if ($login_stmt->execute() === TRUE) {
-                $_SESSION['username'] = $username;
-                
-                header("Location: acd_year_a.php");
-                exit();
-            } else {
-                echo "Error: " . $login_stmt->error;
-            }
-            $login_stmt->close();
+            $row = $result->fetch_assoc();
+            $department = $row['department'];
+            
+            // Set session variables
+            $_SESSION['a_username'] = $username;
+            
+            // Redirect to the correct dashboard with department parameter
+            header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=" . urlencode($department));
+            exit();
+            
         } else {
             echo "<script>alert('Wrong User Name or password!');</script>";
         }
