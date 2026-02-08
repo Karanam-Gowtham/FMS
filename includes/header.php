@@ -282,7 +282,10 @@ ob_start(); // Start output buffering
                         <a class="a_" href="<?php echo $base_url; ?>admin/admins.php?dept=BSH">BSH</a>
                     </div>
                 </div>
-                <button class="btn dp btn-outline" onclick="openDashboard()">Dashboard</button>
+                <button class="btn dp btn-outline" onclick="openDashboard()">
+    Dashboard
+    <span id="dashboard-badge" style="display:none; background:#ff4444; color:white; border-radius:50%; padding:2px 6px; font-size:10px; margin-left:5px; vertical-align: top;">0</span>
+</button>
                 <a href="<?php echo $base_url; ?>modules/common/pdf_merger.php"><button class="btn dp btn-outline" style="white-space: nowrap;">Pdf Merger</button></a>
                 <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
                     <a href="<?php echo $base_url; ?>modules/auth/logout.php"><button class="btn dp btn-outline" style="border-color: #dc3545; color: white; white-space: nowrap;">Logout</button></a>
@@ -330,6 +333,29 @@ ob_start(); // Start output buffering
         hamburger.addEventListener('click', () => {
             navMenu.classList.toggle('active');
         });
+    </script>
+    <script>
+        function updateDashboardBadge() {
+            const baseUrl = "<?php echo $base_url; ?>";
+            fetch(baseUrl + 'check_notifications.php')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    const badge = document.getElementById('dashboard-badge');
+                    if (data.count && data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching notifications:', error));
+        }
+        
+        document.addEventListener('DOMContentLoaded', updateDashboardBadge);
+        setInterval(updateDashboardBadge, 30000); 
     </script>
 <?php
 ob_flush(); // Flush output to prevent header issues

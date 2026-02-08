@@ -91,7 +91,8 @@ INSERT INTO `academic_year` (`year`) VALUES
 
 CREATE TABLE `admin_login` (
   `Username` varchar(30) NOT NULL,
-  `Password` varchar(30) NOT NULL
+  `Password` varchar(30) NOT NULL,
+  `email` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -192,7 +193,8 @@ INSERT INTO `admin_login` (`Username`, `Password`) VALUES
 
 CREATE TABLE `admin_reg` (
   `Username` varchar(30) NOT NULL,
-  `Password` varchar(20) NOT NULL
+  `Password` varchar(20) NOT NULL,
+  `email` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -2187,7 +2189,8 @@ INSERT INTO `published_tab` (`id`, `username`, `branch`, `paper_title`, `journal
 
 CREATE TABLE `reg_central_cord` (
   `userid` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `email` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -2216,7 +2219,8 @@ INSERT INTO `reg_central_cord` (`userid`, `password`) VALUES
 CREATE TABLE `reg_cri_cord` (
   `id` int(11) NOT NULL,
   `userid` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `email` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -2245,7 +2249,8 @@ INSERT INTO `reg_cri_cord` (`id`, `userid`, `password`) VALUES
 CREATE TABLE `reg_dept_cord` (
   `userid` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `department` varchar(50) NOT NULL
+  `department` varchar(50) NOT NULL,
+  `email` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -2853,6 +2858,7 @@ CREATE TABLE IF NOT EXISTS
   userid varchar(100) NOT NULL,
   password varchar(255) NOT NULL,
   department varchar(100) DEFAULT NULL,
+  email varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

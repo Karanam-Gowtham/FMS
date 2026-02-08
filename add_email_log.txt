@@ -1,0 +1,25 @@
+Starting email column check...
+Tables found: a_c_files, a_cri_files, a_files, academic_year, admin_login, admin_reg, approval_roles, central_files, conference_tab, contact_form, criteria, criteria1, criteria2, dc_up_files, dept_files, document_role_flow, document_versions, documents, fdps_org_tab, fdps_tab, files, files5_1_1and2, files5_1_3, files5_1_4, files5_2_1, files5_2_2, files5_2_3, files5_3_1, files5_3_3, login_pg, patents_table, published_tab, reg_central_cord, reg_cri_cord, reg_dept_cord, reg_hod, reg_pg, reg_tab, rejection_history, role_flow_logs, s_bodies, s_conference_tab, s_events, s_journal_tab
+Potential role tables: admin_login, admin_reg, login_pg, reg_central_cord, reg_cri_cord, reg_dept_cord, reg_hod, reg_pg, reg_tab
+Email column already exists in admin_login.
+Email column already exists in admin_reg.
+Email column already exists in login_pg.
+Email column already exists in reg_central_cord.
+Email column already exists in reg_cri_cord.
+Email column already exists in reg_dept_cord.
+Email column already exists in reg_hod.
+Email column already exists in reg_pg.
+Email column already exists in reg_tab.
+
+--- Inspecting reg_hod ---
+id - int(11)
+userid - varchar(100)
+password - varchar(255)
+department - varchar(100)
+email - varchar(255)
+
+--- Inspecting reg_dept_cord ---
+userid - varchar(255)
+password - varchar(255)
+department - varchar(50)
+email - varchar(255)
