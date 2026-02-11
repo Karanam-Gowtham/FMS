@@ -42,23 +42,34 @@ if (!$role) {
 
 // Helper to build partial query (Count version)
 function build_count_query($table, $user_col, $role, $user_id, $dept) {
-    $q = "SELECT COUNT(*) as cnt FROM $table WHERE 1=1";
+    $q = "SELECT COUNT(*) as cnt FROM $table";
+    $join = "";
+    $where = " WHERE 1=1";
     
     if ($role == 'Faculty') {
-        // Faculty: Notification for Rejected files (Action Required)
         // Faculty: Notification for pending or rejected files
-        $q .= " AND $user_col = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
+        $where .= " AND $table.$user_col = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
     } elseif ($role == 'Dept_Coordinator') {
-        // Dept Coordinator: Waiting for their approval
-        $q .= " AND status = 'Pending Dept Coordinator'";
+        // Dept Coordinator: Waiting for their approval from THEIR department
+        $where .= " AND status = 'Pending Dept Coordinator'";
+        if (!empty($dept)) {
+            // Join with reg_tab to verify department of the uploader
+            $join = " LEFT JOIN reg_tab ON $table.$user_col = reg_tab.userid";
+            $where .= " AND reg_tab.dept = '$dept'";
+        }
     } elseif ($role == 'HOD') {
-        // HOD: Waiting for their approval
-        $q .= " AND status = 'Pending HOD'";
+        // HOD: Waiting for their approval from THEIR department
+        $where .= " AND status = 'Pending HOD'";
+        if (!empty($dept)) {
+            $join = " LEFT JOIN reg_tab ON $table.$user_col = reg_tab.userid";
+            $where .= " AND reg_tab.dept = '$dept'";
+        }
     } elseif ($role == 'Central_Coordinator') {
         // Central: Waiting for their approval
-        $q .= " AND status = 'Pending Central Coordinator'";
+        $where .= " AND status = 'Pending Central Coordinator'";
     }
-    return $q;
+    
+    return $q . $join . $where;
 }
 
 // Replicate the list of tables from dashboard.php

@@ -1,0 +1,23 @@
+Faculty Management System (FMS)
+
+Overview
+The Faculty Management System (FMS) is a comprehensive web-based application designed to streamline the management of faculty-related data and administrative processes within an educational institution. It serves as a centralized platform for storing, retrieving, and managing documentation related to academic activities, accreditation criteria (NAAC/NBA), and faculty achievements.
+
+This system is particularly useful for automating the collection of data required for compliance reports, annual quality assurance, and departmental audits.
+
+Key Features
+
+*   Role-Based Access Control: Secure login and dashboard views for different user roles (Administrators, HODs, Faculty, and Coordinators).
+*   Academic Activity Tracking:
+    *   Publications: Manage records of Journal publications, Conference papers, and Patents.
+    *   Professional Development: Track Faculty Development Programs (FDPs) attended or organized.
+    *   Student Activities: Record student achievements and activities supervised by faculty.
+*   File Management System:
+    *   Upload and organize documents (PDFs, images) linked to specific academic years and accreditation criteria.
+    *   Bulk download capabilities for departmental or central files.
+*   Accreditation Support (NAAC/NBA):
+    *   Built-in database of inspection criteria (e.g., 1.1.1, 1.2.1).
+    *   Mapping of uploaded files to specific criteria numbers for easy retrieval during audits.
+*   Utility Tools:
+    *   PDF Merger: Integrated tool to merge multiple PDF documents into a single file.
+*   Communication: Built-in contact form for inquiries.
