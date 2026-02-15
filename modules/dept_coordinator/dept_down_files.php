@@ -240,7 +240,7 @@ span{
                     </svg>
                 </a>
                 <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
+                <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
                 <span>&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> My Dept Files </a></span>
                 <span>&nbsp;  >> &nbsp; </span>
             </div>

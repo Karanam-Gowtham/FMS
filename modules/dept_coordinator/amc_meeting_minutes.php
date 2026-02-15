@@ -36,69 +36,28 @@ if ($result_dept->num_rows > 0) {
     die("Department not found for the user.");
 }
 
-// Retrieve event from GET request
-if (isset($_GET['event'])) {
-    $event = $_GET['event'];
-} else {
-    $event = ''; // Default value if no event is provided
-}
+// Hardcoded event for this specific program
+$event = 'AMC Meeting Minutes';
 
-$file_options = [];
-// Set file options based on the even
-    // Define cases for file options (same as original code)
-    switch ($event) {
-        case 'admin':
-            $file_options = [
-                'Course Structure', 'Result Analysis', 'Course Schedule', "Faculty's Feedback by Students", 'Feedback from Parents', 
-                'Employer Feedback', 'Department Area Details', 'Departmental Laboratory Details', 'Major Equipment in the Laboratories',
-                'List of Experiments', 'Major Equipment Utilization Record', 'Equipment Maintenance Record', 'Courses Linked with Employability',
-                'Financial Statement/Budget Status', 'Departmental Library Details', 'Seminars/Workshops/Conferences Organized',
-                'Industrial Visits', 'Guest Lectures', 'List of Projects', 'Add-on Course/Training Conducted', 'Consultancy-New', 
-                'External Sports and Projects', 'Transferrable and Life Skills Courses', 'Remedial Classes', 'Course End Feedback Form',
-                'Class Time Table', 'Faculty Time Table', 'Classroom Time Table', 'Lab Time Table', 'Student Progression to Higher Education',
-                'Feedback from Students/Alumni/Academic Peer', 'Course File-Index', 'Feedback on Curriculum from Students/Employer/Alumni',
-                'Workshops-Seminars on Research Methodology', 'Intellectual Property Rights (IPR)', 'Entrepreneurship-New', 
-                'Professional Societies Chapters', 'Engineering Events Organized', 'Product Development Activities', 'Collaborative Activities',
-                'Functional MoUs with Ongoing Activities', 'Mini Project Work', 'Term Paper Work', 'Mentoring'
-            ];
-            break;
-        case 'faculty':
-            $file_options = [
-                'Faculty List', 'Faculty Profile', 'Academic Research', 'Books and Chapters Published', 
-                'Faculty in Inter-Departmental/Institutional Activities', 'Faculty for Higher Studies', 'Faculty Attended Seminars/Internships',
-                'Faculty Self-Appraisal', 'Non-Teaching Staff Skill Upgradation', 'Observations on Student Feedback',
-                'Full-Time Teachers with PhD Guidance', 'Consultancy and Corporate Training', 'Financial Support to Faculty',
-                'Publication of Technical Magazines/Newsletters'
-            ];
-            break;
-        case 'student':
-            $file_options = [
-                'List of Forms', 'Student Addresses', 'Cumulative Monthly Attendance', 'Semester End Attendance', 'Condonation List', 
-                'Detention List', 'Papers Published by Students', 'Students in Competitive Exams', 'Co-Curricular/Extra-Curricular Activities',
-                'Placement Record', 'Alumni Interaction', 'Field Projects/Internships', 'List of Seminars/Workshops Attended', 
-                'Online Courses Completed', 'Coding/Hardware Competitions', 'Capacity Development Activities', 'Guidance for Competitive Exams',
-                'Career Counselling'
-            ];
-            break;
-        case 'exam':
-            $file_options = [
-                'Notice for Internal Lab Exams', 'Invigilation Schedule', 'Absentee Statement', 'Sessional Marks Record', 'Final Sessional Marks'
-            ];
-            break;
-        default:
-            $file_options = []; // Empty if no event is provided
-            break;
-    }
+// File options specific to AMC Meeting Minutes
+$file_options = [
+    'Meeting Minutes',
+    'Action Taken Report',
+    'Attendance Sheet',
+    'Agenda',
+    'Other'
+];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
-    $file_type = $_POST['file_type'];
+    $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
     // Upload the file to the server
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
+        // mapping $event to file_type column, and $file_type (option) to sub_file_type column
         $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sssssss", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path);
@@ -120,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Department File</title>
+    <title>Upload <?php echo $event; ?></title>
     <style>
         /* Styles unchanged */
         body {
@@ -284,14 +243,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </a>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
-                <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?>_Files </a></span>
+                <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?> </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span>
             </div>
         </div>
     </nav>
 <div class="cont1">
     <div class="container11">
-        <h1>Upload <?php echo ucfirst($event); ?> Files</h1>
+        <h1>Upload <?php echo $event; ?></h1>
         <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
             <label for="file_name">File Name:</label>
             <input type="text" name="file_name" id="file_name" required>

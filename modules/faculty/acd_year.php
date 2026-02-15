@@ -260,6 +260,24 @@ body {
                         <h3>student Activities Files</h3>
                     </div>
                 </a>
+
+                <a href="../dept_coordinator/dept_meeting_minutes.php?dept=<?php echo"$dept" ?>" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Dept Meeting Minutes</h3>
+                    </div>
+                </a>
+
+                <a href="../dept_coordinator/amc_meeting_minutes.php?dept=<?php echo"$dept" ?>" class="feedback-card">
+                    <div class="card-content">
+                        <h3>AMC Meeting Minutes</h3>
+                    </div>
+                </a>
+
+                <a href="../dept_coordinator/bos_meeting_minutes.php?dept=<?php echo"$dept" ?>" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Board Of Studies</h3>
+                    </div>
+                </a>
                
             </div>
         </div>
