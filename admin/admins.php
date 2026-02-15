@@ -2,7 +2,6 @@
 ob_start(); // Start output buffering at the very top
 require_once '../includes/session.php';
 require_once '../includes/csrf.php';
-include 'header_admin.php';
 include '../includes/connection.php';
 
 $dept = isset($_GET['dept']) ? $_GET['dept'] : '';
@@ -29,6 +28,8 @@ if (isset($_SESSION['username'])) {
     $loggedInRole = 'hod';
 } elseif (isset($_SESSION['admin'])) {
     $loggedInRole = 'admin';
+} elseif (isset($_SESSION['j_username'])) {
+    $loggedInRole = 'jr_assistant';
 } elseif (isset($_SESSION['c_cord'])) {
     $loggedInRole = 'central_coordinator';
 }
@@ -59,6 +60,14 @@ if ($loggedInRole && $dept) {
         // Admin can access all, so theoretically true, but admin usually doesn't switch depts this way?
         // Admin link usually has specific params. Let's allow for now.
         $matchDept = true; 
+    } elseif ($loggedInRole == 'jr_assistant' && isset($_SESSION['j_username'])) {
+        $check = $conn->prepare("SELECT department FROM reg_jr_assistant WHERE userid = ?");
+        $check->bind_param("s", $_SESSION['j_username']);
+        $check->execute();
+        $res = $check->get_result();
+        if ($r = $res->fetch_assoc()) {
+            if (strcasecmp($r['department'], $dept) == 0) $matchDept = true;
+        }
     }
     // Central Coordinator? Usually global.
 }
@@ -142,6 +151,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $error_message = "Invalid username or password for HOD.";
                 }
                 $stmt->close();
+            } elseif ($designation == "jr_assistant") {
+                $stmt = $conn->prepare("SELECT * FROM reg_jr_assistant WHERE userid = ? AND password = ? AND department = ?");
+                $stmt->bind_param("sss", $userid, $password, $dept);
+                $stmt->execute();
+                $result = $stmt->get_result();
+            
+                if ($result->num_rows > 0) {
+                    session_regenerate_id(true);
+                    $_SESSION['j_username'] = $userid;
+                    $_SESSION['dept'] = $dept;
+                    $stmt->close();
+                    ob_end_clean();
+                    header("Location: ../modules/jr_assistant/jr_acd_year.php?dept=$dept");
+                    exit();
+                } else {
+                    $error_message = "Invalid username, password, or department mismatch for Jr Assistant.";
+                }
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
                 session_regenerate_id(true);
                 $_SESSION['admin'] = $userid;
@@ -155,6 +181,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+// Include header ONLY after all possible redirects
+include 'header_admin.php';
 ?>
 
 <!DOCTYPE html>
@@ -327,22 +355,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php
                     // Check if any user is logged in
                     if ($loggedInRole) {
-                        // Logout logic processed at top, but we need form here
-                         if (isset($_POST['logout'])) {
-                            // This part inside HTML body will be executed if post logout is sent to self
-                            // But usually PHP logic is at top. 
-                            // We should move logic to top or just have form submit to self.
-                            // Logic is handled? No, logic is missing in PHP block at top except for Login.
-                            // I should add logout handling at the top of the file as well or here if it works.
-                            // Let's rely on standard logic: submit -> page reloads -> check POST -> logout -> redirect.
-                        }
-                        
-                        // echo '<form method="POST" style="position: absolute; top: 100px; right: 50px; z-index: 10;">
-                        //        <button type="submit" name="logout" class="logout-btn11" style="background: transparent; border: 2px solid #dc3545; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; backdrop-filter: blur(5px); cursor: pointer;">Logout</button>
-                        //      </form>';
-                        // Removed logout button from body as it is now in header.
-                        // Note: Admin/HOD don't really have "Edit Profile" in this system, only Faculty does. 
-                        // User asked "in the same way i want log out for all the other roles".
+                        // Logout logic processed at top
                     }
                 ?>
     <div class="login-container">
@@ -352,8 +365,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <option value="" selected disabled>Choose...</option>
             <option value="faculty">Faculty</option>
             <option value="dept_coordinator">Dept Coordinator</option>
+            <option value="jr_assistant">Jr Assistant</option>
             <option value="hod">HOD</option>
-
             <option value="admin">Admin</option>
         </select><br>
         <button class="btnl" onclick="showLogin()">Submit</button>
@@ -381,74 +394,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         let currentDept = "<?php echo urlencode($dept); ?>"; 
 
         if (loggedInRole) {
-            // We need to know the department the user is logged into to safely auto-redirect.
-            // Since PHP session variable for dept might be 'dept' or implicitly associated with user, 
-            // we should ideally check it.
-            // However, the JS only knows 'currentDept' (from GET param).
-            // Let's pass the session department to JS as well.
             let sessionDept = "<?php echo isset($_SESSION['dept']) ? urlencode($_SESSION['dept']) : ''; ?>";
-            // For Dept Coordinator, dept is fetched from DB on load in dashboard, but maybe not in session unless we put it there.
-            // For Faculty, dept is usually not strictly in session 'dept' key in all flows, but let's see.
-            // If sessionDept is empty, we might not be able to strict check, but usually role+cookie implies access.
-            // BUT user said: "if i choose some other department also it is getting logged in" -> This is BAD.
-            // We must ensure the user is redirected ONLY if the 'currentDept' matches their logged-in dept.
-            
-            // Wait, for Faculty, 'dept' might not be in $_SESSION['dept']. checking admins.php login logic:
-            // Faculty login: header("Location: ...?dept=$dept"); $_SESSION['username'] = $userid; (No $_SESSION['dept'] set!)
-            // Dept Coord: header("Location: ...?dept=$dept"); $_SESSION['a_username'] = $userid; (No $_SESSION['dept'] set!)
-            // HOD: $_SESSION['dept'] = $dept; (SET!)
-            
-            // So for Faculty/Dept Coord, we don't strictly know their dept from SESSION in this file easily without querying DB.
-            // BUT, if they are logged in, they are logged in as a specific user who belongs to a dept.
-            // If I am logged in as 'faculty_cse', and I go to 'admins.php?dept=ECE', and click 'Faculty' -> 'Submit'.
-            // The code redirects me to 'acd_year.php?dept=ECE'.
-            // 'acd_year.php' likely uses the GET param 'dept'.
-            // Does 'acd_year.php' verify if $_SESSION['username'] belongs to $_GET['dept']?
-            // If NO, then that is a security flaw in 'acd_year.php'.
-            // The user is asking to prevent this auto-login if the dept is different.
-            
-            // Since we can't easily fix 'acd_year.php' from here without editing it, 
-            // we should at least try to prevent the auto-redirect if we suspect a mismatch.
-            // BUT we don't have the user's dept here for Faculty/DC.
-            
-            // Alternative: The user says "if i choose the same dept again ... it should be logged in".
-            // "if i choose some other department ... it is getting logged in".
-            // This implies the previous auto-redirect was too aggressive.
-            
-            // Basic fix: Alert the user if they try to access a page while logged in, asking them to logout if they want to switch.
-            // OR allow auto-redirect ONLY if we are sure.
-            // Since we can't be sure for Faculty/DC without DB check, maybe checking URL dept vs nothing?
-            // Actually, best to revert to ALERT if we can't confirm Dept.
-            // BUT user *wanted* auto-login for same dept.
-            
-            // Let's rely on HOD's session dept since that one is set.
-            // For others, we might need to set it on login.
-            
-            // Quick fix for now:
-            // Only auto-redirect if HOD (where we know dept) OR just Alert for everyone to be safe?
-            // User wants convenience AND security.
-            
-            // Let's try to match sessionDept if available.
-            // If sessionDept is NOT available (Faculty/DC), we risk redirecting to wrong dept if we blindly redirect.
-            // HOWEVER, the user said "if i choose some other department also it is getting logged in".
-            // This means they visited `admins.php?dept=ECE` while logged in as CSE.
-            // My JS redirected them to `...php?dept=ECE`.
-            // And presumably the destination page didn't block them. (Major issue there).
-            
-            // Correct approach here:
-            // 1. Alert user "You are already logged in...".
-            // 2. Do NOT auto-redirect.
-            // 3. IF user wants Same Dept Auto-Login:
-            //    We strictly need to know the User's Dept.
-            
-            // Since I cannot easily get Faculty Dept here without SQL (which is technically possible in PHP block above), 
-            // I will implement a check.
-            
-            // ... Logic moved to PHP ...
-            
-            // Updated JS to use a flag from PHP.
-            // If PHP determines "SafeToAutoRedirect", we do it. Else, Alert.
-            
             let safeToRedirect = "<?php echo $matchDept ? 'yes' : 'no'; ?>";
             
             if (loggedInRole === designation && safeToRedirect === 'yes') {
@@ -456,6 +402,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     window.location.href = "../modules/faculty/acd_year.php?dept=" + currentDept;
                 } else if (designation === 'dept_coordinator') {
                     window.location.href = "../modules/dept_coordinator/dc_acd_year.php?dept=" + currentDept;
+                } else if (designation === 'jr_assistant') {
+                    window.location.href = "../modules/jr_assistant/jr_acd_year.php?dept=" + currentDept;
                 } else if (designation === 'hod') {
                     window.location.href = "../modules/central/cc_acd_year.php?dept=" + currentDept + "&designation=HOD";
                 } else if (designation === 'admin') {

@@ -59,7 +59,7 @@ ob_start(); // Start output buffering
             gap: 0.5rem;
         }
 
-        .btn_h {
+        .btn {
             display: flex;
             align-items: center;
             gap: 0.3rem;
@@ -287,7 +287,7 @@ ob_start(); // Start output buffering
     <span id="dashboard-badge" style="display:none; background:#ff4444; color:white; border-radius:50%; padding:2px 6px; font-size:10px; margin-left:5px; vertical-align: top;">0</span>
 </button>
                 <a href="<?php echo $base_url; ?>modules/common/pdf_merger.php"><button class="btn dp btn-outline" style="white-space: nowrap;">Pdf Merger</button></a>
-                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
+                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['j_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
                     <a href="<?php echo $base_url; ?>modules/auth/logout.php"><button class="btn dp btn-outline" style="border-color: #dc3545; color: white; white-space: nowrap;">Logout</button></a>
                 <?php endif; ?>
             </nav>

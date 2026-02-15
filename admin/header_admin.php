@@ -279,7 +279,7 @@ ob_start(); // Start output buffering
                 </div>
                 <button class="btn dp btn-outline" onclick="openDashboard()">Dashboard</button>
                 <a href="../modules/common/pdf_merger.php"><button class="btn dp btn-outline" style="white-space: nowrap;">Pdf Merger</button></a>
-                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
+                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['j_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
                     <a href="../modules/auth/logout.php"><button class="btn dp btn-outline" style="border-color: #dc3545; color: white; white-space: nowrap;">Logout</button></a>
                 <?php endif; ?>
             </nav>

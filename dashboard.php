@@ -21,7 +21,8 @@ $tables = [
     'fdps_org_tab', 
     'conference_tab', 
     'published_tab', 
-    'patents_table'
+    'patents_table',
+    'dept_files'
 ];
 
 foreach ($tables as $table) {
@@ -95,6 +96,10 @@ if (isset($_SESSION['username'])) {
     if ($r = $res->fetch_assoc()) {
         $dept = $r['department'];
     }
+} elseif (isset($_SESSION['j_username'])) {
+    $role = 'Jr_Assistant';
+    $user_id = $_SESSION['j_username'];
+    $dept = isset($_SESSION['dept']) ? $_SESSION['dept'] : '';
 } elseif (isset($_SESSION['h_username'])) {
     if ($_SESSION['h_username'] == 'central') {
         $role = 'Central_Coordinator';
@@ -122,7 +127,6 @@ if (!$role) {
 }
 
 // --- Handle Re-upload ---
-// --- Handle Re-upload ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reupload') {
     $file_id = intval($_POST['file_id']);
     $table_name = $_POST['table_name'];
@@ -143,7 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         's_journal_tab' => ['path' => 'paper_file', 'name' => null],
         's_conference_tab' => ['path' => 'certificate_path', 'name' => null],
         's_events' => ['path' => 'certificate_path', 'name' => null],
-        's_bodies' => ['path' => 'certificate_path', 'name' => null]
+        's_bodies' => ['path' => 'certificate_path', 'name' => null],
+        'dept_files' => ['path' => 'file_path', 'name' => 'file_name']
     ];
 
     if (!array_key_exists($table_name, $table_schema_map)) {
@@ -228,12 +233,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
     $table_name = $_POST['table_name'];
     
     // Whitelist tables
-    $allowed_tables = ['files', 'files5_1_1and2', 'files5_1_3', 'files5_1_4', 'fdps_tab', 'fdps_org_tab', 'conference_tab', 'published_tab', 'patents_table'];
+    $allowed_tables = ['files', 'files5_1_1and2', 'files5_1_3', 'files5_1_4', 'fdps_tab', 'fdps_org_tab', 'conference_tab', 'published_tab', 'patents_table', 'dept_files'];
     
     if (in_array($table_name, $allowed_tables)) {
         $new_status = '';
         
-        if ($role == 'Dept_Coordinator') {
+        if ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
             if ($action == 'approve') $new_status = 'Pending HOD';
             elseif ($action == 'reject') $new_status = 'Rejected by Dept Coordinator'; // Sends back to Faculty
         } elseif ($role == 'HOD') {
@@ -281,7 +286,7 @@ function build_query($table, $id_col, $user_col, $desc_col, $date_col, $file_nam
     // Filter by role
     if ($role == 'Faculty') {
         $q .= " AND $user_col = '$user_id'";
-    } elseif ($role == 'Dept_Coordinator') {
+    } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
         $q .= " AND status IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator')";
     } elseif ($role == 'HOD') {
         // HOD sees everything that has passed Dept Coordinator (pending HOD, or moved further)
@@ -323,7 +328,6 @@ $queries[] = build_query('conference_tab', 'id', 'username', 'paper_title', 'sub
 $queries[] = build_query('published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
 
 // 9. patents_table
-// 9. patents_table
 $queries[] = build_query('patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id, $dept);
 
 // 10. files5_2_1 (Placement Details)
@@ -335,7 +339,7 @@ $queries[] = build_query('files5_2_2', 'id', 'username', 'student_name', 'upload
 // 12. s_journal_tab (Journal Papers)
 $queries[] = build_query('s_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
 
-// 13. s_conference_tab (Conference Papers) - Note: s_conference_tab has certificate_path and paper_file_path. Using certificate_path primarily or paper depending?
+// 13. s_conference_tab (Conference Papers)
 $queries[] = build_query('s_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
 
 // 14. s_events (Student Activities: Projects, Internships, etc.)
@@ -343,6 +347,34 @@ $queries[] = build_query('s_events', 'id', 'Username', 'event_name', 'submission
 
 // 15. s_bodies (Professional Bodies)
 $queries[] = build_query('s_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+
+// 16. dept_files (Dept/AMC/BoS Minutes)
+$q = "SELECT 
+            id, 
+            username, 
+            CONCAT(file_type, ' - ', sub_file_type) as description, 
+            uploaded_at, 
+            file_name, 
+            file_path, 
+            status, 
+            rejection_reason, 
+            'dept_files' as table_name 
+          FROM dept_files WHERE 1=1";
+   
+if ($role == 'Faculty') {
+    // If a faculty member uploaded it (e.g. Dept Coord logged in as Faculty), show their uploads
+    $q .= " AND username = '$user_id'";
+} elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
+    // Dept Coordinator or Jr Assistant is the UPLOADER for these files, so show their own uploads
+    $q .= " AND username = '$user_id'";
+} elseif ($role == 'HOD') {
+    // HOD sees them if they are not stuck at Dept Coord level (which they won't be as they start at Pending HOD)
+    $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator')";
+} elseif ($role == 'Central_Coordinator') {
+    $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator', 'Pending HOD', 'Rejected by HOD')";
+}
+    
+$queries[] = $q;
 
 
 // Combine all
@@ -546,7 +578,7 @@ if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
                             <td>
                                 <?php
                                 $can_act = false;
-                                if ($role == 'Dept_Coordinator' && $file['status'] == 'Pending Dept Coordinator') $can_act = true;
+                                if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == 'Pending Dept Coordinator') $can_act = true;
                                 if ($role == 'HOD' && $file['status'] == 'Pending HOD') $can_act = true;
                                 if ($role == 'Central_Coordinator' && $file['status'] == 'Pending Central Coordinator') $can_act = true;
                                 

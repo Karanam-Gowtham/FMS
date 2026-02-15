@@ -5,8 +5,13 @@
     
 session_start();
 
-if (!isset($_SESSION['a_username'])) {
+if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
     die("You need to log in to view your uploads.");
+}
+
+if (isset($_SESSION['j_username'])) {
+    header("Location: ../jr_assistant/jr_acd_year.php?dept=" . ($_GET['dept'] ?? ''));
+    exit();
 }
 
 $username = $_SESSION['a_username'];

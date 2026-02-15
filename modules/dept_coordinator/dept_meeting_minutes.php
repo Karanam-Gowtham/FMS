@@ -2,11 +2,11 @@
 // Start session
 session_start();
 
-// Check if the user is logged in and retrieve username
-if (!isset($_SESSION['username'])) {
-    die("Unauthorized access. Please log in first.");
+// Check if the user is logged in (Jr Assistant)
+if (!isset($_SESSION['j_username'])) {
+    die("Unauthorized access. Only Jr Assistants can upload these files.");
 }
-$username = $_SESSION['username'];
+$username = $_SESSION['j_username'];
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -22,8 +22,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_tab using username
-$sql_dept = "SELECT dept FROM reg_tab WHERE userid = ?";
+// Retrieve the department from reg_jr_assistant using username
+$sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
 $stmt_dept = $conn->prepare($sql_dept);
 $stmt_dept->bind_param("s", $username);
 $stmt_dept->execute();
@@ -31,7 +31,7 @@ $result_dept = $stmt_dept->get_result();
 
 if ($result_dept->num_rows > 0) {
     $row = $result_dept->fetch_assoc();
-    $rdept = $row['dept']; // Store the retrieved department
+    $rdept = $row['department']; // Store the retrieved department
 } else {
     die("Department not found for the user.");
 }
@@ -244,7 +244,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </a>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
+                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Jr Assistant </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?> </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span>
             </div>

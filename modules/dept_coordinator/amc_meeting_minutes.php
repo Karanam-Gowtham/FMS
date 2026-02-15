@@ -2,11 +2,11 @@
 // Start session
 session_start();
 
-// Check if the user is logged in and retrieve username
-if (!isset($_SESSION['username'])) {
-    die("Unauthorized access. Please log in first.");
+// Check if the user is logged in (Jr Assistant)
+if (!isset($_SESSION['j_username'])) {
+    die("Unauthorized access. Only Jr Assistants can upload these files.");
 }
-$username = $_SESSION['username'];
+$username = $_SESSION['j_username'];
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -22,8 +22,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_tab using username
-$sql_dept = "SELECT dept FROM reg_tab WHERE userid = ?";
+// Retrieve the department from reg_jr_assistant using username
+$sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
 $stmt_dept = $conn->prepare($sql_dept);
 $stmt_dept->bind_param("s", $username);
 $stmt_dept->execute();
@@ -31,7 +31,7 @@ $result_dept = $stmt_dept->get_result();
 
 if ($result_dept->num_rows > 0) {
     $row = $result_dept->fetch_assoc();
-    $rdept = $row['dept']; // Store the retrieved department
+    $rdept = $row['department']; // Store the retrieved department
 } else {
     die("Department not found for the user.");
 }
@@ -50,6 +50,8 @@ $file_options = [
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
+    $study_year = $_POST['study_year'];
+    $semester = $_POST['semester'];
     $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
@@ -58,9 +60,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
         // mapping $event to file_type column, and $file_type (option) to sub_file_type column
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssss", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path);
+        $stmt->bind_param("sssssssss", $username, $dept, $acd_year, $study_year, $semester, $event, $file_type, $file_name, $file_path);
         
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); </script>";
@@ -242,7 +244,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </a>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
+                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Jr Assistant </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?> </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span>
             </div>
@@ -280,6 +282,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             ?>
                         </select>
                     </div>
+
+            <label for="study_year">Select Year:</label>
+            <select name="study_year" id="study_year" required>
+                <option value="" disabled selected>Select Year</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+
+            <label for="semester">Select Semester:</label>
+            <select name="semester" id="semester" required>
+                <option value="" disabled selected>Select Semester</option>
+                <?php
+                for($i=1; $i<=8; $i++) {
+                    echo "<option value='$i'>$i</option>";
+                }
+                ?>
+            </select>
 
                     
             <label for="file_type">Select File Category:</label>
