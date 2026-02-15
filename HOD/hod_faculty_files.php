@@ -2,7 +2,9 @@
 include("../includes/connection.php");
 
 
-include "header_hod.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
@@ -173,6 +175,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
     </style>
 </head>
 <body>
+<?php include 'header_hod.php'; ?>
 <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">

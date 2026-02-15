@@ -222,6 +222,9 @@ body {
     font-size: larger;
     margin-left: -17px;
 }
+#sp{
+    color: blue;
+}
         </style>
 
 </head>
@@ -235,7 +238,7 @@ body {
                     </svg>
                 </a>
                 <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span>&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> dept_coordinator </a></span>
+                <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> dept_coordinator </a></span>
             </div>
         </div>
     </nav>

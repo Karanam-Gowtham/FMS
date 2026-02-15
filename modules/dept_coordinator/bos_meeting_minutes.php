@@ -42,7 +42,8 @@ $event = 'Board Of Studies';
 // File options specific to Board Of Studies
 $file_options = [
     'Board of Studies Meeting Minutes',
-    'Action Taken Report'
+    'Action Taken Report',
+    'Others'
 ];
 
 // Meeting Number Logic: Get the max meeting number for this dept and event
@@ -57,6 +58,8 @@ $next_meeting_no = ($row_max['max_meeting'] !== null) ? $row_max['max_meeting'] 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
+    $study_year = $_POST['study_year'];
+    $semester = $_POST['semester'];
     $meeting_no = $_POST['meeting_no']; // Captured from input
     $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
     $file_name = $_POST['file_name'];
@@ -66,11 +69,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
         // mapping $event to file_type column, and $file_type (option) to sub_file_type column
-        // We insert meeting_no as well.
-        // We will pass NULL for study_year and semester as they are not used here.
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, meeting_no, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        // We insert meeting_no, study_year, and semester.
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, meeting_no, study_year, semester, file_type, sub_file_type, file_name, file_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssissss", $username, $dept, $acd_year, $meeting_no, $event, $file_type, $file_name, $file_path);
+        $stmt->bind_param("sssiisssss", $username, $dept, $acd_year, $meeting_no, $study_year, $semester, $event, $file_type, $file_name, $file_path);
         
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); window.location.href=window.location.href;</script>";
@@ -291,6 +293,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             ?>
                         </select>
             </div>
+            <label for="study_year">Select Year:</label>
+            <select name="study_year" id="study_year" required>
+                <option value="" disabled selected>Select Year</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+
+            <label for="semester">Select Semester:</label>
+            <select name="semester" id="semester" required>
+                <option value="" disabled selected>Select Semester</option>
+                <?php
+                for($i=1; $i<=8; $i++) {
+                    echo "<option value='$i'>$i</option>";
+                }
+                ?>
+            </select>
 
             <label for="meeting_no">Meeting No:</label>
             <input type="number" name="meeting_no" id="meeting_no" value="<?php echo $next_meeting_no; ?>" readonly required style="background: rgba(255, 255, 255, 0.1);">

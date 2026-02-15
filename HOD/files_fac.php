@@ -1,6 +1,8 @@
 <?php
 include("../includes/connection.php");
-include 'header_hod.php';   
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 
 
@@ -131,6 +133,7 @@ include 'header_hod.php';
     </style>
 </head>
 <body>
+<?php include 'header_hod.php'; ?>
     <div class="container">
         <?php
             if ($_SERVER["REQUEST_METHOD"] == "POST") {

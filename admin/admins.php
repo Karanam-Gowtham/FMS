@@ -142,7 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $_SESSION['h_username'] = $userid;
                         $_SESSION['dept'] = $dept;
                         ob_end_clean();
-                        header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
+                        header("Location: ../HOD/see_uploads.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
                         exit();
                     } else {
                         $error_message = "Invalid login. You are not the HOD of " . htmlspecialchars($dept) . ".";
@@ -172,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 session_regenerate_id(true);
                 $_SESSION['admin'] = $userid;
                 ob_end_clean();
-                header("Location: ../hod/acd_year_aa.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
+                header("Location: ../HOD/acd_year_aa.php?designation=" . urlencode($designation));
                 exit();
             } else {
                 $error_message = "Invalid username or password.";
@@ -332,6 +332,9 @@ include 'header_admin.php';
         .reg{
             color:aqua;
         }
+        #sp {
+            color: blue;
+        }
     </style>
 </head>
 <body>
@@ -344,9 +347,8 @@ include 'header_admin.php';
                           d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
             </a>
-            <span>&nbsp; >> &nbsp; </span>
+            <span id="sp">&nbsp; >> &nbsp; </span>
             <span class="main"> <a href="#" class="main-a">Department(<?php echo "$dept" ?>)</a></span>
-            <span>&nbsp; >> &nbsp; </span>
         </div>
     </div>
 </nav>
@@ -405,10 +407,11 @@ include 'header_admin.php';
                 } else if (designation === 'jr_assistant') {
                     window.location.href = "../modules/jr_assistant/jr_acd_year.php?dept=" + currentDept;
                 } else if (designation === 'hod') {
-                    window.location.href = "../modules/central/cc_acd_year.php?dept=" + currentDept + "&designation=HOD";
+                    window.location.href = "../HOD/see_uploads.php?dept=" + currentDept + "&designation=HOD";
                 } else if (designation === 'admin') {
-                    window.location.href = "../hod/acd_year_aa.php?dept=" + currentDept + "&designation=admin";
+                    window.location.href = "../HOD/acd_year_aa.php?designation=admin";
                 }
+
                 return;
             }
             

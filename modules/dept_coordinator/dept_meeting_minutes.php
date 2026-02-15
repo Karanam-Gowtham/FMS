@@ -41,11 +41,11 @@ $event = 'Dept Meeting Minutes';
 
 // File options specific to Dept Meeting Minutes
 $file_options = [
-    'Meeting Minutes',
-    'Action Taken Report',
-    'Attendance Sheet',
     'Agenda',
-    'Other'
+    'Faculty Attended',
+    'Meeting Minutes',
+    'Followup',
+    'Others'
 ];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Prepare the SQL query to insert the data into the database
         // mapping $event to file_type column, and $file_type (option) to sub_file_type column
         // Using backticks for `year` as it is a reserved word
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path, semester, `year`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path, semester, study_year, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sssssssii", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path, $semester, $student_year);
         

@@ -302,51 +302,52 @@ function build_query($table, $id_col, $user_col, $desc_col, $date_col, $file_nam
 // List of queries to UNION
 $queries = [];
 
-// 1. files
-$queries[] = build_query('files', 'id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+if ($role !== 'Jr_Assistant') {
+    // 1. files
+    $queries[] = build_query('files', 'id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
-// 2. files5_1_1and2
-$queries[] = build_query('files5_1_1and2', 'id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    // 2. files5_1_1and2
+    $queries[] = build_query('files5_1_1and2', 'id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
-// 3. files5_1_3
-$queries[] = build_query('files5_1_3', 'id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    // 3. files5_1_3
+    $queries[] = build_query('files5_1_3', 'id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
-// 4. files5_1_4
-$queries[] = build_query('files5_1_4', 'id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    // 4. files5_1_4
+    $queries[] = build_query('files5_1_4', 'id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
-// 5. fdps_tab
-$queries[] = build_query('fdps_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
+    // 5. fdps_tab
+    $queries[] = build_query('fdps_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
 
-// 6. fdps_org_tab
-$queries[] = build_query('fdps_org_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
+    // 6. fdps_org_tab
+    $queries[] = build_query('fdps_org_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
 
-// 7. conference_tab
-// Check if certificate_path exists or paper_file_path. Let's start with certificate_path.
-$queries[] = build_query('conference_tab', 'id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
+    // 7. conference_tab
+    $queries[] = build_query('conference_tab', 'id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
 
-// 8. published_tab
-$queries[] = build_query('published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
+    // 8. published_tab
+    $queries[] = build_query('published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
 
-// 9. patents_table
-$queries[] = build_query('patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id, $dept);
+    // 9. patents_table
+    $queries[] = build_query('patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id, $dept);
 
-// 10. files5_2_1 (Placement Details)
-$queries[] = build_query('files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    // 10. files5_2_1 (Placement Details)
+    $queries[] = build_query('files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
-// 11. files5_2_2 (Higher Education)
-$queries[] = build_query('files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    // 11. files5_2_2 (Higher Education)
+    $queries[] = build_query('files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
-// 12. s_journal_tab (Journal Papers)
-$queries[] = build_query('s_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
+    // 12. s_journal_tab (Journal Papers)
+    $queries[] = build_query('s_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
 
-// 13. s_conference_tab (Conference Papers)
-$queries[] = build_query('s_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
+    // 13. s_conference_tab (Conference Papers)
+    $queries[] = build_query('s_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
 
-// 14. s_events (Student Activities: Projects, Internships, etc.)
-$queries[] = build_query('s_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+    // 14. s_events (Student Activities: Projects, Internships, etc.)
+    $queries[] = build_query('s_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
 
-// 15. s_bodies (Professional Bodies)
-$queries[] = build_query('s_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+    // 15. s_bodies (Professional Bodies)
+    $queries[] = build_query('s_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+}
 
 // 16. dept_files (Dept/AMC/BoS Minutes)
 $q = "SELECT 

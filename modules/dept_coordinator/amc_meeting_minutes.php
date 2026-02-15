@@ -45,6 +45,8 @@ $file_options = [
     'Action Taken Report',
     'Attendance Sheet',
     'Agenda',
+    'Action taken for the grievences if any',
+    'Students Feedback of Faculty',
     'Other'
 ];
 
@@ -52,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
     $study_year = $_POST['study_year'];
     $semester = $_POST['semester'];
+    $review_period = $_POST['review_period'] ?? NULL;
     $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
@@ -60,9 +63,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
         // mapping $event to file_type column, and $file_type (option) to sub_file_type column
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Added review_period to the insertion.
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, review_period, file_type, sub_file_type, file_name, file_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssss", $username, $dept, $acd_year, $study_year, $semester, $event, $file_type, $file_name, $file_path);
+        $stmt->bind_param("ssssssssss", $username, $dept, $acd_year, $study_year, $semester, $review_period, $event, $file_type, $file_name, $file_path);
         
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); </script>";
@@ -300,6 +304,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo "<option value='$i'>$i</option>";
                 }
                 ?>
+            </select>
+
+            <label for="review_period">Select Review Period:</label>
+            <select name="review_period" id="review_period" required>
+                <option value="" disabled selected>Select Period</option>
+                <option value="Mid Sem">Mid Sem</option>
+                <option value="End Sem">End Sem</option>
             </select>
 
                     

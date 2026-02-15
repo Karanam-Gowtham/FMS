@@ -1,5 +1,5 @@
 <?php
-include "header_hod.php";
+require_once '../includes/session.php';
 ?>
 
 <!DOCTYPE html>
@@ -112,6 +112,7 @@ include "header_hod.php";
     </style>
 </head>
 <body>
+<?php include 'header_hod.php'; ?>
     <div class="container11">
         <h1>AQARs Supporting Documents</h1>
         <form action="files_cor.php" method="POST">

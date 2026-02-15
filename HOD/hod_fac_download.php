@@ -1,7 +1,9 @@
 <?php
 include("../includes/connection.php");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Enable error reporting for debugging
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
@@ -302,9 +304,7 @@ if (isset($_POST['download_excel'])) {
 }
 
 ?>
-<?php
-include "header_hod.php";
-?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -462,6 +462,7 @@ async function mergePDFs() {
 </head>
 
 <body>
+<?php include 'header_hod.php'; ?>
 <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">

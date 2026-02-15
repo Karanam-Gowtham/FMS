@@ -1,5 +1,7 @@
 <?php
-include "header_hod.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include "../includes/connection.php";
 
 
@@ -219,6 +221,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
     </style>
 </head>
 <body>
+<?php include 'header_hod.php'; ?>
 <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">

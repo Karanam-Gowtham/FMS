@@ -3,10 +3,16 @@
 session_start();
 
 // Check if the user is logged in and retrieve username
-if (!isset($_SESSION['username'])) {
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
+    $role = 'faculty';
+} elseif (isset($_SESSION['j_username'])) {
+    $username = $_SESSION['j_username'];
+    $role = 'jr_assistant';
+} else {
     die("Unauthorized access. Please log in first.");
 }
-$username = $_SESSION['username'];
+
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -22,17 +28,28 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_tab using username
-$sql_dept = "SELECT dept FROM reg_tab WHERE userid = ?";
-$stmt_dept = $conn->prepare($sql_dept);
-$stmt_dept->bind_param("s", $username);
-$stmt_dept->execute();
-$result_dept = $stmt_dept->get_result();
-
-if ($result_dept->num_rows > 0) {
-    $row = $result_dept->fetch_assoc();
-    $rdept = $row['dept']; // Store the retrieved department
+// Retrieve the department based on role
+if ($role === 'faculty') {
+    $sql_dept = "SELECT dept FROM reg_tab WHERE userid = ?";
+    $stmt_dept = $conn->prepare($sql_dept);
+    $stmt_dept->bind_param("s", $username);
+    $stmt_dept->execute();
+    $result_dept = $stmt_dept->get_result();
+    if ($row = $result_dept->fetch_assoc()) {
+        $rdept = $row['dept'];
+    }
 } else {
+    $sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
+    $stmt_dept = $conn->prepare($sql_dept);
+    $stmt_dept->bind_param("s", $username);
+    $stmt_dept->execute();
+    $result_dept = $stmt_dept->get_result();
+    if ($row = $result_dept->fetch_assoc()) {
+        $rdept = $row['department'];
+    }
+}
+
+if (!isset($rdept)) {
     die("Department not found for the user.");
 }
 
@@ -48,19 +65,27 @@ $file_options = [];
     // Define cases for file options (same as original code)
     switch ($event) {
         case 'admin':
-            $file_options = [
-                'Course Structure', 'Result Analysis', 'Course Schedule', "Faculty's Feedback by Students", 'Feedback from Parents', 
-                'Employer Feedback', 'Department Area Details', 'Departmental Laboratory Details', 'Major Equipment in the Laboratories',
-                'List of Experiments', 'Major Equipment Utilization Record', 'Equipment Maintenance Record', 'Courses Linked with Employability',
-                'Financial Statement/Budget Status', 'Departmental Library Details', 'Seminars/Workshops/Conferences Organized',
-                'Industrial Visits', 'Guest Lectures', 'List of Projects', 'Add-on Course/Training Conducted', 'Consultancy-New', 
-                'External Sports and Projects', 'Transferrable and Life Skills Courses', 'Remedial Classes', 'Course End Feedback Form',
-                'Class Time Table', 'Faculty Time Table', 'Classroom Time Table', 'Lab Time Table', 'Student Progression to Higher Education',
-                'Feedback from Students/Alumni/Academic Peer', 'Course File-Index', 'Feedback on Curriculum from Students/Employer/Alumni',
-                'Workshops-Seminars on Research Methodology', 'Intellectual Property Rights (IPR)', 'Entrepreneurship-New', 
-                'Professional Societies Chapters', 'Engineering Events Organized', 'Product Development Activities', 'Collaborative Activities',
-                'Functional MoUs with Ongoing Activities', 'Mini Project Work', 'Term Paper Work', 'Mentoring'
-            ];
+            if ($role === 'jr_assistant') {
+                $file_options = [
+                    'Schedules', 'attendance', 'List of Students', 'Assignments given', 'Test Conducted', 'result analysis', 
+                    'Parents Intimation for attendance less than 75%(sms/letter)',
+                    'other'
+                ];
+            } else {
+                $file_options = [
+                    'Course Structure', 'Course Schedule', 'Feedback from Parents', 
+                    'Employer Feedback', 'Department Area Details', 'Departmental Laboratory Details', 'Major Equipment in the Laboratories',
+                    'List of Experiments', 'Major Equipment Utilization Record', 'Equipment Maintenance Record', 'Courses Linked with Employability',
+                    'Financial Statement/Budget Status', 'Departmental Library Details', 'Seminars/Workshops/Conferences Organized',
+                    'Industrial Visits', 'Guest Lectures', 'List of Projects', 'Add-on Course/Training Conducted', 'Consultancy-New', 
+                    'External Sports and Projects', 'Transferrable and Life Skills Courses', 'Remedial Classes', 'Course End Feedback Form',
+                    'Class Time Table', 'Faculty Time Table', 'Classroom Time Table', 'Lab Time Table', 
+                    'Feedback from Students/Alumni/Academic Peer', 'Course File-Index', 'Feedback on Curriculum from Students/Employer/Alumni',
+                    'Workshops-Seminars on Research Methodology', 'Intellectual Property Rights (IPR)', 'Entrepreneurship-New', 
+                    'Professional Societies Chapters', 'Engineering Events Organized', 'Product Development Activities', 'Collaborative Activities',
+                    'Functional MoUs with Ongoing Activities', 'Mini Project Work', 'Term Paper Work', 'Mentoring'
+                ];
+            }
             break;
         case 'faculty':
             $file_options = [
@@ -72,17 +97,29 @@ $file_options = [];
             ];
             break;
         case 'student':
-            $file_options = [
-                'List of Forms', 'Student Addresses', 'Cumulative Monthly Attendance', 'Semester End Attendance', 'Condonation List', 
-                'Detention List', 'Papers Published by Students', 'Students in Competitive Exams', 'Co-Curricular/Extra-Curricular Activities',
-                'Placement Record', 'Alumni Interaction', 'Field Projects/Internships', 'List of Seminars/Workshops Attended', 
-                'Online Courses Completed', 'Coding/Hardware Competitions', 'Capacity Development Activities', 'Guidance for Competitive Exams',
-                'Career Counselling'
-            ];
+            if ($role === 'jr_assistant') {
+                $file_options = [
+                    'List of Forms', 'Student Addresses', 'Cumulative Monthly Attendance', 'Semester End Attendance', 'Condonation List', 
+                    'Detention List', 'Students Progression To Higher Education'
+                ];
+            } else {
+                $file_options = [
+                    'Papers Published by Students', 'Students in Competitive Exams', 'Co-Curricular/Extra-Curricular Activities',
+                    'Placement Record', 'Alumni Interaction', 'Field Projects/Internships', 'List of Seminars/Workshops Attended', 
+                    'Online Courses Completed', 'Coding/Hardware Competitions', 'Capacity Development Activities', 'Guidance for Competitive Exams',
+                    'Career Counselling'
+                ];
+            }
             break;
         case 'exam':
             $file_options = [
                 'Notice for Internal Lab Exams', 'Invigilation Schedule', 'Absentee Statement', 'Sessional Marks Record', 'Final Sessional Marks'
+            ];
+            break;
+        case 'calendar':
+            $file_options = [
+                'Follow up of planned activities',
+                'Reason for non conducted activities'
             ];
             break;
         default:
@@ -94,14 +131,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
     $file_type = $_POST['file_type'];
     $file_name = $_POST['file_name'];
+    $study_year = $_POST['study_year'] ?? NULL;
+    $semester = $_POST['semester'] ?? NULL;
+    $review_period = $_POST['review_period'] ?? NULL;
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
     // Upload the file to the server
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, review_period, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssss", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path);
+        $stmt->bind_param("sssiisssss", $username, $dept, $acd_year, $study_year, $semester, $review_period, $event, $file_type, $file_name, $file_path);
         
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); </script>";
@@ -283,15 +323,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </a>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <?php if ($role === 'faculty'): ?>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
-                <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?>_Files </a></span>
+                <?php else: ?>
+                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Jr Assistant </a></span>
+                <?php endif; ?>
+                <?php 
+                $display_event = $event;
+                if ($event === 'calendar') $display_event = 'Academic Calendar';
+                else $display_event = ucfirst($event) . ' Files';
+                ?>
+                <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo $display_event; ?> </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span>
             </div>
         </div>
     </nav>
 <div class="cont1">
     <div class="container11">
-        <h1>Upload <?php echo ucfirst($event); ?> Files</h1>
+        <h1>Upload <?php echo $display_event; ?></h1>
         <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
             <label for="file_name">File Name:</label>
             <input type="text" name="file_name" id="file_name" required>
@@ -321,6 +370,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             ?>
                         </select>
                     </div>
+
+            <?php if ($event === 'student' || ($role === 'jr_assistant' && $event === 'admin')): ?>
+            <label for="study_year">Select Year:</label>
+            <select name="study_year" id="study_year" required>
+                <option value="" disabled selected>Select Year</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+
+            <label for="semester">Select Semester:</label>
+            <select name="semester" id="semester" required>
+                <option value="" disabled selected>Select Semester</option>
+                <?php
+                for($i=1; $i<=8; $i++) {
+                    echo "<option value='$i'>$i</option>";
+                }
+                ?>
+            </select>
+            <?php endif; ?>
+
+            <?php if ($role === 'jr_assistant' && $event === 'admin'): ?>
+            <label for="review_period">Select Review Period:</label>
+            <select name="review_period" id="review_period">
+                <option value="" selected>None/Not Applicable</option>
+                <option value="Mid Sem">Mid Sem</option>
+                <option value="End Sem">End Sem</option>
+            </select>
+            <?php endif; ?>
 
                     
             <label for="file_type">Select File Category:</label>

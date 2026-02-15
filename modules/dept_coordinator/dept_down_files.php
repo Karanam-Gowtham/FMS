@@ -254,19 +254,29 @@ span{
 <div class="container11">
     <h1>Retrieve Files</h1>
 
-    <?php $selected_file_type = $_POST['selected_file_type'] ?? ''; ?>
+    <?php 
+    $selected_file_type = $_POST['selected_file_type'] ?? ''; 
+    $is_jr_assistant = isset($_SESSION['j_username']);
+    $allowed_file_types = $is_jr_assistant 
+        ? ['Dept Meeting Minutes', 'AMC Meeting Minutes', 'Board Of Studies'] 
+        : ['admin', 'faculty', 'student', 'exam_section', 'Dept Meeting Minutes', 'AMC Meeting Minutes', 'Board Of Studies'];
+    ?>
     <div class="filter-section">
         <form method="POST" class="filter-form">
             <label for="selected_file_type">Select File Type:</label>
             <select name="selected_file_type" id="selected_file_type" required>
                 <option value="" disabled selected>-- Select File Type --</option>
-                <option value="admin" <?= $selected_file_type === 'admin' ? 'selected' : '' ?>>Admin Files</option>
-                <option value="student" <?= $selected_file_type === 'student' ? 'selected' : '' ?>>Student Files</option>
-                <option value="faculty" <?= $selected_file_type === 'faculty' ? 'selected' : '' ?>>Faculty Files</option>
-                <option value="exam_section" <?= $selected_file_type === 'exam_section' ? 'selected' : '' ?>>Exam Section Files</option>
-                <option value="Dept Meeting Minutes" <?= $selected_file_type === 'Dept Meeting Minutes' ? 'selected' : '' ?>>Dept Meeting Minutes</option>
-                <option value="AMC Meeting Minutes" <?= $selected_file_type === 'AMC Meeting Minutes' ? 'selected' : '' ?>>AMC Meeting Minutes</option>
-                <option value="Board Of Studies" <?= $selected_file_type === 'Board Of Studies' ? 'selected' : '' ?>>Board Of Studies</option>
+                <?php
+                foreach ($allowed_file_types as $type) {
+                    $selected = ($selected_file_type === $type) ? 'selected' : '';
+                    $label = $type;
+                    if ($type === 'admin') $label = "Admin Files";
+                    if ($type === 'faculty') $label = "Faculty Files";
+                    if ($type === 'student') $label = "Student Files";
+                    if ($type === 'exam_section') $label = "Exam Section Files";
+                    echo "<option value='$type' $selected>$label</option>";
+                }
+                ?>
             </select>
             <button type="submit" class="filter-button">Show Files</button>
         </form>
@@ -275,11 +285,10 @@ span{
 
 <div class="container111">
 <?php
-$file_types = ['admin', 'faculty', 'student', 'exam_section', 'Dept Meeting Minutes', 'AMC Meeting Minutes', 'Board Of Studies'];
-$file_types_to_show = $selected_file_type ? [$selected_file_type] : [];
+$file_types_to_show = $selected_file_type ? [$selected_file_type] : ($is_jr_assistant ? $allowed_file_types : []);
 
 foreach ($file_types_to_show as $file_type) {
-    $sql = "SELECT file_type, dept, academic_year, sub_file_type, file_name, file_path FROM dept_files WHERE username = ? AND file_type = ?";
+    $sql = "SELECT file_type, dept, academic_year, sub_file_type, file_name, file_path, status FROM dept_files WHERE username = ? AND file_type = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $username, $file_type);
     $stmt->execute();
@@ -300,12 +309,16 @@ foreach ($file_types_to_show as $file_type) {
                         <th>File Type</th>
                         <th>Sub File Type </th>
                         <th>File Name</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>";
         $id = 1;
         while ($row = $result->fetch_assoc()) {
             $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
+            $status = $row['status'] ?? 'Pending';
+            $statusColor = ($status === 'Accepted') ? 'green' : (($status === 'Rejected') ? 'red' : 'orange');
+            
             echo "<tr>
                     <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' data-filepath=\"$file_path\"></td>
                     <td>$id</td>
@@ -315,6 +328,7 @@ foreach ($file_types_to_show as $file_type) {
                     <td>" . $row['file_type'] . "</td>
                     <td>" . $row['sub_file_type'] . "</td>
                     <td>" . $row['file_name'] . "</td>
+                    <td style='color: $statusColor; font-weight: bold;'>$status</td>
                 </tr>";
             $id++;
         }

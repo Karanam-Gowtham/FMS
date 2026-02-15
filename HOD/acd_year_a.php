@@ -1,5 +1,5 @@
 <?php
-    include 'header_hod.php';
+require_once '../includes/session.php';
 ?>
 
 <!DOCTYPE html>
@@ -7,70 +7,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechCorp - Contact Us</title>
-    <link rel="stylesheet" href="../css/acd_year1.css">
+    <title>HOD Dashboard</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: rgb(249, 250, 251);
+            color: rgb(55, 65, 81);
+            line-height: 1.5;
+        }
+
+        /* Main content */
+        .main-content {
+            padding: 2rem 1rem;
+            margin-top: 80px; /* Space for fixed header */
+        }
+
+        .container {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgb(17, 24, 39);
+        }
+
+        /* Feedback Grid */
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        @media (min-width: 768px) {
+            .feedback-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .feedback-card {
+            text-decoration: none;
+            display: block;
+            transition: transform 0.2s;
+            background: #fff;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .feedback-card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            background: linear-gradient(to right, rgb(30, 64, 175), rgb(37, 99, 235));
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-content h3 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-    <main class="hero">
+<?php include 'header_hod.php'; ?>
+    <main class="main-content">
         <div class="container">
-            <div class="contact-wrapper">
-                    
-                    <div class="contact-form">
-                            <h1>AQARs Supporting Documents</h1>
-                            <form action="files_fac.php" method="POST">
-                            <div class="form-group">
-                                <label for="academic-year">Select Academic Year:</label>
-                                <select name="year" id="academic-year" required>
-                                    <option value="" disabled selected>Select an academic year</option>
-                                    <option value="2022-23">2022-23</option>
-                                    <option value="2021-22">2021-22</option>
-                                    <option value="2020-21">2020-21</option>
-                                </select>
-                                </div>
-                                <div class="form-group">
-                                <label for="criteria">Select Criteria:</label>
-                                <select name="criteria" id="criteria" required>
-                                    <option value="" disabled selected>Select a criteria</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                </select>
-                                </div>
-                                <button type="submit" class="button1">Enter</button>
-                            </form>
-                    
-                </div>
+            <!-- Achievements Section -->
+            <div class="header">
+                <h1>Achievements</h1>
+            </div>
 
-                <div class="contact-form">
-                <div class="content">
-                        <h1>Achievements</h1>
-                        
-                        <div class="buttons">
-                            <a href="fdps_down.php" class="btn fdps">FDPS Attended</a><br><br><br>
-                            <a href="fdps_org_down.php" class="btn fdps_org">FDPS Organised</a><br><br><br>
-                            <a href="published_down.php" class="btn papers">Papers Published</a><br><br><br>
-                            <a href="conference_down.php" class="btn papers">Conferences Published</a><br><br><br>
-                            <a href="patents_down.php" class="btn patents">Patents</a>
-                        </div>
+            <div class="feedback-grid">
+                <a href="fdps_down.php" class="feedback-card">
+                    <div class="card-content">
+                        <h3>View FDPS Attended Files</h3>
                     </div>
-                </div>
-                <div class="contact-form">
-                    
-                    <h1>Department Files</h1>
-                    <div class="buttons1">
-                        <a href="down_dept_files.php?event=admin" class="btn admin-files">Admin Files</a><br><br><br>
-                        <a href="down_dept_files.php?event=faculty" class="btn faculty-files">Faculty Files</a><br><br><br>
-                        <a href="down_dept_files.php?event=student" class="btn student-files">Student Files</a><br><br><br>
-                        <a href="down_dept_files.php?event=exam" class="btn exam-files">Exam Section Files</a>
+                </a>
+
+                <a href="fdps_org_down.php" class="feedback-card">
+                    <div class="card-content">
+                        <h3>View FDPS Organized Files</h3>
                     </div>
-                </div>
+                </a>
+
+                <a href="published_down.php" class="feedback-card">
+                    <div class="card-content">
+                        <h3>View Papers Published Files</h3>
+                    </div>
+                </a>
+
+                <a href="conference_down.php" class="feedback-card">
+                    <div class="card-content">
+                        <h3>View Conferences Published Files</h3>
+                    </div>
+                </a>
+
+                <a href="patents_down.php" class="feedback-card">
+                    <div class="card-content">
+                        <h3>View Patents Files</h3>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Department Files Section -->
+            <div class="header">
+                <h1>Department Files</h1>
+            </div>
+
+            <div class="feedback-grid">
+                <a href="down_dept_files.php?event=admin" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Admin Files</h3>
+                    </div>
+                </a>
+
+                <a href="down_dept_files.php?event=faculty" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Faculty Files</h3>
+                    </div>
+                </a>
+
+                <a href="down_dept_files.php?event=student" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Student Related Files</h3>
+                    </div>
+                </a>
+
+                <a href="down_dept_files.php?event=exam" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Exam Section Files</h3>
+                    </div>
+                </a>
+
+                <a href="down_dept_files.php?event=student_activity" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Student Activity Files</h3>
+                    </div>
+                </a>
             </div>
         </div>
     </main>
 </body>
 </html>
-
