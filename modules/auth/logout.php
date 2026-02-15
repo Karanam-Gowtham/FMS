@@ -2,7 +2,7 @@
 include "../../includes/connection.php";
 session_start();
 
-if (empty($_SESSION['username']) && empty($_SESSION['a_username']) && empty($_SESSION['h_username']) && empty($_SESSION['admin']) && empty($_SESSION['c_cord'])) {
+if (empty($_SESSION['username']) && empty($_SESSION['a_username']) && empty($_SESSION['j_username']) && empty($_SESSION['h_username']) && empty($_SESSION['admin']) && empty($_SESSION['c_cord'])) {
     echo "<script>
             alert('You need to login to logout.');
             window.location.href = '../../index.php'; // Redirect to home

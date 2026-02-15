@@ -2,11 +2,11 @@
 // Start session
 session_start();
 
-// Check if the user is logged in and retrieve username
-if (!isset($_SESSION['username'])) {
-    die("Unauthorized access. Please log in first.");
+// Check if the user is logged in (Jr Assistant)
+if (!isset($_SESSION['j_username'])) {
+    die("Unauthorized access. Only Jr Assistants can upload these files.");
 }
-$username = $_SESSION['username'];
+$username = $_SESSION['j_username'];
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -22,8 +22,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_tab using username
-$sql_dept = "SELECT dept FROM reg_tab WHERE userid = ?";
+// Retrieve the department from reg_jr_assistant using username
+$sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
 $stmt_dept = $conn->prepare($sql_dept);
 $stmt_dept->bind_param("s", $username);
 $stmt_dept->execute();
@@ -31,7 +31,7 @@ $result_dept = $stmt_dept->get_result();
 
 if ($result_dept->num_rows > 0) {
     $row = $result_dept->fetch_assoc();
-    $rdept = $row['dept']; // Store the retrieved department
+    $rdept = $row['department']; // Store the retrieved department
 } else {
     die("Department not found for the user.");
 }
@@ -41,15 +41,23 @@ $event = 'Board Of Studies';
 
 // File options specific to Board Of Studies
 $file_options = [
-    'Minutes of Meeting',
-    'Syllabus Revisions',
-    'New Course Proposal',
-    'Curriculum Feedback',
-    'Other'
+    'Board of Studies Meeting Minutes',
+    'Action Taken Report'
 ];
+
+// Meeting Number Logic: Get the max meeting number for this dept and event
+$sql_max = "SELECT MAX(meeting_no) as max_meeting FROM dept_files WHERE dept = ? AND file_type = ?";
+$stmt_max = $conn->prepare($sql_max);
+$stmt_max->bind_param("ss", $dept, $event);
+$stmt_max->execute();
+$result_max = $stmt_max->get_result();
+$row_max = $result_max->fetch_assoc();
+$next_meeting_no = ($row_max['max_meeting'] !== null) ? $row_max['max_meeting'] + 1 : 1;
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
+    $meeting_no = $_POST['meeting_no']; // Captured from input
     $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
@@ -58,12 +66,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
         // mapping $event to file_type column, and $file_type (option) to sub_file_type column
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // We insert meeting_no as well.
+        // We will pass NULL for study_year and semester as they are not used here.
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, meeting_no, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssss", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path);
+        $stmt->bind_param("sssissss", $username, $dept, $acd_year, $meeting_no, $event, $file_type, $file_name, $file_path);
         
         if ($stmt->execute()) {
-            echo "<script>alert('File uploaded successfully!'); </script>";
+            echo "<script>alert('File uploaded successfully!'); window.location.href=window.location.href;</script>";
         } else {
             echo "<script>alert('File was not uploaded!');</script>";
         }
@@ -186,6 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         input[type="text"],
         input[type="file"],
+        input[type="number"],
         select {
             padding: 10px;
             margin-bottom: 20px;
@@ -242,7 +253,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </a>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
+                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Jr Assistant </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?> </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span>
             </div>
@@ -250,7 +261,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </nav>
 <div class="cont1">
     <div class="container11">
-        <h1>Upload <?php echo $event; ?></h1>
+        <h1>Upload <?php echo $event; ?> Documents</h1>
         <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
             <label for="file_name">File Name:</label>
             <input type="text" name="file_name" id="file_name" required>
@@ -279,9 +290,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             }
                             ?>
                         </select>
-                    </div>
+            </div>
 
-                    
+            <label for="meeting_no">Meeting No:</label>
+            <input type="number" name="meeting_no" id="meeting_no" value="<?php echo $next_meeting_no; ?>" readonly required style="background: rgba(255, 255, 255, 0.1);">
+
             <label for="file_type">Select File Category:</label>
             <select name="file_type" id="file_type" required>
                 <option value="" disabled selected>Select File Category</option>

@@ -20,6 +20,16 @@ if (isset($_SESSION['username'])) {
     if ($r = $res->fetch_assoc()) {
         $dept = $r['department'];
     }
+} elseif (isset($_SESSION['j_username'])) {
+    $role = 'Dept_Coordinator'; // Jr Assistant handles similar tasks
+    $user_id = $_SESSION['j_username'];
+    $stmt = $conn->prepare("SELECT department FROM reg_jr_assistant WHERE userid = ?");
+    $stmt->bind_param("s", $user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($r = $res->fetch_assoc()) {
+        $dept = $r['department'];
+    }
 } elseif (isset($_SESSION['h_username'])) {
     if ($_SESSION['h_username'] == 'central') {
         $role = 'Central_Coordinator';

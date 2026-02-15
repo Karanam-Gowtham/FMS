@@ -9,11 +9,11 @@ if ($conn->connect_error) {
 }
 
 
-// Check if the user is logged in and retrieve username
-if (!isset($_SESSION['a_username'])) {
+// Check if the user is logged in (Coordinator or Jr Assistant)
+if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
     die("Unauthorized access. Please log in first.");
 }
-$username = $_SESSION['a_username'];
+$username = isset($_SESSION['a_username']) ? $_SESSION['a_username'] : $_SESSION['j_username'];
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -242,7 +242,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </svg>
             </a>
             <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
+            <?php if (isset($_SESSION['j_username'])): ?>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">jr_assistant</a></span>
+            <?php else: ?>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
+            <?php endif; ?>
             <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo "$event" ?>_Files</a></span>
             <span id="sp">&nbsp; >> &nbsp;</span>
         </div>

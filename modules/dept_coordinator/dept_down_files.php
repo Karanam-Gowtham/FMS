@@ -5,10 +5,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['username']) && !isset($_SESSION['j_username'])) {
     die("Please login to access this page.");
 }
-$username = $_SESSION['username'];
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : $_SESSION['j_username'];
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -240,7 +240,11 @@ span{
                     </svg>
                 </a>
                 <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
+                <?php if (isset($_SESSION['j_username'])): ?>
+                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Jr Assistant </a></span>
+                <?php else: ?>
+                    <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
+                <?php endif; ?>
                 <span>&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> My Dept Files </a></span>
                 <span>&nbsp;  >> &nbsp; </span>
             </div>
@@ -260,6 +264,9 @@ span{
                 <option value="student" <?= $selected_file_type === 'student' ? 'selected' : '' ?>>Student Files</option>
                 <option value="faculty" <?= $selected_file_type === 'faculty' ? 'selected' : '' ?>>Faculty Files</option>
                 <option value="exam_section" <?= $selected_file_type === 'exam_section' ? 'selected' : '' ?>>Exam Section Files</option>
+                <option value="Dept Meeting Minutes" <?= $selected_file_type === 'Dept Meeting Minutes' ? 'selected' : '' ?>>Dept Meeting Minutes</option>
+                <option value="AMC Meeting Minutes" <?= $selected_file_type === 'AMC Meeting Minutes' ? 'selected' : '' ?>>AMC Meeting Minutes</option>
+                <option value="Board Of Studies" <?= $selected_file_type === 'Board Of Studies' ? 'selected' : '' ?>>Board Of Studies</option>
             </select>
             <button type="submit" class="filter-button">Show Files</button>
         </form>
@@ -268,7 +275,7 @@ span{
 
 <div class="container111">
 <?php
-$file_types = ['admin', 'faculty', 'student', 'exam_section'];
+$file_types = ['admin', 'faculty', 'student', 'exam_section', 'Dept Meeting Minutes', 'AMC Meeting Minutes', 'Board Of Studies'];
 $file_types_to_show = $selected_file_type ? [$selected_file_type] : [];
 
 foreach ($file_types_to_show as $file_type) {

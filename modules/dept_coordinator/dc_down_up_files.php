@@ -6,10 +6,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if (!isset($_SESSION['a_username'])) {
+if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
     die("Please login to access this page.");
 }
-$username = $_SESSION['a_username'];
+$username = isset($_SESSION['a_username']) ? $_SESSION['a_username'] : $_SESSION['j_username'];
 
 $event = $_GET['event'] ?? '';
 
@@ -273,7 +273,11 @@ include "../../includes/header.php";
                 </svg>
             </a>
             <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+            <?php if (isset($_SESSION['j_username'])): ?>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">jr_assistant</a></span>
+            <?php else: ?>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
+            <?php endif; ?>
             <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo "$event" ?>_Files</a></span>
             <span id="sp">&nbsp; >> &nbsp;</span>
         </div>
