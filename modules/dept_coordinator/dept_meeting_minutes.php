@@ -50,19 +50,20 @@ $file_options = [
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
-    $study_year = $_POST['study_year'];
-    $semester = $_POST['semester'];
     $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
     $file_name = $_POST['file_name'];
+    $student_year = $_POST['student_year'];
+    $semester = $_POST['semester'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
     // Upload the file to the server
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
         // mapping $event to file_type column, and $file_type (option) to sub_file_type column
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Using backticks for `year` as it is a reserved word
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path, semester, `year`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssss", $username, $dept, $acd_year, $study_year, $semester, $event, $file_type, $file_name, $file_path);
+        $stmt->bind_param("sssssssii", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path, $semester, $student_year);
         
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); </script>";
@@ -281,26 +282,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             }
                             ?>
                         </select>
+                    </div>
+
+            <div class="form-group">
+                <label for="student-year">Select Year:</label>
+                <select name="student_year" id="student-year" required>
+                    <option value="" disabled selected>Select Year</option>
+                    <?php
+                    for ($i = 1; $i <= 4; $i++) {
+                        echo "<option value=\"$i\">Year $i</option>";
+                    }
+                    ?>
+                </select>
             </div>
 
-            <label for="study_year">Select Year:</label>
-            <select name="study_year" id="study_year" required>
-                <option value="" disabled selected>Select Year</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-
-            <label for="semester">Select Semester:</label>
-            <select name="semester" id="semester" required>
-                <option value="" disabled selected>Select Semester</option>
-                <?php
-                for($i=1; $i<=8; $i++) {
-                    echo "<option value='$i'>$i</option>";
-                }
-                ?>
-            </select>
+            <div class="form-group">
+                <label for="semester">Select Semester:</label>
+                <select name="semester" id="semester" required>
+                    <option value="" disabled selected>Select Semester</option>
+                    <?php
+                    for ($i = 1; $i <= 8; $i++) {
+                        echo "<option value=\"$i\">Semester $i</option>";
+                    }
+                    ?>
+                </select>
+            </div>
 
                     
             <label for="file_type">Select File Category:</label>
