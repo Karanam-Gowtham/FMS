@@ -44,16 +44,16 @@ $file_options = [
     'Agenda',
     'Faculty Attended',
     'Meeting Minutes',
-    'Followup',
-    'Others'
+    'Followup'
 ];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
-    $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
+    $file_type = $event; // Automatically set category to event name
     $file_name = $_POST['file_name'];
     $student_year = $_POST['student_year'];
     $semester = $_POST['semester'];
+    $review_period = $_POST['review_period'] ?? NULL;
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
     // Upload the file to the server
@@ -61,9 +61,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Prepare the SQL query to insert the data into the database
         // mapping $event to file_type column, and $file_type (option) to sub_file_type column
         // Using backticks for `year` as it is a reserved word
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path, semester, study_year, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path, semester, study_year, review_period, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssii", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path, $semester, $student_year);
+        $stmt->bind_param("sssssssiis", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path, $semester, $student_year, $review_period);
         
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); </script>";
@@ -167,9 +167,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .upload-form {
-            margin-left: 70px;
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
         label {
@@ -178,43 +178,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #fff;
             font-weight: bold;
         }
-        input{
-            
-            width: 80%;
-            color:white;
-        }
-        select{
-            width:84%;
-        }
-
         input[type="text"],
         input[type="file"],
         select {
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-weight: 500;
             font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff6347;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 99, 71, 0.2);
+        }
+
+        option {
+            background-color: #172a45;
+            color: white;
+            padding: 10px;
         }
 
         .button {
             background: #ff6347;
             color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 10px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
-            width: 83%;
-            margin-bottom:50px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 30px;
         }
 
         .button:hover {
             background: #e55337;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 83, 55, 0.4);
+        }
+
+        .infotext {
+            font-size: 0.85rem;
+            font-weight: normal;
+            color: #ccc;
+            display: block;
+            margin-top: 4px;
+            line-height: 1.4;
         }
 
         /* Responsive Design */
@@ -308,18 +328,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </select>
             </div>
 
-                    
-            <label for="file_type">Select File Category:</label>
-            <select name="file_type" id="file_type" required>
-                <option value="" disabled selected>Select File Category</option>
-                <?php
-                foreach ($file_options as $option) {
-                    echo "<option value='$option'>$option</option>";
-                }
-                ?>
+            <label for="review_period">Select Review Period:</label>
+            <select name="review_period" id="review_period" required>
+                <option value="" disabled selected>Select Period</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
             </select>
 
-            <label for="file">Choose File:</label>
+                    
+    
+
+            <label for="file">
+                Dept Meeting Minutes:
+                <span class="infotext">(<?php echo implode(', ', $file_options); ?>)</span>
+            </label>
             <input type="file" name="file" id="file" required>
 
             <button type="submit" class="button" name="submit">Upload File</button>

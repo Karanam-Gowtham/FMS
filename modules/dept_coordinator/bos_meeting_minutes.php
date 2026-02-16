@@ -2,11 +2,17 @@
 // Start session
 session_start();
 
-// Check if the user is logged in (Jr Assistant)
-if (!isset($_SESSION['j_username'])) {
-    die("Unauthorized access. Only Jr Assistants can upload these files.");
+// Check session and determine role
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
+    $role = 'faculty';
+} elseif (isset($_SESSION['j_username'])) {
+    $username = $_SESSION['j_username'];
+    $role = 'jr_assistant';
+} else {
+    die("Unauthorized access. Please log in first.");
 }
-$username = $_SESSION['j_username'];
+
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -22,8 +28,12 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_jr_assistant using username
-$sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
+// Retrieve the department based on role
+if ($role === 'jr_assistant') {
+    $sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
+} else {
+    $sql_dept = "SELECT dept as department FROM reg_tab WHERE userid = ?";
+}
 $stmt_dept = $conn->prepare($sql_dept);
 $stmt_dept->bind_param("s", $username);
 $stmt_dept->execute();
@@ -33,7 +43,8 @@ if ($result_dept->num_rows > 0) {
     $row = $result_dept->fetch_assoc();
     $rdept = $row['department']; // Store the retrieved department
 } else {
-    die("Department not found for the user.");
+    // If not found in primary table, fall back to GET value if available
+    $rdept = $dept;
 }
 
 // Hardcoded event for this specific program
@@ -41,9 +52,9 @@ $event = 'Board Of Studies';
 
 // File options specific to Board Of Studies
 $file_options = [
-    'Board of Studies Meeting Minutes',
-    'Action Taken Report',
-    'Others'
+    'Academic Regulations',
+    'Syllabus',
+    'BOS Meeting Mins'
 ];
 
 // Meeting Number Logic: Get the max meeting number for this dept and event
@@ -61,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $study_year = $_POST['study_year'];
     $semester = $_POST['semester'];
     $meeting_no = $_POST['meeting_no']; // Captured from input
-    $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
+    $file_type = $event; // Automatically set category to event name
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
@@ -176,9 +187,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .upload-form {
-            margin-left: 70px;
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
         label {
@@ -187,44 +198,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #fff;
             font-weight: bold;
         }
-        input{
-            
-            width: 80%;
-            color:white;
-        }
-        select{
-            width:84%;
-        }
-
         input[type="text"],
         input[type="file"],
         input[type="number"],
         select {
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-weight: 500;
             font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff6347;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 99, 71, 0.2);
+        }
+
+        option {
+            background-color: #172a45;
+            color: white;
+            padding: 10px;
         }
 
         .button {
             background: #ff6347;
             color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 10px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
-            width: 83%;
-            margin-bottom:50px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 30px;
         }
 
         .button:hover {
             background: #e55337;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 83, 55, 0.4);
+        }
+
+        .infotext {
+            font-size: 0.85rem;
+            font-weight: normal;
+            color: #ccc;
+            display: block;
+            margin-top: 4px;
+            line-height: 1.4;
         }
 
         /* Responsive Design */
@@ -255,7 +287,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </a>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <?php if ($role === 'faculty'): ?>
+                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
+                <?php else: ?>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Jr Assistant </a></span>
+                <?php endif; ?>
                 <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?> </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span>
             </div>
@@ -315,17 +351,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="meeting_no">Meeting No:</label>
             <input type="number" name="meeting_no" id="meeting_no" value="<?php echo $next_meeting_no; ?>" readonly required style="background: rgba(255, 255, 255, 0.1);">
 
-            <label for="file_type">Select File Category:</label>
-            <select name="file_type" id="file_type" required>
-                <option value="" disabled selected>Select File Category</option>
-                <?php
-                foreach ($file_options as $option) {
-                    echo "<option value='$option'>$option</option>";
-                }
-                ?>
-            </select>
 
-            <label for="file">Choose File:</label>
+
+            <label for="file">
+                Board Of Studies:
+                <span class="infotext">(<?php echo implode(', ', $file_options); ?>)</span>
+            </label>
             <input type="file" name="file" id="file" required>
 
             <button type="submit" class="button" name="submit">Upload File</button>

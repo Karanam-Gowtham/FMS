@@ -2,11 +2,17 @@
 // Start session
 session_start();
 
-// Check if the user is logged in (Jr Assistant)
-if (!isset($_SESSION['j_username'])) {
-    die("Unauthorized access. Only Jr Assistants can upload these files.");
+// Check session and determine role
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
+    $role = 'faculty';
+} elseif (isset($_SESSION['j_username'])) {
+    $username = $_SESSION['j_username'];
+    $role = 'jr_assistant';
+} else {
+    die("Unauthorized access. Please log in first.");
 }
-$username = $_SESSION['j_username'];
+
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -22,8 +28,12 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_jr_assistant using username
-$sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
+// Retrieve the department based on role
+if ($role === 'jr_assistant') {
+    $sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
+} else {
+    $sql_dept = "SELECT dept as department FROM reg_tab WHERE userid = ?";
+}
 $stmt_dept = $conn->prepare($sql_dept);
 $stmt_dept->bind_param("s", $username);
 $stmt_dept->execute();
@@ -33,7 +43,8 @@ if ($result_dept->num_rows > 0) {
     $row = $result_dept->fetch_assoc();
     $rdept = $row['department']; // Store the retrieved department
 } else {
-    die("Department not found for the user.");
+    // If not found in primary table, fall back to GET value if available
+    $rdept = $dept;
 }
 
 // Hardcoded event for this specific program
@@ -46,8 +57,7 @@ $file_options = [
     'Attendance Sheet',
     'Agenda',
     'Action taken for the grievences if any',
-    'Students Feedback of Faculty',
-    'Other'
+    'Students Feedback of Faculty'
 ];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -55,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $study_year = $_POST['study_year'];
     $semester = $_POST['semester'];
     $review_period = $_POST['review_period'] ?? NULL;
-    $file_type = $_POST['file_type']; // This maps to sub_file_type in DB
+    $file_type = $event; // Automatically set category to event name
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
@@ -170,9 +180,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .upload-form {
-            margin-left: 70px;
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
         label {
@@ -181,43 +191,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #fff;
             font-weight: bold;
         }
-        input{
-            
-            width: 80%;
-            color:white;
-        }
-        select{
-            width:84%;
-        }
-
         input[type="text"],
         input[type="file"],
         select {
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-weight: 500;
             font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff6347;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 99, 71, 0.2);
+        }
+
+        option {
+            background-color: #172a45;
+            color: white;
+            padding: 10px;
         }
 
         .button {
             background: #ff6347;
             color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 10px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
-            width: 83%;
-            margin-bottom:50px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 30px;
         }
 
         .button:hover {
             background: #e55337;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 83, 55, 0.4);
+        }
+
+        .infotext {
+            font-size: 0.85rem;
+            font-weight: normal;
+            color: #ccc;
+            display: block;
+            margin-top: 4px;
+            line-height: 1.4;
         }
 
         /* Responsive Design */
@@ -248,7 +278,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </a>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <?php if ($role === 'faculty'): ?>
+                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
+                <?php else: ?>
                 <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Jr Assistant </a></span>
+                <?php endif; ?>
                 <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?> </a></span>
                 <span id="sp">&nbsp;  >> &nbsp; </span>
             </div>
@@ -309,22 +343,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="review_period">Select Review Period:</label>
             <select name="review_period" id="review_period" required>
                 <option value="" disabled selected>Select Period</option>
-                <option value="Mid Sem">Mid Sem</option>
-                <option value="End Sem">End Sem</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
             </select>
 
                     
-            <label for="file_type">Select File Category:</label>
-            <select name="file_type" id="file_type" required>
-                <option value="" disabled selected>Select File Category</option>
-                <?php
-                foreach ($file_options as $option) {
-                    echo "<option value='$option'>$option</option>";
-                }
-                ?>
-            </select>
 
-            <label for="file">Choose File:</label>
+
+            <label for="file">
+                AMC Meeting Minutes:
+                <span class="infotext">(<?php echo implode(', ', $file_options); ?>)</span>
+            </label>
             <input type="file" name="file" id="file" required>
 
             <button type="submit" class="button" name="submit">Upload File</button>

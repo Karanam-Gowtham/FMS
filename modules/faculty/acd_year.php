@@ -263,6 +263,18 @@ body {
                     </div>
                 </a>
 
+                <a href="../dept_coordinator/amc_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>" class="feedback-card">
+                    <div class="card-content">
+                        <h3>AMC Meeting Minutes</h3>
+                    </div>
+                </a>
+
+                <a href="../dept_coordinator/bos_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Board Of Studies (BOS)</h3>
+                    </div>
+                </a>
+
             </div>
         </div>
     </main>

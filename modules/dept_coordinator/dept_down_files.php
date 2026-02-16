@@ -258,7 +258,7 @@ span{
     $selected_file_type = $_POST['selected_file_type'] ?? ''; 
     $is_jr_assistant = isset($_SESSION['j_username']);
     $allowed_file_types = $is_jr_assistant 
-        ? ['Dept Meeting Minutes', 'AMC Meeting Minutes', 'Board Of Studies'] 
+        ? ['Dept Meeting Minutes', 'student', 'calendar'] 
         : ['admin', 'faculty', 'student', 'exam_section', 'Dept Meeting Minutes', 'AMC Meeting Minutes', 'Board Of Studies'];
     ?>
     <div class="filter-section">
@@ -274,6 +274,7 @@ span{
                     if ($type === 'faculty') $label = "Faculty Files";
                     if ($type === 'student') $label = "Student Files";
                     if ($type === 'exam_section') $label = "Exam Section Files";
+                    if ($type === 'calendar') $label = "Academic Calendar";
                     echo "<option value='$type' $selected>$label</option>";
                 }
                 ?>

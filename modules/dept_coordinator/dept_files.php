@@ -19,6 +19,12 @@ if (isset($_GET['dept'])) {
     echo "Department not set.";
 }
 
+// Restrict Jr Assistant from accessing Admin Files
+$event = $_GET['event'] ?? '';
+if ($role === 'jr_assistant' && $event === 'admin') {
+    die("Unauthorized access. Admin Files are no longer accessible to Jr Assistants.");
+}
+
 // Connect to the database
 include("../../includes/connection.php");
 include("../../includes/header.php");
@@ -83,7 +89,13 @@ $file_options = [];
                     'Feedback from Students/Alumni/Academic Peer', 'Course File-Index', 'Feedback on Curriculum from Students/Employer/Alumni',
                     'Workshops-Seminars on Research Methodology', 'Intellectual Property Rights (IPR)', 'Entrepreneurship-New', 
                     'Professional Societies Chapters', 'Engineering Events Organized', 'Product Development Activities', 'Collaborative Activities',
-                    'Functional MoUs with Ongoing Activities', 'Mini Project Work', 'Term Paper Work', 'Mentoring'
+                    'Functional MoUs with Ongoing Activities', 'Mini Project Work', 'Term Paper Work', 'Mentoring',
+                    'Result Analysis', 
+                    'Faculty\'s feed back by Students', 
+                    'Students Progression Report',
+                    'Remedial Classes(Schedules/list of students/Attendance/Assignments given/Tests Conducted)',
+                    'Slow Learners(Schedules/list of students/Attendance/Assignments given/Tests Conducted)',
+                    'Make Up Classes(Schedules/list of students/Attendance/Assignments given/Tests Conducted)'
                 ];
             }
             break;
@@ -118,8 +130,8 @@ $file_options = [];
             break;
         case 'calendar':
             $file_options = [
-                'Follow up of planned activities',
-                'Reason for non conducted activities'
+                'Department Academic Calendar',
+                'Follow up of planned activities & with reasons for non conducted activities if any'
             ];
             break;
         default:
@@ -245,9 +257,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .upload-form {
-            margin-left: 70px;
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
         label {
@@ -256,43 +268,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #fff;
             font-weight: bold;
         }
-        input{
-            
-            width: 80%;
-            color:white;
-        }
-        select{
-            width:84%;
-        }
-
         input[type="text"],
         input[type="file"],
         select {
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-weight: 500;
             font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff6347;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 99, 71, 0.2);
+        }
+
+        option {
+            background-color: #172a45;
+            color: white;
+            padding: 10px;
+        }
+
+        .infotext {
+            font-size: 0.85rem;
+            font-weight: normal;
+            color: #ccc;
+            display: block;
+            margin-top: 4px;
+            line-height: 1.4;
         }
 
         .button {
             background: #ff6347;
             color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 10px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
-            width: 83%;
-            margin-bottom:50px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 30px;
         }
 
         .button:hover {
             background: #e55337;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 83, 55, 0.4);
         }
 
         /* Responsive Design */
@@ -396,8 +428,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="review_period">Select Review Period:</label>
             <select name="review_period" id="review_period">
                 <option value="" selected>None/Not Applicable</option>
-                <option value="Mid Sem">Mid Sem</option>
-                <option value="End Sem">End Sem</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
             </select>
             <?php endif; ?>
 
@@ -407,7 +439,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <option value="" disabled selected>Select File Category</option>
                 <?php
                 foreach ($file_options as $option) {
-                    echo "<option value='$option'>$option</option>";
+                    $clean_option = htmlspecialchars($option);
+                    echo "<option value=\"$clean_option\">$clean_option</option>";
                 }
                 ?>
             </select>

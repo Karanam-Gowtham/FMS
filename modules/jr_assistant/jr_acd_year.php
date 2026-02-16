@@ -159,18 +159,19 @@ include '../../includes/header.php';
         }
 
         .card-content {
-            padding: 2rem;
+            padding: 0.75rem 1.25rem;
             text-align: center;
             background: linear-gradient(to right, rgb(30, 64, 175), rgb(37, 99, 235));
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 60px;
         }
 
         .card-content h3 {
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
         }
 
@@ -204,18 +205,6 @@ include '../../includes/header.php';
                         <h3>Department Meeting Minutes</h3>
                     </div>
                 </a>
-
-                <a href="../dept_coordinator/amc_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>" class="feedback-card">
-                    <div class="card-content">
-                        <h3>AMC Meeting Minutes</h3>
-                    </div>
-                </a>
-
-                <a href="../dept_coordinator/bos_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>" class="feedback-card">
-                    <div class="card-content">
-                        <h3>Board Of Studies (BOS)</h3>
-                    </div>
-                </a>
             </div>
 
             <!-- New Department Files Section -->
@@ -223,13 +212,7 @@ include '../../includes/header.php';
                 <h1>Department Files</h1>
             </div>
 
-            <div class="feedback-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <a href="../dept_coordinator/dept_files.php?event=admin&dept=<?php echo urlencode($dept); ?>" class="feedback-card">
-                    <div class="card-content">
-                        <h3>Admin Files</h3>
-                    </div>
-                </a>
-
+            <div class="feedback-grid">
                 <a href="../dept_coordinator/dept_files.php?event=student&dept=<?php echo urlencode($dept); ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Student Related Files</h3>
@@ -242,7 +225,7 @@ include '../../includes/header.php';
                 <h1>Academic Calendar</h1>
             </div>
 
-            <div class="feedback-grid" style="grid-template-columns: 1fr;">
+            <div class="feedback-grid">
                 <a href="../dept_coordinator/dept_files.php?event=calendar&dept=<?php echo urlencode($dept); ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Academic Calendar</h3>
