@@ -242,11 +242,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
             if ($action == 'approve') $new_status = 'Pending HOD';
             elseif ($action == 'reject') $new_status = 'Rejected by Dept Coordinator'; // Sends back to Faculty
         } elseif ($role == 'HOD') {
-            if ($action == 'approve') $new_status = 'Pending Central Coordinator';
+            if ($action == 'approve') $new_status = 'Accepted';
             elseif ($action == 'reject') $new_status = 'Pending Dept Coordinator'; // Sends back to Dept Coordinator
         } elseif ($role == 'Central_Coordinator') {
-            if ($action == 'approve') $new_status = 'Accepted';
-            elseif ($action == 'reject') $new_status = 'Pending HOD'; // Sends back to HOD
+            // Central Coordinator is now view-only for these files
+            $new_status = ''; 
         }
 
         if ($new_status) {
@@ -581,7 +581,8 @@ if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
                                 $can_act = false;
                                 if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == 'Pending Dept Coordinator') $can_act = true;
                                 if ($role == 'HOD' && $file['status'] == 'Pending HOD') $can_act = true;
-                                if ($role == 'Central_Coordinator' && $file['status'] == 'Pending Central Coordinator') $can_act = true;
+                                // Central Coordinator is now view-only
+                                if ($role == 'Central_Coordinator') $can_act = false;
                                 
                                 // Re-upload permitted if you can act (Reviewer fixing it) OR if you are Faculty and it was rejected
                                 $can_reupload = $can_act || ($role == 'Faculty' && strpos($file['status'], 'Rejected') !== false);

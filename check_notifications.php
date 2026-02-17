@@ -75,8 +75,8 @@ function build_count_query($table, $user_col, $role, $user_id, $dept) {
             $where .= " AND reg_tab.dept = '$dept'";
         }
     } elseif ($role == 'Central_Coordinator') {
-        // Central: Waiting for their approval
-        $where .= " AND status = 'Pending Central Coordinator'";
+        // Central Coordinator now just views accepted files; no approval notifications.
+        $where .= " AND 1=0";
     }
     
     return $q . $join . $where;

@@ -47,23 +47,31 @@ $file_options = [
     'Followup'
 ];
 
+// Retrieve the next meeting number
+$sql_max = "SELECT MAX(meeting_no) as max_no FROM dept_files WHERE dept = ? AND file_type = 'Dept Meeting Minutes'";
+$stmt_max = $conn->prepare($sql_max);
+$stmt_max->bind_param("s", $dept);
+$stmt_max->execute();
+$res_max = $stmt_max->get_result();
+$row_max = $res_max->fetch_assoc();
+$next_meeting_no = ($row_max['max_no'] ?? 0) + 1;
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $acd_year = $_POST['year'];
+    $acd_year = ""; // Removed from form
     $file_type = $event; // Automatically set category to event name
     $file_name = $_POST['file_name'];
-    $student_year = $_POST['student_year'];
-    $semester = $_POST['semester'];
-    $review_period = $_POST['review_period'] ?? NULL;
+    $student_year = 0; // Removed from form
+    $semester = 0; // Removed from form
+    $review_period = NULL; // Removed from form
+    $meeting_no = $_POST['meeting_no'] ?? $next_meeting_no;
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
     // Upload the file to the server
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
-        // mapping $event to file_type column, and $file_type (option) to sub_file_type column
-        // Using backticks for `year` as it is a reserved word
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path, semester, study_year, review_period, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, file_type, sub_file_type, file_name, file_path, semester, study_year, review_period, status, meeting_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD', ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssiis", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path, $semester, $student_year, $review_period);
+        $stmt->bind_param("sssssssiisi", $username, $dept, $acd_year, $event, $file_type, $file_name, $file_path, $semester, $student_year, $review_period, $meeting_no);
         
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); </script>";
@@ -180,6 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         input[type="text"],
         input[type="file"],
+        input[type="number"],
         select {
             width: 100%;
             padding: 12px;
@@ -194,6 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         input[type="text"]:focus,
+        input[type="number"]:focus,
         select:focus {
             background: rgba(255, 255, 255, 0.1);
             border-color: #ff6347;
@@ -278,62 +288,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="file_name">File Name:</label>
             <input type="text" name="file_name" id="file_name" required>
 
-            <div class="form-group">
-                        <label for="academic-year">Select Academic Year:</label>
-                        <select name="year" id="academic-year" required>
-                            <option value="" disabled selected>Select an academic year</option>
-                            <?php
-                            include("../../includes/connection.php"); // Must be before this code
-
-                            $query = "SELECT year FROM academic_year ORDER BY year DESC";
-                            $result = mysqli_query($conn, $query);
-
-                            if (!$result) {
-                                die("Query Failed: " . mysqli_error($conn)); // Debug error
-                            }
-
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    $year = htmlspecialchars($row['year']);
-                                    echo "<option value=\"$year\">$year</option>";
-                                }
-                            } else {
-                                echo '<option value="" disabled>No years found</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-
-            <div class="form-group">
-                <label for="student-year">Select Year:</label>
-                <select name="student_year" id="student-year" required>
-                    <option value="" disabled selected>Select Year</option>
-                    <?php
-                    for ($i = 1; $i <= 4; $i++) {
-                        echo "<option value=\"$i\">Year $i</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="semester">Select Semester:</label>
-                <select name="semester" id="semester" required>
-                    <option value="" disabled selected>Select Semester</option>
-                    <?php
-                    for ($i = 1; $i <= 8; $i++) {
-                        echo "<option value=\"$i\">Semester $i</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-
-            <label for="review_period">Select Review Period:</label>
-            <select name="review_period" id="review_period" required>
-                <option value="" disabled selected>Select Period</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-            </select>
+            <label for="meeting_no">Meeting No:</label>
+            <input type="number" name="meeting_no" id="meeting_no" value="<?php echo $next_meeting_no; ?>" readonly required style="background: rgba(255, 255, 255, 0.1);">
 
                     
     

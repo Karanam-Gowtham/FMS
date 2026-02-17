@@ -151,7 +151,7 @@ include 'header_hod.php';
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
-                            <th>Jr Assistant</th>
+                            <th>Uploaded By</th>
                             <th>Acd Year</th>
                             <th>Category</th>
                             <th>File Name</th>
@@ -181,7 +181,8 @@ include 'header_hod.php';
                             echo "<tr>";
                             echo "<td><input type='checkbox' name='selected_files[]' value='{$row['id']}'></td>";
                             echo "<td>{$row['username']}</td>";
-                            echo "<td>{$row['academic_year']}</td>";
+                            $display_year = ($row['meeting_no']) ? "Mtg #" . $row['meeting_no'] : $row['academic_year'];
+                            echo "<td>$display_year</td>";
                             echo "<td>{$row['sub_file_type']}</td>";
                             echo "<td>{$row['file_name']}</td>";
                             echo "<td><small>$details</small></td>";

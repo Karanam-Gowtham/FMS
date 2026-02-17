@@ -19,11 +19,8 @@ if (isset($_GET['dept'])) {
     echo "Department not set.";
 }
 
-// Restrict Jr Assistant from accessing Admin Files
+// Restrict Jr Assistant from accessing Admin Files (Removed as per request)
 $event = $_GET['event'] ?? '';
-if ($role === 'jr_assistant' && $event === 'admin') {
-    die("Unauthorized access. Admin Files are no longer accessible to Jr Assistants.");
-}
 
 // Connect to the database
 include("../../includes/connection.php");
@@ -73,9 +70,7 @@ $file_options = [];
         case 'admin':
             if ($role === 'jr_assistant') {
                 $file_options = [
-                    'Schedules', 'attendance', 'List of Students', 'Assignments given', 'Test Conducted', 'result analysis', 
-                    'Parents Intimation for attendance less than 75%(sms/letter)',
-                    'other'
+                    'List of Forms', 'Result Analysis', 'Faculty\'s Feedback by Students', 'Students Progression Report'
                 ];
             } else {
                 $file_options = [
@@ -90,9 +85,6 @@ $file_options = [];
                     'Workshops-Seminars on Research Methodology', 'Intellectual Property Rights (IPR)', 'Entrepreneurship-New', 
                     'Professional Societies Chapters', 'Engineering Events Organized', 'Product Development Activities', 'Collaborative Activities',
                     'Functional MoUs with Ongoing Activities', 'Mini Project Work', 'Term Paper Work', 'Mentoring',
-                    'Result Analysis', 
-                    'Faculty\'s feed back by Students', 
-                    'Students Progression Report',
                     'Remedial Classes(Schedules/list of students/Attendance/Assignments given/Tests Conducted)',
                     'Slow Learners(Schedules/list of students/Attendance/Assignments given/Tests Conducted)',
                     'Make Up Classes(Schedules/list of students/Attendance/Assignments given/Tests Conducted)'
@@ -111,8 +103,8 @@ $file_options = [];
         case 'student':
             if ($role === 'jr_assistant') {
                 $file_options = [
-                    'List of Forms', 'Student Addresses', 'Cumulative Monthly Attendance', 'Semester End Attendance', 'Condonation List', 
-                    'Detention List', 'Students Progression To Higher Education'
+                    'Student Addresses', 'Cumulative Monthly Attendance', 'Semester End Attendance', 'Condonation List', 
+                    'Detention List'
                 ];
             } else {
                 $file_options = [
@@ -151,7 +143,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Upload the file to the server
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
-        $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, review_period, file_type, sub_file_type, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Final authority is HOD, so status starts as 'Pending HOD'
+        $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, review_period, file_type, sub_file_type, file_name, file_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sssiisssss", $username, $dept, $acd_year, $study_year, $semester, $review_period, $event, $file_type, $file_name, $file_path);
         

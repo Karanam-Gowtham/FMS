@@ -258,7 +258,7 @@ span{
     $selected_file_type = $_POST['selected_file_type'] ?? ''; 
     $is_jr_assistant = isset($_SESSION['j_username']);
     $allowed_file_types = $is_jr_assistant 
-        ? ['Dept Meeting Minutes', 'student', 'calendar'] 
+        ? ['Dept Meeting Minutes', 'admin', 'student', 'calendar'] 
         : ['admin', 'faculty', 'student', 'exam_section', 'Dept Meeting Minutes', 'AMC Meeting Minutes', 'Board Of Studies'];
     ?>
     <div class="filter-section">
@@ -289,7 +289,7 @@ span{
 $file_types_to_show = $selected_file_type ? [$selected_file_type] : ($is_jr_assistant ? $allowed_file_types : []);
 
 foreach ($file_types_to_show as $file_type) {
-    $sql = "SELECT file_type, dept, academic_year, sub_file_type, file_name, file_path, status FROM dept_files WHERE username = ? AND file_type = ?";
+    $sql = "SELECT file_type, dept, academic_year, sub_file_type, file_name, file_path, status, meeting_no FROM dept_files WHERE username = ? AND file_type = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $username, $file_type);
     $stmt->execute();
@@ -306,7 +306,7 @@ foreach ($file_types_to_show as $file_type) {
                         <th>ID</th>
                         <th>Username</th>
                         <th>Dept</th>
-                        <th>Academic Year</th>
+                        <th>Academic Year / Meeting No</th>
                         <th>File Type</th>
                         <th>Sub File Type </th>
                         <th>File Name</th>
@@ -325,7 +325,7 @@ foreach ($file_types_to_show as $file_type) {
                     <td>$id</td>
                     <td>$username</td>
                     <td>" . $row['dept'] . "</td>
-                    <td>" . $row['academic_year'] . "</td>
+                    <td>" . (($row['file_type'] === 'Dept Meeting Minutes' && $row['meeting_no']) ? "Meeting " . $row['meeting_no'] : $row['academic_year']) . "</td>
                     <td>" . $row['file_type'] . "</td>
                     <td>" . $row['sub_file_type'] . "</td>
                     <td>" . $row['file_name'] . "</td>

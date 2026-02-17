@@ -204,27 +204,33 @@ $dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SES
             </div>
 
             <div class="feedback-grid">
-                <a href="hod_down_dept_files.php?event=admin" class="feedback-card">
+                <a href="hod_manage_meeting_minutes.php?event=admin" class="feedback-card">
                     <div class="card-content">
                         <h3>Admin Files</h3>
                     </div>
                 </a>
 
-                <a href="hod_down_dept_files.php?event=faculty" class="feedback-card">
+                <a href="hod_manage_meeting_minutes.php?event=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Faculty Files</h3>
                     </div>
                 </a>
 
-                <a href="hod_down_dept_files.php?event=student" class="feedback-card">
+                <a href="hod_manage_meeting_minutes.php?event=student" class="feedback-card">
                      <div class="card-content">
                         <h3>Student Related Files</h3>
                     </div>
                 </a>
 
-                <a href="hod_down_dept_files.php?event=exam" class="feedback-card">
+                <a href="hod_manage_meeting_minutes.php?event=exam" class="feedback-card">
                      <div class="card-content">
                         <h3>Exam Section Files</h3>
+                    </div>
+                </a>
+
+                <a href="hod_manage_meeting_minutes.php?event=calendar" class="feedback-card">
+                     <div class="card-content">
+                        <h3>Academic Calendar</h3>
                     </div>
                 </a>
 

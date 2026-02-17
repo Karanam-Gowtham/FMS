@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $study_year = $_POST['study_year'];
     $semester = $_POST['semester'];
     $meeting_no = $_POST['meeting_no']; // Captured from input
-    $file_type = $event; // Automatically set category to event name
+    $file_type = $_POST['file_category']; // Capture the specific BOS category
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     
@@ -353,10 +353,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 
-            <label for="file">
-                Board Of Studies:
-                <span class="infotext">(<?php echo implode(', ', $file_options); ?>)</span>
-            </label>
+            <label for="file_category">File Category:</label>
+            <select name="file_category" id="file_category" required>
+                <option value="" disabled selected>Select File Category</option>
+                <?php
+                foreach ($file_options as $option) {
+                    echo "<option value='$option'>$option</option>";
+                }
+                ?>
+            </select>
+
+            <label for="file">Choose File:</label>
             <input type="file" name="file" id="file" required>
 
             <button type="submit" class="button" name="submit">Upload File</button>
