@@ -1281,8 +1281,30 @@ CREATE TABLE `dept_files` (
   `file_type` varchar(400) NOT NULL,
   `sub_file_type` varchar(600) NOT NULL,
   `file_name` varchar(400) NOT NULL,
-  `file_path` varchar(400) NOT NULL
+  `file_path` varchar(400) NOT NULL,
+  `semester` int(11) DEFAULT NULL,
+  `review_period` varchar(50) DEFAULT NULL,
+  `study_year` int(11) DEFAULT NULL,
+  `meeting_no` int(11) DEFAULT NULL,
+  `status` varchar(50) DEFAULT 'Pending HOD',
+  `rejection_reason` text DEFAULT NULL,
+  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reg_jr_assistant`
+--
+
+CREATE TABLE `reg_jr_assistant` (
+  `userid` varchar(50) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `department` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 -- --------------------------------------------------------
 
@@ -2055,6 +2077,12 @@ ALTER TABLE `dc_up_files`
 --
 ALTER TABLE `dept_files`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `reg_jr_assistant`
+--
+ALTER TABLE `reg_jr_assistant`
+  ADD PRIMARY KEY (`userid`);
 
 --
 -- Indexes for table `documents`
