@@ -51,7 +51,7 @@ include '../../includes/header.php';
         }
 
         .nav-container {
-             /* margin-top moved to .navbar */
+            /* margin-top moved to .navbar */
             margin-left: 100px;
             max-width: 80rem;
             padding: 0 1rem;
@@ -216,20 +216,6 @@ include '../../includes/header.php';
                     class="feedback-card">
                     <div class="card-content">
                         <h3>Department Meeting Minutes</h3>
-                    </div>
-                </a>
-
-                <a href="../dept_coordinator/amc_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>"
-                    class="feedback-card">
-                    <div class="card-content">
-                        <h3>AMC Meeting Minutes</h3>
-                    </div>
-                </a>
-
-                <a href="../dept_coordinator/bos_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>"
-                    class="feedback-card">
-                    <div class="card-content">
-                        <h3>Board Of Studies (BOS)</h3>
                     </div>
                 </a>
             </div>

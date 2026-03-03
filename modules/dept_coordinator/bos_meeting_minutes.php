@@ -9,9 +9,6 @@ if (isset($_SESSION['username'])) {
 } elseif (isset($_SESSION['h_username'])) {
     $username = $_SESSION['h_username'];
     $role = 'faculty';
-} elseif (isset($_SESSION['j_username'])) {
-    $username = $_SESSION['j_username'];
-    $role = 'jr_assistant';
 } else {
     die("Unauthorized access. Please log in first.");
 }
@@ -144,7 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .nav-container {
             background-color: white;
             width: 150vw;
-             /* margin-top moved to .navbar */
+            /* margin-top moved to .navbar */
             padding: 0 1rem;
         }
 
@@ -303,14 +300,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <?php if ($role === 'faculty'): ?>
-                    <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
-                            href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
-                <?php else: ?>
-                    <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
-                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Jr Assistant
-                        </a></span>
-                <?php endif; ?>
+                <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                        href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
                         <?php echo "$event" ?> </a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span>

@@ -311,15 +311,15 @@ include "../../includes/header.php";
                     </svg>
                 </a>
                 <span>&nbsp; >> &nbsp; </span><span class="sid"><a
-                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
-                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(
+                        <?php echo htmlspecialchars($dept); ?>)
+                    </a></span>
                 <?php if (isset($_SESSION['j_username'])): ?>
                     <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Jr
                             Assistant </a></span>
                 <?php else: ?>
-                    <span>&nbsp; >> &nbsp; </span><span class="sid"><a
-                            href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
+                    <span>&nbsp; >> &nbsp; </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
                 <?php endif; ?>
                 <span>&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> My Dept Files </a></span>
                 <span>&nbsp; >> &nbsp; </span>
@@ -334,7 +334,7 @@ include "../../includes/header.php";
         $selected_file_type = $_POST['selected_file_type'] ?? '';
         $is_jr_assistant = isset($_SESSION['j_username']);
         $allowed_file_types = $is_jr_assistant
-            ? ['Dept Meeting Minutes', 'admin', 'student', 'calendar', 'AMC Meeting Minutes', 'Board Of Studies']
+            ? ['Dept Meeting Minutes', 'admin', 'student', 'calendar']
             : ['admin', 'faculty', 'student', 'exam', 'student_act', 'AMC Meeting Minutes', 'Board Of Studies'];
         ?>
         <div class="filter-section">
@@ -369,15 +369,16 @@ include "../../includes/header.php";
 
     <div class="container111">
         <?php
-        $file_types_to_show = $selected_file_type ? [$selected_file_type] : ($is_jr_assistant ? $allowed_file_types : []);
-
+        $file_types_to_show = $selected_file_type ? [$selected_file_type] : [];
         foreach ($file_types_to_show as $file_type) {
             if ($file_type === 'student_act') {
-                $sql = "SELECT 'student_act' as file_type, ? as dept, academic_year, event_name as sub_file_type, event_name as file_name, certificate_path as file_path, status, '' as meeting_no FROM s_events WHERE Username = ? AND status = 'Accepted'";
+                $sql = "SELECT 'student_act' as file_type, ? as dept, academic_year, event_name as sub_file_type, event_name as
+        file_name, certificate_path as file_path, status, '' as meeting_no FROM s_events WHERE Username = ? AND status = 'Accepted'";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("ss", $dept, $username);
             } else {
-                $sql = "SELECT file_type, dept, academic_year, sub_file_type, file_name, file_path, status, meeting_no FROM dept_files WHERE username = ? AND file_type = ? AND status = 'Accepted'";
+                $sql = "SELECT file_type, dept, academic_year, sub_file_type, file_name, file_path, status, meeting_no FROM
+        dept_files WHERE username = ? AND file_type = ? AND status = 'Accepted'";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("ss", $username, $file_type);
             }
@@ -410,23 +411,29 @@ include "../../includes/header.php";
                     $statusColor = ($status === 'Accepted') ? 'green' : (($status === 'Rejected') ? 'red' : 'orange');
 
                     echo "<tr>
-                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' data-filepath=\"$file_path\"></td>
-                    <td>$id</td>
-                    <td>$username</td>
-                    <td>" . $row['dept'] . "</td>
-                    <td>" . (($row['file_type'] === 'Dept Meeting Minutes' && $row['meeting_no']) ? "Meeting " . $row['meeting_no'] : $row['academic_year']) . "</td>
-                    <td>" . $row['file_type'] . "</td>
-                    <td>" . $row['sub_file_type'] . "</td>
-                    <td>" . $row['file_name'] . "</td>
-                    <td style='color: $statusColor; font-weight: bold;'>$status</td>
-                </tr>";
+                        <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "'
+                                data-filepath=\"$file_path\"></td>
+                        <td>$id</td>
+                        <td>$username</td>
+                        <td>" . $row['dept'] . "</td>
+                        <td>" . (($row['file_type'] === 'Dept Meeting Minutes' && $row['meeting_no']) ? "Meeting " .
+                        $row['meeting_no'] : $row['academic_year']) . "</td>
+                        <td>" . $row['file_type'] . "</td>
+                        <td>" . $row['sub_file_type'] . "</td>
+                        <td>" . $row['file_name'] . "</td>
+                        <td style='color: $statusColor; font-weight: bold;'>$status</td>
+                    </tr>";
                     $id++;
                 }
                 echo " <input type='hidden' name='file_type' value='$file_type'>
-                <button type='button' onclick='viewSelectedFiles()' class='btn view-btn'>View Selected</button>
-                <button type='submit' name='action' value='download' class='btn download-btn'>Download Selected</button>&nbsp
-                <button type='submit' name='action' value='delete' class='btn delete-btn'>Delete Selected</button>";
-                echo "</tbody></table></form>";
+                    <button type='button' onclick='viewSelectedFiles()' class='btn view-btn'>View Selected</button>
+                    <button type='submit' name='action' value='download' class='btn download-btn'>Download
+                        Selected</button>&nbsp
+                    <button type='submit' name='action' value='delete' class='btn delete-btn'>Delete Selected</button>";
+                echo "
+                </tbody>
+            </table>
+        </form>";
             } else {
                 echo "<p class='no-files'>No files found for " . ucfirst($file_type) . ".</p>";
             }
