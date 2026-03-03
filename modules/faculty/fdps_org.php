@@ -28,13 +28,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $year = $_POST['year'];
     $date_from = $_POST['date_from'];
     $date_to = $_POST['date_to'];
-    
+
     // Upload Dir
     $target_dir = "../../uploads/fdps_org/";
-    if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-    
+    if (!is_dir($target_dir))
+        mkdir($target_dir, 0777, true);
+
     // Helper to upload file
-    function uploadFile($fileInputName, $target_dir) {
+    function uploadFile($fileInputName, $target_dir)
+    {
         if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] == 0) {
             $fileName = time() . '_' . $fileInputName . '_' . basename($_FILES[$fileInputName]["name"]);
             $targetFile = $target_dir . $fileName;
@@ -44,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         return "";
     }
-    
+
     $certificate = uploadFile('certificate', $target_dir);
     $brochure = uploadFile('brochure', $target_dir);
     $schedule = uploadFile('schedule', $target_dir);
@@ -54,15 +56,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $photo1 = uploadFile('photo1', $target_dir);
     $photo2 = uploadFile('photo2', $target_dir);
     $photo3 = uploadFile('photo3', $target_dir);
-    
-    $status = 'Pending Dept Coordinator';
-    
+
+    $status = 'Pending HOD';
+
     $sql = "INSERT INTO fdps_org_tab (username, branch, title, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photo1, photo2, photo3, submission_time, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
-            
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssssssssssssssssss", $username, $dept, $title, $date_from, $date_to, $organised_by, $location, $year, $certificate, $brochure, $schedule, $attendance, $feedback, $report, $photo1, $photo2, $photo3, $status);
-    
+
     if ($stmt->execute()) {
         echo "<script>alert('FDP Organized Record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
     } else {
@@ -73,6 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Upload FDP Organized</title>
@@ -85,12 +88,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 0;
             padding-bottom: 50px;
         }
-        .navbar { background-color: white; font-size: larger; }
-        .nav-container { margin-top: 100px; margin-left:100px; max-width: 80rem; padding: 0 1rem; }
-        .nav-items { display: flex; align-items: center; height: 4rem; }
-        .sid { color: rgb(48, 30, 138); font-weight: 500; }
-        .main-a { color: rgb(138, 30, 113); font-weight: 500; }
-        #sp { color: blue; }
+
+        .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 100px;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+            font-size: larger;
+        }
+
+        .nav-container {
+            margin-left: 100px;
+            max-width: 80rem;
+            padding: 0 1rem;
+        }
+
+        .nav-items {
+            display: flex;
+            align-items: center;
+            height: 4rem;
+        }
+
+        .sid {
+            color: rgb(48, 30, 138);
+            font-weight: 500;
+        }
+
+        .main-a {
+            color: rgb(138, 30, 113);
+            font-weight: 500;
+        }
+
+        #sp {
+            color: blue;
+        }
+
         .container11 {
             margin: 50px auto;
             background: rgba(16, 15, 15, 0.8);
@@ -100,102 +134,206 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             max-width: 800px;
             width: 90%;
         }
-        h2 { text-align: center; margin-bottom: 20px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="date"], select, input[type="file"] {
-            width: 100%; padding: 10px; margin-bottom: 15px;
-            border-radius: 5px; border: none;
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            color: #fff;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        input[type="file"]:focus {
             background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #ff6347;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background: #e55337;
+            transform: translateY(-2px);
+        }
+
+        option {
+            background-color: #333;
             color: white;
         }
-        .full-width { grid-column: span 2; }
-        button {
-            width: 100%; padding: 10px; background: #ff6347; color: white;
-            border: none; border-radius: 5px; font-size: 1rem; cursor: pointer;
-            margin-top: 20px;
-        }
-        button:hover { background: #e55337; }
-        option { background-color: #333; }
     </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">FDPs Organized</a></span>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-items">
+                <a href="../../index.php" class="home-icon" style="color: rgb(30, 58, 138); text-decoration: none;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </a>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        style="text-decoration: none; color: inherit;">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                        href="acd_year.php?dept=<?php echo urlencode($dept); ?>"
+                        style="text-decoration: none; color: inherit;">Faculty</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"
+                        style="text-decoration: none;">FDPs Organized</a></span>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="container11">
-    <h2>FDPs Organized</h2>
-    <form method="POST" enctype="multipart/form-data" class="form-grid">
-        <div class="full-width">
-            <label>Title of FDP:</label>
-            <input type="text" name="title" required>
-        </div>
-        
-        <div>
-            <label>Organised By:</label>
-            <input type="text" name="organised_by" required>
-        </div>
-        
-        <div>
-            <label>Location:</label>
-            <input type="text" name="location" required>
-        </div>
-        
-        <div class="full-width">
-            <label>Academic Year:</label>
-            <select name="year" required>
-                <option value="">Select Year</option>
-                <?php
-                $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
-                $y_res = $conn->query($y_sql);
-                if ($y_res) {
-                    while($y = $y_res->fetch_assoc()) {
-                        echo "<option value='".$y['year']."'>".$y['year']."</option>";
-                    }
-                }
-                ?>
-            </select>
-        </div>
-        
-        <div>
-            <label>Date From:</label>
-            <input type="date" name="date_from" required>
-        </div>
-        
-        <div>
-            <label>Date To:</label>
-            <input type="date" name="date_to" required>
-        </div>
-        
-        <div><label>Certificate:</label><input type="file" name="certificate"></div>
-        <div><label>Brochure:</label><input type="file" name="brochure"></div>
-        <div><label>Schedule/Invitation:</label><input type="file" name="schedule"></div>
-        <div><label>Attendance Forms:</label><input type="file" name="attendance"></div>
-        <div><label>Feedback Forms:</label><input type="file" name="feedback"></div>
-        <div><label>Report:</label><input type="file" name="report"></div>
-        <div><label>Photo 1:</label><input type="file" name="photo1"></div>
-        <div><label>Photo 2:</label><input type="file" name="photo2"></div>
-        <div><label>Photo 3:</label><input type="file" name="photo3"></div>
-        
-        <div class="full-width">
-            <button type="submit">Submit</button>
-        </div>
-    </form>
-</div>
+    <div class="container11">
+        <h2>Upload FDPs Organized Details</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Title of FDP:</label>
+                    <input type="text" name="title" required placeholder="Enter FDP Title">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Organised By:</label>
+                    <input type="text" name="organised_by" required placeholder="Instituion/Organization Name">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Location:</label>
+                    <input type="text" name="location" required placeholder="City, State">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Academic Year:</label>
+                    <select name="year" required>
+                        <option value="">Select Year</option>
+                        <?php
+                        $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
+                        $y_res = $conn->query($y_sql);
+                        if ($y_res) {
+                            while ($y = $y_res->fetch_assoc()) {
+                                echo "<option value='" . $y['year'] . "'>" . $y['year'] . "</option>";
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Date From:</label>
+                    <input type="date" name="date_from" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Date To:</label>
+                    <input type="date" name="date_to" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Certificate:</label>
+                    <input type="file" name="certificate" accept=".pdf,.png,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group">
+                    <label>Brochure:</label>
+                    <input type="file" name="brochure" accept=".pdf,.png,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group">
+                    <label>Schedule/Invitation:</label>
+                    <input type="file" name="schedule" accept=".pdf,.png,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group">
+                    <label>Attendance Forms:</label>
+                    <input type="file" name="attendance" accept=".pdf,.png,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group">
+                    <label>Feedback Forms:</label>
+                    <input type="file" name="feedback" accept=".pdf,.png,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group">
+                    <label>Report:</label>
+                    <input type="file" name="report" accept=".pdf,.doc,.docx">
+                </div>
+
+                <div class="form-group">
+                    <label>Photo 1:</label>
+                    <input type="file" name="photo1" accept=".png,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group">
+                    <label>Photo 2:</label>
+                    <input type="file" name="photo2" accept=".png,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Photo 3 (Optional):</label>
+                    <input type="file" name="photo3" accept=".png,.jpg,.jpeg">
+                </div>
+
+                <div class="full-width">
+                    <button type="submit">Submit Details</button>
+                </div>
+            </div>
+        </form>
+    </div>
 
 </body>
+
 </html>
 <?php $conn->close(); ?>

@@ -81,14 +81,20 @@ include 'header_admin.php';
     <link rel='stylesheet' href="../css/upload_a1.css">
     <style>
                                  /* Navigation */
-                                 .navbar { 
+                                 .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 80px;
+            border-bottom: 1px solid #eee;
+ 
         font-size: larger;
     }
 
     .nav-container {
         background-color: rgb(244, 237, 237);
         width:100vw;
-        margin-top: 80px;
+         /* margin-top moved to .navbar */
         padding: 0 1rem;
     }
 

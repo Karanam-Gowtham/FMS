@@ -6,6 +6,9 @@ session_start();
 if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
     $role = 'faculty';
+} elseif (isset($_SESSION['h_username'])) {
+    $username = $_SESSION['h_username'];
+    $role = 'faculty';
 } elseif (isset($_SESSION['j_username'])) {
     $username = $_SESSION['j_username'];
     $role = 'jr_assistant';
@@ -68,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file_type = $event; // Automatically set category to event name
     $file_name = $_POST['file_name'];
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
-    
+
     // Upload the file to the server
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         // Prepare the SQL query to insert the data into the database
@@ -77,13 +80,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO dept_files (username, dept, academic_year, study_year, semester, review_period, file_type, sub_file_type, file_name, file_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending HOD')";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssssssssss", $username, $dept, $acd_year, $study_year, $semester, $review_period, $event, $file_type, $file_name, $file_path);
-        
+
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!'); </script>";
         } else {
             echo "<script>alert('File was not uploaded!');</script>";
         }
-        
+
     } else {
         echo "<p>Error uploading file.</p>";
     }
@@ -92,6 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -104,62 +108,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 0;
             min-height: 100vh;
             background: linear-gradient(135deg, #0a192f 0%, #172a45 100%);
-            
+
             color: white;
         }
 
-        .cont1{
+        .cont1 {
             display: flex;
             justify-content: center;
             align-items: center;
-            
+
         }
-        
-          /* Navigation */
-    .navbar { 
-        font-size: larger;
-    }
 
-    #sp{
-        color:blue;
-    }
-    
-    .nav-container {
-        background-color: white;
-        width:150vw;
-        margin-top: 80px;
-        padding: 0 1rem;
-    }
+        /* Navigation */
+        .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 80px;
+            border-bottom: 1px solid #eee;
 
-    .nav-items {
-        margin-left: 30px;
-        display: flex;
-        align-items: center;
-        justify-content:flex-start;
-        height: 4rem;
-    }
+            font-size: larger;
+        }
 
-    .sid{
-        color: rgb(48, 30, 138);
-        font-weight: 500;
-    }
+        #sp {
+            color: blue;
+        }
 
-    .main-a {
-        color: rgb(138, 30, 113);
-        font-weight: 500;
-    }
-    .main-a:hover{
-        color:rgb(182, 64, 211);
-    }
+        .nav-container {
+            background-color: white;
+            width: 150vw;
+             /* margin-top moved to .navbar */
+            padding: 0 1rem;
+        }
 
-    .home-icon {
-        color: rgb(30, 58, 138);
-        transition: color 0.2s;
-    }
+        .nav-items {
+            margin-left: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 4rem;
+        }
 
-    .home-icon:hover {
-        color: rgb(29, 78, 216);
-    }
+        .sid {
+            color: rgb(48, 30, 138);
+            font-weight: 500;
+        }
+
+        .main-a {
+            color: rgb(138, 30, 113);
+            font-weight: 500;
+        }
+
+        .main-a:hover {
+            color: rgb(182, 64, 211);
+        }
+
+        .home-icon {
+            color: rgb(30, 58, 138);
+            transition: color 0.2s;
+        }
+
+        .home-icon:hover {
+            color: rgb(29, 78, 216);
+        }
+
         .container11 {
             margin-top: 50px;
             background: rgba(16, 15, 15, 0.8);
@@ -191,6 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #fff;
             font-weight: bold;
         }
+
         input[type="text"],
         input[type="file"],
         select {
@@ -269,99 +282,107 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <div>
-<nav class="navbar">
+    <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">
                 <a href="../../index.php" class="home-icon">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if ($role === 'faculty'): ?>
-                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Faculty </a></span>
+                    <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                            href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
                 <?php else: ?>
-                <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo"$dept" ?>" class="home-icon"> Jr Assistant </a></span>
+                    <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Jr Assistant
+                        </a></span>
                 <?php endif; ?>
-                <span id="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo"$event" ?> </a></span>
-                <span id="sp">&nbsp;  >> &nbsp; </span>
+                <span id="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
+                        <?php echo "$event" ?> </a></span>
+                <span id="sp">&nbsp; >> &nbsp; </span>
             </div>
         </div>
     </nav>
-<div class="cont1">
-    <div class="container11">
-        <h1>Upload <?php echo $event; ?></h1>
-        <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
-            <label for="file_name">File Name:</label>
-            <input type="text" name="file_name" id="file_name" required>
+    <div class="cont1">
+        <div class="container11">
+            <h1>Upload <?php echo $event; ?></h1>
+            <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
+                <label for="file_name">File Name:</label>
+                <input type="text" name="file_name" id="file_name" required>
 
-            <div class="form-group">
-                        <label for="academic-year">Select Academic Year:</label>
-                        <select name="year" id="academic-year" required>
-                            <option value="" disabled selected>Select an academic year</option>
-                            <?php
-                            include("../../includes/connection.php"); // Must be before this code
+                <div class="form-group">
+                    <label for="academic-year">Select Academic Year:</label>
+                    <select name="year" id="academic-year" required>
+                        <option value="" disabled selected>Select an academic year</option>
+                        <?php
+                        include("../../includes/connection.php"); // Must be before this code
+                        
+                        $query = "SELECT year FROM academic_year ORDER BY year DESC";
+                        $result = mysqli_query($conn, $query);
 
-                            $query = "SELECT year FROM academic_year ORDER BY year DESC";
-                            $result = mysqli_query($conn, $query);
+                        if (!$result) {
+                            die("Query Failed: " . mysqli_error($conn)); // Debug error
+                        }
 
-                            if (!$result) {
-                                die("Query Failed: " . mysqli_error($conn)); // Debug error
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                $year = htmlspecialchars($row['year']);
+                                echo "<option value=\"$year\">$year</option>";
                             }
+                        } else {
+                            echo '<option value="" disabled>No years found</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
 
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    $year = htmlspecialchars($row['year']);
-                                    echo "<option value=\"$year\">$year</option>";
-                                }
-                            } else {
-                                echo '<option value="" disabled>No years found</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
+                <label for="study_year">Select Year:</label>
+                <select name="study_year" id="study_year" required>
+                    <option value="" disabled selected>Select Year</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
 
-            <label for="study_year">Select Year:</label>
-            <select name="study_year" id="study_year" required>
-                <option value="" disabled selected>Select Year</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
+                <label for="semester">Select Semester:</label>
+                <select name="semester" id="semester" required>
+                    <option value="" disabled selected>Select Semester</option>
+                    <?php
+                    for ($i = 1; $i <= 8; $i++) {
+                        echo "<option value='$i'>$i</option>";
+                    }
+                    ?>
+                </select>
 
-            <label for="semester">Select Semester:</label>
-            <select name="semester" id="semester" required>
-                <option value="" disabled selected>Select Semester</option>
-                <?php
-                for($i=1; $i<=8; $i++) {
-                    echo "<option value='$i'>$i</option>";
-                }
-                ?>
-            </select>
-
-            <label for="review_period">Select Review Period:</label>
-            <select name="review_period" id="review_period" required>
-                <option value="" disabled selected>Select Period</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-            </select>
-
-                    
+                <label for="review_period">Select Review Period:</label>
+                <select name="review_period" id="review_period" required>
+                    <option value="" disabled selected>Select Period</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
 
 
-            <label for="file">
-                AMC Meeting Minutes:
-                <span class="infotext">(<?php echo implode(', ', $file_options); ?>)</span>
-            </label>
-            <input type="file" name="file" id="file" required>
 
-            <button type="submit" class="button" name="submit">Upload File</button>
-        </form>
+
+                <label for="file">
+                    AMC Meeting Minutes:
+                    <span class="infotext">(<?php echo implode(', ', $file_options); ?>)</span>
+                </label>
+                <input type="file" name="file" id="file" required>
+
+                <button type="submit" class="button" name="submit">Upload File</button>
+            </form>
+        </div>
     </div>
-</div>
-            
-</body>
+
+    </body>
+
 </html>
 
 <?php

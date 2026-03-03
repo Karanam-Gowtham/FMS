@@ -36,12 +36,18 @@ include 'header_hod.php';
 
         /* Navigation */
         .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 100px;
+            border-bottom: 1px solid #eee;
+
             background-color: white;
             font-size: larger;
         }
 
         .nav-container {
-            margin-top: 100px;
+             /* margin-top moved to .navbar */
             margin-left: 100px;
             max-width: 80rem;
             padding: 0 1rem;

@@ -10,9 +10,11 @@
             margin: 0;
             padding: 0;
         }
-        header{
+
+        header {
             position: sticky;
         }
+
         /* Header */
         h1 {
             text-align: center;
@@ -21,54 +23,59 @@
             margin-top: 00px;
             color: darkblue;
         }
-        .div1{
+
+        .div1 {
             margin-top: 100px;
-        }/* Navigation */
-        .navbar { 
+        }
+
+        /* Navigation */
+        .navbar {
             margin-top: -80px;
             font-size: larger;
         }
-        
-        #sp{
-            color:blue;
+
+        #sp {
+            color: blue;
         }
-        
+
         .nav-container {
             background-color: white;
-            width:150vw;
+            width: 150vw;
             margin-top: 80px;
             padding: 0 1rem;
         }
-        
+
         .nav-items {
             margin-left: 30px;
             display: flex;
             align-items: center;
-            justify-content:flex-start;
+            justify-content: flex-start;
             height: 4rem;
         }
-        
-        .sid{
+
+        .sid {
             color: rgb(48, 30, 138);
             font-weight: 500;
         }
-        
+
         .main-a {
             color: rgb(138, 30, 113);
             font-weight: 500;
         }
-        .main-a:hover{
-            color:rgb(182, 64, 211);
+
+        .main-a:hover {
+            color: rgb(182, 64, 211);
         }
-        
+
         .home-icon {
             color: rgb(30, 58, 138);
             transition: color 0.2s;
         }
-        
+
         .home-icon:hover {
             color: rgb(29, 78, 216);
         }
+
         /* Container Styling */
         .container11 {
             margin: 20px auto;
@@ -79,17 +86,17 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             color: #333;
         }
-        
+
         /* Filter Section */
         .filter-section {
-            margin-left:50px;
+            margin-left: 50px;
             width: 90%;
             padding: 15px;
             background: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .filter-form {
             display: flex;
             justify-content: center;
@@ -97,7 +104,7 @@
             flex-direction: column;
             gap: 15px;
         }
-        
+
         select {
             padding: 10px;
             border: 2px solid #1e3c72;
@@ -106,6 +113,7 @@
             min-width: 220px;
             color: #333;
         }
+
         #mergeBtn {
             color: black;
             font-weight: normal;
@@ -116,33 +124,36 @@
             cursor: not-allowed;
             transition: all 0.3s ease;
         }
-        
+
         #mergeBtn.active {
             color: white;
             font-weight: bold;
-            background-color:rgb(59, 40, 167);
+            background-color: rgb(59, 40, 167);
             cursor: pointer;
         }
-        
+
         #mergeBtn:disabled {
             opacity: 0.6;
         }
-        .form{
+
+        .form {
             display: flex;
             justify-content: center;
             align-items: center;
         }
+
         .merge {
             display: inline-block;
             margin: 10px;
             padding: 10px 20px;
-            background-color:rgb(145, 30, 158);
+            background-color: rgb(145, 30, 158);
             color: white;
             border-radius: 5px;
             text-decoration: none;
             font-weight: bold;
             text-align: center;
         }
+
         .filter-button {
             background-color: #007bff;
             color: white;
@@ -153,11 +164,11 @@
             font-weight: bold;
             transition: 0.3s ease-in-out;
         }
-        
+
         .filter-button:hover {
             background-color: #0056b3;
         }
-        
+
         /* Table Styling */
         table {
             width: 100%;
@@ -166,28 +177,34 @@
             border-radius: 8px;
             overflow: hidden;
         }
-        
-        th, td {
+
+        th,
+        td {
             padding: 12px;
             text-align: center;
             border-bottom: 2px solid #ddd;
+            color: #333;
         }
-        
+
         th {
             background: #1e3c72;
             color: white;
             font-weight: 600;
         }
-        
+
         tr:nth-child(even) {
             background: #f0f5ff;
         }
-        
+
         tr:hover {
-            background: #d6e4ff;
+            background: #007bff;
             transition: 0.3s;
         }
-        
+
+        tr:hover td {
+            color: #fff !important;
+        }
+
         /* Buttons */
         button {
             padding: 8px 16px;
@@ -197,25 +214,25 @@
             font-weight: bold;
             transition: 0.3s ease-in-out;
         }
-        
+
         #view {
             background-color: #17a2b8;
             color: darkblue;
         }
-        
+
         #view:hover {
             background-color: #138496;
         }
-        
+
         #down {
             background-color: #28a745;
             color: white;
         }
-        
+
         #down:hover {
             background-color: #218838;
         }
-        
+
         #del {
             padding: 8px 16px;
             border: none;
@@ -226,25 +243,25 @@
             background-color: #dc3545;
             color: white;
         }
-        
+
         #del:hover {
             background-color: #c82333;
         }
-        
+
         /* Export Button */
         .ex_bt {
-            background-color:rgb(42, 11, 169);
+            background-color: rgb(42, 11, 169);
             color: white;
             padding: 10px 20px;
             border-radius: 6px;
             font-weight: bold;
             transition: 0.3s ease-in-out;
         }
-        
+
         .ex_bt:hover {
             background-color: #002752;
         }
-        
+
         /* No Files Message */
         .no-files {
             text-align: center;
@@ -253,6 +270,7 @@
             color: #ff0000;
             margin-top: 20px;
         }
+
         .btn {
             padding: 8px 16px;
             border: none;
@@ -263,48 +281,78 @@
             text-decoration: none;
             display: inline-block;
         }
-        
-        .btn11 { background: #032949; color: white; margin-left: 150px; }
-        .view-btn { background: #42a5f5; color: white; margin-right: 10px; }
-        .view-btn:hover { background: #1e88e5; }
-        .download-btn { background: #66bb6a; color: white; }
-        .download-btn:hover { background: #43a047; }
-        .delete-btn { background: #e74c3c; color: white; }
-        .delete-btn:hover { background: #c0392b; }
-        .btn1 {
-                    display: flex;
-        
-                    flex-direction: row;
-                    font-size: 1rem;
-                    text-decoration: none;
-                    border-radius: 5px;
-                    color: white;
-                    font-weight: bold;
-                    height: 15px;
-                }
-        
-                .view-btn {
-                    margin-right: 20px;
-                    background: #42a5f5;
-                }
-        
-                .view-btn:hover {
-                    background: #1e88e5;
-                }
-        
-                .download-btn {
-                    background: #66bb6a;
-                }
-        
-                .download-btn:hover {
-                    background: #43a047;
-                }
-                .a_div{
-                    display: flex;
-                }
-        span{
-            color:#002752;
+
+        .btn11 {
+            background: #032949;
+            color: white;
+            margin-left: 150px;
         }
-        #bodies-sub-select-div{
+
+        .view-btn {
+            background: #42a5f5;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .view-btn:hover {
+            background: #1e88e5;
+        }
+
+        .download-btn {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #43a047;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .btn1 {
+            display: flex;
+
+            flex-direction: row;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            height: 15px;
+        }
+
+        .view-btn {
+            margin-right: 20px;
+            background: #42a5f5;
+        }
+
+        .view-btn:hover {
+            background: #1e88e5;
+        }
+
+        .download-btn {
+            background: #66bb6a;
+        }
+
+        .download-btn:hover {
+            background: #43a047;
+        }
+
+        .a_div {
+            display: flex;
+        }
+
+        span {
+            color: #002752;
+        }
+
+        #bodies-sub-select-div {
             margin-top: 50px;
         }

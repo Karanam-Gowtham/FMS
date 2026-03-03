@@ -202,7 +202,7 @@ CREATE TABLE `conference_tab` (
   `paper_file_path` varchar(300) NOT NULL,
   `submission_time` varchar(300) NOT NULL,
   `year` varchar(255) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1376,7 +1376,7 @@ CREATE TABLE `fdps_org_tab` (
   `photo3` varchar(255) NOT NULL,
   `submission_time` datetime NOT NULL,
   `year` varchar(255) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1398,7 +1398,7 @@ CREATE TABLE `fdps_tab` (
   `certificate` varchar(200) NOT NULL,
   `submission_time` varchar(300) NOT NULL,
   `year` varchar(255) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1423,7 +1423,7 @@ CREATE TABLE `files` (
   `file_path` varchar(60) NOT NULL,
   `criteria` int(20) NOT NULL,
   `criteria_no` varchar(20) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1451,7 +1451,7 @@ CREATE TABLE `files5_1_1and2` (
   `ngo_name` varchar(255) DEFAULT NULL,
   `criteria` varchar(255) DEFAULT NULL,
   `criteria_no` varchar(255) DEFAULT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1473,7 +1473,7 @@ CREATE TABLE `files5_1_3` (
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1497,7 +1497,7 @@ CREATE TABLE `files5_1_4` (
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1519,7 +1519,7 @@ CREATE TABLE `files5_2_1` (
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1541,7 +1541,7 @@ CREATE TABLE `files5_2_2` (
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1631,7 +1631,7 @@ CREATE TABLE `patents_table` (
   `patent_file` varchar(400) NOT NULL,
   `submission_time` varchar(300) NOT NULL,
   `year` varchar(255) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1655,7 +1655,7 @@ CREATE TABLE `published_tab` (
   `submission_time` varchar(300) NOT NULL,
   `paper_file` varchar(400) NOT NULL,
   `year` varchar(255) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1895,7 +1895,7 @@ CREATE TABLE `s_bodies` (
   `certificate_path` varchar(400) NOT NULL,
   `uploaded_by` varchar(400) NOT NULL,
   `submission_time` varchar(400) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1904,10 +1904,10 @@ CREATE TABLE `s_bodies` (
 --
 
 INSERT INTO `s_bodies` (`ID`, `Username`, `acd_year`, `branch`, `Body`, `event_name`, `from_date`, `to_date`, `organised_by`, `location`, `participation_status`, `certificate_path`, `uploaded_by`, `submission_time`, `status`, `rejection_reason`) VALUES
-(1, '', '', '', 'CSI', 'event1', '2025-01-14', '2025-01-31', 'gmr', 'rajam', '2nd', 'uploads/s_bodies/).jpg', 'chandru', '05-01-2025 19:34:58', 'Pending Dept Coordinator', NULL),
-(2, 'chandu', '2022-23', 'CSE', 'ISTE', 'radio auditions', '2025-04-02', '2025-04-30', 'gmr', 'rajam', 'Participated', 'uploads/s_bodies/6.pdf', 'kalyan', '16-04-2025 20:04:41', 'Pending Dept Coordinator', NULL),
-(3, 'chandu', '2022-23', 'AIML', 'ISTE', 'radio auditions', '2025-04-02', '2025-04-30', 'gmr', 'rajam', 'Participated', 'uploads/s_bodies/6.pdf', 'kalyan', '16-04-2025 20:05:04', 'Pending Dept Coordinator', NULL),
-(4, 'chandu', '2024-25', 'AIML', 'ISTE', 'radio auditions', '2025-07-17', '2025-07-02', 'gmr', 'rajam', 'Participated', 'uploads/s_bodies/k.pdf', 'chandu', '27-07-2025 23:41:07', 'Pending Dept Coordinator', NULL);
+(1, '', '', '', 'CSI', 'event1', '2025-01-14', '2025-01-31', 'gmr', 'rajam', '2nd', 'uploads/s_bodies/).jpg', 'chandru', '05-01-2025 19:34:58', 'Pending HOD', NULL),
+(2, 'chandu', '2022-23', 'CSE', 'ISTE', 'radio auditions', '2025-04-02', '2025-04-30', 'gmr', 'rajam', 'Participated', 'uploads/s_bodies/6.pdf', 'kalyan', '16-04-2025 20:04:41', 'Pending HOD', NULL),
+(3, 'chandu', '2022-23', 'AIML', 'ISTE', 'radio auditions', '2025-04-02', '2025-04-30', 'gmr', 'rajam', 'Participated', 'uploads/s_bodies/6.pdf', 'kalyan', '16-04-2025 20:05:04', 'Pending HOD', NULL),
+(4, 'chandu', '2024-25', 'AIML', 'ISTE', 'radio auditions', '2025-07-17', '2025-07-02', 'gmr', 'rajam', 'Participated', 'uploads/s_bodies/k.pdf', 'chandu', '27-07-2025 23:41:07', 'Pending HOD', NULL);
 
 -- --------------------------------------------------------
 
@@ -1930,7 +1930,7 @@ CREATE TABLE `s_conference_tab` (
   `paper_type` varchar(400) NOT NULL,
   `paper_file_path` varchar(400) NOT NULL,
   `submission_time` varchar(400) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1955,7 +1955,7 @@ CREATE TABLE `s_events` (
   `certificate_path` varchar(400) NOT NULL,
   `uploaded_by` varchar(400) NOT NULL,
   `submission_time` varchar(400) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1980,7 +1980,7 @@ CREATE TABLE `s_journal_tab` (
   `payment` varchar(400) NOT NULL,
   `submission_time` varchar(400) NOT NULL,
   `paper_file` varchar(400) NOT NULL,
-  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
+  `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

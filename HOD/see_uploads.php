@@ -8,6 +8,7 @@ $dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SES
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -142,18 +143,22 @@ $dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SES
         }
     </style>
 </head>
+
 <body>
-<?php include 'header_hod.php'; ?>
+    <?php include 'header_hod.php'; ?>
 
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">
                 <a href="../index.php" class="home-icon">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <span>&nbsp; >> &nbsp; </span><span class="sid"><a
+                        href="../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="main"> <a href="#" class="main-a"> HOD </a></span>
             </div>
         </div>
@@ -204,38 +209,38 @@ $dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SES
             </div>
 
             <div class="feedback-grid">
-                <a href="hod_manage_meeting_minutes.php?event=admin" class="feedback-card">
+                <a href="hod_down_dept_files.php?event=admin" class="feedback-card">
                     <div class="card-content">
                         <h3>Admin Files</h3>
                     </div>
                 </a>
 
-                <a href="hod_manage_meeting_minutes.php?event=faculty" class="feedback-card">
+                <a href="hod_down_dept_files.php?event=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Faculty Files</h3>
                     </div>
                 </a>
 
-                <a href="hod_manage_meeting_minutes.php?event=student" class="feedback-card">
-                     <div class="card-content">
+                <a href="hod_down_dept_files.php?event=student" class="feedback-card">
+                    <div class="card-content">
                         <h3>Student Related Files</h3>
                     </div>
                 </a>
 
-                <a href="hod_manage_meeting_minutes.php?event=exam" class="feedback-card">
-                     <div class="card-content">
+                <a href="hod_down_dept_files.php?event=exam" class="feedback-card">
+                    <div class="card-content">
                         <h3>Exam Section Files</h3>
                     </div>
                 </a>
 
-                <a href="hod_manage_meeting_minutes.php?event=calendar" class="feedback-card">
-                     <div class="card-content">
+                <a href="hod_down_dept_files.php?event=calendar" class="feedback-card">
+                    <div class="card-content">
                         <h3>Academic Calendar</h3>
                     </div>
                 </a>
 
                 <a href="hod_down_st_act_files.php" class="feedback-card">
-                     <div class="card-content">
+                    <div class="card-content">
                         <h3>Student Activity Files</h3>
                     </div>
                 </a>
@@ -243,23 +248,23 @@ $dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SES
 
             <!-- Meeting Minutes Section -->
             <div class="header">
-                <h1>Meeting Minutes (Jr Assistant Uploads)</h1>
+                <h1>Meeting Minutes</h1>
             </div>
 
             <div class="feedback-grid">
-                <a href="hod_manage_meeting_minutes.php?event=Dept Meeting Minutes" class="feedback-card">
+                <a href="hod_down_dept_files.php?event=Dept Meeting Minutes" class="feedback-card">
                     <div class="card-content">
                         <h3>Department Meeting Minutes</h3>
                     </div>
                 </a>
 
-                <a href="hod_manage_meeting_minutes.php?event=AMC Meeting Minutes" class="feedback-card">
+                <a href="hod_down_dept_files.php?event=AMC Meeting Minutes" class="feedback-card">
                     <div class="card-content">
                         <h3>AMC Meeting Minutes</h3>
                     </div>
                 </a>
 
-                <a href="hod_manage_meeting_minutes.php?event=Board Of Studies" class="feedback-card">
+                <a href="hod_down_dept_files.php?event=Board Of Studies" class="feedback-card">
                     <div class="card-content">
                         <h3>Board Of Studies</h3>
                     </div>
@@ -268,4 +273,5 @@ $dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SES
         </div>
     </main>
 </body>
+
 </html>

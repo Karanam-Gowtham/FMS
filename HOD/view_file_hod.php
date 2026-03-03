@@ -12,6 +12,11 @@ if (!isset($_GET['file_path'])) {
 
 $filePath = urldecode($_GET['file_path']); // Decode the file path
 
+// Fix the path to point correctly from HOD/ to FMS/uploads/
+if (preg_match('/uploads\/.*/', $filePath, $matches)) {
+    $filePath = "../" . $matches[0];
+}
+
 // Check if the file exists
 if (file_exists($filePath)) {
     // Serve the file for viewing

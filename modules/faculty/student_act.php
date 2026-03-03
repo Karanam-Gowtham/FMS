@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
-    $status = 'Pending Dept Coordinator';
+    $status = 'Pending HOD';
     
     // Using s_events table as seen in dashboard.php
     $sql = "INSERT INTO s_events (Username, event_name, academic_year, certificate_path, submission_time, status) 
@@ -76,6 +76,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         /* Navigation */
         .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 80px;
+            border-bottom: 1px solid #eee;
+
             font-size: larger;
         }
 
@@ -86,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .nav-container {
             background-color: white;
             width: 150vw;
-            margin-top: 80px;
+             /* margin-top moved to .navbar */
             padding: 0 1rem;
         }
 

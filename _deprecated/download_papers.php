@@ -427,7 +427,8 @@ if (isset($_POST['export_patent'])) {
                             $stmt_fdps_org->execute();
                             $result_fdps_org = $stmt_fdps_org->get_result();
                         
-                            if ($result_fdps_org->num_rows > 0) {
+                            if ($result_fdps_o
+                            rg->num_rows > 0) {
                                 echo "<table border='1'>
                                         <tr>
                                             <th>Username</th>

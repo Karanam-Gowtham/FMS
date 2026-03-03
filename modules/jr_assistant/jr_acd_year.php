@@ -18,6 +18,7 @@ include '../../includes/header.php';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,12 +40,18 @@ include '../../includes/header.php';
 
         /* Navigation */
         .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 100px;
+            border-bottom: 1px solid #eee;
+
             background-color: white;
             font-size: larger;
         }
 
         .nav-container {
-            margin-top: 100px;
+             /* margin-top moved to .navbar */
             margin-left: 100px;
             max-width: 80rem;
             padding: 0 1rem;
@@ -174,20 +181,24 @@ include '../../includes/header.php';
             font-size: 1.1rem;
             font-weight: 600;
         }
-
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">
                 <a href="../../index.php" class="home-icon">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span>&nbsp; >> &nbsp;</span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"> <a href="#" class="main-a"> Jr Assistant </a></span>
+                <span>&nbsp; >> &nbsp;</span><span class="sid"><a
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"> <a href="#" class="main-a"> Jr Assistant
+                    </a></span>
             </div>
         </div>
     </nav>
@@ -196,13 +207,29 @@ include '../../includes/header.php';
         <div class="container">
             <div class="header">
                 <h1>Meeting Minutes Management</h1>
-                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo"$dept" ?>" class="btn btn-primary">My Uploads</a>
+                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo "$dept" ?>" class="btn btn-primary">My
+                    Uploads</a>
             </div>
 
             <div class="feedback-grid">
-                <a href="../dept_coordinator/dept_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>" class="feedback-card">
+                <a href="../dept_coordinator/dept_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>"
+                    class="feedback-card">
                     <div class="card-content">
                         <h3>Department Meeting Minutes</h3>
+                    </div>
+                </a>
+
+                <a href="../dept_coordinator/amc_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>"
+                    class="feedback-card">
+                    <div class="card-content">
+                        <h3>AMC Meeting Minutes</h3>
+                    </div>
+                </a>
+
+                <a href="../dept_coordinator/bos_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>"
+                    class="feedback-card">
+                    <div class="card-content">
+                        <h3>Board Of Studies (BOS)</h3>
                     </div>
                 </a>
             </div>
@@ -213,12 +240,14 @@ include '../../includes/header.php';
             </div>
 
             <div class="feedback-grid">
-                <a href="../dept_coordinator/dept_files.php?event=admin&dept=<?php echo urlencode($dept); ?>" class="feedback-card">
+                <a href="../dept_coordinator/dept_files.php?event=admin&dept=<?php echo urlencode($dept); ?>"
+                    class="feedback-card">
                     <div class="card-content">
                         <h3>Admin Files</h3>
                     </div>
                 </a>
-                <a href="../dept_coordinator/dept_files.php?event=student&dept=<?php echo urlencode($dept); ?>" class="feedback-card">
+                <a href="../dept_coordinator/dept_files.php?event=student&dept=<?php echo urlencode($dept); ?>"
+                    class="feedback-card">
                     <div class="card-content">
                         <h3>Student Related Files</h3>
                     </div>
@@ -231,7 +260,8 @@ include '../../includes/header.php';
             </div>
 
             <div class="feedback-grid">
-                <a href="../dept_coordinator/dept_files.php?event=calendar&dept=<?php echo urlencode($dept); ?>" class="feedback-card">
+                <a href="../dept_coordinator/dept_files.php?event=calendar&dept=<?php echo urlencode($dept); ?>"
+                    class="feedback-card">
                     <div class="card-content">
                         <h3>Academic Calendar</h3>
                     </div>
@@ -240,4 +270,5 @@ include '../../includes/header.php';
         </div>
     </main>
 </body>
+
 </html>

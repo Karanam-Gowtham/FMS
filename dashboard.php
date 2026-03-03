@@ -7,20 +7,20 @@ include 'includes/connection.php';
 
 // Auto-migrate tables
 $tables = [
-    'files', 
-    'files5_1_1and2', 
-    'files5_1_3', 
-    'files5_1_4', 
+    'files',
+    'files5_1_1and2',
+    'files5_1_3',
+    'files5_1_4',
     'files5_2_1',
     'files5_2_2',
     's_journal_tab',
     's_conference_tab',
     's_events',
     's_bodies',
-    'fdps_tab', 
-    'fdps_org_tab', 
-    'conference_tab', 
-    'published_tab', 
+    'fdps_tab',
+    'fdps_org_tab',
+    'conference_tab',
+    'published_tab',
     'patents_table',
     'dept_files'
 ];
@@ -31,7 +31,7 @@ foreach ($tables as $table) {
     if ($check_table->num_rows > 0) {
         $check_col = $conn->query("SHOW COLUMNS FROM $table LIKE 'status'");
         if ($check_col->num_rows == 0) {
-            $conn->query("ALTER TABLE $table ADD COLUMN status VARCHAR(50) DEFAULT 'Pending Dept Coordinator'");
+            $conn->query("ALTER TABLE $table ADD COLUMN status VARCHAR(50) DEFAULT 'Pending HOD'");
         }
         $check_col = $conn->query("SHOW COLUMNS FROM $table LIKE 'rejection_reason'");
         if ($check_col->num_rows == 0) {
@@ -69,7 +69,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_history' && isset($_GET['f
     $stmt->execute();
     $res = $stmt->get_result();
     $history = [];
-    while($r = $res->fetch_assoc()) {
+    while ($r = $res->fetch_assoc()) {
         $history[] = $r;
     }
     header('Content-Type: application/json');
@@ -130,7 +130,7 @@ if (!$role) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reupload') {
     $file_id = intval($_POST['file_id']);
     $table_name = $_POST['table_name'];
-    
+
     // Schema Map for File Columns
     $table_schema_map = [
         'files' => ['path' => 'file_path', 'name' => 'file_name'],
@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (!array_key_exists($table_name, $table_schema_map)) {
         echo "<script>alert('Error: Table configuration not found.');</script>";
     } elseif (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {
-        
+
         $path_col = $table_schema_map[$table_name]['path'];
         $name_col = $table_schema_map[$table_name]['name'];
 
@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->bind_param("i", $file_id);
         $stmt->execute();
         $res = $stmt->get_result();
-        
+
         if ($row = $res->fetch_assoc()) {
             $old_path = $row[$path_col]; // what the DB stores (may start with ../../)
 
@@ -206,15 +206,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $params[] = 'Pending Dept Coordinator';
                     $types .= "s";
                 }
-                
+
                 $update_sql .= " WHERE id = ?";
                 $params[] = $file_id;
                 $types .= "i";
-                
+
                 $stmt = $conn->prepare($update_sql);
                 $stmt->bind_param($types, ...$params);
                 $stmt->execute();
-                
+
                 echo "<script>alert('File re-uploaded successfully!');</script>";
             } else {
                 echo "<script>alert('Failed to move uploaded file.');</script>";
@@ -231,29 +231,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
     $action = $_POST['action'];
     $reason = isset($_POST['reason']) ? $_POST['reason'] : '';
     $table_name = $_POST['table_name'];
-    
+
     // Whitelist tables
     $allowed_tables = ['files', 'files5_1_1and2', 'files5_1_3', 'files5_1_4', 'fdps_tab', 'fdps_org_tab', 'conference_tab', 'published_tab', 'patents_table', 'dept_files'];
-    
+
     if (in_array($table_name, $allowed_tables)) {
         $new_status = '';
-        
-        if ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
-            if ($action == 'approve') $new_status = 'Pending HOD';
-            elseif ($action == 'reject') $new_status = 'Rejected by Dept Coordinator'; // Sends back to Faculty
-        } elseif ($role == 'HOD') {
-            if ($action == 'approve') $new_status = 'Accepted';
-            elseif ($action == 'reject') $new_status = 'Pending Dept Coordinator'; // Sends back to Dept Coordinator
+
+        if ($role == 'HOD') {
+            if ($action == 'approve') {
+                if ($table_name == 'dept_files') {
+                    $new_status = 'Accepted';
+                } else {
+                    $new_status = 'Pending Dept Coordinator';
+                }
+            } elseif ($action == 'reject') {
+                $new_status = 'Rejected by HOD';
+            }
+        } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
+            if ($action == 'approve') {
+                $new_status = 'Accepted';
+            } elseif ($action == 'reject') {
+                $new_status = 'Rejected by Dept Coordinator';
+            }
         } elseif ($role == 'Central_Coordinator') {
             // Central Coordinator is now view-only for these files
-            $new_status = ''; 
+            $new_status = '';
         }
 
         if ($new_status) {
             $stmt = $conn->prepare("UPDATE $table_name SET status = ?, rejection_reason = ? WHERE id = ?");
             $stmt->bind_param("ssi", $new_status, $reason, $file_id);
             $stmt->execute();
-            
+
             // Log to History
             if ($action == 'reject') {
                 $hist_stmt = $conn->prepare("INSERT INTO rejection_history (file_id, table_name, rejected_by, rejection_reason) VALUES (?, ?, ?, ?)");
@@ -269,7 +279,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
 $files = [];
 
 // Helper to build partial query
-function build_query($table, $id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col, $role, $user_id, $dept) {
+function build_query($table, $id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col, $role, $user_id, $dept)
+{
     // Basic projection
     $q = "SELECT 
             $id_col as id, 
@@ -281,21 +292,22 @@ function build_query($table, $id_col, $user_col, $desc_col, $date_col, $file_nam
             status, 
             rejection_reason, 
             '$table' as table_name 
-          FROM $table WHERE 1=1";
-    
+          FROM $table WHERE (status != 'Accepted' OR status IS NULL)";
+
     // Filter by role
     if ($role == 'Faculty') {
         $q .= " AND $user_col = '$user_id'";
-    } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
-        $q .= " AND status IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator')";
     } elseif ($role == 'HOD') {
-        // HOD sees everything that has passed Dept Coordinator (pending HOD, or moved further)
-        $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator')";
+        // HOD sees everything pending for them (step 1 for faculty files, step 1 for dept_files)
+        $q .= " AND status = 'Pending HOD'";
+    } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
+        // Dept Coordinator sees everything pending for them (step 2 for faculty files)
+        $q .= " AND status = 'Pending Dept Coordinator'";
     } elseif ($role == 'Central_Coordinator') {
         // Central sees everything that has passed HOD
         $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator', 'Pending HOD', 'Rejected by HOD')";
     }
-    
+
     return $q;
 }
 
@@ -360,8 +372,8 @@ $q = "SELECT
             status, 
             rejection_reason, 
             'dept_files' as table_name 
-          FROM dept_files WHERE 1=1";
-   
+          FROM dept_files WHERE (status != 'Accepted' OR status IS NULL)";
+
 if ($role == 'Faculty') {
     // If a faculty member uploaded it (e.g. Dept Coord logged in as Faculty), show their uploads
     $q .= " AND username = '$user_id'";
@@ -369,12 +381,11 @@ if ($role == 'Faculty') {
     // Dept Coordinator or Jr Assistant is the UPLOADER for these files, so show their own uploads
     $q .= " AND username = '$user_id'";
 } elseif ($role == 'HOD') {
-    // HOD sees them if they are not stuck at Dept Coord level (which they won't be as they start at Pending HOD)
-    $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator')";
+    $q .= " AND status = 'Pending HOD'";
 } elseif ($role == 'Central_Coordinator') {
     $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator', 'Pending HOD', 'Rejected by HOD')";
 }
-    
+
 $queries[] = $q;
 
 
@@ -397,6 +408,7 @@ if ($result) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -408,39 +420,62 @@ if ($result) {
             background: #f4f4f9;
             color: #333;
             margin: 0;
-            padding-top: <?php echo (isset($_GET['mode']) && $_GET['mode'] == 'iframe') ? '20px' : '80px'; ?>;
+            padding-top:
+                <?php echo (isset($_GET['mode']) && $_GET['mode'] == 'iframe') ? '20px' : '80px'; ?>
+            ;
         }
+
+        a,
+        button,
+        .btn {
+            text-decoration: none !important;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
+
         .dashboard-card {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 20px;
         }
-        h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; display: inline-block; }
-        
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        th, td {
+
+        th,
+        td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #eee;
         }
+
         th {
             background-color: #f8f9fa;
             font-weight: 600;
             color: #555;
         }
-        tr:hover { background-color: #f1f1f1; }
-        
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
         .status-badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -448,12 +483,32 @@ if ($result) {
             font-weight: bold;
             display: inline-block;
         }
-        .status-pending-dept { background-color: #fff3cd; color: #856404; }
-        .status-pending-hod { background-color: #cfe2ff; color: #084298; }
-        .status-pending-central { background-color: #d1e7dd; color: #0f5132; }
-        .status-accepted { background-color: #d1e7dd; color: #198754; }
-        .status-rejected { background-color: #f8d7da; color: #842029; }
-        
+
+        .status-pending-dept {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pending-hod {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-pending-central {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-accepted {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
         .action-btn {
             padding: 6px 12px;
             border: none;
@@ -463,42 +518,60 @@ if ($result) {
             font-size: 0.9em;
             transition: background 0.2s;
         }
-        .btn-approve { background-color: #28a745; color: white; }
-        .btn-approve:hover { background-color: #218838; }
-        .btn-reject { background-color: #dc3545; color: white; }
-        .btn-reject:hover { background-color: #c82333; }
-        
+
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background-color: #218838;
+        }
+
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background-color: #c82333;
+        }
+
         .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.4); 
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
         }
+
         .modal-content {
             background-color: #fefefe;
-            margin: 15% auto; 
+            margin: 15% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 400px;
             border-radius: 8px;
         }
+
         .close {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
         }
+
         .close:hover,
         .close:focus {
             color: black;
             text-decoration: none;
             cursor: pointer;
         }
+
         textarea {
             width: 100%;
             padding: 8px;
@@ -507,6 +580,7 @@ if ($result) {
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
         .btn-toolbar {
             display: flex;
             gap: 10px;
@@ -514,220 +588,238 @@ if ($result) {
         }
     </style>
 </head>
+
 <body>
 
-<?php 
-if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
-    include 'includes/header.php'; 
-}
-?>
+    <?php
+    if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
+        include 'includes/header.php';
+    }
+    ?>
 
-<div class="container">
-    <div class="dashboard-card">
-        <h2>Dashboard - <?php echo $role; ?> View <?php if($dept) echo "($dept)"; ?></h2>
-        
-        <?php if (!empty($error)): ?>
-            <p style="color:red;">Error fetching files: <?php echo htmlspecialchars($error); ?></p>
-        <?php endif; ?>
-        
-        <?php if (empty($files)): ?>
-            <p>No files found requiring your attention.</p>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Filename</th>
-                        <th>User</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                        <th>Source</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($files as $file): ?>
-                        <?php 
+    <div class="container">
+        <div class="dashboard-card">
+            <h2>Dashboard - <?php echo $role; ?> View <?php if ($dept)
+                    echo "($dept)"; ?></h2>
+
+            <?php if (!empty($error)): ?>
+                <p style="color:red;">Error fetching files: <?php echo htmlspecialchars($error); ?></p>
+            <?php endif; ?>
+
+            <?php if (empty($files)): ?>
+                <p>No files found requiring your attention.</p>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>User</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($files as $file): ?>
+                            <?php
                             $statusClass = 'status-pending-dept';
-                            if ($file['status'] == 'Pending HOD') $statusClass = 'status-pending-hod';
-                            elseif ($file['status'] == 'Pending Central Coordinator') $statusClass = 'status-pending-central';
-                            elseif ($file['status'] == 'Accepted') $statusClass = 'status-accepted';
-                            elseif (strpos($file['status'], 'Rejected') !== false) $statusClass = 'status-rejected';
-                            
+                            if ($file['status'] == 'Pending HOD')
+                                $statusClass = 'status-pending-hod';
+                            elseif ($file['status'] == 'Pending Central Coordinator')
+                                $statusClass = 'status-pending-central';
+                            elseif ($file['status'] == 'Accepted')
+                                $statusClass = 'status-accepted';
+                            elseif (strpos($file['status'], 'Rejected') !== false)
+                                $statusClass = 'status-rejected';
+
                             $display_path = $file['file_path'];
                             $display_path = str_replace(['../../', '../'], '', $display_path);
-                        ?>
-                        <tr>
-                            <td>
-                                <a href="<?php echo htmlspecialchars($display_path); ?>" target="_blank">
-                                    <?php echo htmlspecialchars($file['file_name']); ?>
-                                </a>
-                            </td>
-                            <td><?php echo htmlspecialchars($file['username']); ?></td>
-                            <td><?php echo htmlspecialchars($file['description']); ?></td>
-                            <td><?php echo date('Y-m-d', strtotime($file['uploaded_at'])); ?></td>
-                            <td><small><?php echo htmlspecialchars($file['table_name']); ?></small></td>
-                            <td>
-                                <span class="status-badge <?php echo $statusClass; ?>">
-                                    <?php echo htmlspecialchars($file['status'] ?? 'Pending Dept Coordinator'); ?>
-                                </span>
-                                <?php if ($file['rejection_reason']): ?>
-                                    <br><small style="color:red;"><?php echo htmlspecialchars($file['rejection_reason']); ?></small>
-                                <?php endif; ?>
-                                <br><a href="#" onclick="openHistoryModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>'); return false;" style="font-size:0.8em; color:#666;">View History</a>
-                            </td>
-                            <td>
-                                <?php
-                                $can_act = false;
-                                if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == 'Pending Dept Coordinator') $can_act = true;
-                                if ($role == 'HOD' && $file['status'] == 'Pending HOD') $can_act = true;
-                                // Central Coordinator is now view-only
-                                if ($role == 'Central_Coordinator') $can_act = false;
-                                
-                                // Re-upload permitted if you can act (Reviewer fixing it) OR if you are Faculty and it was rejected
-                                $can_reupload = $can_act || ($role == 'Faculty' && strpos($file['status'], 'Rejected') !== false);
-                                
-                                $buttons_shown = false;
-                                ?>
-                                
-                                <?php if ($can_act): $buttons_shown = true; ?>
-                                <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
-                                    <input type="hidden" name="table_name" value="<?php echo $file['table_name']; ?>">
-                                    <input type="hidden" name="action" value="approve">
-                                    <button type="submit" class="action-btn btn-approve">Approve</button>
-                                </form>
-                                <button type="button" class="action-btn btn-reject" onclick="openRejectModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>')">Reject</button>
-                                <?php endif; ?>
-                                
-                                <?php if ($can_reupload): $buttons_shown = true; ?>
-                                <button type="button" class="action-btn" style="background-color:#17a2b8; color:white;" onclick="openReuploadModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>')">Re-upload</button>
-                                <?php endif; ?>
-                                
-                                <?php if (!$buttons_shown): ?>
-                                    <span style="color:#aaa;">-</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
-</div>
+                            ?>
+                            <tr>
+                                <td>
+                                    <a href="<?php echo htmlspecialchars($display_path); ?>" target="_blank">
+                                        <?php echo htmlspecialchars($file['file_name']); ?>
+                                    </a>
+                                </td>
+                                <td><?php echo htmlspecialchars($file['username']); ?></td>
+                                <td><?php echo htmlspecialchars($file['description']); ?></td>
+                                <td><?php echo date('Y-m-d', strtotime($file['uploaded_at'])); ?></td>
+                                <td><small><?php echo htmlspecialchars($file['table_name']); ?></small></td>
+                                <td>
+                                    <span class="status-badge <?php echo $statusClass; ?>">
+                                        <?php echo htmlspecialchars($file['status'] ?? 'Pending HOD'); ?>
+                                    </span>
+                                    <?php if ($file['rejection_reason']): ?>
+                                        <br><small
+                                            style="color:red;"><?php echo htmlspecialchars($file['rejection_reason']); ?></small>
+                                    <?php endif; ?>
+                                    <br><a href="#"
+                                        onclick="openHistoryModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>'); return false;"
+                                        style="font-size:0.8em; color:#666;">View History</a>
+                                </td>
+                                <td>
+                                    <?php
+                                    $can_act = false;
+                                    if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == 'Pending Dept Coordinator')
+                                        $can_act = true;
+                                    if ($role == 'HOD' && $file['status'] == 'Pending HOD')
+                                        $can_act = true;
+                                    // Central Coordinator is now view-only
+                                    if ($role == 'Central_Coordinator')
+                                        $can_act = false;
 
-<div id="rejectModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeRejectModal()">&times;</span>
-        <h3>Reject File</h3>
-        <form method="POST">
-            <input type="hidden" name="file_id" id="reject_file_id">
-            <input type="hidden" name="table_name" id="reject_table_name">
-            <input type="hidden" name="action" value="reject">
-            <label for="reason">Reason for Rejection:</label>
-            <textarea name="reason" id="reason" rows="3" required></textarea>
-            <div class="btn-toolbar">
-                <button type="button" class="action-btn" onclick="closeRejectModal()">Cancel</button>
-                <button type="submit" class="action-btn btn-reject">Confirm Reject</button>
-            </div>
-        </form>
-    </div>
-</div>
+                                    // Re-upload permitted if you can act (Reviewer fixing it) OR if you are Faculty and it was rejected
+                                    $can_reupload = $can_act || ($role == 'Faculty' && strpos($file['status'], 'Rejected') !== false);
 
-<div id="reuploadModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeReuploadModal()">&times;</span>
-        <h3>Re-upload File</h3>
-        <form method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="file_id" id="reupload_file_id">
-            <input type="hidden" name="table_name" id="reupload_table_name">
-            <input type="hidden" name="action" value="reupload">
-            <label for="new_file">Select New File:</label>
-            <input type="file" name="new_file" id="new_file" required style="margin: 10px 0; display:block;">
-            <div class="btn-toolbar">
-                <button type="button" class="action-btn" onclick="closeReuploadModal()">Cancel</button>
-                <button type="submit" class="action-btn" style="background-color:#17a2b8; color:white;">Upload</button>
-            </div>
-        </form>
-    </div>
-</div>
+                                    $buttons_shown = false;
+                                    ?>
 
-<div id="historyModal" class="modal">
-    <div class="modal-content" style="width: 500px;">
-        <span class="close" onclick="closeHistoryModal()">&times;</span>
-        <h3>Rejection History</h3>
-        <div id="historyContent" style="max-height: 300px; overflow-y: auto;">
-            <p>Loading...</p>
-        </div>
-        <div class="btn-toolbar">
-            <button type="button" class="action-btn" onclick="closeHistoryModal()">Close</button>
+                                    <?php if ($can_act):
+                                        $buttons_shown = true; ?>
+                                        <form method="POST" style="display:inline;">
+                                            <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
+                                            <input type="hidden" name="table_name" value="<?php echo $file['table_name']; ?>">
+                                            <input type="hidden" name="action" value="approve">
+                                            <button type="submit" class="action-btn btn-approve">Approve</button>
+                                        </form>
+                                        <button type="button" class="action-btn btn-reject"
+                                            onclick="openRejectModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>')">Reject</button>
+                                    <?php endif; ?>
+
+                                    <?php if ($can_reupload):
+                                        $buttons_shown = true; ?>
+                                        <button type="button" class="action-btn" style="background-color:#17a2b8; color:white;"
+                                            onclick="openReuploadModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>')">Re-upload</button>
+                                    <?php endif; ?>
+
+                                    <?php if (!$buttons_shown): ?>
+                                        <span style="color:#aaa;">-</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </div>
     </div>
-</div>
 
-<script>
-    function openRejectModal(id, tableName) {
-        document.getElementById('reject_file_id').value = id;
-        document.getElementById('reject_table_name').value = tableName;
-        document.getElementById('rejectModal').style.display = "block";
-    }
-    function closeRejectModal() {
-        document.getElementById('rejectModal').style.display = "none";
-    }
-    
-    function openReuploadModal(id, tableName) {
-        document.getElementById('reupload_file_id').value = id;
-        document.getElementById('reupload_table_name').value = tableName;
-        document.getElementById('reuploadModal').style.display = "block";
-    }
-    function closeReuploadModal() {
-        document.getElementById('reuploadModal').style.display = "none";
-    }
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRejectModal()">&times;</span>
+            <h3>Reject File</h3>
+            <form method="POST">
+                <input type="hidden" name="file_id" id="reject_file_id">
+                <input type="hidden" name="table_name" id="reject_table_name">
+                <input type="hidden" name="action" value="reject">
+                <label for="reason">Reason for Rejection:</label>
+                <textarea name="reason" id="reason" rows="3" required></textarea>
+                <div class="btn-toolbar">
+                    <button type="button" class="action-btn" onclick="closeRejectModal()">Cancel</button>
+                    <button type="submit" class="action-btn btn-reject">Confirm Reject</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('rejectModal')) {
-            closeRejectModal();
+    <div id="reuploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeReuploadModal()">&times;</span>
+            <h3>Re-upload File</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="file_id" id="reupload_file_id">
+                <input type="hidden" name="table_name" id="reupload_table_name">
+                <input type="hidden" name="action" value="reupload">
+                <label for="new_file">Select New File:</label>
+                <input type="file" name="new_file" id="new_file" required style="margin: 10px 0; display:block;">
+                <div class="btn-toolbar">
+                    <button type="button" class="action-btn" onclick="closeReuploadModal()">Cancel</button>
+                    <button type="submit" class="action-btn"
+                        style="background-color:#17a2b8; color:white;">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content" style="width: 500px;">
+            <span class="close" onclick="closeHistoryModal()">&times;</span>
+            <h3>Rejection History</h3>
+            <div id="historyContent" style="max-height: 300px; overflow-y: auto;">
+                <p>Loading...</p>
+            </div>
+            <div class="btn-toolbar">
+                <button type="button" class="action-btn" onclick="closeHistoryModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openRejectModal(id, tableName) {
+            document.getElementById('reject_file_id').value = id;
+            document.getElementById('reject_table_name').value = tableName;
+            document.getElementById('rejectModal').style.display = "block";
         }
-        if (event.target == document.getElementById('reuploadModal')) {
-            closeReuploadModal();
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = "none";
         }
-        if (event.target == document.getElementById('historyModal')) {
-            closeHistoryModal();
+
+        function openReuploadModal(id, tableName) {
+            document.getElementById('reupload_file_id').value = id;
+            document.getElementById('reupload_table_name').value = tableName;
+            document.getElementById('reuploadModal').style.display = "block";
         }
-    }
-    
-    function openHistoryModal(id, tableName) {
-        document.getElementById('historyModal').style.display = "block";
-        const contentDiv = document.getElementById('historyContent');
-        contentDiv.innerHTML = '<p>Loading...</p>';
-        
-        fetch('dashboard.php?action=get_history&file_id=' + id + '&table_name=' + tableName)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length === 0) {
-                    contentDiv.innerHTML = '<p>No history found.</p>';
-                } else {
-                    let html = '<ul style="list-style:none; padding:0;">';
-                    data.forEach(item => {
-                        html += '<li style="border-bottom:1px solid #eee; padding:10px 0;">';
-                        html += '<strong>' + item.rejected_by + '</strong> <small style="color:#888;">' + item.created_at + '</small><br>';
-                        html += '<span style="color:#d9534f;">' + item.rejection_reason + '</span>';
-                        html += '</li>';
-                    });
-                    html += '</ul>';
-                    contentDiv.innerHTML = html;
-                }
-            })
-            .catch(error => {
-                contentDiv.innerHTML = '<p style="color:red;">Error loading history.</p>';
-                console.error('Error:', error);
-            });
-    }
-    
-    function closeHistoryModal() {
-        document.getElementById('historyModal').style.display = "none";
-    }
-</script>
+        function closeReuploadModal() {
+            document.getElementById('reuploadModal').style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('rejectModal')) {
+                closeRejectModal();
+            }
+            if (event.target == document.getElementById('reuploadModal')) {
+                closeReuploadModal();
+            }
+            if (event.target == document.getElementById('historyModal')) {
+                closeHistoryModal();
+            }
+        }
+
+        function openHistoryModal(id, tableName) {
+            document.getElementById('historyModal').style.display = "block";
+            const contentDiv = document.getElementById('historyContent');
+            contentDiv.innerHTML = '<p>Loading...</p>';
+
+            fetch('dashboard.php?action=get_history&file_id=' + id + '&table_name=' + tableName)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        contentDiv.innerHTML = '<p>No history found.</p>';
+                    } else {
+                        let html = '<ul style="list-style:none; padding:0;">';
+                        data.forEach(item => {
+                            html += '<li style="border-bottom:1px solid #eee; padding:10px 0;">';
+                            html += '<strong>' + item.rejected_by + '</strong> <small style="color:#888;">' + item.created_at + '</small><br>';
+                            html += '<span style="color:#d9534f;">' + item.rejection_reason + '</span>';
+                            html += '</li>';
+                        });
+                        html += '</ul>';
+                        contentDiv.innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = '<p style="color:red;">Error loading history.</p>';
+                    console.error('Error:', error);
+                });
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = "none";
+        }
+    </script>
 
 </body>
+
 </html>

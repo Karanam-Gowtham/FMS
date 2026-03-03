@@ -61,8 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_files']) && 
             // Let's look at `down_dept_files.php` (HOD) again. Line 284: `$filePath = "../" . htmlspecialchars($row['file_path']);`. 
             // This suggests DB has `uploads/...` and we need `../` for HOD.
             // So for HOD `hod_down_dept_files.php`, I should prepend `../` to the path if it's not there.
-            
-            $file_to_download = "../" . $decoded;
+
+            $file_to_download = $decoded;
+            if (preg_match('/uploads\/.*/', $file_to_download, $matches)) {
+                $file_to_download = "../" . $matches[0];
+            }
+
             if (file_exists($file_to_download)) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
@@ -71,30 +75,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_files']) && 
                 readfile($file_to_download);
                 exit();
             } else {
-                 // Try without ../ just in case
-                 if (file_exists($decoded)) {
-                     header('Content-Description: File Transfer');
-                     header('Content-Type: application/octet-stream');
-                     header("Content-Disposition: attachment; filename=\"" . basename($decoded) . "\"");
-                     header('Content-Length: ' . filesize($decoded));
-                     readfile($decoded);
-                     exit();
-                 }
-                 echo "File not found: $file_to_download";
+                // Try without ../ just in case
+                if (file_exists($decoded)) {
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header("Content-Disposition: attachment; filename=\"" . basename($decoded) . "\"");
+                    header('Content-Length: ' . filesize($decoded));
+                    readfile($decoded);
+                    exit();
+                }
+                echo "File not found: $file_to_download";
             }
         } else {
             $zip = new ZipArchive();
             $zipName = "zip_file" . time() . ".zip";
             $zipPath = sys_get_temp_dir() . "/" . $zipName;
-    
+
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
                 foreach ($files as $file) {
                     $decoded = urldecode($file);
-                    $file_to_add = "../" . $decoded;
+                    $file_to_add = $decoded;
+                    if (preg_match('/uploads\/.*/', $file_to_add, $matches)) {
+                        $file_to_add = "../" . $matches[0];
+                    }
+
                     if (file_exists($file_to_add)) {
                         $zip->addFile($file_to_add, basename($decoded));
                     } elseif (file_exists($decoded)) {
-                         $zip->addFile($decoded, basename($decoded));
+                        $zip->addFile($decoded, basename($decoded));
                     }
                 }
                 $zip->close();
@@ -116,12 +124,14 @@ include "header_hod.php";
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Retrieve Files</title>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #1e3c72, #2a5298);
@@ -129,6 +139,7 @@ include "header_hod.php";
             margin: 0;
             padding: 0;
         }
+
         h1 {
             text-align: center;
             font-size: 2rem;
@@ -136,7 +147,9 @@ include "header_hod.php";
             margin-top: 0;
             color: darkblue;
         }
-        .container11, .container111 {
+
+        .container11,
+        .container111 {
             margin-left: 50px;
             width: 90%;
             padding: 20px;
@@ -145,8 +158,16 @@ include "header_hod.php";
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             color: #333;
         }
-        .container11 { margin-top: 100px; }
-        .container111 { margin-top: 50px; margin-bottom: 50px; }
+
+        .container11 {
+            margin-top: 100px;
+        }
+
+        .container111 {
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
         .filter-section {
             margin-top: 30px;
             margin-left: 50px;
@@ -156,6 +177,7 @@ include "header_hod.php";
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+
         .filter-form {
             display: flex;
             justify-content: center;
@@ -163,6 +185,7 @@ include "header_hod.php";
             flex-direction: column;
             gap: 15px;
         }
+
         select {
             padding: 10px;
             border: 2px solid #1e3c72;
@@ -171,6 +194,7 @@ include "header_hod.php";
             min-width: 220px;
             color: #333;
         }
+
         .filter-button {
             background-color: #007bff;
             color: white;
@@ -181,7 +205,11 @@ include "header_hod.php";
             font-weight: bold;
             transition: 0.3s ease-in-out;
         }
-        .filter-button:hover { background-color: #0056b3; }
+
+        .filter-button:hover {
+            background-color: #0056b3;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -189,18 +217,30 @@ include "header_hod.php";
             border-radius: 8px;
             overflow: hidden;
         }
-        th, td {
+
+        th,
+        td {
             padding: 12px;
             text-align: center;
             border-bottom: 2px solid #ddd;
+            color: #333;
         }
+
         th {
             background: #1e3c72;
             color: white;
             font-weight: 600;
         }
-        tr:nth-child(even) { background: #f0f5ff; }
-        tr:hover { background: #d6e4ff; transition: 0.3s; }
+
+        tr:nth-child(even) {
+            background: #f0f5ff;
+        }
+
+        tr:hover {
+            background: #d6e4ff;
+            transition: 0.3s;
+        }
+
         .btn {
             padding: 8px 16px;
             border: none;
@@ -211,83 +251,142 @@ include "header_hod.php";
             text-decoration: none;
             display: inline-block;
         }
-        .view-btn { background: #42a5f5; color: white; margin-right: 10px; }
-        .view-btn:hover { background: #1e88e5; }
-        .download-btn { background: #66bb6a; color: white; }
-        .download-btn:hover { background: #43a047; }
-        
+
+        .view-btn {
+            background: #42a5f5;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .view-btn:hover {
+            background: #1e88e5;
+        }
+
+        .download-btn {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #43a047;
+        }
+
         .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 100px;
+            border-bottom: 1px solid #eee;
+
             background-color: white;
             font-size: larger;
         }
-        .nav-container { margin-top: 100px; margin-left: 100px; max-width: 80rem; padding: 0 1rem; }
-        .nav-items { display: flex; align-items: center; height: 4rem; }
-        .sid { color: rgb(48, 30, 138); font-weight: 500; }
-        .main-a { color: rgb(138, 30, 113); font-weight: 500; }
-        .main-a:hover { color: rgb(182, 64, 211); }
-        .home-icon { color: rgb(30, 58, 138); transition: color 0.2s; }
-        .home-icon:hover { color: rgb(29, 78, 216); }
-        #sp { color: blue; }
+
+        .nav-container {
+            /* margin-top moved to .navbar */
+            margin-left: 100px;
+            max-width: 80rem;
+            padding: 0 1rem;
+        }
+
+        .nav-items {
+            display: flex;
+            align-items: center;
+            height: 4rem;
+        }
+
+        .sid {
+            color: rgb(48, 30, 138);
+            font-weight: 500;
+        }
+
+        .main-a {
+            color: rgb(138, 30, 113);
+            font-weight: 500;
+        }
+
+        .main-a:hover {
+            color: rgb(182, 64, 211);
+        }
+
+        .home-icon {
+            color: rgb(30, 58, 138);
+            transition: color 0.2s;
+        }
+
+        .home-icon:hover {
+            color: rgb(29, 78, 216);
+        }
+
+        #sp {
+            color: blue;
+        }
     </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../admin/admins.php?dept=<?php echo urlencode($selected_branch); ?>" class="home-icon">Department(<?php echo htmlspecialchars($selected_branch); ?>)</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php" class="home-icon">HOD</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Dept_Files(<?php echo htmlspecialchars($action1); ?>) </a></span>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-items">
+                <a href="../index.php" class="home-icon">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </a>
+                <span>&nbsp; >> &nbsp; </span><span class="sid"><a
+                        href="../admin/admins.php?dept=<?php echo urlencode($selected_branch); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($selected_branch); ?>)</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
+                        class="home-icon">HOD</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
+                        class="main-a">Dept_Files(<?php echo htmlspecialchars($action1); ?>) </a></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container11">
+        <h1>Retrieve <?php echo htmlspecialchars($action1); ?> Files</h1>
+        <div class="filter-section">
+            <form method="POST" class="filter-form">
+                <?php if ($selected_branch): ?>
+                    <input type="hidden" name="selected_branch" value="<?php echo htmlspecialchars($selected_branch); ?>">
+                <?php else: ?>
+                    <label for="selected_branch">Select Department:</label>
+                    <select name="selected_branch" id="selected_branch" required>
+                        <option value="" disabled selected>-- Select Branch --</option>
+                        <option value="CSE">CSE</option>
+                        <option value="AIML">AIML</option>
+                        <option value="AIDS">AIDS</option>
+                        <option value="IT">IT</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="MECH">MECH</option>
+                        <option value="CIVIL">CIVIL</option>
+                        <option value="BSH">BSH</option>
+                    </select>
+                <?php endif; ?>
+                <input type="hidden" name="file_type1" value="<?= htmlspecialchars($action1) ?>">
+                <button type="submit" class="filter-button">Show Files</button>
+            </form>
         </div>
     </div>
-</nav>
 
-<div class="container11">
-    <h1>Retrieve <?php echo htmlspecialchars($action1); ?> Files</h1>
-    <div class="filter-section">
-        <form method="POST" class="filter-form">
-            <?php if ($selected_branch): ?>
-                <input type="hidden" name="selected_branch" value="<?php echo htmlspecialchars($selected_branch); ?>">
-            <?php else: ?>
-                <label for="selected_branch">Select Department:</label>
-                <select name="selected_branch" id="selected_branch" required>
-                    <option value="" disabled selected>-- Select Branch --</option>
-                    <option value="CSE">CSE</option>
-                    <option value="AIML">AIML</option>
-                    <option value="AIDS">AIDS</option>
-                    <option value="IT">IT</option>
-                    <option value="ECE">ECE</option>
-                    <option value="EEE">EEE</option>
-                    <option value="MECH">MECH</option>
-                    <option value="CIVIL">CIVIL</option>
-                    <option value="BSH">BSH</option>
-                </select>
-            <?php endif; ?>
-            <input type="hidden" name="file_type1" value="<?= htmlspecialchars($action1) ?>">
-            <button type="submit" class="filter-button">Show Files</button>
-        </form>
-    </div>
-</div>
+    <div class="container111">
+        <?php
+        if (!empty($selected_branch)) {
+            $sql = "SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ? AND status = 'Accepted'";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $selected_branch, $action1);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-<div class="container111">
-<?php
-if (!empty($selected_branch)) {
-    $sql = "SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss", $selected_branch, $action1);
-    $stmt->execute();
-    $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                echo "<h2>" . ucfirst($selected_branch) . " Department - " . ucfirst($action1) . " Files</h2>";
+                echo "<form method='post' action=''>";
 
-    if ($result->num_rows > 0) {
-        echo "<h2>" . ucfirst($selected_branch) . " Department - " . ucfirst($action1) . " Files</h2>";
-        echo "<form method='post' action=''>";
-
-        echo "<table border='1'>
+                echo "<table border='1'>
                 <thead>
                     <tr>
                         <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
@@ -298,53 +397,54 @@ if (!empty($selected_branch)) {
                     </tr>
                 </thead>
                 <tbody>";
-        while ($row = $result->fetch_assoc()) {
-            $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
-            echo "<tr>
+                while ($row = $result->fetch_assoc()) {
+                    $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
+                    echo "<tr>
                     <td><input type='checkbox' name='selected_files[]' value='" . urlencode($row['file_path']) . "' data-filepath=\"../$file_path\"></td>
                     <td>" . htmlspecialchars($row['username']) . "</td>
                     <td>$selected_branch</td>
                     <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
                     <td>" . htmlspecialchars($row['file_name']) . "</td>
                 </tr>";
-        }
+                }
 
-        echo "<input type='hidden' name='selected_branch' value='" . htmlspecialchars($selected_branch) . "'>";
-        echo "<input type='hidden' name='file_type1' value='" . htmlspecialchars($action1) . "'>";
-        echo "</tbody></table><br>";
-        echo "<div style='text-align:center;'>";
-        echo "<button type='button' onclick='viewSelectedFiles()' class='btn view-btn'>View Selected</button>
+                echo "<input type='hidden' name='selected_branch' value='" . htmlspecialchars($selected_branch) . "'>";
+                echo "<input type='hidden' name='file_type1' value='" . htmlspecialchars($action1) . "'>";
+                echo "</tbody></table><br>";
+                echo "<div style='text-align:center;'>";
+                echo "<button type='button' onclick='viewSelectedFiles()' class='btn view-btn'>View Selected</button>
               <button type='submit' name='action' value='download' class='btn download-btn'>Download Selected</button>";
-        echo "</div>";
-        echo "</form>";
-    } else {
-        echo "<p class='no-files'>No files found for " . ucfirst($selected_branch) . " department in " . ucfirst($action1) . " category.</p>";
-    }
-    $stmt->close();
-}
-$conn->close();
-?>
-</div>
+                echo "</div>";
+                echo "</form>";
+            } else {
+                echo "<p class='no-files'>No files found for " . ucfirst($selected_branch) . " department in " . ucfirst($action1) . " category.</p>";
+            }
+            $stmt->close();
+        }
+        $conn->close();
+        ?>
+    </div>
 
-<script>
-function viewSelectedFiles() {
-    const checkboxes = document.querySelectorAll("input[name='selected_files[]']:checked");
-    if (checkboxes.length === 0) {
-        alert("Please select at least one file to view.");
-        return;
-    }
-    checkboxes.forEach(cb => {
-        const filePath = cb.dataset.filepath;
-        // Use viewer if needed or direct link
-        window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
-    });
-}
-function toggleSelectAll(source) {
-    const checkboxes = document.getElementsByName('selected_files[]');
-    for(var i=0, n=checkboxes.length;i<n;i++) {
-        checkboxes[i].checked = source.checked;
-    }
-}
-</script>
+    <script>
+        function viewSelectedFiles() {
+            const checkboxes = document.querySelectorAll("input[name='selected_files[]']:checked");
+            if (checkboxes.length === 0) {
+                alert("Please select at least one file to view.");
+                return;
+            }
+            checkboxes.forEach(cb => {
+                const filePath = cb.dataset.filepath;
+                // Use viewer if needed or direct link
+                window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
+            });
+        }
+        function toggleSelectAll(source) {
+            const checkboxes = document.getElementsByName('selected_files[]');
+            for (var i = 0, n = checkboxes.length; i < n; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    </script>
 </body>
+
 </html>

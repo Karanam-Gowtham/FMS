@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // dc_up_files stores '../../uploads/...'
     
     if (move_uploaded_file($_FILES["certificate"]["tmp_name"], $target_file)) {
-        $status = 'Pending Dept Coordinator';
+        $status = 'Pending HOD';
         $sql = "INSERT INTO fdps_tab (username, branch, title, date_from, date_to, organised_by, location, certificate, submission_time, year, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssssssssss", $username, $dept, $title, $date_from, $date_to, $organised_by, $location, $target_file, $year, $status);
@@ -75,8 +75,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             min-height: 100vh;
             margin: 0;
         }
-        .navbar { background-color: white; font-size: larger; }
-        .nav-container { margin-top: 100px; margin-left:100px; max-width: 80rem; padding: 0 1rem; }
+        .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 100px;
+            border-bottom: 1px solid #eee;
+ background-color: white; font-size: larger; }
+        .nav-container {  /* margin-top moved to .navbar */ margin-left:100px; max-width: 80rem; padding: 0 1rem; }
         .nav-items { display: flex; align-items: center; height: 4rem; }
         .sid { color: rgb(48, 30, 138); font-weight: 500; }
         .main-a { color: rgb(138, 30, 113); font-weight: 500; }

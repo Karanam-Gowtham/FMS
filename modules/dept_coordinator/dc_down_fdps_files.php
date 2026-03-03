@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-$action='';
+$action = '';
 ob_start();
 
 // Handle bulk actions
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     $category = $_POST['category'];
 
     // Determine table and file column based on category
-    switch($category) {
+    switch ($category) {
         case 'fdps':
             $tableName = 'fdps_tab';
             $fileColumn = 'certificate';
@@ -67,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $fileColumn = 'patent_file';
             break;
         default:
-        $tableName = 'fdps_tab';
-        $fileColumn = 'certificate';
+            $tableName = 'fdps_tab';
+            $fileColumn = 'certificate';
     }
 
     // DELETE ACTION
@@ -80,12 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $stmt->execute();
             $result = $stmt->get_result();
             $file = $result->fetch_assoc();
-            
+
             if ($file && !empty($file[$fileColumn])) {
                 if (file_exists($file[$fileColumn])) {
                     unlink($file[$fileColumn]);
                 }
-                
+
                 $sql = "DELETE FROM $tableName WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("i", $fileId);
@@ -95,14 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         echo "<script> alert('Records deleted successfully.'); window.location.href = '?dept=" . urlencode($dept) . "&catg=" . urlencode($catg) . "';</script>";
         exit;
     }
-    
+
     // DOWNLOAD ACTION
     elseif ($action == 'download') {
         // Clean any previous output to prevent headers already sent
         if (ob_get_length()) {
             ob_end_clean();
         }
-    
+
         if (count($selectedFiles) == 1) {
             $fileId = $selectedFiles[0];
             $sql = "SELECT $fileColumn FROM $tableName WHERE id = ?";
@@ -111,10 +111,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $stmt->execute();
             $result = $stmt->get_result();
             $file = $result->fetch_assoc();
-    
+
             if ($file && !empty($file[$fileColumn]) && file_exists($file[$fileColumn])) {
                 $filePath = $file[$fileColumn];
-    
+
                 // Set headers and send file
                 header('Content-Type: application/octet-stream');
                 header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $zip = new ZipArchive();
             $zipFileName = $category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
-    
+
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
                 foreach ($selectedFiles as $fileId) {
                     $sql = "SELECT $fileColumn FROM $tableName WHERE id = ?";
@@ -141,13 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $file = $result->fetch_assoc();
-    
+
                     if ($file && !empty($file[$fileColumn]) && file_exists($file[$fileColumn])) {
                         $zip->addFile($file[$fileColumn], basename($file[$fileColumn]));
                     }
                 }
                 $zip->close();
-    
+
                 // Send ZIP headers
                 header('Content-Type: application/zip');
                 header('Content-Disposition: attachment; filename="' . basename($zipFileName) . '"');
@@ -163,8 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             }
         }
     }
-    
-    
+
+
 }
 
 ///------------------------------------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
 if (isset($_POST['export_fdps'])) {
     ob_end_clean();//End previous buffer
-   ob_start();// start new buffer for excel
+    ob_start();// start new buffer for excel
     header("Content-Type: application/vnd.ms-excel");
     header("Content-Disposition: attachment; filename=fdps_records.xls");
 
@@ -186,16 +186,16 @@ if (isset($_POST['export_fdps'])) {
     $stmt->bind_param("s", $dept);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     // Fetch and write data rows
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
-            echo $row['username'] . "\t" . 
-                $row['branch'] . "\t" . 
-                $row['title'] . "\t" . 
-                $row['date_from'] . "\t" . 
-                $row['date_to'] . "\t" . 
-                $row['organised_by'] . "\t" . 
+            echo $row['username'] . "\t" .
+                $row['branch'] . "\t" .
+                $row['title'] . "\t" .
+                $row['date_from'] . "\t" .
+                $row['date_to'] . "\t" .
+                $row['organised_by'] . "\t" .
                 $row['location'] . "\n";
         }
     }
@@ -218,7 +218,7 @@ if (isset($_POST['export_fdps_org'])) {
     $stmt->bind_param("s", $dept);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
             $row['username'],
@@ -248,7 +248,7 @@ if (isset($_POST['export_published'])) {
     $stmt->bind_param("s", $dept);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
             $row['username'],
@@ -280,7 +280,7 @@ if (isset($_POST['export_conference'])) {
     $stmt->bind_param("s", $dept);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
             $row['username'],
@@ -312,7 +312,7 @@ if (isset($_POST['export_patent'])) {
     $stmt->bind_param("s", $dept);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
             $row['Username'],
@@ -332,64 +332,80 @@ include("../../includes/header.php");
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Achievements</title>
     <link rel="stylesheet" href="../../assets/css/download_pap.css">
-        <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
+
 <body>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <?php if (isset($_SESSION['j_username'])): ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">jr_assistant</a></span>
-            <?php else: ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
-            <?php endif; ?>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?>_Files</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-items">
+                <a href="../../index.php" class="home-icon">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </a>
+                <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <?php if (isset($_SESSION['j_username'])): ?>
+                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>"
+                            class="home-icon">jr_assistant</a></span>
+                <?php else: ?>
+                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                            href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
+                <?php endif; ?>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
+                        class="main-a"><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?>_Files</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span>
+            </div>
         </div>
-    </div>
-</nav>
-   
+    </nav>
+
     <div class="div1">
         <div class="filter-section">
-        
+
             <h1><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?> Files</h1>
             <form method="POST" class="filter-form">
-            <input type="hidden" name="action_F" value="<?php echo htmlspecialchars($catg); ?>">
-            <?php 
+                <input type="hidden" name="action_F" value="<?php echo htmlspecialchars($catg); ?>">
+                <?php
                 $preselected_dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['dept']) ? $_POST['dept'] : '');
-                
+
                 if ($preselected_dept) {
                     echo '<input type="hidden" name="dept" value="' . htmlspecialchars($preselected_dept) . '">';
                     // echo '<h2>Department: ' . htmlspecialchars($preselected_dept) . '</h2>'; // Optional: Display dept name
                 } else {
-            ?>
-                <select name="dept" id="dept">
-                    <option value="" disabled selected>Select Department</option>
-                    <option value="CSE" <?= isset($_POST['dept']) && $_POST['dept'] == 'CSE' ? 'selected' : '' ?>>CSE</option>
-                    <option value="AIML" <?= isset($_POST['dept']) && $_POST['dept'] == 'AIML' ? 'selected' : '' ?>>AIML</option>
-                    <option value="AIDS" <?= isset($_POST['dept']) && $_POST['dept'] == 'AIDS' ? 'selected' : '' ?>>AIDS</option>
-                    <option value="IT" <?= isset($_POST['dept']) && $_POST['dept'] == 'IT' ? 'selected' : '' ?>>IT</option>
-                    <option value="ECE" <?= isset($_POST['dept']) && $_POST['dept'] == 'ECE' ? 'selected' : '' ?>>ECE</option>
-                    <option value="EEE" <?= isset($_POST['dept']) && $_POST['dept'] == 'EEE' ? 'selected' : '' ?>>EEE</option>
-                    <option value="MECH" <?= isset($_POST['dept']) && $_POST['dept'] == 'MECH' ? 'selected' : '' ?>>MECH</option>
-                    <option value="CIVIL" <?= isset($_POST['dept']) && $_POST['dept'] == 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
-                    <option value="BSH" <?= isset($_POST['dept']) && $_POST['dept'] == 'BSH' ? 'selected' : '' ?>>BSH</option>
-                </select>
-            <?php } ?>
-                <button type="submit" name = "sel_btn" class="filter-button">Show Results</button>
+                    ?>
+                    <select name="dept" id="dept">
+                        <option value="" disabled selected>Select Department</option>
+                        <option value="CSE" <?= isset($_POST['dept']) && $_POST['dept'] == 'CSE' ? 'selected' : '' ?>>CSE
+                        </option>
+                        <option value="AIML" <?= isset($_POST['dept']) && $_POST['dept'] == 'AIML' ? 'selected' : '' ?>>AIML
+                        </option>
+                        <option value="AIDS" <?= isset($_POST['dept']) && $_POST['dept'] == 'AIDS' ? 'selected' : '' ?>>AIDS
+                        </option>
+                        <option value="IT" <?= isset($_POST['dept']) && $_POST['dept'] == 'IT' ? 'selected' : '' ?>>IT</option>
+                        <option value="ECE" <?= isset($_POST['dept']) && $_POST['dept'] == 'ECE' ? 'selected' : '' ?>>ECE
+                        </option>
+                        <option value="EEE" <?= isset($_POST['dept']) && $_POST['dept'] == 'EEE' ? 'selected' : '' ?>>EEE
+                        </option>
+                        <option value="MECH" <?= isset($_POST['dept']) && $_POST['dept'] == 'MECH' ? 'selected' : '' ?>>MECH
+                        </option>
+                        <option value="CIVIL" <?= isset($_POST['dept']) && $_POST['dept'] == 'CIVIL' ? 'selected' : '' ?>>CIVIL
+                        </option>
+                        <option value="BSH" <?= isset($_POST['dept']) && $_POST['dept'] == 'BSH' ? 'selected' : '' ?>>BSH
+                        </option>
+                    </select>
+                <?php } ?>
+                <button type="submit" name="sel_btn" class="filter-button">Show Results</button>
             </form>
         </div>
 
@@ -401,25 +417,25 @@ include("../../includes/header.php");
             if ((isset($_POST['sel_btn']) && isset($_POST['dept']) && isset($_POST['action_F'])) || ($preselected_dept && $preselected_catg)) {
                 $dept = $preselected_dept;
                 $category = $preselected_catg;
-            
-            switch($category) {
-                case 'fdps':
-                    // Display FDPs Attended
-                    echo "<div class='container11'>
+
+                switch ($category) {
+                    case 'fdps':
+                        // Display FDPs Attended
+                        echo "<div class='container11'>
                             <h2>FDPs Attended</h2>";
-                    echo "<form method='POST' class='ex_b'>
+                        echo "<form method='POST' class='ex_b'>
                             <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                             <button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button>
                           </form>";
-                
-                    $sql_fdps = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
-                    $stmt_fdps = $conn->prepare($sql_fdps);
-                    $stmt_fdps->bind_param("s", $dept);
-                    $stmt_fdps->execute();
-                    $result_fdps = $stmt_fdps->get_result();
-                
-                    if ($result_fdps->num_rows > 0) {
-                        echo "<form method='POST' action=''>
+
+                        $sql_fdps = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
+                        $stmt_fdps = $conn->prepare($sql_fdps);
+                        $stmt_fdps->bind_param("s", $dept);
+                        $stmt_fdps->execute();
+                        $result_fdps = $stmt_fdps->get_result();
+
+                        if ($result_fdps->num_rows > 0) {
+                            echo "<form method='POST' action=''>
                                 <input type='hidden' name='category' value='fdps'>
                                 <table border='1'>
                                     <tr>
@@ -432,10 +448,10 @@ include("../../includes/header.php");
                                         <th>Organised By</th>
                                         <th>Location</th>
                                     </tr>";
-                
-                        while ($row = $result_fdps->fetch_assoc()) {
-                            $certificatePath = htmlspecialchars($row["certificate"]);
-                            echo "<td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+
+                            while ($row = $result_fdps->fetch_assoc()) {
+                                $certificatePath = htmlspecialchars($row["certificate"]);
+                                echo "<td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
                                                 data-filepath='" . $certificatePath . "' onchange='trackOrder(event)'></td>
                                     <td>" . htmlspecialchars($row["username"]) . "</td>
                                     <td>" . htmlspecialchars($row["branch"]) . "</td>
@@ -445,8 +461,8 @@ include("../../includes/header.php");
                                     <td>" . htmlspecialchars($row["organised_by"]) . "</td>
                                     <td>" . htmlspecialchars($row["location"]) . "</td>
                                   </tr>";
-                        }
-                        echo "</table><br>
+                            }
+                            echo "</table><br>
                                 <div class='bulk-actions'>
                                     <button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button>
                                     <button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button>
@@ -456,30 +472,30 @@ include("../../includes/header.php");
                                     <button type='button' class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>
                                
                               </form>";
-                    } else {
-                        echo "<p class='no-files'>No FDPs attended found.</p>";
-                    }
-                    echo "</div>";
-                    break;
-                
+                        } else {
+                            echo "<p class='no-files'>No FDPs attended found.</p>";
+                        }
+                        echo "</div>";
+                        break;
 
-                case 'fdps_org':
-                    // Display FDPs Organised
-                    echo "<div class='container11'>
+
+                    case 'fdps_org':
+                        // Display FDPs Organised
+                        echo "<div class='container11'>
                             <h2>FDPs Organised</h2>";
-                    echo "<form method='POST' class='ex_b'>
+                        echo "<form method='POST' class='ex_b'>
                             <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                             <button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button>
                           </form>";
-                    
-                    $sql_fdps_org = "SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'";
-                    $stmt_fdps_org = $conn->prepare($sql_fdps_org);
-                    $stmt_fdps_org->bind_param("s", $dept);
-                    $stmt_fdps_org->execute();
-                    $result_fdps_org = $stmt_fdps_org->get_result();
-                
-                    if ($result_fdps_org->num_rows > 0) {
-                        echo "<form method='POST' action=''>
+
+                        $sql_fdps_org = "SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'";
+                        $stmt_fdps_org = $conn->prepare($sql_fdps_org);
+                        $stmt_fdps_org->bind_param("s", $dept);
+                        $stmt_fdps_org->execute();
+                        $result_fdps_org = $stmt_fdps_org->get_result();
+
+                        if ($result_fdps_org->num_rows > 0) {
+                            echo "<form method='POST' action=''>
                                 <input type='hidden' name='category' value='fdps_org'>
                                 <table border='1'>
                                     <tr>
@@ -493,26 +509,26 @@ include("../../includes/header.php");
                                         <th>Location</th>
                                         <th>Select File</th>
                                     </tr>";
-                
-                        while ($row = $result_fdps_org->fetch_assoc()) {
-                            $certificatePath = htmlspecialchars($row["certificate"]);
-                            $brochurePath = htmlspecialchars($row["brochure"]);
-                            $schedulePath = htmlspecialchars($row["fdp_schedule_invitation"]);
-                            $attendancePath = htmlspecialchars($row["attendance_forms"]);
-                            $feedbackPath = htmlspecialchars($row["feedback_forms"]);
-                            $reportPath = htmlspecialchars($row["fdp_report"]);
-                            $photo1Path = htmlspecialchars($row["photo1"]);
-                            $photo2Path = htmlspecialchars($row["photo2"]);
-                            $photo3Path = htmlspecialchars($row["photo3"]);
-                
-                            $deleteButton = "<form method='GET' action='' onsubmit='return confirm(\"Are you sure you want to delete this record?\")'>
+
+                            while ($row = $result_fdps_org->fetch_assoc()) {
+                                $certificatePath = htmlspecialchars($row["certificate"]);
+                                $brochurePath = htmlspecialchars($row["brochure"]);
+                                $schedulePath = htmlspecialchars($row["fdp_schedule_invitation"]);
+                                $attendancePath = htmlspecialchars($row["attendance_forms"]);
+                                $feedbackPath = htmlspecialchars($row["feedback_forms"]);
+                                $reportPath = htmlspecialchars($row["fdp_report"]);
+                                $photo1Path = htmlspecialchars($row["photo1"]);
+                                $photo2Path = htmlspecialchars($row["photo2"]);
+                                $photo3Path = htmlspecialchars($row["photo3"]);
+
+                                $deleteButton = "<form method='GET' action='' onsubmit='return confirm(\"Are you sure you want to delete this record?\")'>
                                             <input type='hidden' name='delete_id' value='" . $row["id"] . "'>
                                             <input type='hidden' name='table' value='fdps_org_tab'>
                                             <input type='hidden' name='file_column' value='certificate'>
                                             <input type='submit' id='del' value='Delete'>
                                           </form>";
-                
-                            echo "<tr>
+
+                                echo "<tr>
                                     <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
                                         data-filepath='" . $certificatePath . "'></td>
                                     <td>" . htmlspecialchars($row["username"]) . "</td>
@@ -537,8 +553,8 @@ include("../../includes/header.php");
                                         </select>
                                     </td>
                                 </tr>";
-                        }
-                        echo "</table>
+                            }
+                            echo "</table>
                                 <div class='bulk-actions'>
                                     <button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button>
                                     <button type='button' class='btn download-btn' onclick='bulkDownload()'>Download Selected</button>
@@ -548,11 +564,11 @@ include("../../includes/header.php");
                                     <button type='button' class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>
                                 </div>
                               </form>";
-                    } else {
-                        echo "<p class='no-files'>No FDPs organised found.</p>";
-                    }
-                    echo "</div>";
-                    break;
+                        } else {
+                            echo "<p class='no-files'>No FDPs organised found.</p>";
+                        }
+                        echo "</div>";
+                        break;
 
                     case 'published':
                         echo "<div class='container11'>
@@ -561,13 +577,13 @@ include("../../includes/header.php");
                                 <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                                 <button type='submit' class='ex_bt' name='export_published'>Export to Excel</button>
                               </form>";
-                    
+
                         $sql_published = "SELECT * FROM published_tab WHERE branch = ? AND status = 'Accepted'";
                         $stmt_published = $conn->prepare($sql_published);
                         $stmt_published->bind_param("s", $dept);
                         $stmt_published->execute();
                         $result_published = $stmt_published->get_result();
-                    
+
                         if ($result_published->num_rows > 0) {
                             echo "<form method='POST' action='download_papers1.php'>
                                     <input type='hidden' name='category' value='published'>
@@ -587,11 +603,11 @@ include("../../includes/header.php");
                                             <th>Payment</th>
                                             
                                         </tr>";
-                    
+
                             while ($row = $result_published->fetch_assoc()) {
                                 $paperFilePath = htmlspecialchars($row["paper_file"]);
-                                
-                    
+
+
                                 echo "<tr>
                                         <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
                                         data-filepath='" . $paperFilePath . "'></td>
@@ -606,7 +622,7 @@ include("../../includes/header.php");
                                         <td>" . htmlspecialchars($row["payment"]) . "</td>
                                      </tr>";
                             }
-                    
+
                             echo "</table>
                                     <div class='bulk-actions'>
                                     <button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button>
@@ -622,25 +638,25 @@ include("../../includes/header.php");
                         }
                         echo "</div>";
                         break;
-                    
 
-                        case 'conference':
-                            // Display Conference Papers
-                            echo "<div class='container11'>
+
+                    case 'conference':
+                        // Display Conference Papers
+                        echo "<div class='container11'>
                                     <h2>Conference Papers</h2>";
-                            echo "<form method='POST' class='ex_b'>
+                        echo "<form method='POST' class='ex_b'>
                                     <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                                     <button type='submit' class='ex_bt' name='export_conference'>Export to Excel</button>
                                   </form>";
-                        
-                            $sql_conference = "SELECT * FROM conference_tab WHERE Branch = ? AND status = 'Accepted'";
-                            $stmt_conference = $conn->prepare($sql_conference);
-                            $stmt_conference->bind_param("s", $dept);
-                            $stmt_conference->execute();
-                            $result_conference = $stmt_conference->get_result();
-                        
-                            if ($result_conference->num_rows > 0) {
-                                echo "<form method='POST' action=''>
+
+                        $sql_conference = "SELECT * FROM conference_tab WHERE Branch = ? AND status = 'Accepted'";
+                        $stmt_conference = $conn->prepare($sql_conference);
+                        $stmt_conference->bind_param("s", $dept);
+                        $stmt_conference->execute();
+                        $result_conference = $stmt_conference->get_result();
+
+                        if ($result_conference->num_rows > 0) {
+                            echo "<form method='POST' action=''>
                                         <input type='hidden' name='category' value='conference'>
                                         <table border='1'>
                                             <tr>
@@ -655,12 +671,12 @@ include("../../includes/header.php");
                                                 <th>Paper Type</th>
                                                 <th>Choose File</th>
                                             </tr>";
-                        
-                                while ($row = $result_conference->fetch_assoc()) {
-                                    $certificatePath = htmlspecialchars($row["certificate_path"]);
-                                    $paperFilePath = htmlspecialchars($row["paper_file_path"]);
-                        
-                                    echo "<tr>
+
+                            while ($row = $result_conference->fetch_assoc()) {
+                                $certificatePath = htmlspecialchars($row["certificate_path"]);
+                                $paperFilePath = htmlspecialchars($row["paper_file_path"]);
+
+                                echo "<tr>
                                             <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
                                                 data-filepath='" . $certificatePath . "'></td>
                                             <td>" . htmlspecialchars($row["username"]) . "</td>
@@ -674,21 +690,21 @@ include("../../includes/header.php");
                                             
                                             <td class='center-cell'>
                                                 <select class='file-select' onchange='handleFileTypeChange(this, " . $row["id"] . ")'>";
-                                    
-                                                    if ($row["paper_type"] === "participated") {
-                                                        echo "<option value='certificate' data-path='" . $certificatePath . "' selected>Certificate</option>";
-                                                    } else {
-                                                        echo "<option value='' disabled selected>Choose file</option>";
-                                                        echo "<option value='certificate' data-path='" . $certificatePath . "'>Certificate</option>";
-                                                        echo "<option value='paper_file' data-path='" . $paperFilePath . "'>Paper File</option>";
-                                                    }
-                        
-                                    echo "      </select>
+
+                                if ($row["paper_type"] === "participated") {
+                                    echo "<option value='certificate' data-path='" . $certificatePath . "' selected>Certificate</option>";
+                                } else {
+                                    echo "<option value='' disabled selected>Choose file</option>";
+                                    echo "<option value='certificate' data-path='" . $certificatePath . "'>Certificate</option>";
+                                    echo "<option value='paper_file' data-path='" . $paperFilePath . "'>Paper File</option>";
+                                }
+
+                                echo "      </select>
                                             </td>
                                         </tr>";
-                                }
-                        
-                                echo "</table>
+                            }
+
+                            echo "</table>
                                         <div class='bulk-actions'>
                                             <button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button>
                                     <button type='button' class='btn download-btn' onclick='bulkDownload()'>Download Selected</button>
@@ -698,12 +714,12 @@ include("../../includes/header.php");
                                     <button type='button'  class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>
                                
                                       </form>";
-                            } else {
-                                echo "<p class='no-files'>No conference papers found.</p>";
-                            }
-                            echo "</div>";
-                            break;
-                        
+                        } else {
+                            echo "<p class='no-files'>No conference papers found.</p>";
+                        }
+                        echo "</div>";
+                        break;
+
 
                     case 'patents':
                         // Display Patents
@@ -713,13 +729,13 @@ include("../../includes/header.php");
                                 <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                                 <button type='submit' class='ex_bt' name='export_patent'>Export to Excel</button>
                               </form>";
-                    
+
                         $sql_patents = "SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'";
                         $stmt_patents = $conn->prepare($sql_patents);
                         $stmt_patents->bind_param("s", $dept);
                         $stmt_patents->execute();
                         $result_patents = $stmt_patents->get_result();
-                    
+
                         if ($result_patents->num_rows > 0) {
                             echo "<form method='POST' action='' enctype='multipart/form-data'>
                                     <input type='hidden' name='category' value='patents'>
@@ -734,11 +750,11 @@ include("../../includes/header.php");
                                             <th>Date of Issue</th>
                                             
                                         </tr>";
-                    
+
                             while ($row = $result_patents->fetch_assoc()) {
                                 $patentFilePath = htmlspecialchars($row["patent_file"]);
-                                
-                    
+
+
                                 echo "<tr>
                                             <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
                                                 data-filepath='" . $patentFilePath . "' onchange='trackOrder(event)'></td>
@@ -748,7 +764,7 @@ include("../../includes/header.php");
                                             <td>" . htmlspecialchars($row["date_of_issue"]) . "</td>
                                     </tr>";
                             }
-                    
+
                             echo "</table>
                                     <div class='bulk-actions'>
                                         <button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button>
@@ -764,145 +780,146 @@ include("../../includes/header.php");
                         }
                         echo "</div>";
                         break;
-                    
+
+                }
             }
         }
-    }
         ?>
     </div>
 
     <script>
-let selectedOrder = [];
+        let selectedOrder = [];
 
-function trackOrder(event) {
-    const filePath = event.target.dataset.filepath;
-    if (event.target.checked) {
-        selectedOrder.push(filePath);
-    } else {
-        selectedOrder = selectedOrder.filter(path => path !== filePath);
-    }
-    updateMergeButton();
-}
-
-function updateMergeButton() {
-    const mergeBtn = document.getElementById('mergeBtn');
-    if (selectedOrder.length > 1) {
-        mergeBtn.disabled = false;
-        mergeBtn.classList.add("active");
-    } else {
-        mergeBtn.disabled = true;
-        mergeBtn.classList.remove("active");
-    }
-}
-
-function handleFileTypeChange(selectElem, rowId) {
-    const selectedOption = selectElem.options[selectElem.selectedIndex];
-    const selectedPath = selectedOption.getAttribute("data-path");
-
-    // Find the corresponding checkbox by rowId
-    const checkbox = document.querySelector(`input[name="selected_files[]"][value="${rowId}"]`);
-    if (checkbox) {
-        checkbox.setAttribute("data-filepath", selectedPath);
-    }
-}
-
-function toggleSelectAll(source) {
-    const checkboxes = document.querySelectorAll('input[name="selected_files[]"]');
-    selectedOrder = []; // Reset list
-
-    checkboxes.forEach(cb => {
-        cb.checked = source.checked;
-
-        const filePath = cb.dataset.filepath;
-        if (source.checked && filePath) {
-            selectedOrder.push(filePath);
-        }
-    });
-
-    updateMergeButton();
-}
-
-
-function bulkView() {
-    const checkboxes = document.querySelectorAll('input[name="selected_files[]"]:checked');
-    if (checkboxes.length === 0) {
-        alert('Please select at least one file to view.');
-        return;
-    }
-    checkboxes.forEach(cb => {
-        const filePath = cb.getAttribute('data-filepath');
-        if (filePath) {
-            window.open('view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
-        }
-    });
-}
-
-async function mergePDFs() {
-    console.log("Merging PDFs:", selectedOrder);
-    if (selectedOrder.length < 2) {
-        alert("Please select at least two PDFs to merge.");
-        return;
-    }
-
-    const { PDFDocument } = PDFLib;
-    const mergedPdf = await PDFDocument.create();
-
-    for (const fileUrl of selectedOrder) {
-        try {
-            const response = await fetch(fileUrl);
-            if (!response.ok) throw new Error(`Failed to fetch ${fileUrl}`);
-            const fileArrayBuffer = await response.arrayBuffer();
-            const pdf = await PDFDocument.load(fileArrayBuffer);
-            const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-            pages.forEach(page => mergedPdf.addPage(page));
-        } catch (error) {
-            console.error("Error fetching file:", fileUrl, error);
-            alert("Failed to load " + fileUrl);
-            return;
-        }
-    }
-
-    const mergedPdfFile = await mergedPdf.save();
-
-    const formData = new FormData();
-    formData.append("merged_pdf", new Blob([mergedPdfFile], { type: "application/pdf" }));
-
-    fetch("save_merged_pdf.php", {
-        method: "POST",
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.fileUrl) {
-            console.log("Merged file saved at:", data.fileUrl);
-            const btn = document.getElementById("mergedFileButton");
-            btn.style.display = "block";
-            btn.setAttribute("data-url", data.fileUrl);
-
-            // Optional reset
-            selectedOrder = [];
-            document.querySelectorAll('input[name="selected_files[]"]').forEach(cb => cb.checked = false);
+        function trackOrder(event) {
+            const filePath = event.target.dataset.filepath;
+            if (event.target.checked) {
+                selectedOrder.push(filePath);
+            } else {
+                selectedOrder = selectedOrder.filter(path => path !== filePath);
+            }
             updateMergeButton();
-        } else {
-            console.error("Error saving merged PDF:", data.error);
-            alert("Failed to save the merged file.");
         }
-    })
-    .catch(error => {
-        console.error("Error sending merged PDF:", error);
-        alert("Failed to send the merged file.");
-    });
-}
 
-function viewMergedFile() {
-    let url = document.getElementById("mergedFileButton").getAttribute("data-url");
-    if (url) {
-        window.open(url, "_blank");
-    } else {
-        alert("No merged file found.");
-    }
-}
-</script>
+        function updateMergeButton() {
+            const mergeBtn = document.getElementById('mergeBtn');
+            if (selectedOrder.length > 1) {
+                mergeBtn.disabled = false;
+                mergeBtn.classList.add("active");
+            } else {
+                mergeBtn.disabled = true;
+                mergeBtn.classList.remove("active");
+            }
+        }
+
+        function handleFileTypeChange(selectElem, rowId) {
+            const selectedOption = selectElem.options[selectElem.selectedIndex];
+            const selectedPath = selectedOption.getAttribute("data-path");
+
+            // Find the corresponding checkbox by rowId
+            const checkbox = document.querySelector(`input[name="selected_files[]"][value="${rowId}"]`);
+            if (checkbox) {
+                checkbox.setAttribute("data-filepath", selectedPath);
+            }
+        }
+
+        function toggleSelectAll(source) {
+            const checkboxes = document.querySelectorAll('input[name="selected_files[]"]');
+            selectedOrder = []; // Reset list
+
+            checkboxes.forEach(cb => {
+                cb.checked = source.checked;
+
+                const filePath = cb.dataset.filepath;
+                if (source.checked && filePath) {
+                    selectedOrder.push(filePath);
+                }
+            });
+
+            updateMergeButton();
+        }
+
+
+        function bulkView() {
+            const checkboxes = document.querySelectorAll('input[name="selected_files[]"]:checked');
+            if (checkboxes.length === 0) {
+                alert('Please select at least one file to view.');
+                return;
+            }
+            checkboxes.forEach(cb => {
+                const filePath = cb.getAttribute('data-filepath');
+                if (filePath) {
+                    window.open('../common/view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
+                }
+            });
+        }
+
+        async function mergePDFs() {
+            console.log("Merging PDFs:", selectedOrder);
+            if (selectedOrder.length < 2) {
+                alert("Please select at least two PDFs to merge.");
+                return;
+            }
+
+            const { PDFDocument } = PDFLib;
+            const mergedPdf = await PDFDocument.create();
+
+            for (const fileUrl of selectedOrder) {
+                try {
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) throw new Error(`Failed to fetch ${fileUrl}`);
+                    const fileArrayBuffer = await response.arrayBuffer();
+                    const pdf = await PDFDocument.load(fileArrayBuffer);
+                    const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                    pages.forEach(page => mergedPdf.addPage(page));
+                } catch (error) {
+                    console.error("Error fetching file:", fileUrl, error);
+                    alert("Failed to load " + fileUrl);
+                    return;
+                }
+            }
+
+            const mergedPdfFile = await mergedPdf.save();
+
+            const formData = new FormData();
+            formData.append("merged_pdf", new Blob([mergedPdfFile], { type: "application/pdf" }));
+
+            fetch("save_merged_pdf.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.fileUrl) {
+                        console.log("Merged file saved at:", data.fileUrl);
+                        const btn = document.getElementById("mergedFileButton");
+                        btn.style.display = "block";
+                        btn.setAttribute("data-url", data.fileUrl);
+
+                        // Optional reset
+                        selectedOrder = [];
+                        document.querySelectorAll('input[name="selected_files[]"]').forEach(cb => cb.checked = false);
+                        updateMergeButton();
+                    } else {
+                        console.error("Error saving merged PDF:", data.error);
+                        alert("Failed to save the merged file.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error sending merged PDF:", error);
+                    alert("Failed to send the merged file.");
+                });
+        }
+
+        function viewMergedFile() {
+            let url = document.getElementById("mergedFileButton").getAttribute("data-url");
+            if (url) {
+                window.open(url, "_blank");
+            } else {
+                alert("No merged file found.");
+            }
+        }
+    </script>
 
 </body>
+
 </html>

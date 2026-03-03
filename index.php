@@ -45,8 +45,8 @@ header .container1 {
     font-weight: bold;
 }
 
-a{
-    text-decoration: none;
+a, button, .btn {
+    text-decoration: none !important;
 }
 
 nav {
@@ -158,34 +158,40 @@ nav {
 
 include 'includes/header.php'; // Include the header
 ?>
-    <main class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <?php
-                    // Check if the user is logged in
-                    if (isset($_SESSION['username'])) {
-                        // Logout logic when button is clicked?>
-                        <a href="modules/faculty/edit_profile.php"><button class="btn1-outline1" style="position: absolute; top: 90px; right: 20px; z-index: 2000 !important; white-space: nowrap;">Edit Profile</button></a><?php
-                        // Logout logic previously here is now handled by header and top-page logic if needed
-                    }
-                ?>
-                
-                
-                
-                
-                <h2>Welcome to GMRIT</h2>
-                <h1>File Management System</h1>
-                
-                <div class="description">
-                    <p>
-                    This is a user-friendly platform designed to store, organize, and manage files efficiently. It allows users to upload, search, retrieve, and share files securely with role-based access controls. Simplify file handling with our intuitive and reliable solution. Designed for efficiency and collaboration, it ensures data protection and easy accessibility.
-                    </p>
-                </div>
-                
-               
-                
+<main class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <?php
+            // Check if the user is logged in
+            if (isset($_SESSION['username'])) {
+                // Logout logic when button is clicked ?>
+                <a href="modules/faculty/edit_profile.php"><button class="btn1-outline1"
+                        style="position: absolute; top: 90px; right: 20px; z-index: 2000 !important; white-space: nowrap;">Edit
+                        Profile</button></a><?php
+                // Logout logic previously here is now handled by header and top-page logic if needed
+            }
+            ?>
+
+
+
+
+            <h2>Welcome to GMRIT</h2>
+            <h1>File Management System</h1>
+
+            <div class="description">
+                <p>
+                    This is a user-friendly platform designed to store, organize, and manage files efficiently. It
+                    allows users to upload, search, retrieve, and share files securely with role-based access controls.
+                    Simplify file handling with our intuitive and reliable solution. Designed for efficiency and
+                    collaboration, it ensures data protection and easy accessibility.
+                </p>
             </div>
+
+
+
         </div>
-    </main>
+    </div>
+</main>
 </body>
+
 </html>

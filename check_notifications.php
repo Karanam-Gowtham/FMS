@@ -51,11 +51,12 @@ if (!$role) {
 }
 
 // Helper to build partial query (Count version)
-function build_count_query($table, $user_col, $role, $user_id, $dept) {
+function build_count_query($table, $user_col, $role, $user_id, $dept)
+{
     $q = "SELECT COUNT(*) as cnt FROM $table";
     $join = "";
     $where = " WHERE 1=1";
-    
+
     if ($role == 'Faculty') {
         // Faculty: Notification for pending or rejected files
         $where .= " AND $table.$user_col = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
@@ -78,7 +79,7 @@ function build_count_query($table, $user_col, $role, $user_id, $dept) {
         // Central Coordinator now just views accepted files; no approval notifications.
         $where .= " AND 1=0";
     }
-    
+
     return $q . $join . $where;
 }
 
@@ -102,6 +103,23 @@ $queries[] = build_count_query('s_conference_tab', 'Username', $role, $user_id, 
 $queries[] = build_count_query('s_events', 'Username', $role, $user_id, $dept);
 $queries[] = build_count_query('s_bodies', 'Username', $role, $user_id, $dept);
 
+// Special case for dept_files
+$dept_files_q = "SELECT COUNT(*) as cnt FROM dept_files WHERE (status != 'Accepted' OR status IS NULL)";
+if ($role == 'Faculty') {
+    $dept_files_q .= " AND username = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
+} elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
+    $dept_files_q .= " AND username = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
+} elseif ($role == 'HOD') {
+    $dept_files_q .= " AND status = 'Pending HOD'";
+    if (!empty($dept)) {
+        $dept_files_q .= " AND dept = '$dept'";
+    }
+} elseif ($role == 'Central_Coordinator') {
+    // Hidden for central since no approval steps
+    $dept_files_q .= " AND 1=0";
+}
+$queries[] = $dept_files_q;
+
 
 // Aggregate total count from all tables
 $full_query = implode(" UNION ALL ", $queries);
@@ -110,14 +128,14 @@ $final_query = "SELECT SUM(cnt) as total_count FROM ($full_query) as t";
 $result = $conn->query($final_query);
 $count = 0;
 if ($result && $row = $result->fetch_array()) {
-    $count = (int)$row['total_count'];
+    $count = (int) $row['total_count'];
 }
 
 
 // -- Email Notification Logic --
 // Only proceed if there are pending files and we have a valid role/user
 if ($count > 0 && !empty($role) && !empty($user_id)) {
-    
+
     $shouldSendEmail = false;
     $email = '';
     $recipientName = $user_id;
@@ -132,11 +150,11 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
         $stmt_dept->execute();
         $res_dept = $stmt_dept->get_result();
         if ($row_dept = $res_dept->fetch_assoc()) {
-             if ($row_dept['dept'] == 'CSE') {
-                 $shouldSendEmail = true;
-             }
+            if ($row_dept['dept'] == 'CSE') {
+                $shouldSendEmail = true;
+            }
         }
-        
+
         if ($shouldSendEmail) {
             // Fetch email from table where it exists. 
             // User asked to add email to `admin_login` previously, but `reg_tab` naturally has email too.
@@ -152,16 +170,16 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
             }
             // Fallback to reg_tab if empty
             if (empty($email)) {
-                 $stmt_e2 = $conn->prepare("SELECT email FROM reg_tab WHERE userid = ?");
-                 $stmt_e2->bind_param("s", $user_id);
-                 $stmt_e2->execute();
-                 $res_e2 = $stmt_e2->get_result();
-                 if ($r_e2 = $res_e2->fetch_assoc()) {
-                     $email = $r_e2['email'];
-                 }
+                $stmt_e2 = $conn->prepare("SELECT email FROM reg_tab WHERE userid = ?");
+                $stmt_e2->bind_param("s", $user_id);
+                $stmt_e2->execute();
+                $res_e2 = $stmt_e2->get_result();
+                if ($r_e2 = $res_e2->fetch_assoc()) {
+                    $email = $r_e2['email'];
+                }
             }
         }
-    } 
+    }
     // Commented out other roles for now based on strict user request
     /*
     elseif ($role == 'Dept_Coordinator') {
@@ -176,16 +194,16 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
     if ($shouldSendEmail && !empty($email)) {
         $session_key = "last_email_sent_" . $role . "_" . $user_id;
         $throttle_time = 3600; // 1 hour
-        
+
         $last_sent = isset($_SESSION[$session_key]) ? $_SESSION[$session_key] : 0;
-        
+
         if (time() - $last_sent > $throttle_time) {
-             require_once 'includes/send_email.php';
-             // For testing: ensuring we are calling the function correctly
-             // sendNotificationEmail($toEmail, $recipientName, $pendingCount, $role)
-             if (sendNotificationEmail($email, $recipientName, $count, $role)) {
-                 $_SESSION[$session_key] = time(); 
-             }
+            require_once 'includes/send_email.php';
+            // For testing: ensuring we are calling the function correctly
+            // sendNotificationEmail($toEmail, $recipientName, $pendingCount, $role)
+            if (sendNotificationEmail($email, $recipientName, $count, $role)) {
+                $_SESSION[$session_key] = time();
+            }
         }
     }
 }

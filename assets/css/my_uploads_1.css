@@ -17,7 +17,9 @@ body {
     background-color: var(--background-color);
     color: var(--text-primary);
 }
-select, .b1 {
+
+select,
+.b1 {
     width: 300px;
     padding: 12px;
     margin-bottom: 20px;
@@ -31,7 +33,8 @@ select, .b1 {
     cursor: pointer;
 }
 
-select:focus, .b1:focus {
+select:focus,
+.b1:focus {
     border-color: #2563eb;
     background-color: #ffffff;
 }
@@ -45,9 +48,10 @@ select:focus, .b1:focus {
 .b1:hover {
     background-color: #2563eb;
 }
+
 .container111 {
-    width:350px;
-    margin-left:400px;
+    width: 350px;
+    margin-left: 400px;
     max-width: 1300px;
     padding: 30px;
     background: var(--card-background);
@@ -65,7 +69,7 @@ select:focus, .b1:focus {
 }
 
 .header-section {
-    margin-top:70px;
+    margin-top: 70px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -108,7 +112,8 @@ table {
     overflow: hidden;
 }
 
-th, td {
+th,
+td {
     text-align: left;
     padding: 16px;
     border: 1px solid var(--border-color);

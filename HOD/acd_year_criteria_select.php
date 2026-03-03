@@ -96,6 +96,12 @@ include 'header_hod.php';
         }
 
         .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 80px;
+            border-bottom: 1px solid #eee;
+
             position: fixed;
             top: 0;
             width: 100%;
@@ -106,7 +112,7 @@ include 'header_hod.php';
         .nav-container {
             background-color: white;
             padding: 0.5rem 2rem;
-            margin-top: 80px;
+             /* margin-top moved to .navbar */
         }
 
         .nav-items {

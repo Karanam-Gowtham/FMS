@@ -37,13 +37,23 @@ if (isset($_GET['event'])) {
 $file_options = [];
 switch ($event) {
     case 'Achievements':
-        $file_options = [ 
-            'FDPS Attended', 'Papers Published', 'Patents', 'FDPS Organized', 'Conference'
+        $file_options = [
+            'FDPS Attended',
+            'Papers Published',
+            'Patents',
+            'FDPS Organized',
+            'Conference'
         ];
         break;
     case 'dept':
         $file_options = [
-            'Admin Files', 'Student Files', 'Faculty Files', 'Exam Section Files'
+            'Admin Files',
+            'Student Files',
+            'Student Activities Files',
+            'Faculty Files',
+            'Exam Section Files',
+            'AMC Meeting Minutes',
+            'Board Of Studies'
         ];
         break;
     default:
@@ -60,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         $sql = "INSERT INTO dc_up_files (Username,file_name, acd_year,Main_file_type, file_type, file_path) VALUES (?, ?, ?, ?, ?,?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssss",$username, $file_name, $acd_year,$event, $file_type, $file_path);
+        $stmt->bind_param("ssssss", $username, $file_name, $acd_year, $event, $file_type, $file_path);
 
         if ($stmt->execute()) {
             echo "<script>alert('File uploaded successfully!');</script>";
@@ -75,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -87,62 +98,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 0;
             min-height: 100vh;
             background: linear-gradient(135deg, #0a192f 0%, #172a45 100%);
-            
+
             color: white;
         }
 
-        .cont1{
+        .cont1 {
             display: flex;
             justify-content: center;
             align-items: center;
-            
+
         }
-        
-          /* Navigation */
-    .navbar { 
-        font-size: larger;
-    }
 
-    #sp{
-        color:blue;
-    }
-    
-    .nav-container {
-        background-color: white;
-        width:150vw;
-        margin-top: 80px;
-        padding: 0 1rem;
-    }
+        /* Navigation */
+        .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 80px;
+            border-bottom: 1px solid #eee;
 
-    .nav-items {
-        margin-left: 30px;
-        display: flex;
-        align-items: center;
-        justify-content:flex-start;
-        height: 4rem;
-    }
+            font-size: larger;
+        }
 
-    .sid{
-        color: rgb(48, 30, 138);
-        font-weight: 500;
-    }
+        #sp {
+            color: blue;
+        }
 
-    .main-a {
-        color: rgb(138, 30, 113);
-        font-weight: 500;
-    }
-    .main-a:hover{
-        color:rgb(182, 64, 211);
-    }
+        .nav-container {
+            background-color: white;
+            width: 150vw;
+             /* margin-top moved to .navbar */
+            padding: 0 1rem;
+        }
 
-    .home-icon {
-        color: rgb(30, 58, 138);
-        transition: color 0.2s;
-    }
+        .nav-items {
+            margin-left: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 4rem;
+        }
 
-    .home-icon:hover {
-        color: rgb(29, 78, 216);
-    }
+        .sid {
+            color: rgb(48, 30, 138);
+            font-weight: 500;
+        }
+
+        .main-a {
+            color: rgb(138, 30, 113);
+            font-weight: 500;
+        }
+
+        .main-a:hover {
+            color: rgb(182, 64, 211);
+        }
+
+        .home-icon {
+            color: rgb(30, 58, 138);
+            transition: color 0.2s;
+        }
+
+        .home-icon:hover {
+            color: rgb(29, 78, 216);
+        }
+
         .container11 {
             margin-top: 50px;
             background: rgba(16, 15, 15, 0.8);
@@ -174,13 +193,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #fff;
             font-weight: bold;
         }
-        input{
-            
+
+        input {
+
             width: 80%;
-            color:white;
+            color: white;
         }
-        select{
-            width:84%;
+
+        select {
+            width: 84%;
         }
 
         input[type="text"],
@@ -206,11 +227,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             transition: background 0.3s;
             width: 83%;
-            margin-bottom:50px;
+            margin-bottom: 50px;
         }
 
         .button:hover {
             background: #e55337;
+        }
+
+        a,
+        button,
+        .btn {
+            text-decoration: none !important;
         }
 
         /* Responsive Design */
@@ -231,80 +258,88 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <?php if (isset($_SESSION['j_username'])): ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">jr_assistant</a></span>
-            <?php else: ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
-            <?php endif; ?>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo "$event" ?>_Files</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-items">
+                <a href="../../index.php" class="home-icon">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </a>
+                <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <?php if (isset($_SESSION['j_username'])): ?>
+                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>"
+                            class="home-icon">jr_assistant</a></span>
+                <?php else: ?>
+                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                            href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
+                <?php endif; ?>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
+                        class="main-a"><?php echo "$event" ?>_Files</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cont1">
+        <div class="container11">
+            <h1>Upload <?php echo ucfirst($event); ?> Files</h1>
+            <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
+                <label for="file_name">File Name:</label>
+                <input type="text" name="file_name" id="file_name" required>
+
+                <div class="form-group">
+                    <label for="academic-year">Select Academic Year:</label>
+                    <select name="year" id="academic-year" required>
+                        <option value="" disabled selected>Select an academic year</option>
+                        <?php
+                        include("../../includes/connection.php"); // Must be before this code
+                        
+                        $query = "SELECT year FROM academic_year ORDER BY year DESC";
+                        $result = mysqli_query($conn, $query);
+
+                        if (!$result) {
+                            die("Query Failed: " . mysqli_error($conn)); // Debug error
+                        }
+
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                $year = htmlspecialchars($row['year']);
+                                echo "<option value=\"$year\">$year</option>";
+                            }
+                        } else {
+                            echo '<option value="" disabled>No years found</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <label for="file_type">Select File Category:</label>
+                <select name="file_type" id="file_type" required>
+                    <option value="" disabled selected>Select File Category</option>
+                    <?php
+                    foreach ($file_options as $option) {
+                        echo "<option value='$option'>$option</option>";
+                    }
+                    ?>
+                </select>
+
+                <label for="file">Choose File:</label>
+                <input type="file" name="file" id="file" required>
+
+                <button type="submit" class="button" name="submit">Upload File</button>
+            </form>
         </div>
     </div>
-</nav>
-
-<div class="cont1">
-    <div class="container11">
-        <h1>Upload <?php echo ucfirst($event); ?> Files</h1>
-        <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
-            <label for="file_name">File Name:</label>
-            <input type="text" name="file_name" id="file_name" required>
-
-            <div class="form-group">
-                        <label for="academic-year">Select Academic Year:</label>
-                        <select name="year" id="academic-year" required>
-                            <option value="" disabled selected>Select an academic year</option>
-                            <?php
-                            include("../../includes/connection.php"); // Must be before this code
-
-                            $query = "SELECT year FROM academic_year ORDER BY year DESC";
-                            $result = mysqli_query($conn, $query);
-
-                            if (!$result) {
-                                die("Query Failed: " . mysqli_error($conn)); // Debug error
-                            }
-
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    $year = htmlspecialchars($row['year']);
-                                    echo "<option value=\"$year\">$year</option>";
-                                }
-                            } else {
-                                echo '<option value="" disabled>No years found</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-
-            <label for="file_type">Select File Category:</label>
-            <select name="file_type" id="file_type" required>
-                <option value="" disabled selected>Select File Category</option>
-                <?php
-                foreach ($file_options as $option) {
-                    echo "<option value='$option'>$option</option>";
-                }
-                ?>
-            </select>
-
-            <label for="file">Choose File:</label>
-            <input type="file" name="file" id="file" required>
-
-            <button type="submit" class="button" name="submit">Upload File</button>
-        </form>
-    </div>
-</div>
 
 </body>
+
 </html>
 
 <?php

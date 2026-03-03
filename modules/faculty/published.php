@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $target_file = $target_dir . $file_name;
     
     if (move_uploaded_file($_FILES["paper_file"]["tmp_name"], $target_file)) {
-        $status = 'Pending Dept Coordinator';
+        $status = 'Pending HOD';
         $sql = "INSERT INTO published_tab (username, branch, paper_title, journal_name, indexing, date_of_submission, quality_factor, impact_factor, payment, paper_file, submission_time, year, status) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
         
@@ -69,8 +69,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 0;
             padding-bottom: 50px;
         }
-        .navbar { background-color: white; font-size: larger; }
-        .nav-container { margin-top: 100px; margin-left:100px; max-width: 80rem; padding: 0 1rem; }
+        .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 100px;
+            border-bottom: 1px solid #eee;
+ background-color: white; font-size: larger; }
+        .nav-container {  /* margin-top moved to .navbar */ margin-left:100px; max-width: 80rem; padding: 0 1rem; }
         .nav-items { display: flex; align-items: center; height: 4rem; }
         .sid { color: rgb(48, 30, 138); font-weight: 500; }
         .main-a { color: rgb(138, 30, 113); font-weight: 500; }

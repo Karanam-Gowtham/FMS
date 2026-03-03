@@ -4,6 +4,7 @@ require_once '../includes/session.php';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +27,8 @@ require_once '../includes/session.php';
         /* Main content */
         .main-content {
             padding: 2rem 1rem;
-            margin-top: 80px; /* Space for fixed header */
+            margin-top: 80px;
+            /* Space for fixed header */
         }
 
         .container {
@@ -93,8 +95,9 @@ require_once '../includes/session.php';
         }
     </style>
 </head>
+
 <body>
-<?php include 'header_hod.php'; ?>
+    <?php include 'header_hod.php'; ?>
     <main class="main-content">
         <div class="container">
             <!-- Achievements Section -->
@@ -164,13 +167,38 @@ require_once '../includes/session.php';
                     </div>
                 </a>
 
-                <a href="down_dept_files.php?event=student_activity" class="feedback-card">
+                <a href="down_dept_files.php?event=calendar" class="feedback-card">
                     <div class="card-content">
-                        <h3>Student Activity Files</h3>
+                        <h3>Academic Calendar</h3>
+                    </div>
+                </a>
+
+                <a href="hod_down_st_act_files.php" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Student Activities Files</h3>
+                    </div>
+                </a>
+
+                <a href="down_dept_files.php?event=Dept Meeting Minutes" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Department Meeting Minutes</h3>
+                    </div>
+                </a>
+
+                <a href="down_dept_files.php?event=AMC Meeting Minutes" class="feedback-card">
+                    <div class="card-content">
+                        <h3>AMC Meeting Minutes</h3>
+                    </div>
+                </a>
+
+                <a href="down_dept_files.php?event=Board Of Studies" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Board Of Studies (BOS)</h3>
                     </div>
                 </a>
             </div>
         </div>
     </main>
 </body>
+
 </html>

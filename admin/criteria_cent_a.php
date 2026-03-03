@@ -135,14 +135,20 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
     }
 
     /* Navigation */
-    .navbar { 
+    .navbar {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            margin-top: 80px;
+            border-bottom: 1px solid #eee;
+ 
         font-size: larger;
     }
 
     .nav-container {
         background-color: white;
         width:150vw;
-        margin-top: 80px;
+         /* margin-top moved to .navbar */
         padding: 0 1rem;
     }
 

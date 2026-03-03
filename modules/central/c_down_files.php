@@ -128,7 +128,7 @@ include "../../includes/header.php";
         .nav-container {
             background-color: white;
             width:150vw;
-            margin-top: 80px;
+             /* margin-top moved to .navbar */
             padding: 0 1rem;
         }
 
