@@ -1,31 +1,84 @@
 <?php
-include("../../includes/connection.php");
-session_start();
+ob_start(); // Capture any accidental output early
 
-// Ensure the user is logged in
+ini_set('display_errors', 0);
+ini_set('zlib.output_compression', 'Off');
 
-// Ensure there's a file ID present
+// Start session without including connection.php (avoids output corruption)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Ensure the user is logged in (check all possible session roles)
+if (
+    !isset($_SESSION['username']) &&
+    !isset($_SESSION['a_username']) &&
+    !isset($_SESSION['j_username']) &&
+    !isset($_SESSION['h_username']) &&
+    !isset($_SESSION['admin'])
+) {
+    ob_end_clean();
+    header("HTTP/1.1 403 Forbidden");
+    exit("Access denied. Please log in.");
+}
+
+// Ensure there's a file path present
 if (!isset($_GET['file_path'])) {
-    die("Invalid file path.");
+    ob_end_clean();
+    header("HTTP/1.1 400 Bad Request");
+    exit("No file path provided.");
 }
 
-$filePath = urldecode($_GET['file_path']); // Decode the file path
+$filePath = $_GET['file_path'];
 
-// Check if the file exists
-if (file_exists($filePath)) {
-    // Serve the file for viewing
-    $mimeType = mime_content_type($filePath); // Determine file type
-
-    // Set appropriate headers
-    header('Content-Type: ' . $mimeType);
-    header('Content-Disposition: inline; filename="' . basename($filePath) . '"');
-
-    // Output the file content
-    readfile($filePath);
-    exit;
-} else {
-    echo "File does not exist.";
+// Security: only allow paths that include uploads/
+if (strpos($filePath, 'uploads/') === false && strpos($filePath, 'uploads\\') === false) {
+    ob_end_clean();
+    header("HTTP/1.1 403 Forbidden");
+    exit("Access denied. Unauthorized file path.");
 }
 
-$conn->close();
+// Fix and normalise the path
+$tempPath = str_replace('\\', '/', $filePath);
+
+$resolvedPath = null;
+if (preg_match('/uploads\/.*/', $tempPath, $matches)) {
+    $foundPath = $matches[0];
+
+    // Try multiple depths — this file lives in modules/common/
+    if (file_exists("../../" . $foundPath)) {
+        $resolvedPath = "../../" . $foundPath;
+    } elseif (file_exists("../" . $foundPath)) {
+        $resolvedPath = "../" . $foundPath;
+    } elseif (file_exists($foundPath)) {
+        $resolvedPath = $foundPath;
+    }
+}
+
+if ($resolvedPath === null) {
+    ob_end_clean();
+    header("Content-Type: text/plain");
+    exit("ERROR: File not found. Original path: " . htmlspecialchars($filePath));
+}
+
+// All good — clear any buffered output and stream the file
+while (ob_get_level()) {
+    ob_end_clean();
+}
+
+$mime = @mime_content_type($resolvedPath);
+if (!$mime) {
+    $mime = 'application/octet-stream';
+}
+
+// Serve inline for PDFs and images, attachment for everything else
+$disposition = (strpos($mime, 'pdf') !== false || strpos($mime, 'image') !== false) ? 'inline' : 'attachment';
+
+header("Content-Type: $mime");
+header("Content-Disposition: $disposition; filename=\"" . basename($resolvedPath) . "\"");
+header("Content-Length: " . filesize($resolvedPath));
+header("Cache-Control: public, must-revalidate, max-age=3600");
+
+readfile($resolvedPath);
+exit;
 ?>

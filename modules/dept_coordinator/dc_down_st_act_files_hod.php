@@ -1,6 +1,5 @@
 <?php
 include("../../includes/connection.php");
-session_start();
 
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept'];
@@ -304,19 +303,11 @@ if (isset($_POST['export_sevents'])) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
+$extra_head = '<link rel="stylesheet" href="../../assets/css/s_down_files1.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>';
 include("../../includes/header.php");
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Achievements</title>
-    <link rel="stylesheet" href="../../assets/css/s_down_files1.css">
-</head>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -557,7 +548,7 @@ include("../../includes/header.php");
                                     echo "<option value='certificate' data-path='" . $certificatepath . "' selected>Certificate</option>";
                                 } else {
                                     echo "<option value='' disabled selected>Choose file</option>";
-                                    echo "<option value='certificate' data-path='" . $certificatePath . "'>Certificate</option>";
+                                    echo "<option value='certificate' data-path='" . $certificatepath . "'>Certificate</option>";
                                     echo "<option value='paper_file' data-path='" . $paperPath . "'>Paper File</option>";
                                 }
 

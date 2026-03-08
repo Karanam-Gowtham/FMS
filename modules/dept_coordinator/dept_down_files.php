@@ -1,6 +1,8 @@
 <?php
 include "../../includes/connection.php";
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -231,12 +233,12 @@ include "../../includes/header.php";
             padding: 12px;
             text-align: center;
             border-bottom: 2px solid #ddd;
-            color: #1e3c72 !important;
+            color: #333;
         }
 
         th {
-            background: #1e3c72;
-            color: white;
+            background: #1e3c72 !important;
+            color: white !important;
             font-weight: 600;
         }
 
@@ -311,15 +313,16 @@ include "../../includes/header.php";
                     </svg>
                 </a>
                 <span>&nbsp; >> &nbsp; </span><span class="sid"><a
-                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(
-                        <?php echo htmlspecialchars($dept); ?>)
-                    </a></span>
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if (isset($_SESSION['j_username'])): ?>
                     <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Jr
                             Assistant </a></span>
                 <?php else: ?>
-                    <span>&nbsp; >> &nbsp; </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
+                    <span>&nbsp; >> &nbsp; </span><span class="sid"><a
+                            href="../faculty/acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon"> Faculty
+                        </a></span>
                 <?php endif; ?>
                 <span>&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> My Dept Files </a></span>
                 <span>&nbsp; >> &nbsp; </span>
@@ -351,11 +354,15 @@ include "../../includes/header.php";
                         if ($type === 'faculty')
                             $label = "Faculty Files";
                         if ($type === 'student')
-                            $label = "Student Files";
+                            $label = "Student Related Files";
                         if ($type === 'exam')
                             $label = "Exam Section Files";
                         if ($type === 'student_act')
                             $label = "Student Activities Files";
+                        if ($type === 'AMC Meeting Minutes')
+                            $label = "AMC Meeting Minutes";
+                        if ($type === 'Board Of Studies')
+                            $label = "Board Of Studies (BOS)";
                         if ($type === 'calendar')
                             $label = "Academic Calendar";
                         echo "<option value='$type' $selected>$label</option>";
@@ -372,10 +379,10 @@ include "../../includes/header.php";
         $file_types_to_show = $selected_file_type ? [$selected_file_type] : [];
         foreach ($file_types_to_show as $file_type) {
             if ($file_type === 'student_act') {
-                $sql = "SELECT 'student_act' as file_type, ? as dept, academic_year, event_name as sub_file_type, event_name as
+                $sql = "SELECT 'student_act' as file_type, branch as dept, acd_year as academic_year, event_name as sub_file_type, event_name as 
         file_name, certificate_path as file_path, status, '' as meeting_no FROM s_events WHERE Username = ? AND status = 'Accepted'";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("ss", $dept, $username);
+                $stmt->bind_param("s", $username);
             } else {
                 $sql = "SELECT file_type, dept, academic_year, sub_file_type, file_name, file_path, status, meeting_no FROM
         dept_files WHERE username = ? AND file_type = ? AND status = 'Accepted'";
@@ -386,7 +393,24 @@ include "../../includes/header.php";
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
-                echo "<h2>" . ucfirst(str_replace("_", " ", $file_type)) . " Files</h2>";
+                // Determine display label for heading
+                $heading = $file_type;
+                if ($file_type === 'admin')
+                    $heading = "Admin Files";
+                if ($file_type === 'faculty')
+                    $heading = "Faculty Files";
+                if ($file_type === 'student')
+                    $heading = "Student Related Files";
+                if ($file_type === 'exam')
+                    $heading = "Exam Section Files";
+                if ($file_type === 'student_act')
+                    $heading = "Student Activities Files";
+                if ($file_type === 'AMC Meeting Minutes')
+                    $heading = "AMC Meeting Minutes";
+                if ($file_type === 'Board Of Studies')
+                    $heading = "Board Of Studies (BOS)";
+
+                echo "<h2>" . htmlspecialchars($heading) . "</h2>";
                 echo "<form method='post' action=''>";
 
                 echo "<table border='1'>

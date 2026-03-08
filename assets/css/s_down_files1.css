@@ -187,8 +187,8 @@
         }
 
         th {
-            background: #1e3c72;
-            color: white;
+            background: #1e3c72 !important;
+            color: white !important;
             font-weight: 600;
         }
 

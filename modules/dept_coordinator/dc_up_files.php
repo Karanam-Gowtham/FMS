@@ -1,6 +1,6 @@
 <?php
 // Start session
-session_start();
+
 include("../../includes/connection.php");
 
 // Check connection

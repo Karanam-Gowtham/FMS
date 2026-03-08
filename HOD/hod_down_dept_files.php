@@ -11,6 +11,19 @@ if ($conn->connect_error) {
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("Please login to access this page.");
 }
+
+function fixPath($p)
+{
+    if (empty($p))
+        return "";
+    $p = htmlspecialchars_decode($p);
+    $p = str_replace('\\', '/', $p);
+    if (preg_match('/uploads\/.*/', $p, $matches)) {
+        return "../" . $matches[0];
+    }
+    return $p;
+}
+
 $username = isset($_SESSION['h_username']) ? $_SESSION['h_username'] : $_SESSION['admin'];
 
 // Get selected branch
@@ -398,9 +411,10 @@ include "header_hod.php";
                 </thead>
                 <tbody>";
                 while ($row = $result->fetch_assoc()) {
-                    $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
+                    $file_path = $row['file_path'];
+                    $fixed_path = fixPath($file_path);
                     echo "<tr>
-                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($row['file_path']) . "' data-filepath=\"../$file_path\"></td>
+                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' data-filepath=\"$fixed_path\"></td>
                     <td>" . htmlspecialchars($row['username']) . "</td>
                     <td>$selected_branch</td>
                     <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
@@ -426,17 +440,17 @@ include "header_hod.php";
     </div>
 
     <script>
-        function viewSelectedFiles() {
+        async function viewSelectedFiles() {
             const checkboxes = document.querySelectorAll("input[name='selected_files[]']:checked");
             if (checkboxes.length === 0) {
                 alert("Please select at least one file to view.");
                 return;
             }
-            checkboxes.forEach(cb => {
+            for (const cb of checkboxes) {
                 const filePath = cb.dataset.filepath;
-                // Use viewer if needed or direct link
                 window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
-            });
+                await new Promise(r => setTimeout(r, 100));
+            }
         }
         function toggleSelectAll(source) {
             const checkboxes = document.getElementsByName('selected_files[]');

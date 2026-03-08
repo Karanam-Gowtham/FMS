@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 include("../../includes/connection.php");
 include("../../includes/header.php");
 
@@ -23,10 +23,11 @@ if (!$dept) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $event_name = $_POST['event_name'];
     $acd_year = $_POST['year'];
-    
+
     $target_dir = "../../uploads/student_act/";
-    if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-    
+    if (!is_dir($target_dir))
+        mkdir($target_dir, 0777, true);
+
     $certificate_path = "";
     if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] == 0) {
         $fileName = time() . '_' . basename($_FILES["certificate"]["name"]);
@@ -35,16 +36,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $certificate_path = $targetFile;
         }
     }
-    
+
     $status = 'Pending HOD';
-    
+
     // Using s_events table as seen in dashboard.php
-    $sql = "INSERT INTO s_events (Username, event_name, academic_year, certificate_path, submission_time, status) 
+    $sql = "INSERT INTO s_events (Username, event_name, acd_year, certificate_path, submission_time, status) 
             VALUES (?, ?, ?, ?, NOW(), ?)";
-    
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssss", $username, $event_name, $acd_year, $certificate_path, $status);
-    
+
     if ($stmt->execute()) {
         echo "<script>alert('Student activity record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
     } else {
@@ -55,6 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Upload Student Activity</title>
@@ -92,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .nav-container {
             background-color: white;
             width: 150vw;
-             /* margin-top moved to .navbar */
+            /* margin-top moved to .navbar */
             padding: 0 1rem;
         }
 
@@ -224,12 +226,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="nav-items">
                 <a href="../../index.php" class="home-icon">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Student Activities Files</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                        href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Student Activities
+                        Files</a></span>
             </div>
         </div>
     </nav>

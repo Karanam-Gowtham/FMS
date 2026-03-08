@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 include("../../includes/connection.php");
 include("../../includes/header.php");
 
@@ -38,7 +38,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     function uploadFile($fileInputName, $target_dir)
     {
         if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] == 0) {
-            $fileName = time() . '_' . $fileInputName . '_' . basename($_FILES[$fileInputName]["name"]);
+            $allowedExtensions = ['pdf', 'png', 'jpg', 'jpeg'];
+            $fileExtension = strtolower(pathinfo($_FILES[$fileInputName]["name"], PATHINFO_EXTENSION));
+
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                return ""; // Skip invalid files
+            }
+
+            $fileName = time() . '_' . $fileInputName . '_' . preg_replace("/[^a-zA-Z0-9.]/", "_", basename($_FILES[$fileInputName]["name"]));
             $targetFile = $target_dir . $fileName;
             if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
                 return $targetFile;
@@ -57,13 +64,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $photo2 = uploadFile('photo2', $target_dir);
     $photo3 = uploadFile('photo3', $target_dir);
 
+    // Handle Merged PDF from Frontend
+    $merged_file_path = "";
+    if (isset($_POST['merged_pdf_data']) && !empty($_POST['merged_pdf_data'])) {
+        $data = $_POST['merged_pdf_data'];
+        if (preg_match('/^data:application\/pdf;base64,/', $data)) {
+            $data = substr($data, strpos($data, ',') + 1);
+        }
+        $decoded_data = base64_decode($data);
+        $merged_file_name = time() . '_merged_fdp.pdf';
+        $merged_file_path = $target_dir . $merged_file_name;
+        file_put_contents($merged_file_path, $decoded_data);
+    }
+
     $status = 'Pending HOD';
 
-    $sql = "INSERT INTO fdps_org_tab (username, branch, title, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photo1, photo2, photo3, submission_time, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+    $sql = "INSERT INTO fdps_org_tab (username, branch, title, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photo1, photo2, photo3, merged_file, submission_time, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssssssssssssss", $username, $dept, $title, $date_from, $date_to, $organised_by, $location, $year, $certificate, $brochure, $schedule, $attendance, $feedback, $report, $photo1, $photo2, $photo3, $status);
+    $stmt->bind_param("sssssssssssssssssss", $username, $dept, $title, $date_from, $date_to, $organised_by, $location, $year, $certificate, $brochure, $schedule, $attendance, $feedback, $report, $photo1, $photo2, $photo3, $merged_file_path, $status);
 
     if ($stmt->execute()) {
         echo "<script>alert('FDP Organized Record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
@@ -238,7 +258,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="container11">
         <h2>Upload FDPs Organized Details</h2>
-        <form method="POST" enctype="multipart/form-data">
+        <form id="fdpForm" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="merged_pdf_data" id="merged_pdf_data">
             <div class="form-grid">
                 <div class="form-group full-width">
                     <label>Title of FDP:</label>
@@ -333,6 +354,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
     </div>
 
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script>
+        document.getElementById('fdpForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Merging Files... Please Wait';
+
+            try {
+                const { PDFDocument } = PDFLib;
+                const mergedPdf = await PDFDocument.create();
+                let addedAny = false;
+
+                // Ordered inputs
+                const inputNames = ['brochure', 'schedule', 'attendance', 'feedback', 'report', 'photo1', 'photo2', 'photo3', 'certificate'];
+
+                for (const name of inputNames) {
+                    const input = this.querySelector(`input[name="${name}"]`);
+                    if (input && input.files.length > 0) {
+                        const file = input.files[0];
+                        const arrayBuffer = await file.arrayBuffer();
+                        const extension = file.name.split('.').pop().toLowerCase();
+
+                        if (extension === 'pdf') {
+                            const pdf = await PDFDocument.load(arrayBuffer);
+                            const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                            pages.forEach(p => mergedPdf.addPage(p));
+                            addedAny = true;
+                        } else if (['jpg', 'jpeg', 'png'].includes(extension)) {
+                            let image;
+                            if (extension === 'png') image = await mergedPdf.embedPng(arrayBuffer);
+                            else image = await mergedPdf.embedJpg(arrayBuffer);
+
+                            const { width, height } = image.scale(1);
+                            const page = mergedPdf.addPage([width, height]);
+                            page.drawImage(image, { x: 0, y: 0, width, height });
+                            addedAny = true;
+                        }
+                    }
+                }
+
+                if (addedAny) {
+                    const pdfBytes = await mergedPdf.save();
+                    const base64String = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(new Blob([pdfBytes]));
+                    });
+                    document.getElementById('merged_pdf_data').value = base64String;
+                }
+            } catch (err) {
+                console.error("Merging error:", err);
+            }
+
+            this.submit();
+        });
+    </script>
 </body>
 
 </html>

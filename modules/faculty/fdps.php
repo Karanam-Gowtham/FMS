@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 include("../../includes/connection.php");
 include("../../includes/header.php");
 
@@ -28,13 +28,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $organised_by = $_POST['organised_by'];
     $location = $_POST['location'];
     $year = $_POST['year'];
-    
+
     // File Upload
     $target_dir = "../../uploads/fdps/";
     if (!is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
     }
-    
+
     $file_name = time() . '_' . basename($_FILES["certificate"]["name"]);
     $target_file = $target_dir . $file_name;
     $db_path = "uploads/fdps/" . $file_name; // Relative path for DB if that's the convention
@@ -44,13 +44,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // In dashboard.php reupload: $fs_path = __DIR__ . '/' . $relative;
     // Let's store "../../uploads/fdps/..." to be safe or relative.
     // dc_up_files stores '../../uploads/...'
-    
+
     if (move_uploaded_file($_FILES["certificate"]["tmp_name"], $target_file)) {
         $status = 'Pending HOD';
         $sql = "INSERT INTO fdps_tab (username, branch, title, date_from, date_to, organised_by, location, certificate, submission_time, year, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssssssssss", $username, $dept, $title, $date_from, $date_to, $organised_by, $location, $target_file, $year, $status);
-        
+
         if ($stmt->execute()) {
             echo "<script>alert('Record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
         } else {
@@ -64,6 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Upload FDP Attended</title>
@@ -75,18 +76,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             min-height: 100vh;
             margin: 0;
         }
+
         .navbar {
             position: sticky;
             top: 70px;
             z-index: 99;
             margin-top: 100px;
             border-bottom: 1px solid #eee;
- background-color: white; font-size: larger; }
-        .nav-container {  /* margin-top moved to .navbar */ margin-left:100px; max-width: 80rem; padding: 0 1rem; }
-        .nav-items { display: flex; align-items: center; height: 4rem; }
-        .sid { color: rgb(48, 30, 138); font-weight: 500; }
-        .main-a { color: rgb(138, 30, 113); font-weight: 500; }
-        #sp { color: blue; }
+            background-color: white;
+            font-size: larger;
+        }
+
+        .nav-container {
+            /* margin-top moved to .navbar */
+            margin-left: 100px;
+            max-width: 80rem;
+            padding: 0 1rem;
+        }
+
+        .nav-items {
+            display: flex;
+            align-items: center;
+            height: 4rem;
+        }
+
+        .sid {
+            color: rgb(48, 30, 138);
+            font-weight: 500;
+        }
+
+        .main-a {
+            color: rgb(138, 30, 113);
+            font-weight: 500;
+        }
+
+        #sp {
+            color: blue;
+        }
+
         .container11 {
             margin: 50px auto;
             background: rgba(16, 15, 15, 0.8);
@@ -96,78 +123,114 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             max-width: 600px;
             width: 90%;
         }
-        h2 { text-align: center; margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="date"], select, input[type="file"] {
-            width: 100%; padding: 10px; margin-bottom: 15px;
-            border-radius: 5px; border: none;
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: none;
             background: rgba(255, 255, 255, 0.2);
             color: white;
         }
+
         button {
-            width: 100%; padding: 10px; background: #ff6347; color: white;
-            border: none; border-radius: 5px; font-size: 1rem; cursor: pointer;
+            width: 100%;
+            padding: 10px;
+            background: #ff6347;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
         }
-        button:hover { background: #e55337; }
-        option { background-color: #333; }
+
+        button:hover {
+            background: #e55337;
+        }
+
+        option {
+            background-color: #333;
+        }
     </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">FDPs Attended</a></span>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-items">
+                <a href="../../index.php" class="home-icon">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </a>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                        href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">FDPs
+                        Attended</a></span>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="container11">
-    <h2>FDPs Attended</h2>
-    <form method="POST" enctype="multipart/form-data">
-        <label>Title of FDP:</label>
-        <input type="text" name="title" required>
-        
-        <label>Organised By:</label>
-        <input type="text" name="organised_by" required>
-        
-        <label>Location:</label>
-        <input type="text" name="location" required>
-        
-        <label>Academic Year:</label>
-        <select name="year" required>
-            <option value="">Select Year</option>
-            <?php
-            $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
-            $y_res = $conn->query($y_sql);
-            if ($y_res) {
-                while($y = $y_res->fetch_assoc()) {
-                    echo "<option value='".$y['year']."'>".$y['year']."</option>";
+    <div class="container11">
+        <h2>FDPs Attended</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <label>Title of FDP:</label>
+            <input type="text" name="title" required>
+
+            <label>Organised By:</label>
+            <input type="text" name="organised_by" required>
+
+            <label>Location:</label>
+            <input type="text" name="location" required>
+
+            <label>Academic Year:</label>
+            <select name="year" required>
+                <option value="">Select Year</option>
+                <?php
+                $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
+                $y_res = $conn->query($y_sql);
+                if ($y_res) {
+                    while ($y = $y_res->fetch_assoc()) {
+                        echo "<option value='" . $y['year'] . "'>" . $y['year'] . "</option>";
+                    }
                 }
-            }
-            ?>
-        </select>
-        
-        <label>Date From:</label>
-        <input type="date" name="date_from" required>
-        
-        <label>Date To:</label>
-        <input type="date" name="date_to" required>
-        
-        <label>Certificate:</label>
-        <input type="file" name="certificate" required>
-        
-        <button type="submit">Submit</button>
-    </form>
-</div>
+                ?>
+            </select>
+
+            <label>Date From:</label>
+            <input type="date" name="date_from" required>
+
+            <label>Date To:</label>
+            <input type="date" name="date_to" required>
+
+            <label>Certificate:</label>
+            <input type="file" name="certificate" required>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
 
 </body>
+
 </html>
 <?php $conn->close(); ?>

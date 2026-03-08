@@ -1,6 +1,6 @@
 <?php
 include("../../includes/connection.php");
-session_start();
+
 
 if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
     die("You need to log in to view your uploads.");
@@ -302,19 +302,11 @@ if (isset($_POST['export_sevents'])) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
+$extra_head = '<link rel="stylesheet" href="../../assets/css/s_down_files1.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>';
 include("../../includes/header.php");
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Achievements</title>
-    <link rel="stylesheet" href="../../assets/css/s_down_files1.css">
-</head>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {

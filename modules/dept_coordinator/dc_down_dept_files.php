@@ -323,8 +323,8 @@ include "../../includes/header.php";
         }
 
         th {
-            background: #1e3c72;
-            color: white;
+            background: #1e3c72 !important;
+            color: white !important;
             font-weight: 600;
         }
 
@@ -431,7 +431,7 @@ include "../../includes/header.php";
                         <option value="CIVIL" <?= $selected_branch === 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
                         <option value="BSH" <?= $selected_branch === 'BSH' ? 'selected' : '' ?>>BSH</option>
                     </select>
-              <?php } ?>
+                <?php } ?>
                 <input type="hidden" name="file_type1" value="<?= htmlspecialchars($action1) ?>">
                 <button type="submit" class="filter-button">Show Files</button>
             </form>

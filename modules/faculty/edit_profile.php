@@ -4,12 +4,12 @@ require_once '../../includes/connection.php';
 
 if (empty($_SESSION['username'])) {
     ?>
-    <div class="contain11" style="max-width: 100%; height: 100vh;text-align: center; background-image: linear-gradient(to right, #4CAF50, #81C784); margin: 0px auto; padding: 20px; border-radius: 10px;">
-        <h2 class='login-message'>You are not Logged in. Please <a href='./admin/admins.php' class='register-link'>Login</a> to edit your profile.</h2>
-        <h2>If you're not registered, <a href='./reg.php' class='register-link'>register here</a>.</h2>
-    </div>
-    <?php
-    exit;
+        <div class="contain11" style="max-width: 100%; height: 100vh;text-align: center; background-image: linear-gradient(to right, #4CAF50, #81C784); margin: 0px auto; padding: 20px; border-radius: 10px;">
+            <h2 class='login-message'>You are not Logged in. Please <a href='./admin/admins.php' class='register-link'>Login</a> to edit your profile.</h2>
+            <h2>If you're not registered, <a href='./reg.php' class='register-link'>register here</a>.</h2>
+        </div>
+        <?php
+        exit;
 }
 
 
@@ -149,13 +149,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle photo
     if (isset($_FILES['photo_path']) && $_FILES['photo_path']['error'] === UPLOAD_ERR_OK) {
         $target_dir = "../../uploads/";
-        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-        
+        if (!is_dir($target_dir))
+            mkdir($target_dir, 0777, true);
+
         $target_file = $target_dir . uniqid() . "_" . basename($_FILES["photo_path"]["name"]);
-        if(move_uploaded_file($_FILES["photo_path"]["tmp_name"], $target_file)) {
-             // Success
+        if (move_uploaded_file($_FILES["photo_path"]["tmp_name"], $target_file)) {
+            // Success
         } else {
-             $target_file = $user['photo_path']; // Fallback
+            $target_file = $user['photo_path']; // Fallback
         }
     } else {
         $target_file = $user['photo_path'];
@@ -167,8 +168,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $update_stmt = $conn->prepare($update_query);
     $update_stmt->bind_param(
         "ssssssssssssssss",
-        $faculty_name, $designation, $qualification,$dept, $pern_no, $dob, $gender, $address, $email,
-        $aadhar, $pan, $phone, $experience, $password, $target_file, $username
+        $faculty_name,
+        $designation,
+        $qualification,
+        $dept,
+        $pern_no,
+        $dob,
+        $gender,
+        $address,
+        $email,
+        $aadhar,
+        $pan,
+        $phone,
+        $experience,
+        $password,
+        $target_file,
+        $username
     );
 
     if ($update_stmt->execute()) {
@@ -185,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Edit Profile</h1>
         <?php
         $photo_path = isset($user['photo_path']) ? trim($user['photo_path']) : '';
-        
+
         // Determine the correct image source
         // Handles paths stored as "uploads/..." (from registration) or "../../uploads/..." (from edits)
         $img_src = "../../assets/img/profile_icon.png"; // Default
@@ -194,14 +209,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // If path starts exactly with "uploads/", it's from reg.php, so we need to go up two levels
             if (strpos($photo_path, 'uploads/') === 0) {
                 $img_src = "../../" . $photo_path;
-            } 
+            }
             // If it's just a filename (no slashes), assume it's in uploads
             elseif (strpos($photo_path, '/') === false) {
-                 $img_src = "../../uploads/" . $photo_path;
-            } 
+                $img_src = "../../uploads/" . $photo_path;
+            }
             // Otherwise assume it's a valid relative path (like ../../uploads/...)
             else {
-                 $img_src = $photo_path;
+                $img_src = $photo_path;
             }
         }
 
@@ -217,33 +232,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="qualification">Highest Qualification:</label>
                 <select name="qualification" required>
                     <option value="">Select Qualification</option>
-                    <option value="B.Sc" <?= ($user['qualification']=="B.Sc"?"selected":"") ?>>B.Sc</option>
-                    <option value="B.Com" <?= ($user['qualification']=="B.Com"?"selected":"") ?>>B.Com</option>
-                    <option value="B.A" <?= ($user['qualification']=="B.A"?"selected":"") ?>>B.A</option>
-                    <option value="B.Tech" <?= ($user['qualification']=="B.Tech"?"selected":"") ?>>B.Tech</option>
-                    <option value="M.Sc" <?= ($user['qualification']=="M.Sc"?"selected":"") ?>>M.Sc</option>
-                    <option value="M.Com" <?= ($user['qualification']=="M.Com"?"selected":"") ?>>M.Com</option>
-                    <option value="M.A" <?= ($user['qualification']=="M.A"?"selected":"") ?>>M.A</option>
-                    <option value="M.Tech" <?= ($user['qualification']=="M.Tech"?"selected":"") ?>>M.Tech</option>
-                    <option value="MBA" <?= ($user['qualification']=="MBA"?"selected":"") ?>>MBA</option>
-                    <option value="MCA" <?= ($user['qualification']=="MCA"?"selected":"") ?>>MCA</option>
-                    <option value="Ph.D" <?= ($user['qualification']=="Ph.D"?"selected":"") ?>>Ph.D</option>
-                    <option value="Post Doctorate" <?= ($user['qualification']=="Post Doctorate"?"selected":"") ?>>Post Doctorate</option>
-                    <option value="Other" <?= ($user['qualification']=="Other"?"selected":"") ?>>Other</option>
+                    <option value="B.Sc" <?= ($user['qualification'] == "B.Sc" ? "selected" : "") ?>>B.Sc</option>
+                    <option value="B.Com" <?= ($user['qualification'] == "B.Com" ? "selected" : "") ?>>B.Com</option>
+                    <option value="B.A" <?= ($user['qualification'] == "B.A" ? "selected" : "") ?>>B.A</option>
+                    <option value="B.Tech" <?= ($user['qualification'] == "B.Tech" ? "selected" : "") ?>>B.Tech</option>
+                    <option value="M.Sc" <?= ($user['qualification'] == "M.Sc" ? "selected" : "") ?>>M.Sc</option>
+                    <option value="M.Com" <?= ($user['qualification'] == "M.Com" ? "selected" : "") ?>>M.Com</option>
+                    <option value="M.A" <?= ($user['qualification'] == "M.A" ? "selected" : "") ?>>M.A</option>
+                    <option value="M.Tech" <?= ($user['qualification'] == "M.Tech" ? "selected" : "") ?>>M.Tech</option>
+                    <option value="MBA" <?= ($user['qualification'] == "MBA" ? "selected" : "") ?>>MBA</option>
+                    <option value="MCA" <?= ($user['qualification'] == "MCA" ? "selected" : "") ?>>MCA</option>
+                    <option value="Ph.D" <?= ($user['qualification'] == "Ph.D" ? "selected" : "") ?>>Ph.D</option>
+                    <option value="Post Doctorate" <?= ($user['qualification'] == "Post Doctorate" ? "selected" : "") ?>>Post Doctorate</option>
+                    <option value="Other" <?= ($user['qualification'] == "Other" ? "selected" : "") ?>>Other</option>
                 </select>
 
                 <label for="dept">Department:</label>
                 <select name="dept" required>
                     <option value="">Select Department</option>
-                    <option value="AIDS" <?= ($user['dept']=="AIDS"?"selected":"") ?>>AIDS</option>
-                    <option value="AIML" <?= ($user['dept']=="AIML"?"selected":"") ?>>AIML</option>
-                    <option value="CSE" <?= ($user['dept']=="CSE"?"selected":"") ?>>CSE</option>
-                    <option value="CIVIL" <?= ($user['dept']=="CIVIL"?"selected":"") ?>>CIVIL</option>
-                    <option value="MECH" <?= ($user['dept']=="MECH"?"selected":"") ?>>MECH</option>
-                    <option value="EEE" <?= ($user['dept']=="EEE"?"selected":"") ?>>EEE</option>
-                    <option value="ECE" <?= ($user['dept']=="ECE"?"selected":"") ?>>ECE</option>
-                    <option value="IT" <?= ($user['dept']=="IT"?"selected":"") ?>>IT</option>
-                    <option value="BSH" <?= ($user['dept']=="BSH"?"selected":"") ?>>BSH</option>
+                    <option value="AIDS" <?= ($user['dept'] == "AIDS" ? "selected" : "") ?>>AIDS</option>
+                    <option value="AIML" <?= ($user['dept'] == "AIML" ? "selected" : "") ?>>AIML</option>
+                    <option value="CSE" <?= ($user['dept'] == "CSE" ? "selected" : "") ?>>CSE</option>
+                    <option value="CIVIL" <?= ($user['dept'] == "CIVIL" ? "selected" : "") ?>>CIVIL</option>
+                    <option value="MECH" <?= ($user['dept'] == "MECH" ? "selected" : "") ?>>MECH</option>
+                    <option value="EEE" <?= ($user['dept'] == "EEE" ? "selected" : "") ?>>EEE</option>
+                    <option value="ECE" <?= ($user['dept'] == "ECE" ? "selected" : "") ?>>ECE</option>
+                    <option value="IT" <?= ($user['dept'] == "IT" ? "selected" : "") ?>>IT</option>
+                    <option value="BSH" <?= ($user['dept'] == "BSH" ? "selected" : "") ?>>BSH</option>
                 </select>
 
 
@@ -256,9 +271,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <label>Gender:</label>
             <select name="gender" required>
-                <option value="Male" <?= ($user['gender']=="Male"?"selected":"") ?>>Male</option>
-                <option value="Female" <?= ($user['gender']=="Female"?"selected":"") ?>>Female</option>
-                <option value="Other" <?= ($user['gender']=="Other"?"selected":"") ?>>Other</option>
+                <option value="Male" <?= ($user['gender'] == "Male" ? "selected" : "") ?>>Male</option>
+                <option value="Female" <?= ($user['gender'] == "Female" ? "selected" : "") ?>>Female</option>
+                <option value="Other" <?= ($user['gender'] == "Other" ? "selected" : "") ?>>Other</option>
             </select>
 
             <label>Email:</label>

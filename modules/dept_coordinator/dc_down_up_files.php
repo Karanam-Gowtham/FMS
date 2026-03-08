@@ -127,7 +127,7 @@ include "../../includes/header.php";
         .nav-container {
             background-color: white;
             width: 150vw;
-             /* margin-top moved to .navbar */
+            /* margin-top moved to .navbar */
             padding: 0 1rem;
         }
 
@@ -256,12 +256,12 @@ include "../../includes/header.php";
             padding: 12px;
             text-align: center;
             border-bottom: 2px solid #ddd;
-            color: #1e3c72 !important;
+            color: #333;
         }
 
         th {
-            background: #1e3c72;
-            color: white;
+            background: #1e3c72 !important;
+            color: white !important;
             font-weight: 600;
         }
 

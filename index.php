@@ -165,9 +165,9 @@ include 'includes/header.php'; // Include the header
             // Check if the user is logged in
             if (isset($_SESSION['username'])) {
                 // Logout logic when button is clicked ?>
-                <a href="modules/faculty/edit_profile.php"><button class="btn1-outline1"
-                        style="position: absolute; top: 90px; right: 20px; z-index: 2000 !important; white-space: nowrap;">Edit
-                        Profile</button></a><?php
+                    <a href="modules/faculty/edit_profile.php"><button class="btn1-outline1"
+                            style="position: absolute; top: 90px; right: 20px; z-index: 2000 !important; white-space: nowrap;">Edit
+                            Profile</button></a><?php
                 // Logout logic previously here is now handled by header and top-page logic if needed
             }
             ?>

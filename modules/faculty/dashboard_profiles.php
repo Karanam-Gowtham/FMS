@@ -81,15 +81,15 @@ $result = $conn->query($sql);
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 >
                     <option value="">All Departments</option>
-                    <option value="CSE" <?= $branch=='CSE'?'selected':'' ?>>CSE</option>
-                    <option value="ECE" <?= $branch=='ECE'?'selected':'' ?>>ECE</option>
-                    <option value="EEE" <?= $branch=='EEE'?'selected':'' ?>>EEE</option>
-                    <option value="MECH" <?= $branch=='MECH'?'selected':'' ?>>MECH</option>
-                    <option value="CIVIL" <?= $branch=='CIVIL'?'selected':'' ?>>CIVIL</option>
-                    <option value="IT" <?= $branch=='IT'?'selected':'' ?>>IT</option>
-                    <option value="AIDS" <?= $branch=='AIDS'?'selected':'' ?>>AIDS</option>
-                    <option value="AIML" <?= $branch=='AIML'?'selected':'' ?>>AIML</option>
-                    <option value="BSH" <?= $branch=='BSH'?'selected':'' ?>>BSH</option>
+                    <option value="CSE" <?= $branch == 'CSE' ? 'selected' : '' ?>>CSE</option>
+                    <option value="ECE" <?= $branch == 'ECE' ? 'selected' : '' ?>>ECE</option>
+                    <option value="EEE" <?= $branch == 'EEE' ? 'selected' : '' ?>>EEE</option>
+                    <option value="MECH" <?= $branch == 'MECH' ? 'selected' : '' ?>>MECH</option>
+                    <option value="CIVIL" <?= $branch == 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
+                    <option value="IT" <?= $branch == 'IT' ? 'selected' : '' ?>>IT</option>
+                    <option value="AIDS" <?= $branch == 'AIDS' ? 'selected' : '' ?>>AIDS</option>
+                    <option value="AIML" <?= $branch == 'AIML' ? 'selected' : '' ?>>AIML</option>
+                    <option value="BSH" <?= $branch == 'BSH' ? 'selected' : '' ?>>BSH</option>
                 </select>
             </div>
 
@@ -121,33 +121,33 @@ $result = $conn->query($sql);
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <?php if ($result && $result->num_rows > 0): ?>
-                        <?php while($row = $result->fetch_assoc()): ?>
-                            <tr class="hover:bg-blue-50 transition duration-150">
-                                <td class="px-4 py-3">
-                                    <img 
-                                        src="<?= $row['photo_path'] ?: '../../uploads/default_pic.png' ?>" 
-                                        class="w-12 h-12 rounded-full object-cover border border-gray-200"
-                                        alt="Faculty Photo"
-                                    >
-                                </td>
-                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['faculty_name']) ?></td>
-                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['designation']) ?></td>
-                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['qualification']) ?></td>
-                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['dept']) ?></td>
-                                <td class="px-4 py-3">
-                                    <button 
-                                        onclick='openModal(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)' 
-                                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition"
-                                    >
-                                        View Details
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
+                            <?php while ($row = $result->fetch_assoc()): ?>
+                                    <tr class="hover:bg-blue-50 transition duration-150">
+                                        <td class="px-4 py-3">
+                                            <img 
+                                                src="<?= $row['photo_path'] ?: '../../uploads/default_pic.png' ?>" 
+                                                class="w-12 h-12 rounded-full object-cover border border-gray-200"
+                                                alt="Faculty Photo"
+                                            >
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['faculty_name']) ?></td>
+                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['designation']) ?></td>
+                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['qualification']) ?></td>
+                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['dept']) ?></td>
+                                        <td class="px-4 py-3">
+                                            <button 
+                                                onclick='openModal(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)' 
+                                                class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition"
+                                            >
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                            <?php endwhile; ?>
                     <?php else: ?>
-                        <tr>
-                            <td colspan="6" class="px-4 py-3 text-center text-gray-500">No records found</td>
-                        </tr>
+                            <tr>
+                                <td colspan="6" class="px-4 py-3 text-center text-gray-500">No records found</td>
+                            </tr>
                     <?php endif; ?>
                 </tbody>
             </table>

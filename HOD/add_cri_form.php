@@ -1,6 +1,6 @@
 <?php
 include("../includes/connection.php");
-session_start();
+
 
 // Enable exception mode for mysqli
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);

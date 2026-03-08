@@ -1,6 +1,6 @@
 <?php
     include("connection.php");
-    session_start();
+    
 
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Handling Sign Up

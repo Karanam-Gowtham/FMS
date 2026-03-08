@@ -1,8 +1,6 @@
 <?php
 include("../includes/connection.php"); // Include your database connection file
 
-session_start(); // Start session for user authentication
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (isset($_POST['signIn'])) {
@@ -18,15 +16,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $department = $row['department'];
-            
+
             // Set session variables
             $_SESSION['j_username'] = $username;
             $_SESSION['dept'] = $department;
-            
+
             // Redirect to the dashboard
             header("Location: ../modules/jr_assistant/jr_acd_year.php?dept=" . urlencode($department));
             exit();
-            
+
         } else {
             echo "<script>alert('Wrong User Name or password!');</script>";
         }
@@ -40,6 +38,7 @@ include "header_admin.php";
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,16 +77,18 @@ include "header_admin.php";
             margin-top: 200px;
             animation: fadeIn 1s ease-in-out;
         }
+
         @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: scale(0.9);
-                }
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
+            from {
+                opacity: 0;
+                transform: scale(0.9);
             }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
 
         h1 {
             margin-bottom: 20px;
@@ -121,9 +122,9 @@ include "header_admin.php";
         .button1:hover {
             background-color: #0056b3;
         }
-
     </style>
 </head>
+
 <body>
     <div class="container11">
         <div class="login-container">
@@ -135,5 +136,6 @@ include "header_admin.php";
             </form>
         </div>
     </div>
-    </body>
+</body>
+
 </html>

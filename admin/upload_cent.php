@@ -1,6 +1,6 @@
 <?php
 include("../includes/connection.php");
-session_start();
+
 
 if (!isset($_SESSION['c_username'])) {
     die("You need to log in to view your uploads.");

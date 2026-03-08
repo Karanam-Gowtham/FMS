@@ -1,6 +1,6 @@
 <?php
 include("../includes/connection.php");
-session_start();
+
 
 // Ensure the user is logged in
 if (!isset($_SESSION['username'])) {

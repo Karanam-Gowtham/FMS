@@ -1,7 +1,15 @@
 <?php
 include "../includes/connection.php";
-
 session_start();
+
+function fixPath($p) {
+    if (empty($p)) return "";
+    $p = htmlspecialchars_decode($p);
+    if (preg_match('/uploads[\/\\\\\\\\].*/', $p, $matches)) {
+        return "../" . $matches[0];
+    }
+    return $p;
+}
 
 $branch = ""; // Initialize the variable
 $records = []; // Initialize records array
@@ -14,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Query to fetch records based on the branch
-    $stmt = $conn->prepare("SELECT * FROM fdps_org_tab WHERE branch = ?");
+    $stmt = $conn->prepare("SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'");
     $stmt->bind_param("s", $branch);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -34,7 +42,7 @@ if (isset($_POST['download_excel'])) {
     header("Expires: 0");
 
     // Query to fetch records for the branch
-    $stmt = $conn->prepare("SELECT * FROM fdps_org_tab WHERE branch = ?");
+    $stmt = $conn->prepare("SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'");
     $stmt->bind_param("s", $branch);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -58,6 +66,7 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -118,8 +127,8 @@ $conn->close();
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             width: 95%;
-            overflow-x: auto; /* Enables horizontal scrolling */
-            white-space: nowrap; /* Prevents table content from wrapping */
+            overflow-x: auto;
+            white-space: nowrap;
         }
 
         table {
@@ -128,7 +137,8 @@ $conn->close();
             min-width: 1200px;
         }
 
-        table th, table td {
+        table th,
+        table td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
@@ -140,12 +150,8 @@ $conn->close();
             color: white;
         }
 
-        .no-records {
-            text-align: center;
-            color: #555;
-        }
-
-        .btn-view, .btn-download {
+        .btn-view,
+        .btn-download {
             text-decoration: none;
             padding: 5px 10px;
             border-radius: 5px;
@@ -171,6 +177,7 @@ $conn->close();
         }
     </style>
 </head>
+
 <body>
     <h1>Branch and Achievements Selector for FDPs Organised</h1>
     <div class="form-container">
@@ -180,13 +187,13 @@ $conn->close();
                 <option value="">--Select Branch--</option>
                 <option value="AIDS">AIDS</option>
                 <option value="AIML">AIML</option>
-                <option value="CSE">CSE</option>
-                <option value="CIVIL">CIVIL</option>
-                <option value="MECH">MECH</option>
-                <option value="EEE">EEE</option>
-                <option value="ECE">ECE</option>
-                <option value="IT">IT</option>
-                <option value="BSH">BSH</option>
+                <option value="CSE" <?php echo ($branch == 'CSE') ? 'selected' : ''; ?>>CSE</option>
+                <option value="CIVIL" <?php echo ($branch == 'CIVIL') ? 'selected' : ''; ?>>CIVIL</option>
+                <option value="MECH" <?php echo ($branch == 'MECH') ? 'selected' : ''; ?>>MECH</option>
+                <option value="EEE" <?php echo ($branch == 'EEE') ? 'selected' : ''; ?>>EEE</option>
+                <option value="ECE" <?php echo ($branch == 'ECE') ? 'selected' : ''; ?>>ECE</option>
+                <option value="IT" <?php echo ($branch == 'IT') ? 'selected' : ''; ?>>IT</option>
+                <option value="BSH" <?php echo ($branch == 'BSH') ? 'selected' : ''; ?>>BSH</option>
             </select><br>
             <button type="submit">Submit</button>
         </form>
@@ -195,142 +202,122 @@ $conn->close();
     <div class="table-container">
         <h2>FDP Records for Branch: <?php echo htmlspecialchars($branch); ?></h2>
         <?php if (!empty($records)) { ?>
-        <form action="" method="POST">
-            <input type="hidden" name="branch" value="<?php echo htmlspecialchars($branch); ?>">
-            <button type="submit" name="download_excel" class="btn-download">Download Excel</button>
-        </form>
-                        <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Branch</th>
-                    <th>Title</th>
-                    <th>Organised By</th>
-                    <th>Location</th>
-                    <th>Date From</th>
-                    <th>Date To</th>
-                    <th>Certificate</th>
-                    <th>Brochure</th>
-                    <th>FDP Schedule/Invitation</th>
-                    <th>Attendance Forms</th>
-                    <th>Feedback Forms</th>
-                    <th>FDP Report</th>
-                    <th>Photo 1</th>
-                    <th>Photo 2</th>
-                    <th>Photo 3</th>
-                    <th>Submission Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($records as $record) { ?>
+            <form action="" method="POST">
+                <input type="hidden" name="branch" value="<?php echo htmlspecialchars($branch); ?>">
+                <button type="submit" name="download_excel" class="btn-download">Download Excel</button>
+            </form>
+            <table>
+                <thead>
                     <tr>
-                        <td><?php echo htmlspecialchars($record['username']); ?></td>
-                        <td><?php echo htmlspecialchars($record['branch']); ?></td>
-                        <td><?php echo htmlspecialchars($record['title']); ?></td>
-                        <td><?php echo htmlspecialchars($record['organised_by']); ?></td>
-                        <td><?php echo htmlspecialchars($record['location']); ?></td>
-                        <td><?php echo htmlspecialchars($record['date_from']); ?></td>
-                        <td><?php echo htmlspecialchars($record['date_to']); ?></td>
-                        <td>
-                            <?php if (!empty($record['certificate'])) { 
-                                $certificatePath = "../" . htmlspecialchars($record['certificate']);
-                                ?>
-                                <a href="<?php echo $certificatePath; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $certificatePath; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Certificate
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['brochure'])) { 
-                                $brochurePath = "../" . htmlspecialchars($record['brochure']);
-                                ?>
-                                <a href="<?php echo $brochurePath; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $brochurePath; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Brochure
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['fdp_schedule_invitation'])) { 
-                                $schedulePath = "../" . htmlspecialchars($record['fdp_schedule_invitation']);
-                                ?>
-                                <a href="<?php echo $schedulePath; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $schedulePath; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Schedule/Invitation
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['attendance_forms'])) { 
-                                $attendancePath = "../" . htmlspecialchars($record['attendance_forms']);
-                                ?>
-                                <a href="<?php echo $attendancePath; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $attendancePath; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Attendance Forms
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['feedback_forms'])) { 
-                                $feedbackPath = "../" . htmlspecialchars($record['feedback_forms']);
-                                ?>
-                                <a href="<?php echo $feedbackPath; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $feedbackPath; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Feedback Forms
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['fdp_report'])) { 
-                                $reportPath = "../" . htmlspecialchars($record['fdp_report']);
-                                ?>
-                                <a href="<?php echo $reportPath; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $reportPath; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No FDP Report
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['photo1'])) { 
-                                $photo1Path = "../" . htmlspecialchars($record['photo1']);
-                                ?>
-                                <a href="<?php echo $photo1Path; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $photo1Path; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Photo 1
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['photo2'])) { 
-                                $photo2Path = "../" . htmlspecialchars($record['photo2']);
-                                ?>
-                                <a href="<?php echo $photo2Path; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $photo2Path; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Photo 2
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($record['photo3'])) { 
-                                $photo3Path = "../" . htmlspecialchars($record['photo3']);
-                                ?>
-                                <a href="<?php echo $photo3Path; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $photo3Path; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Photo 3
-                            <?php } ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($record['submission_time']); ?></td>
+                        <th>Username</th>
+                        <th>Branch</th>
+                        <th>Title</th>
+                        <th>Organised By</th>
+                        <th>Location</th>
+                        <th>Date From</th>
+                        <th>To Date</th>
+                        <th>Submission Time</th>
+                        <th>Action</th>
                     </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-
-
+                </thead>
+                <tbody>
+                    <?php foreach ($records as $record) {
+                        $files_to_merge = [
+                            fixPath($record['brochure']),
+                            fixPath($record['fdp_schedule_invitation']),
+                            fixPath($record['attendance_forms']),
+                            fixPath($record['feedback_forms']),
+                            fixPath($record['fdp_report']),
+                            fixPath($record['photo1']),
+                            fixPath($record['photo2']),
+                            fixPath($record['photo3']),
+                            fixPath($record['certificate'])
+                        ];
+                        $files_to_merge = array_filter($files_to_merge, function ($f) {
+                            return strlen($f) > 3;
+                        });
+                        $files_json = htmlspecialchars(json_encode(array_values($files_to_merge)), ENT_QUOTES, 'UTF-8');
+                        $record_title = htmlspecialchars($record['title'], ENT_QUOTES, 'UTF-8');
+                        
+                        $merged_path = fixPath($record['merged_file']);
+                        $has_merged = (!empty($merged_path) && file_exists($merged_path));
+                        ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($record['username']); ?></td>
+                            <td><?php echo htmlspecialchars($record['branch']); ?></td>
+                            <td><?php echo htmlspecialchars($record['title']); ?></td>
+                            <td><?php echo htmlspecialchars($record['organised_by']); ?></td>
+                            <td><?php echo htmlspecialchars($record['location']); ?></td>
+                            <td><?php echo htmlspecialchars($record['date_from']); ?></td>
+                            <td><?php echo htmlspecialchars($record['date_to']); ?></td>
+                            <td><?php echo htmlspecialchars($record['submission_time']); ?></td>
+                            <td>
+                                <?php if ($has_merged): ?>
+                                    <a href="view_file_hod.php?file_path=<?php echo urlencode($merged_path); ?>" target="_blank"
+                                        class="btn btn-view">View</a>
+                                    <a href="<?php echo htmlspecialchars($merged_path); ?>" download
+                                        class="btn btn-download">Download</a>
+                                <?php else: ?>
+                                    <button type="button" class="btn" style="background-color: #ff6347; color: white;"
+                                        onclick='mergeRecordFiles("<?php echo $files_json; ?>", "<?php echo $record_title; ?>")'>Get
+                                        Files</button>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
         <?php } else { ?>
-        <p class="no-records">No records found for the selected branch.</p>
+            <p class="no-records">No records found for the selected branch.</p>
         <?php } ?>
     </div>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script>
+        async function mergeRecordFiles(filesJson, title) {
+            const files = JSON.parse(filesJson);
+            if (files.length === 0) {
+                alert("No files found for this record.");
+                return;
+            }
+
+            const { PDFDocument } = PDFLib;
+            const mergedPdf = await PDFDocument.create();
+            let addedPages = 0;
+
+            for (const fileUrl of files) {
+                try {
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) continue;
+                    const fileArrayBuffer = await response.arrayBuffer();
+                    const ext = fileUrl.split('.').pop().toLowerCase();
+
+                    if (ext === 'pdf') {
+                        const pdf = await PDFDocument.load(fileArrayBuffer);
+                        const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                        pages.forEach(p => mergedPdf.addPage(p));
+                        addedPages += pages.length;
+                    } else if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                        let image;
+                        if (ext === 'png') image = await mergedPdf.embedPng(fileArrayBuffer);
+                        else image = await mergedPdf.embedJpg(fileArrayBuffer);
+                        const { width, height } = image.scale(1);
+                        const page = mergedPdf.addPage([width, height]);
+                        page.drawImage(image, { x: 0, y: 0, width, height });
+                        addedPages++;
+                    }
+                } catch (e) { console.error(e); }
+            }
+
+            if (addedPages === 0) {
+                alert("Could not merge any files. Ensure they are valid PDFs or Images.");
+                return;
+            }
+
+            const mergedPdfBytes = await mergedPdf.save();
+            const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+    </script>
 </body>
 </html>

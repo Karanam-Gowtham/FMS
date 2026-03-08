@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Query to fetch records based on the branch
-    $stmt = $conn->prepare("SELECT * FROM conference_tab WHERE branch = ?");
+    $stmt = $conn->prepare("SELECT * FROM conference_tab WHERE branch = ? AND status = 'Accepted'");
     $stmt->bind_param("s", $branch);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -35,7 +35,7 @@ if (isset($_POST['download_excel'])) {
     header("Expires: 0");
 
     // Query to fetch records for the branch
-    $stmt = $conn->prepare("SELECT * FROM conference_tab WHERE branch = ?");
+    $stmt = $conn->prepare("SELECT * FROM conference_tab WHERE branch = ? AND status = 'Accepted'");
     $stmt->bind_param("s", $branch);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -46,14 +46,14 @@ if (isset($_POST['download_excel'])) {
     // Print data rows
     while ($row = $result->fetch_assoc()) {
         echo "{$row['username']}\t"
-           . "{$row['branch']}\t"
-           . "{$row['paper_title']}\t"
-           . "{$row['from_date']}\t"
-           . "{$row['to_date']}\t"
-           . "{$row['organised_by']}\t"
-           . "{$row['location']}\t"
-           . "{$row['paper_type']}\t"
-           . "{$row['submission_time']}\n";
+            . "{$row['branch']}\t"
+            . "{$row['paper_title']}\t"
+            . "{$row['from_date']}\t"
+            . "{$row['to_date']}\t"
+            . "{$row['organised_by']}\t"
+            . "{$row['location']}\t"
+            . "{$row['paper_type']}\t"
+            . "{$row['submission_time']}\n";
     }
 
     $stmt->close();
@@ -68,6 +68,7 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -87,7 +88,7 @@ $conn->close();
 
         h1 {
             margin-top: 20px;
-            margin-bottom:50px;
+            margin-bottom: 50px;
             color: #fff;
         }
 
@@ -147,7 +148,8 @@ $conn->close();
             border-collapse: collapse;
         }
 
-        table th, table td {
+        table th,
+        table td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
@@ -167,7 +169,8 @@ $conn->close();
             color: #555;
         }
 
-        .btn-view, .btn-download {
+        .btn-view,
+        .btn-download {
             background-color: rgb(194, 130, 217);
             color: white;
             text-decoration: none;
@@ -177,7 +180,8 @@ $conn->close();
             transition: background-color 0.3s;
         }
 
-        .btn-view:hover, .btn-download:hover {
+        .btn-view:hover,
+        .btn-download:hover {
             background-color: rgb(88, 21, 113);
         }
 
@@ -196,93 +200,95 @@ $conn->close();
         }
     </style>
 </head>
+
 <body>
     <div class="cont11">
-    <h1>Branch and Conference Records Selector</h1>
-    <div class="form-container">
-        <form action="" method="POST">
-            <label for="branch">Select Branch:</label><br>
-            <select name="branch" id="branch" required>
-                <option value="">--Select Branch--</option>
-                <option value="AIDS">AIDS</option>
-                <option value="AIML">AIML</option>
-                <option value="CSE">CSE</option>
-                <option value="CIVIL">CIVIL</option>
-                <option value="MECH">MECH</option>
-                <option value="EEE">EEE</option>
-                <option value="ECE">ECE</option>
-                <option value="IT">IT</option>
-                <option value="BSH">BSH</option>
-            </select><br>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+        <h1>Branch and Conference Records Selector</h1>
+        <div class="form-container">
+            <form action="" method="POST">
+                <label for="branch">Select Branch:</label><br>
+                <select name="branch" id="branch" required>
+                    <option value="">--Select Branch--</option>
+                    <option value="AIDS">AIDS</option>
+                    <option value="AIML">AIML</option>
+                    <option value="CSE">CSE</option>
+                    <option value="CIVIL">CIVIL</option>
+                    <option value="MECH">MECH</option>
+                    <option value="EEE">EEE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="IT">IT</option>
+                    <option value="BSH">BSH</option>
+                </select><br>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
 
-    <?php if ($_SERVER['REQUEST_METHOD'] == 'POST') { ?>
-<div class="table-container">
-    <h2>Patent Records for Branch: <?php echo htmlspecialchars($branch); ?></h2>
-    <?php if (!empty($records)) { ?>
-        <form action="" method="POST">
-            <input type="hidden" name="branch" value="<?php echo htmlspecialchars($branch); ?>">
-            <button type="submit" name="download_excel" class="btn-download">Download Excel</button>
-        </form>
-        <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Branch</th>
-                    <th>Paper Title</th>
-                    <th>From Date</th>
-                    <th>To Date</th>
-                    <th>Organised By</th>
-                    <th>Location</th>
-                    <th>Certificate</th>
-                    <th>Paper Type</th>
-                    <th>Paper</th>
-                    <th>Submission Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($records as $record) { ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($record['username']); ?></td>
-                        <td><?php echo htmlspecialchars($record['branch']); ?></td>
-                        <td><?php echo htmlspecialchars($record['paper_title']); ?></td>
-                        <td><?php echo htmlspecialchars($record['from_date']); ?></td>
-                        <td><?php echo htmlspecialchars($record['to_date']); ?></td>
-                        <td><?php echo htmlspecialchars($record['organised_by']); ?></td>
-                        <td><?php echo htmlspecialchars($record['location']); ?></td>
-                        <td>
-                            <?php if (!empty($record['certificate_path'])) { 
-                               $certificatePath = "../" . htmlspecialchars($record['certificate_path']);
-                               ?>
-                                <a href="<?php echo $certificatePath; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $certificatePath; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No Certificate
+        <?php if ($_SERVER['REQUEST_METHOD'] == 'POST') { ?>
+            <div class="table-container">
+                <h2>Patent Records for Branch: <?php echo htmlspecialchars($branch); ?></h2>
+                <?php if (!empty($records)) { ?>
+                    <form action="" method="POST">
+                        <input type="hidden" name="branch" value="<?php echo htmlspecialchars($branch); ?>">
+                        <button type="submit" name="download_excel" class="btn-download">Download Excel</button>
+                    </form>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Branch</th>
+                                <th>Paper Title</th>
+                                <th>From Date</th>
+                                <th>To Date</th>
+                                <th>Organised By</th>
+                                <th>Location</th>
+                                <th>Certificate</th>
+                                <th>Paper Type</th>
+                                <th>Paper</th>
+                                <th>Submission Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($records as $record) { ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($record['username']); ?></td>
+                                    <td><?php echo htmlspecialchars($record['branch']); ?></td>
+                                    <td><?php echo htmlspecialchars($record['paper_title']); ?></td>
+                                    <td><?php echo htmlspecialchars($record['from_date']); ?></td>
+                                    <td><?php echo htmlspecialchars($record['to_date']); ?></td>
+                                    <td><?php echo htmlspecialchars($record['organised_by']); ?></td>
+                                    <td><?php echo htmlspecialchars($record['location']); ?></td>
+                                    <td>
+                                        <?php if (!empty($record['certificate_path'])) {
+                                            $certificatePath = "../" . htmlspecialchars($record['certificate_path']);
+                                            ?>
+                                            <a href="<?php echo $certificatePath; ?>" target="_blank" class="btn btn-view">View</a><br>
+                                            <a href="<?php echo $certificatePath; ?>" download class="btn btn-download">Download</a>
+                                        <?php } else { ?>
+                                            No Certificate
+                                        <?php } ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($record['paper_type']); ?></td>
+                                    <td>
+                                        <?php if (!empty($record['paper_file_path'])) {
+                                            $certificatePath1 = "../" . htmlspecialchars($record['paper_file_path']);
+                                            ?>
+                                            <a href="<?php echo $certificatePath1; ?>" target="_blank" class="btn btn-view">View</a><br>
+                                            <a href="<?php echo $certificatePath1; ?>" download class="btn btn-download">Download</a>
+                                        <?php } else { ?>
+                                            No paper
+                                        <?php } ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($record['submission_time']); ?></td>
+                                </tr>
                             <?php } ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($record['paper_type']); ?></td>
-                        <td>
-                        <?php if (!empty($record['paper_file_path'])) { 
-                               $certificatePath1 = "../" . htmlspecialchars($record['paper_file_path']);
-                               ?>
-                                <a href="<?php echo $certificatePath1; ?>" target="_blank" class="btn btn-view">View</a><br>
-                                <a href="<?php echo $certificatePath1; ?>" download class="btn btn-download">Download</a>
-                            <?php } else { ?>
-                                No paper
-                            <?php } ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($record['submission_time']); ?></td>
-                    </tr>
+                        </tbody>
+                    </table>
+                <?php } else { ?>
+                    <p class="no-records">No records found for the selected branch.</p>
                 <?php } ?>
-            </tbody>
-        </table>
-        <?php } else { ?>
-        <p class="no-records">No records found for the selected branch.</p>
-        <?php } ?>
-    </div>
-    </div>
+            </div>
+        </div>
     <?php } ?>
 </body>
+
 </html>
