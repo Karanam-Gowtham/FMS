@@ -186,7 +186,7 @@ $conn->close();
             font-size: larger;
         }
 
-        #sp{
+        .sp{
             color:blue;
         }
         
@@ -277,9 +277,9 @@ $conn->close();
                           d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
             </a>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_login.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($event); ?> Files</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span>
+            <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_login.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central</a></span>
+            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($event); ?> Files</a></span>
+            <span class="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>
 </nav>
@@ -327,7 +327,7 @@ $conn->close();
                     <select name="year" id="academic-year" required>
                         <option value="" disabled selected>Select an academic year</option>
                         <?php
-                        include("../../includes/connection.php"); // Must be before this code
+                        include "../../includes/connection.php"; // Must be before this code
 
                         $query = "SELECT year FROM academic_year ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);
@@ -361,20 +361,20 @@ $conn->close();
                 <input type="text" id="uploaded_by" name="uploaded_by" placeholder="Your name" required>
             </div>
             <div class="form-group">
-                    <label for="file_upload">Photo 1:</label>
-                    <input type="file" id="file_upload" class="file" name="photo1" required>
+                    <label for="photo1">Photo 1:</label>
+                    <input type="file" id="photo1" class="file" name="photo1" required>
                 </div>
                 <div class="form-group">
-                    <label for="file_upload">Photo 2:</label>
-                    <input type="file" id="file_upload" class="file" name="photo2" required>
+                    <label for="photo2">Photo 2:</label>
+                    <input type="file" id="photo2" class="file" name="photo2" required>
                 </div>
                 <div class="form-group">
-                    <label for="file_upload">Photo 3:</label>
-                    <input type="file" id="file_upload" class="file" name="photo3" required>
+                    <label for="photo3">Photo 3:</label>
+                    <input type="file" id="photo3" class="file" name="photo3" required>
                 </div>
                 <div class="form-group">
-                    <label for="file_upload">Photo 4:</label>
-                    <input type="file" id="file_upload" class="file" name="photo4" required>
+                    <label for="photo4">Photo 4:</label>
+                    <input type="file" id="photo4" class="file" name="photo4" required>
                 </div>
 
             <center><button type="submit" class="btn1">Upload</button></center>

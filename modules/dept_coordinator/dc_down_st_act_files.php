@@ -285,12 +285,12 @@ if (isset($_POST['export_sevents'])) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
-$extra_head = '<link rel="stylesheet" href="../../assets/css/s_down_files1.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>';
-include("../../includes/header.php");
+$extra_head = '<link rel="stylesheet" href="../../assets/css/s_down_files1.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>';
+include "../../includes/header.php";
 
 ?>
 
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const mainSelect = document.getElementById('main-select');
@@ -324,11 +324,11 @@ include("../../includes/header.php");
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                <span class="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if (isset($_SESSION['j_username'])): ?>
-                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                    <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                             class="home-icon">jr_assistant</a></span>
                 <?php else: ?>

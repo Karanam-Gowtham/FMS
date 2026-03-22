@@ -271,7 +271,7 @@ include_once "header_hod.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Achievements</title>
     <link rel="stylesheet" href="../assets/css/download_pap.css?v=<?php echo time(); ?>">
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
     <style>
         .nav-items span,
         .nav-items a {

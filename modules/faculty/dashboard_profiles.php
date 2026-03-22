@@ -1,6 +1,6 @@
 <?php
 // db connection
-include("../../includes/connection.php");
+include "../../includes/connection.php";
 
 // Get filter/search values
 $branch = isset($_GET['branch']) ? $_GET['branch'] : '';

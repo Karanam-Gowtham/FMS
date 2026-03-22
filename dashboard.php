@@ -659,13 +659,13 @@ if ($result) {
                         <?php foreach ($files as $file): ?>
                             <?php
                             $statusClass = 'status-pending-dept';
-                            if ($file['status'] == 'Pending HOD') {
+                            if ($file['status'] == STATUS_PENDING_HOD) {
                                 $statusClass = 'status-pending-hod';
-                            } elseif ($file['status'] == 'Pending Central Coordinator') {
+                            } elseif ($file['status'] == STATUS_PENDING_CENTRAL) {
                                 $statusClass = 'status-pending-central';
-                            } elseif ($file['status'] == 'Accepted') {
+                            } elseif ($file['status'] == STATUS_ACCEPTED) {
                                 $statusClass = 'status-accepted';
-                            } elseif (strpos($file['status'], 'Rejected') !== false) {
+                            } elseif (strpos($file['status'], STATUS_REJECTED) !== false) {
                                 $statusClass = 'status-rejected';
                             }
 
@@ -684,7 +684,7 @@ if ($result) {
                                 <td><small><?php echo htmlspecialchars($file['table_name']); ?></small></td>
                                 <td>
                                     <span class="status-badge <?php echo $statusClass; ?>">
-                                        <?php echo htmlspecialchars($file['status'] ?? 'Pending HOD'); ?>
+                                        <?php echo htmlspecialchars($file['status'] ?? STATUS_PENDING_HOD); ?>
                                     </span>
                                     <?php if ($file['rejection_reason']): ?>
                                         <br><small
@@ -696,10 +696,10 @@ if ($result) {
                                 </td>
                                 <td>
                                     <?php
-                                    if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == 'Pending Dept Coordinator') {
+                                    if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == STATUS_PENDING_DEPT_COORD) {
                                         $can_act = true;
                                     }
-                                    if ($role == 'HOD' && $file['status'] == 'Pending HOD') {
+                                    if ($role == 'HOD' && $file['status'] == STATUS_PENDING_HOD) {
                                         $can_act = true;
                                     }
                                     // Central Coordinator is now view-only

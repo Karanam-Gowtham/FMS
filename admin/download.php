@@ -339,7 +339,7 @@ include "header_admin.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Uploads</title>
     <link rel="stylesheet" href="../css/my_uploads_.css">
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
     <script>
         let selectedOrder = [];
 
@@ -587,9 +587,8 @@ include "header_admin.php";
                         <?php
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                            <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
-                                onchange='trackOrder(event)'></td>
+                            <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . 
+                                ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                             <td>" . $id++ . "</td>
                             <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                             <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -619,9 +618,8 @@ include "header_admin.php";
                         <?php
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                        " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . 
+                                        ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -651,9 +649,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                        " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -684,9 +680,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                        " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -715,9 +709,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                        " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -745,9 +737,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                        " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -774,9 +764,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                        " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -802,8 +790,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -831,8 +818,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -859,8 +845,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -886,8 +871,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -914,8 +898,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -941,8 +924,7 @@ include "header_admin.php";
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
-                                        onchange='trackOrder(event)'></td>
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>

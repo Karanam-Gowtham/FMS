@@ -110,7 +110,7 @@ include "../../includes/header.php";
 <head>
     <meta charset="UTF-8">
     <title>Retrieve Files</title>
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
@@ -134,7 +134,7 @@ include "../../includes/header.php";
             font-size: larger;
         }
 
-        #sp{
+        .sp{
             color:blue;
         }
         
@@ -258,10 +258,10 @@ include "../../includes/header.php";
                           d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
             </a>
-            <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="cc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>&designation=<?php echo urlencode($desg); ?>" class="home-icon"><?php echo htmlspecialchars($desg); ?></a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($selected_file_type) ?>_Files</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span>
+            <span class="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
+            <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="cc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>&designation=<?php echo urlencode($desg); ?>" class="home-icon"><?php echo htmlspecialchars($desg); ?></a></span>
+            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($selected_file_type) ?>_Files</a></span>
+            <span class="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>
 </nav>

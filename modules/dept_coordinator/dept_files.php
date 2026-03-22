@@ -424,14 +424,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                <span class="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if ($role === 'faculty'): ?>
-                    <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                    <span class="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                             href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Faculty </a></span>
                 <?php else: ?>
-                    <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                    <span class="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                             href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Jr
                             Assistant
                         </a></span>
@@ -443,9 +443,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 else
                     $display_event = ucfirst($event) . ' Files';
                 ?>
-                <span id="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
+                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
                         <?php echo htmlspecialchars($display_event); ?> </a></span>
-                <span id="sp">&nbsp; >> &nbsp; </span>
+                <span class="sp">&nbsp; >> &nbsp; </span>
             </div>
         </div>
     </nav>
@@ -461,7 +461,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <select name="year" id="academic-year" required>
                         <option value="" disabled selected>Select an academic year</option>
                         <?php
-                        include("../../includes/connection.php"); // Must be before this code
+                        include "../../includes/connection.php"; // Must be before this code
                         
                         $query = "SELECT year FROM academic_year ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);

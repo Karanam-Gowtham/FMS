@@ -86,6 +86,7 @@ define('DATA_FILES_PREFIX', "' data-files='");
 // Statuses
 define('STATUS_PENDING_HOD', 'Pending HOD');
 define('STATUS_PENDING_DEPT_COORD', 'Pending Dept Coordinator');
+define('STATUS_PENDING_CENTRAL', 'Pending Central Coordinator');
 define('STATUS_ACCEPTED', 'Accepted');
 define('STATUS_REJECTED', 'Rejected');
 define('STATUS_REJECTED_HOD', 'Rejected by HOD');
@@ -95,7 +96,10 @@ define('STATUS_REJECTED_DEPT_COORD', 'Rejected by Dept Coordinator');
 define('ERR_INVALID_CRIT', 'Invalid criteria or sub-criteria.');
 
 // Other Constants
+define('DIR_UP', '../');
+define('DIR_UP_TWO', '../../');
 define('ATTR_DATA_FILEPATH', " data-filepath='");
+define('ATTR_VAL_DATA_PATH', "' data-filepath='");
 define('QUOTE_SPACE', "' ");
 define('NOT_SELECTED', 'Not Selected');
 define('HEADER_CONTENT_DISPOSITION', 'Content-Disposition: attachment; filename="');

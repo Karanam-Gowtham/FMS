@@ -221,7 +221,7 @@ include "header_admin.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Uploads</title>
     <link rel="stylesheet" href="../css/my_uploads_.css">
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
     <script>
         let selectedOrder = [];
 

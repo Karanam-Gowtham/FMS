@@ -15,17 +15,17 @@ function fixPath($p)
     }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
-    if (preg_match('/uploads\/.*/', $p, $matches)) {
+    if (preg_match(REGEX_UPLOADS, $p, $matches)) {
         $foundPath = $matches[0];
         // Relative to modules/common/
-        if (file_exists("../../" . $foundPath)) {
-            return "../../" . $foundPath;
-        } elseif (file_exists("../" . $foundPath)) {
-            return "../" . $foundPath;
+        if (file_exists(DIR_UP_TWO . $foundPath)) {
+            return DIR_UP_TWO . $foundPath;
+        } elseif (file_exists(DIR_UP . $foundPath)) {
+            return DIR_UP . $foundPath;
         } elseif (file_exists($foundPath)) {
             return $foundPath;
         }
-        return "../../" . $foundPath; // Default for common
+        return DIR_UP_TWO . $foundPath; // Default for common
     }
     return $p;
 }
@@ -109,8 +109,8 @@ function handleBulkDownload($conn, $selectedFiles, $tableName, $fileColumn, $use
         if ($file && !empty($file[$fileColumn])) {
             $filePathRaw = $file[$fileColumn];
             $p = str_replace('\\', '/', $filePathRaw);
-            if (preg_match('/uploads\/.*/', $p, $matches)) {
-                $p = "../../" . $matches[0];
+            if (preg_match(REGEX_UPLOADS, $p, $matches)) {
+                $p = DIR_UP_TWO . $matches[0];
             }
 
             $finalPath = file_exists($p) ? $p : (file_exists($filePathRaw) ? $filePathRaw : null);
@@ -146,8 +146,8 @@ function handleBulkDownload($conn, $selectedFiles, $tableName, $fileColumn, $use
                 if ($file && !empty($file[$fileColumn])) {
                     $f = $file[$fileColumn];
                     $p = str_replace('\\', '/', $f);
-                    if (preg_match('/uploads\/.*/', $p, $matches)) {
-                        $p = "../../" . $matches[0];
+                    if (preg_match(REGEX_UPLOADS, $p, $matches)) {
+                        $p = DIR_UP_TWO . $matches[0];
                     }
                     if (file_exists($p)) {
                         $zip->addFile($p, basename($p));
@@ -357,7 +357,109 @@ if (isset($_POST['export_conference'])) {
 if (isset($_POST['export_patent'])) {
     exportPatents($conn, $username);
 }
-//---------------------------------------------------------------------------------------------------------------------------------
+// Functions to render category tables to reduce overall cognitive complexity
+function renderFdpsAttended($conn, $username) {
+    echo "<div class='container11'><h2>FDPs Attended</h2>";
+    echo "<form method='POST' class='ex_b'><button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button></form>";
+    $sql = "SELECT * FROM fdps_tab WHERE username = ? AND status = '" . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        echo "<form method='POST' action=''><input type='hidden' name='category' value='fdps'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Title</th><th>Date From</th><th>Date To</th><th>Organised By</th><th>Location</th></tr>";
+        while ($row = $result->fetch_assoc()) {
+            $certificatePath = fixPath($row["certificate"]);
+            $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$certificatePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
+            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["title"]) . "</td><td>" . htmlspecialchars($row["date_from"]) . "</td><td>" . htmlspecialchars($row["date_to"]) . "</td><td>" . htmlspecialchars($row["organised_by"]) . "</td><td>" . htmlspecialchars($row["location"]) . "</td></tr>";
+        }
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='submit' class='download-btn' name='action' value='download'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+    } else { echo "<p class='no-files'>No FDPs attended found.</p>"; }
+    echo "</div>";
+}
+
+function renderFdpsOrganized($conn, $username) {
+    echo "<div class='container11'><h2>FDPs Organised</h2>";
+    echo "<form method='POST' class='ex_b'><button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button></form>";
+    $sql = "SELECT * FROM fdps_org_tab WHERE username = ? AND status = '" . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        echo "<form method='POST' action=''><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='fdps_org'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Title</th><th>Date From</th><th>Date To</th><th>Organised By</th><th>Location</th></tr>";
+        while ($row = $result->fetch_assoc()) {
+            $files_to_merge = array_filter([fixPath($row['brochure']), fixPath($row['fdp_schedule_invitation']), fixPath($row['attendance_forms']), fixPath($row['feedback_forms']), fixPath($row['fdp_report']), fixPath($row['photo1']), fixPath($row['photo2']), fixPath($row['photo3']), fixPath($row['certificate'])], fn($f) => strlen($f) > 3);
+            $files_json = str_replace('"', HTM_QUOT, json_encode(array_values($files_to_merge), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $record_title = htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8');
+            $mergedPath = fixPath($row['merged_file']); $mergedPath = (!empty($mergedPath) && file_exists($mergedPath)) ? $mergedPath : "";
+            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $mergedPath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "' data-title='" . $record_title . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["title"]) . "</td><td>" . htmlspecialchars($row["date_from"]) . "</td><td>" . htmlspecialchars($row["date_to"]) . "</td><td>" . htmlspecialchars($row["organised_by"]) . "</td><td>" . htmlspecialchars($row["location"]) . "</td></tr>";
+        }
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+    } else { echo "<p class='no-files'>No FDPs organised found.</p>"; }
+    echo "</div>";
+}
+
+function renderPublishedPapers($conn, $username) {
+    echo "<div class='container11'><h2>Published Papers</h2>";
+    echo "<form method='POST' class='ex_b'><button type='submit' class='ex_bt' name='export_published'>Export to Excel</button></form>";
+    $sql = "SELECT * FROM published_tab WHERE username = ? AND status = '" . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        echo "<form method='POST' action=''><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='published'><input type='hidden' name='table' value='published_tab'><input type='hidden' name='file_column' value='paper_file'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Paper Title</th><th>Journal Name</th><th>Indexing</th><th>Date of Submission</th><th>Quality Factor</th><th>Impact Factor</th><th>Payment</th></tr>";
+        while ($row = $result->fetch_assoc()) {
+            $paperFilePath = fixPath($row["paper_file"]);
+            $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$paperFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
+            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $paperFilePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["paper_title"]) . "</td><td>" . htmlspecialchars($row["journal_name"]) . "</td><td>" . htmlspecialchars($row["indexing"]) . "</td><td>" . htmlspecialchars($row["date_of_submission"]) . "</td><td>" . htmlspecialchars($row["quality_factor"]) . "</td><td>" . htmlspecialchars($row["impact_factor"]) . "</td><td>" . htmlspecialchars($row["payment"]) . "</td></tr>";
+        }
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='submit' class='download-btn' name='action' value='download'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+    } else { echo "<p class='no-files'>No published papers found.</p>"; }
+    echo "</div>";
+}
+
+function renderConferencePapers($conn, $username) {
+    echo "<div class='container11'><h2>Conference Papers</h2>";
+    echo "<form method='POST' class='ex_b'><button type='submit' class='ex_bt' name='export_conference'>Export to Excel</button></form>";
+    $sql = "SELECT * FROM conference_tab WHERE username = ? AND status = '" . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        echo "<form method='POST' action=''><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='conference'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Paper Title</th><th>From Date</th><th>To Date</th><th>Organised By</th><th>Location</th><th>Paper Type</th></tr>";
+        while ($row = $result->fetch_assoc()) {
+            $certificatePath = fixPath($row["certificate_path"]);
+            $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$certificatePath, fixPath($row["paper_file_path"])], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
+            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["paper_title"]) . "</td><td>" . htmlspecialchars($row["from_date"]) . "</td><td>" . htmlspecialchars($row["to_date"]) . "</td><td>" . htmlspecialchars($row["organised_by"]) . "</td><td>" . htmlspecialchars($row["location"]) . "</td><td>" . htmlspecialchars($row["paper_type"]) . "</td></tr>";
+        }
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+    } else { echo "<p class='no-files'>No conference papers found.</p>"; }
+    echo "</div>";
+}
+
+function renderPatents($conn, $username) {
+    echo "<div class='container11'><h2>Patents</h2>";
+    echo "<form method='POST' class='ex_b'><button type='submit' class='ex_bt' name='export_patent'>Export to Excel</button></form>";
+    $sql = "SELECT * FROM patents_table WHERE username = ? AND status = '" . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        echo "<form method='POST' action='' enctype='multipart/form-data'><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='patents'><input type='hidden' name='table_name' value='patents_table'><input type='hidden' name='file_column' value='patent_file'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Patent Title</th><th>Date of Issue</th></tr>";
+        while ($row = $result->fetch_assoc()) {
+            $patentFilePath = fixPath($row["patent_file"]);
+            $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$patentFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
+            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $patentFilePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["Username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["patent_title"]) . "</td><td>" . htmlspecialchars($row["date_of_issue"]) . "</td></tr>";
+        }
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='submit' class='download-btn' name='action' value='download'>Download Selected</button> &nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+    } else { echo "<p class='no-files'>No patents found.</p>"; }
+    echo "</div>";
+}
+
 
 $extra_head = '<link rel="stylesheet" href="../../assets/css/download_pap.css">';
 include "../../includes/header.php";
@@ -400,391 +502,27 @@ include "../../includes/header.php";
     </div>
 
     <?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category'])) {
         $category = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['category']);
-
         switch ($category) {
             case 'fdps':
-                // Display FDPs Attended
-                echo "<div class='container11'>
-                            <h2>FDPs Attended</h2>";
-                echo "<form method='POST' class='ex_b'>
-                            <button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button>
-                          </form>";
-
-                $sql_fdps = "SELECT * FROM fdps_tab WHERE username = ? AND status = 'Accepted'";
-                $stmt_fdps = $conn->prepare($sql_fdps);
-                $stmt_fdps->bind_param("s", $username);
-                $stmt_fdps->execute();
-                $result_fdps = $stmt_fdps->get_result();
-
-                if ($result_fdps->num_rows > 0) {
-                    echo "<form method='POST' action=''>
-                                <input type='hidden' name='category' value='fdps'>
-                                <table border='1'>
-                                    <tr>
-                                        <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
-                                        <th>Username</th>
-                                        <th>Branch</th>
-                                        <th>Academic Year</th>
-                                        <th>Title</th>
-                                        <th>Date From</th>
-                                        <th>Date To</th>
-                                        <th>Organised By</th>
-                                        <th>Location</th>
-                                    </tr>";
-
-                    while ($row = $result_fdps->fetch_assoc()) {
-                        $certificatePath = fixPath($row["certificate"]);
-                        $fdps_files_raw = json_encode(array_values(array_filter([$certificatePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                        $fdps_files_json = str_replace('"', '&quot;', $fdps_files_raw);
-                        echo "<tr>
-                                    <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                        " . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . "
-                                        data-files='" . $fdps_files_json . "'></td>
-                                    <td>" . htmlspecialchars($row["username"]) . "</td>
-                                    <td>" . htmlspecialchars($row["branch"]) . "</td>
-                                    <td>" . htmlspecialchars($row["year"]) . "</td>
-                                    <td>" . htmlspecialchars($row["title"]) . "</td>
-                                    <td>" . htmlspecialchars($row["date_from"]) . "</td>
-                                    <td>" . htmlspecialchars($row["date_to"]) . "</td>
-                                    <td>" . htmlspecialchars($row["organised_by"]) . "</td>
-                                    <td>" . htmlspecialchars($row["location"]) . "</td>
-                                  </tr>";
-                    }
-                    echo "</table>
-                                <br>
-                                <div class='bulk-actions'>
-                                    <button type='button' class='view-btn' onclick='bulkView()'>View Selected</button>
-                                    <button type='submit' class='download-btn' name='action' value='download'>Download Selected</button>&nbsp
-                                    <button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
-                                </div>
-                              </form>";
-                } else {
-                    echo "<p class='no-files'>No FDPs attended found.</p>";
-                }
-                echo "</div>";
+                renderFdpsAttended($conn, $username);
                 break;
-
-
             case 'fdps_org':
-                // Display FDPs Organised
-                echo "<div class='container11'>
-                            <h2>FDPs Organised</h2>";
-                echo "<form method='POST' class='ex_b'>
-                            <button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button>
-                          </form>";
-
-                $sql_fdps_org = "SELECT * FROM fdps_org_tab WHERE username = ? AND status = 'Accepted'";
-                $stmt_fdps_org = $conn->prepare($sql_fdps_org);
-                $stmt_fdps_org->bind_param("s", $username);
-                $stmt_fdps_org->execute();
-                $result_fdps_org = $stmt_fdps_org->get_result();
-
-                if ($result_fdps_org->num_rows > 0) {
-                    echo "<form method='POST' action=''>
-                                <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
-                                <input type='hidden' name='category' value='fdps_org'>
-                                <table border='1'>
-                                    <tr>
-                                        <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
-                                        <th>Username</th>
-                                        <th>Branch</th>
-                                        <th>Academic Year</th>
-                                        <th>Title</th>
-                                        <th>Date From</th>
-                                        <th>Date To</th>
-                                        <th>Organised By</th>
-                                        <th>Location</th>
-                                    </tr>";
-
-                    while ($row = $result_fdps_org->fetch_assoc()) {
-                        $files_to_merge = [
-                            fixPath($row['brochure']),
-                            fixPath($row['fdp_schedule_invitation']),
-                            fixPath($row['attendance_forms']),
-                            fixPath($row['feedback_forms']),
-                            fixPath($row['fdp_report']),
-                            fixPath($row['photo1']),
-                            fixPath($row['photo2']),
-                            fixPath($row['photo3']),
-                            fixPath($row['certificate'])
-                        ];
-                        $files_to_merge = array_filter($files_to_merge, function ($f) {
-                            return strlen($f) > 3;
-                        });
-                        // Use JSON_UNESCAPED_SLASHES so paths like ../../uploads/... are preserved correctly.
-                        // We use htmlspecialchars only on the final JSON string for safe HTML attribute embedding,
-                        // BUT we must NOT encode slashes or the paths will break in JavaScript.
-                        $files_json_raw = json_encode(array_values($files_to_merge), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                        // Escape only quotes for the HTML attribute (slashes must stay intact)
-                        $files_json = str_replace('"', '&quot;', $files_json_raw);
-                        $record_title = htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8');
-
-
-                        $merged_button = "";
-                        $actual_merged_path = fixPath($row['merged_file']);
-                        if (!empty($actual_merged_path) && file_exists($actual_merged_path)) {
-                            $merged_button = "<a href='view_file1.php?file_path=" . urlencode($actual_merged_path) . "' target='_blank' class='download-btn' style='text-decoration: none; display: inline-block; background-color: #4CAF50;'>Merged PDF</a>";
-                        } else {
-                            $merged_button = "<button type='button' class='view-btn' style='background-color: #ff6347;' onclick='mergeRecordFiles(\"$files_json\", \"$record_title\")'>Merged PDF</button>";
-                        }
-
-                        $certificatePath = htmlspecialchars($row["certificate"]);
-                        $brochurePath = htmlspecialchars($row["brochure"]);
-                        $schedulePath = htmlspecialchars($row["fdp_schedule_invitation"]);
-                        $attendancePath = htmlspecialchars($row["attendance_forms"]);
-                        $feedbackPath = htmlspecialchars($row["feedback_forms"]);
-                        $reportPath = htmlspecialchars($row["fdp_report"]);
-                        $photo1Path = htmlspecialchars($row["photo1"]);
-                        $photo2Path = htmlspecialchars($row["photo2"]);
-                        $photo3Path = htmlspecialchars($row["photo3"]);
-
-                        $deleteButton = "<form method='GET' action='' onsubmit='return confirm(\"Are you sure you want to delete this record?\")'>
-                                            <input type='hidden' name='delete_id' value='" . $row["id"] . "'>
-                                            <input type='hidden' name='table' value='fdps_org_tab'>
-                                            <input type='hidden' name='file_column' value='certificate'>
-                                            <input type='submit' id='del' value='Delete'>
-                                          </form>";
-
-                        $hasMerged = (!empty($actual_merged_path) && file_exists($actual_merged_path));
-                        $mergedPath = $hasMerged ? $actual_merged_path : "";
-
-                        echo "<tr>
-                                    <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                        " . ATTR_DATA_FILEPATH . $mergedPath . QUOTE_SPACE . "
-                                        data-files='" . $files_json . "'
-                                        data-title='" . $record_title . "'></td>
-                                    <td>" . htmlspecialchars($row["username"]) . "</td>
-                                    <td>" . htmlspecialchars($row["branch"]) . "</td>
-                                    <td>" . htmlspecialchars($row["year"]) . "</td>
-                                    <td>" . htmlspecialchars($row["title"]) . "</td>
-                                    <td>" . htmlspecialchars($row["date_from"]) . "</td>
-                                    <td>" . htmlspecialchars($row["date_to"]) . "</td>
-                                    <td>" . htmlspecialchars($row["organised_by"]) . "</td>
-                                    <td>" . htmlspecialchars($row["location"]) . "</td>
-                                </tr>";
-                    }
-                    echo "</table>
-                        <br>
-                                <div class='bulk-actions'>
-                                    <button type='button' class='view-btn' onclick='bulkView()'>View Selected</button>
-                                    <button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button>&nbsp
-
-                                    <button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
-                                </div>
-                              </form>";
-                } else {
-                    echo "<p class='no-files'>No FDPs organised found.</p>";
-                }
-                echo "</div>";
+                renderFdpsOrganized($conn, $username);
                 break;
-
             case 'published':
-                echo "<div class='container11'>
-                                <h2>Published Papers</h2>";
-                echo "<form method='POST' class='ex_b'>
-                                <button type='submit' class='ex_bt' name='export_published'>Export to Excel</button>
-                              </form>";
-
-                $sql_published = "SELECT * FROM published_tab WHERE username = ? AND status = 'Accepted'";
-                $stmt_published = $conn->prepare($sql_published);
-                $stmt_published->bind_param("s", $username);
-                $stmt_published->execute();
-                $result_published = $stmt_published->get_result();
-
-                if ($result_published->num_rows > 0) {
-                    echo "<form method='POST' action=''>
-                                    <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
-                                    <input type='hidden' name='category' value='published'>
-                                    <input type='hidden' name='table' value='published_tab'>
-                                    <input type='hidden' name='file_column' value='paper_file'>
-                                    <table border='1'>
-                                        <tr>
-                                            <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
-                                            <th>Username</th>
-                                            <th>Branch</th>
-                                            <th>Academic Year</th>
-                                            <th>Paper Title</th>
-                                            <th>Journal Name</th>
-                                            <th>Indexing</th>
-                                            <th>Date of Submission</th>
-                                            <th>Quality Factor</th>
-                                            <th>Impact Factor</th>
-                                            <th>Payment</th>
-                                            
-                                        </tr>";
-
-                    while ($row = $result_published->fetch_assoc()) {
-                        $paperFilePath = fixPath($row["paper_file"]);
-                        $pub_files_raw = json_encode(array_values(array_filter([$paperFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                        $pub_files_json = str_replace('"', '&quot;', $pub_files_raw);
-
-                        echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                        " . ATTR_DATA_FILEPATH . $paperFilePath . QUOTE_SPACE . "
-                                        data-files='" . $pub_files_json . "'></td>
-                                        <td>" . htmlspecialchars($row["username"]) . "</td>
-                                        <td>" . htmlspecialchars($row["branch"]) . "</td>
-                                        <td>" . htmlspecialchars($row["year"]) . "</td>
-                                        <td>" . htmlspecialchars($row["paper_title"]) . "</td>
-                                        <td>" . htmlspecialchars($row["journal_name"]) . "</td>
-                                        <td>" . htmlspecialchars($row["indexing"]) . "</td>
-                                        <td>" . htmlspecialchars($row["date_of_submission"]) . "</td>
-                                        <td>" . htmlspecialchars($row["quality_factor"]) . "</td>
-                                        <td>" . htmlspecialchars($row["impact_factor"]) . "</td>
-                                        <td>" . htmlspecialchars($row["payment"]) . "</td>
-                                     </tr>";
-                    }
-
-                    echo "</table>
-                                    <br>
-                                    <div class='bulk-actions'>
-                                    <button type='button' class='view-btn' onclick='bulkView()'>View Selected</button>
-                                    <button type='submit' class='download-btn' name='action' value='download'>Download Selected</button>&nbsp
-                                    <button type='submit' class='delete-btn'  name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
-                                </div>
-                                  </form>";
-                } else {
-                    echo "<p class='no-files'>No published papers found.</p>";
-                }
-                echo "</div>";
+                renderPublishedPapers($conn, $username);
                 break;
-
-
             case 'conference':
-                // Display Conference Papers
-                echo "<div class='container11'>
-                                    <h2>Conference Papers</h2>";
-                echo "<form method='POST' class='ex_b'>
-                                    <button type='submit' class='ex_bt' name='export_conference'>Export to Excel</button>
-                                  </form>";
-
-                $sql_conference = "SELECT * FROM conference_tab WHERE username = ? AND status = 'Accepted'";
-                $stmt_conference = $conn->prepare($sql_conference);
-                $stmt_conference->bind_param("s", $username);
-                $stmt_conference->execute();
-                $result_conference = $stmt_conference->get_result();
-
-                if ($result_conference->num_rows > 0) {
-                    echo "<form method='POST' action=''>
-                                        <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
-                                     <input type='hidden' name='category' value='conference'>
-                                        <table border='1'>
-                                            <tr>
-                                                <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
-                                                <th>Username</th>
-                                                <th>Branch</th>
-                                                <th>Academic Year</th>
-                                                <th>Paper Title</th>
-                                                <th>From Date</th>
-                                                <th>To Date</th>
-                                                <th>Organised By</th>
-                                                <th>Location</th>
-                                                <th>Paper Type</th>
-                                             </tr>";
-
-                    while ($row = $result_conference->fetch_assoc()) {
-                        $certificatePath = fixPath($row["certificate_path"]);
-                        $paperFilePath = fixPath($row["paper_file_path"]);
-                        $conf_files = array_values(array_filter([$certificatePath, $paperFilePath], fn($f) => strlen($f) > 3));
-                        $conf_files_raw = json_encode($conf_files, JSON_UNESCAPED_SLASHES);
-                        $conf_files_json = str_replace('"', '&quot;', $conf_files_raw);
-
-                        echo "<tr>
-                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                                " . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . "
-                                                data-files='" . $conf_files_json . "'></td>
-                                            <td>" . htmlspecialchars($row["username"]) . "</td>
-                                            <td>" . htmlspecialchars($row["branch"]) . "</td>
-                                            <td>" . htmlspecialchars($row["year"]) . "</td>
-                                            <td>" . htmlspecialchars($row["paper_title"]) . "</td>
-                                            <td>" . htmlspecialchars($row["from_date"]) . "</td>
-                                            <td>" . htmlspecialchars($row["to_date"]) . "</td>
-                                            <td>" . htmlspecialchars($row["organised_by"]) . "</td>
-                                            <td>" . htmlspecialchars($row["location"]) . "</td>
-                                            <td>" . htmlspecialchars($row["paper_type"]) . "</td>
-                                         </tr>";
-                    }
-
-                    echo "</table>
-                                        <br>
-                                        <div class='bulk-actions'>
-                                            <button type='button' class='view-btn' onclick='bulkView()'>View Selected</button>
-                                    <button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button>&nbsp
-                                            <button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
-                                        </div>
-                                      </form>";
-                } else {
-                    echo "<p class='no-files'>No conference papers found.</p>";
-                }
-                echo "</div>";
+                renderConferencePapers($conn, $username);
                 break;
-
-
             case 'patents':
-                // Display Patents
-                echo "<div class='container11'>
-                                <h2>Patents</h2>";
-                echo "<form method='POST' class='ex_b'>
-                                <button type='submit' class='ex_bt' name='export_patent'>Export to Excel</button>
-                              </form>";
-
-                $sql_patents = "SELECT * FROM patents_table WHERE username = ? AND status = 'Accepted'";
-                $stmt_patents = $conn->prepare($sql_patents);
-                $stmt_patents->bind_param("s", $username);
-                $stmt_patents->execute();
-                $result_patents = $stmt_patents->get_result();
-
-                if ($result_patents->num_rows > 0) {
-                    echo "<form method='POST' action='' enctype='multipart/form-data'>
-                                    <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
-                                    <input type='hidden' name='category' value='patents'>
-                                    <input type='hidden' name='table_name' value='patents_table'>
-                                    <input type='hidden' name='file_column' value='patent_file'>
-                                    <table border='1'>
-                                        <tr>
-                                            <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
-                                            <th>Username</th>
-                                            <th>Branch</th>
-                                            <th>Academic Year</th>
-                                            <th>Patent Title</th>
-                                            <th>Date of Issue</th>
-                                            
-                                        </tr>";
-
-                    while ($row = $result_patents->fetch_assoc()) {
-                        $patentFilePath = fixPath($row["patent_file"]);
-                        $pat_files_raw = json_encode(array_values(array_filter([$patentFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                        $pat_files_json = str_replace('"', '&quot;', $pat_files_raw);
-
-                        echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                            " . ATTR_DATA_FILEPATH . $patentFilePath . QUOTE_SPACE . "
-                                            data-files='" . $pat_files_json . "'></td>
-                                        <td>" . htmlspecialchars($row["Username"]) . "</td>
-                                        <td>" . htmlspecialchars($row["branch"]) . "</td>
-                                        <td>" . htmlspecialchars($row["year"]) . "</td>
-                                        <td>" . htmlspecialchars($row["patent_title"]) . "</td>
-                                        <td>" . htmlspecialchars($row["date_of_issue"]) . "</td>
-                                        
-                                    </tr>";
-                    }
-
-                    echo "</table>
-                            <br>
-                                    <div class='bulk-actions'>
-                                        <button type='button' class='view-btn' onclick='bulkView()'>View Selected</button>
-                                        <button type='submit' class='download-btn' name='action' value='download'>Download Selected</button> &nbsp
-                                        <button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
-                                    </div>
-                                  </form>";
-                } else {
-                    echo "<p class='no-files'>No patents found.</p>";
-                }
-                echo "</div>";
+                renderPatents($conn, $username);
                 break;
-
+            default:
+                echo "<p class='no-files'>Please select a valid category.</p>";
+                break;
         }
     }
     ?>

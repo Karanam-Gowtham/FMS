@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'includes/connection.php';
+require_once 'includes/constants.php';
 
 // --- Authorization & Role Detection ---
 $role = '';
@@ -64,7 +65,7 @@ function build_count_query($conn, $table, $user_col, $role, $user_id, $dept)
         $where .= " AND $table.$user_col = '$user_esc' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
     } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
         // Dept Coordinator / Jr Assistant: Waiting for their approval from THEIR department
-        $where .= " AND status = 'Pending Dept Coordinator'";
+        $where .= SQL_AND_STATUS_EQ . STATUS_PENDING_DEPT_COORD . "'";
         if (!empty($dept)) {
             // Join with reg_tab to verify department of the uploader
             $join = " LEFT JOIN reg_tab ON $table.$user_col = reg_tab.userid";
@@ -72,7 +73,7 @@ function build_count_query($conn, $table, $user_col, $role, $user_id, $dept)
         }
     } elseif ($role == 'HOD') {
         // HOD: Waiting for their approval from THEIR department
-        $where .= " AND status = 'Pending HOD'";
+        $where .= SQL_AND_STATUS_EQ . STATUS_PENDING_HOD . "'";
         if (!empty($dept)) {
             $join = " LEFT JOIN reg_tab ON $table.$user_col = reg_tab.userid";
             $where .= " AND reg_tab.dept = '$dept_esc'";
@@ -108,13 +109,13 @@ $queries[] = build_count_query($conn, 's_bodies', 'Username', $role, $user_id, $
 // Special case for dept_files
 $user_esc_df = mysqli_real_escape_string($conn, (string) $user_id);
 $dept_esc_df = mysqli_real_escape_string($conn, (string) $dept);
-$dept_files_q = "SELECT COUNT(*) as cnt FROM dept_files WHERE (status != 'Accepted' OR status IS NULL)";
+$dept_files_q = "SELECT COUNT(*) as cnt FROM dept_files WHERE (status != '" . STATUS_ACCEPTED . "' OR status IS NULL)";
 if ($role == 'Faculty') {
     $dept_files_q .= " AND username = '$user_esc_df' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
 } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
     $dept_files_q .= " AND username = '$user_esc_df' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
 } elseif ($role == 'HOD') {
-    $dept_files_q .= " AND status = 'Pending HOD'";
+    $dept_files_q .= SQL_AND_STATUS_EQ . STATUS_PENDING_HOD . "'";
     if (!empty($dept)) {
         $dept_files_q .= " AND dept = '$dept_esc_df'";
     }

@@ -350,8 +350,8 @@ if (isset($_POST['export_patent'])) {
 }
 //---------------------------------------------------------------------------------------------------------------------------------
 
-$extra_head = '<link rel="stylesheet" href="../../assets/css/download_pap.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>';
-include("../../includes/header.php");
+$extra_head = '<link rel="stylesheet" href="../../assets/css/download_pap.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>';
+include "../../includes/header.php";
 
 ?>
 
