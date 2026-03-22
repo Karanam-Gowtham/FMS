@@ -1,5 +1,6 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
+require_once "../includes/constants.php";
 
 
 if (!isset($_SESSION['c_username'])) {
@@ -57,9 +58,9 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                         if (ob_get_length()) {
                             ob_end_clean();
                         }
-                        header('Content-Type: application/pdf');
-                        header('Content-Disposition: attachment; filename="' . $fileName . '"');
-                        header('Content-Length: ' . filesize($filePath));
+                        header(TYPE_OCTET_STREAM);
+                        header(HEADER_CONTENT_DISPOSITION . $fileName . '"');
+                        header(HEADER_CONTENT_LENGTH . filesize($filePath));
                         flush();
                         readfile($filePath);
                         exit;
@@ -96,8 +97,8 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     $zip->close();
     
                     header('Content-Type: application/zip');
-                    header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
-                    header('Content-Length: ' . filesize($zipFilePath));
+                    header(HEADER_CONTENT_DISPOSITION . $zipFileName . '"');
+                    header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
                     readfile($zipFilePath);
                     unlink($zipFilePath);
                     exit;
@@ -111,7 +112,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 
 // Handle Excel Download
 if (isset($_POST['download_excel'])) {
-    header('Content-Type: application/vnd.ms-excel');
+    header(TYPE_EXCEL);
     header('Content-Disposition: attachment;filename="my_uploads.xls"');
     header('Cache-Control: max-age=0');
     

@@ -4,6 +4,7 @@ session_start();
 // The issue might be that iframe considers it a separate context if cookies are strict.
 // For now, let's assume standard session behavior.
 include 'includes/connection.php';
+require_once 'includes/constants.php';
 require_once __DIR__ . '/includes/csrf.php';
 
 // Auto-migrate tables
@@ -32,7 +33,7 @@ foreach ($tables as $table) {
     if ($check_table->num_rows > 0) {
         $check_col = $conn->query("SHOW COLUMNS FROM $table LIKE 'status'");
         if ($check_col->num_rows == 0) {
-            $conn->query("ALTER TABLE $table ADD COLUMN status VARCHAR(50) DEFAULT 'Pending HOD'");
+            $conn->query("ALTER TABLE $table ADD COLUMN status VARCHAR(50) DEFAULT '" . STATUS_PENDING_HOD . "'");
         }
         $check_col = $conn->query("SHOW COLUMNS FROM $table LIKE 'rejection_reason'");
         if ($check_col->num_rows == 0) {
@@ -65,7 +66,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_history' && isset($_GET['f
         || isset($_SESSION['c_username'])
         || isset($_SESSION['cri_username']);
     if (!$logged) {
-        header('Content-Type: application/json');
+        header(TYPE_JSON);
         http_response_code(403);
         echo json_encode([]);
         exit;
@@ -78,7 +79,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_history' && isset($_GET['f
         's_journal_tab', 's_conference_tab', 's_events', 's_bodies', 'dept_files',
     ];
     if (!in_array($tbl, $allowed_history_tables, true)) {
-        header('Content-Type: application/json');
+        header(TYPE_JSON);
         http_response_code(400);
         echo json_encode([]);
         exit;
@@ -98,7 +99,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_history' && isset($_GET['f
     while ($r = $res->fetch_assoc()) {
         $history[] = $r;
     }
-    header('Content-Type: application/json');
+    header(TYPE_JSON);
     echo json_encode($history);
     exit;
 }
@@ -233,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                 if ($role == 'Faculty') {
                     $update_sql .= ", status = ?, rejection_reason = NULL";
-                    $params[] = 'Pending Dept Coordinator';
+                    $params[] = STATUS_PENDING_DEPT_COORD;
                     $types .= "s";
                 }
 
@@ -271,18 +272,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
         if ($role == 'HOD') {
             if ($action == 'approve') {
                 if ($table_name == 'dept_files') {
-                    $new_status = 'Accepted';
+                    $new_status = STATUS_ACCEPTED;
                 } else {
-                    $new_status = 'Pending Dept Coordinator';
+                    $new_status = STATUS_PENDING_DEPT_COORD;
                 }
             } elseif ($action == 'reject') {
-                $new_status = 'Rejected by HOD';
+                $new_status = STATUS_REJECTED_HOD;
             }
         } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
             if ($action == 'approve') {
-                $new_status = 'Accepted';
+                $new_status = STATUS_ACCEPTED;
             } elseif ($action == 'reject') {
-                $new_status = 'Rejected by Dept Coordinator';
+                $new_status = STATUS_REJECTED_DEPT_COORD;
             }
         } elseif ($role == 'Central_Coordinator') {
             // Central Coordinator is now view-only for these files
@@ -323,20 +324,20 @@ function build_query($conn, $table, $id_col, $user_col, $desc_col, $date_col, $f
             status, 
             rejection_reason, 
             '$table' as table_name 
-          FROM $table WHERE (status != 'Accepted' OR status IS NULL)";
+          FROM $table WHERE (status != '" . STATUS_ACCEPTED . "' OR status IS NULL)";
 
     // Filter by role
     if ($role == 'Faculty') {
         $q .= " AND $user_col = '$user_esc'";
     } elseif ($role == 'HOD') {
         // HOD sees everything pending for them (step 1 for faculty files, step 1 for dept_files)
-        $q .= " AND status = 'Pending HOD'";
+        $q .= " AND status = '" . STATUS_PENDING_HOD . "'";
     } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
         // Dept Coordinator sees everything pending for them (step 2 for faculty files)
-        $q .= " AND status = 'Pending Dept Coordinator'";
+        $q .= " AND status = '" . STATUS_PENDING_DEPT_COORD . "'";
     } elseif ($role == 'Central_Coordinator') {
         // Central sees everything that has passed HOD
-        $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator', 'Pending HOD', 'Rejected by HOD')";
+        $q .= " AND status NOT IN ('" . STATUS_PENDING_DEPT_COORD . "', '" . STATUS_REJECTED_DEPT_COORD . "', '" . STATUS_PENDING_HOD . "', '" . STATUS_REJECTED_HOD . "')";
     }
 
     return $q;
@@ -404,7 +405,7 @@ $q = "SELECT
             status, 
             rejection_reason, 
             'dept_files' as table_name 
-          FROM dept_files WHERE (status != 'Accepted' OR status IS NULL)";
+          FROM dept_files WHERE (status != '" . STATUS_ACCEPTED . "' OR status IS NULL)";
 
 if ($role == 'Faculty') {
     // If a faculty member uploaded it (e.g. Dept Coord logged in as Faculty), show their uploads
@@ -413,9 +414,9 @@ if ($role == 'Faculty') {
     // Dept Coordinator or Jr Assistant is the UPLOADER for these files, so show their own uploads
     $q .= " AND username = '$user_esc'";
 } elseif ($role == 'HOD') {
-    $q .= " AND status = 'Pending HOD'";
+    $q .= " AND status = '" . STATUS_PENDING_HOD . "'";
 } elseif ($role == 'Central_Coordinator') {
-    $q .= " AND status NOT IN ('Pending Dept Coordinator', 'Rejected by Dept Coordinator', 'Pending HOD', 'Rejected by HOD')";
+    $q .= " AND status NOT IN ('" . STATUS_PENDING_DEPT_COORD . "', '" . STATUS_REJECTED_DEPT_COORD . "', '" . STATUS_PENDING_HOD . "', '" . STATUS_REJECTED_HOD . "')";
 }
 
 $queries[] = $q;

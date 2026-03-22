@@ -45,15 +45,15 @@ class PDFMerger
 	 */
 	public function __construct()
 	{
-		require_once('tcpdf/tcpdf.php');
-		require_once('tcpdf/tcpdi.php');
+		require_once 'tcpdf/tcpdf.php';
+		require_once 'tcpdf/tcpdi.php';
 	}
 
 	/**
 	 * Add a PDF for inclusion in the merge with a valid file path. Pages should be formatted: 1,3,6, 12-16.
-	 * @param $filepath
-	 * @param $pages
-	 * @return void
+	 * @param string $filepath
+	 * @param string|array $pages
+	 * @return $this
 	 */
 	public function addPDF($filepath, $pages = 'all')
 	{
@@ -68,7 +68,7 @@ class PDFMerger
 		}
 		else
 		{
-			throw new \exception("Could not locate PDF on '$filepath'");
+			throw new \Exception("Could not locate PDF on '$filepath'");
 		}
 
 		return $this;
@@ -76,85 +76,95 @@ class PDFMerger
 
 	/**
 	 * Merges your provided PDFs and outputs to specified location.
-	 * @param $outputmode
-	 * @param $outputname
-	 * @return PDF
+	 * @param string $outputmode
+	 * @param string $outputpath
+	 * @return string|bool
 	 */
 	public function merge($outputmode = 'browser', $outputpath = 'newfile.pdf')
 	{
-		if(!isset($this->_files) || !is_array($this->_files)): throw new exception("No PDFs to merge."); endif;
-
-    $fpdi = new \TCPDI;
-    $fpdi->SetPrintHeader(false);
-    $fpdi->SetPrintFooter(false);
-
-		//merger operations
-		foreach($this->_files as $file)
+		if(!isset($this->_files) || !is_array($this->_files))
 		{
-			$filename  = $file[0];
-			$filepages = $file[1];
-
-			$count = $fpdi->setSourceFile($filename);
-
-			//add the pages
-			if($filepages == 'all')
-			{
-				for($i=1; $i<=$count; $i++)
-				{
-					$template = $fpdi->importPage($i);
-					$size = $fpdi->getTemplateSize($template);
-					$orientation = ($size['h'] > $size['w']) ? 'P' : 'L';
-
-					$fpdi->AddPage($orientation, array($size['w'], $size['h']));
-					$fpdi->useTemplate($template);
-				}
-			}
-			else
-			{
-				foreach($filepages as $page)
-				{
-					if(!$template = $fpdi->importPage($page)): throw new exception("Could not load page '$page' in PDF '$filename'. Check that the page exists."); endif;
-					$size = $fpdi->getTemplateSize($template);
-					$orientation = ($size['h'] > $size['w']) ? 'P' : 'L';
-
-					$fpdi->AddPage($orientation, array($size['w'], $size['h']));
-					$fpdi->useTemplate($template);
-				}
-			}
+			throw new \exception("No PDFs to merge.");
 		}
 
-		//output operations
-		$mode = $this->_switchmode($outputmode);
+		$fpdi = new \TCPDI;
+		$fpdi->SetPrintHeader(false);
+		$fpdi->SetPrintFooter(false);
 
+		foreach($this->_files as $file)
+		{
+			$this->_addPagesToFpdi($fpdi, $file);
+		}
+
+		return $this->_handleOutput($fpdi, $outputmode, $outputpath);
+	}
+
+	private function _addPagesToFpdi($fpdi, $file)
+	{
+		$filename  = $file[0];
+		$filepages = $file[1];
+		$count = $fpdi->setSourceFile($filename);
+
+		if($filepages == 'all')
+		{
+			for($i=1; $i<=$count; $i++)
+			{
+				$this->_importAndAddPage($fpdi, $i);
+			}
+		}
+		else
+		{
+			foreach($filepages as $page)
+			{
+				if(!$template = $fpdi->importPage($page))
+				{
+					throw new \exception("Could not load page '$page' in PDF '$filename'. Check that the page exists.");
+				}
+				$this->_addPageFromTemplate($fpdi, $template);
+			}
+		}
+	}
+
+	private function _importAndAddPage($fpdi, $pageNo)
+	{
+		$template = $fpdi->importPage($pageNo);
+		$this->_addPageFromTemplate($fpdi, $template);
+	}
+
+	private function _addPageFromTemplate($fpdi, $template)
+	{
+		$size = $fpdi->getTemplateSize($template);
+		$orientation = ($size['h'] > $size['w']) ? 'P' : 'L';
+		$fpdi->AddPage($orientation, array($size['w'], $size['h']));
+		$fpdi->useTemplate($template);
+	}
+
+	private function _handleOutput($fpdi, $outputmode, $outputpath)
+	{
+		$mode = $this->_switchmode($outputmode);
 		if($mode == 'S')
 		{
 			return $fpdi->Output($outputpath, 'S');
 		}
-		else if($mode == 'F')
+
+		if($mode == 'F')
 		{
 			$fpdi->Output($outputpath, $mode);
 			return true;
 		}
-		else
+
+		if($fpdi->Output($outputpath, $mode) == '')
 		{
-			if($fpdi->Output($outputpath, $mode) == '')
-			{
-				return true;
-			}
-			else
-			{
-				throw new exception("Error outputting PDF to '$outputmode'.");
-				return false;
-			}
+			return true;
 		}
 
-
+		throw new \exception("Error outputting PDF to '$outputmode'.");
 	}
 
 	/**
 	 * FPDI uses single characters for specifying the output location. Change our more descriptive string into proper format.
-	 * @param $mode
-	 * @return Character
+	 * @param string $mode
+	 * @return string
 	 */
 	private function _switchmode($mode)
 	{
@@ -180,8 +190,8 @@ class PDFMerger
 
 	/**
 	 * Takes our provided pages in the form of 1,3,4,16-50 and creates an array of all pages
-	 * @param $pages
-	 * @return unknown_type
+	 * @param string $pages
+	 * @return array
 	 */
 	private function _rewritepages($pages)
 	{
@@ -198,7 +208,7 @@ class PDFMerger
 				$x = $ind[0]; //start page
 				$y = $ind[1]; //end page
 
-				if($x > $y): throw new exception("Starting page, '$x' is greater than ending page '$y'."); return false; endif;
+				if($x > $y): throw new \Exception("Starting page, '$x' is greater than ending page '$y'."); return false; endif;
 
 				//add middle pages
 				while($x <= $y): $newpages[] = (int) $x; $x++; endwhile;

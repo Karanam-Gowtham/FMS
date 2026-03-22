@@ -82,8 +82,11 @@ define('DATA_FILES_PREFIX', "' data-files='");
 
 // Statuses
 define('STATUS_PENDING_HOD', 'Pending HOD');
+define('STATUS_PENDING_DEPT_COORD', 'Pending Dept Coordinator');
 define('STATUS_ACCEPTED', 'Accepted');
 define('STATUS_REJECTED', 'Rejected');
+define('STATUS_REJECTED_HOD', 'Rejected by HOD');
+define('STATUS_REJECTED_DEPT_COORD', 'Rejected by Dept Coordinator');
 
 // Error Messages
 define('ERR_INVALID_CRIT', 'Invalid criteria or sub-criteria.');
@@ -92,4 +95,9 @@ define('ERR_INVALID_CRIT', 'Invalid criteria or sub-criteria.');
 define('ATTR_DATA_FILEPATH', "' data-filepath='");
 define('QUOTE_SPACE', "' ");
 define('NOT_SELECTED', 'Not Selected');
+define('HEADER_CONTENT_DISPOSITION', 'Content-Disposition: attachment; filename="');
+define('HEADER_CONTENT_LENGTH', 'Content-Length: ');
+define('TYPE_EXCEL', 'Content-Type: application/vnd.ms-excel');
+define('TYPE_OCTET_STREAM', 'Content-Type: application/octet-stream');
+define('TYPE_JSON', 'Content-Type: application/json');
 ?>

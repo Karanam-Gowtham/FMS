@@ -2,6 +2,7 @@
 ob_start();
 ini_set('display_errors', 0);
 include "../../includes/connection.php";
+require_once "../../includes/constants.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view your uploads.");
@@ -39,174 +40,161 @@ ob_start();
 
 $category = "fdps";
 // Handle bulk actions
+/**
+ * Gets the table name and file column based on the category.
+ * @param string $category
+ * @return array
+ */
+function getCategoryConfig($category) {
+    switch ($category) {
+        case 'fdps':
+            return ['tableName' => 'fdps_tab', 'fileColumn' => 'certificate'];
+        case 'fdps_org':
+            return ['tableName' => 'fdps_org_tab', 'fileColumn' => 'certificate'];
+        case 'published':
+            return ['tableName' => 'published_tab', 'fileColumn' => 'paper_file'];
+        case 'conference':
+            return ['tableName' => 'conference_tab', 'fileColumn' => 'certificate_path'];
+        case 'patents':
+            return ['tableName' => 'patents_table', 'fileColumn' => 'patent_file'];
+        default:
+            return ['tableName' => 'fdps_tab', 'fileColumn' => 'certificate'];
+    }
+}
+
+/**
+ * Handles bulk deletion of files.
+ */
+function handleBulkDelete($conn, $selectedFiles, $tableName, $fileColumn, $username) {
+    foreach ($selectedFiles as $fileId) {
+        $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is", $fileId, $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $file = $result->fetch_assoc();
+
+        if ($file && !empty($file[$fileColumn])) {
+            if (file_exists($file[$fileColumn])) {
+                unlink($file[$fileColumn]);
+            }
+
+            $sql = "DELETE FROM $tableName WHERE id = ? AND username = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("is", $fileId, $username);
+            $stmt->execute();
+        }
+    }
+    echo "<script>alert('Records deleted successfully.'); window.location.href = window.location.href;</script>";
+    exit;
+}
+
+/**
+ * Handles bulk download of files.
+ */
+function handleBulkDownload($conn, $selectedFiles, $tableName, $fileColumn, $username, $category) {
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    if (count($selectedFiles) == 1) {
+        $fileId = $selectedFiles[0];
+        $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is", $fileId, $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $file = $result->fetch_assoc();
+
+        if ($file && !empty($file[$fileColumn])) {
+            $filePathRaw = $file[$fileColumn];
+            $p = str_replace('\\', '/', $filePathRaw);
+            if (preg_match('/uploads\/.*/', $p, $matches)) {
+                $p = "../../" . $matches[0];
+            }
+
+            $finalPath = file_exists($p) ? $p : (file_exists($filePathRaw) ? $filePathRaw : null);
+            if ($finalPath) {
+                header(TYPE_OCTET_STREAM);
+                header(HEADER_CONTENT_DISPOSITION . basename($finalPath) . '"');
+                header(HEADER_CONTENT_LENGTH . filesize($finalPath));
+                ob_clean();
+                flush();
+                readfile($finalPath);
+                exit;
+            } else {
+                $msg = 'File not found. Searched path: ' . $p;
+                echo "<script>alert(" . json_encode($msg) . "); window.location.href = window.location.href;</script>";
+                exit;
+            }
+        }
+    } else {
+        $zip = new ZipArchive();
+        $zipFileName = $category . "_files_" . time() . ".zip";
+        $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
+        $filesAdded = 0;
+
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($selectedFiles as $fileId) {
+                $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ? AND status = 'Accepted'";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("is", $fileId, $username);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $file = $result->fetch_assoc();
+
+                if ($file && !empty($file[$fileColumn])) {
+                    $f = $file[$fileColumn];
+                    $p = str_replace('\\', '/', $f);
+                    if (preg_match('/uploads\/.*/', $p, $matches)) {
+                        $p = "../../" . $matches[0];
+                    }
+                    if (file_exists($p)) {
+                        $zip->addFile($p, basename($p));
+                        $filesAdded++;
+                    } elseif (file_exists($f)) {
+                        $zip->addFile($f, basename($f));
+                        $filesAdded++;
+                    }
+                }
+            }
+            $zip->close();
+
+            if ($filesAdded > 0) {
+                header('Content-Type: application/zip');
+                header(HEADER_CONTENT_DISPOSITION . basename($zipFileName) . '"');
+                header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
+                ob_clean();
+                flush();
+                readfile($zipFilePath);
+                unlink($zipFilePath);
+                exit;
+            } else {
+                echo "<script>alert('No valid files were found to add to the ZIP.'); window.location.href = window.location.href;</script>";
+                if (file_exists($zipFilePath)) unlink($zipFilePath);
+                exit;
+            }
+        } else {
+            echo "<script>alert('Failed to create zip file.'); window.location.href = window.location.href;</script>";
+            exit;
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
-    // CSRF Check
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF token validation failed.");
     }
     $action = $_POST['action'];
     $selectedFiles = $_POST['selected_files'];
     $category = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['category']);
+    $config = getCategoryConfig($category);
 
-    // Determine table and file column based on category
-    switch ($category) {
-        case 'fdps':
-            $tableName = 'fdps_tab';
-            $fileColumn = 'certificate';
-            break;
-        case 'fdps_org':
-            $tableName = 'fdps_org_tab';
-            $fileColumn = 'certificate'; // Default, can be changed via select
-            break;
-        case 'published':
-            $tableName = 'published_tab';
-            $fileColumn = 'paper_file';
-            break;
-        case 'conference':
-            $tableName = 'conference_tab';
-            $fileColumn = 'certificate_path';
-            break;
-        case 'patents':
-            $tableName = 'patents_table';
-            $fileColumn = 'patent_file';
-            break;
-        default:
-            $tableName = 'fdps_tab';
-            $fileColumn = 'certificate';
-    }
-
-    // DELETE ACTION
     if ($action == 'delete') {
-        foreach ($selectedFiles as $fileId) {
-            $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("is", $fileId, $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $file = $result->fetch_assoc();
-
-            if ($file && !empty($file[$fileColumn])) {
-                if (file_exists($file[$fileColumn])) {
-                    unlink($file[$fileColumn]);
-                }
-
-                $sql = "DELETE FROM $tableName WHERE id = ? AND username = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("is", $fileId, $username);
-                $stmt->execute();
-            }
-        }
-        echo "<script>alert('Records deleted successfully.'); window.location.href = window.location.href;</script>";
-        exit;
+        handleBulkDelete($conn, $selectedFiles, $config['tableName'], $config['fileColumn'], $username);
+    } elseif ($action == 'download') {
+        handleBulkDownload($conn, $selectedFiles, $config['tableName'], $config['fileColumn'], $username, $category);
     }
-
-    // DOWNLOAD ACTION
-    elseif ($action == 'download') {
-        // Clean any previous output to prevent headers already sent
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
-
-        if (count($selectedFiles) == 1) {
-            $fileId = $selectedFiles[0];
-            $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("is", $fileId, $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $file = $result->fetch_assoc();
-
-            if ($file && !empty($file[$fileColumn])) {
-                $filePathRaw = $file[$fileColumn];
-                $p = str_replace('\\', '/', $filePathRaw);
-                // Extract only the 'uploads/...' part to avoid double-prepending if it already has ../
-                if (preg_match('/uploads\/.*/', $p, $matches)) {
-                    $p = "../../" . $matches[0];
-                }
-
-                if (file_exists($p)) {
-                    // Set headers and send file
-                    header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="' . basename($p) . '"');
-                    header('Content-Length: ' . filesize($p));
-                    ob_clean();
-                    flush();
-                    readfile($p);
-                    exit;
-                } elseif (file_exists($filePathRaw)) {
-                    // Set headers and send file
-                    header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="' . basename($filePathRaw) . '"');
-                    header('Content-Length: ' . filesize($filePathRaw));
-                    ob_clean();
-                    flush();
-                    readfile($filePathRaw);
-                    exit;
-                } else {
-                    $msg = 'File not found. Searched path: ' . $p;
-                    echo "<script>alert(" . json_encode($msg) . "); window.location.href = window.location.href;</script>";
-                    exit;
-                }
-            } else {
-                echo "<script>alert('Record found but file column is empty.'); window.location.href = window.location.href;</script>";
-                exit;
-            }
-        } else {
-            // Handle multiple file download via ZIP
-            $zip = new ZipArchive();
-            $zipFileName = $category . "_files_" . time() . ".zip";
-            $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
-            $filesAdded = 0;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-                foreach ($selectedFiles as $fileId) {
-                    $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ? AND status = 'Accepted'";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("is", $fileId, $username);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $file = $result->fetch_assoc();
-
-                    if ($file && !empty($file[$fileColumn])) {
-                        $f = $file[$fileColumn];
-                        $p = str_replace('\\', '/', $f);
-                        if (preg_match('/uploads\/.*/', $p, $matches)) {
-                            $p = "../../" . $matches[0];
-                        }
-                        if (file_exists($p)) {
-                            $zip->addFile($p, basename($p));
-                            $filesAdded++;
-                        } elseif (file_exists($f)) {
-                            $zip->addFile($f, basename($f));
-                            $filesAdded++;
-                        }
-                    }
-                }
-                $zip->close();
-
-                if ($filesAdded > 0) {
-                    // Send ZIP headers
-                    header('Content-Type: application/zip');
-                    header('Content-Disposition: attachment; filename="' . basename($zipFileName) . '"');
-                    header('Content-Length: ' . filesize($zipFilePath));
-                    ob_clean();
-                    flush();
-                    readfile($zipFilePath);
-                    unlink($zipFilePath); // cleanup temp file
-                    exit;
-                } else {
-                    echo "<script>alert('No valid files were found to add to the ZIP.'); window.location.href = window.location.href;</script>";
-                    unlink($zipFilePath);
-                    exit;
-                }
-            } else {
-                echo "<script>alert('Failed to create zip file.'); window.location.href = window.location.href;</script>";
-                exit;
-            }
-        }
-    }
-
-
 }
 
 ///------------------------------------------------------------------------------------------------------------
@@ -453,7 +441,7 @@ include "../../includes/header.php";
                         $fdps_files_json = str_replace('"', '&quot;', $fdps_files_raw);
                         echo "<tr>
                                     <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                        data-filepath='" . $certificatePath . "'
+                                        " . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . "
                                         data-files='" . $fdps_files_json . "'></td>
                                     <td>" . htmlspecialchars($row["username"]) . "</td>
                                     <td>" . htmlspecialchars($row["branch"]) . "</td>
@@ -565,7 +553,7 @@ include "../../includes/header.php";
 
                         echo "<tr>
                                     <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                        data-filepath='" . $mergedPath . "'
+                                        " . ATTR_DATA_FILEPATH . $mergedPath . QUOTE_SPACE . "
                                         data-files='" . $files_json . "'
                                         data-title='" . $record_title . "'></td>
                                     <td>" . htmlspecialchars($row["username"]) . "</td>
@@ -635,7 +623,7 @@ include "../../includes/header.php";
 
                         echo "<tr>
                                         <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                        data-filepath='" . $paperFilePath . "'
+                                        " . ATTR_DATA_FILEPATH . $paperFilePath . QUOTE_SPACE . "
                                         data-files='" . $pub_files_json . "'></td>
                                         <td>" . htmlspecialchars($row["username"]) . "</td>
                                         <td>" . htmlspecialchars($row["branch"]) . "</td>
@@ -706,7 +694,7 @@ include "../../includes/header.php";
 
                         echo "<tr>
                                             <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                                data-filepath='" . $certificatePath . "'
+                                                " . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . "
                                                 data-files='" . $conf_files_json . "'></td>
                                             <td>" . htmlspecialchars($row["username"]) . "</td>
                                             <td>" . htmlspecialchars($row["branch"]) . "</td>
@@ -773,7 +761,7 @@ include "../../includes/header.php";
 
                         echo "<tr>
                                         <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                            data-filepath='" . $patentFilePath . "'
+                                            " . ATTR_DATA_FILEPATH . $patentFilePath . QUOTE_SPACE . "
                                             data-files='" . $pat_files_json . "'></td>
                                         <td>" . htmlspecialchars($row["Username"]) . "</td>
                                         <td>" . htmlspecialchars($row["branch"]) . "</td>

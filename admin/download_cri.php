@@ -1,5 +1,6 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
+require_once "../includes/constants.php";
 
 
 if (!isset($_SESSION['cri_username'])) {
@@ -440,7 +441,7 @@ include "header_admin.php";
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>
                             <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
+                                " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
                                 onchange='trackOrder(event)'></td>
                             <td>" . $id++ . "</td>
                             <td>" . htmlspecialchars($row['faculty_name']) . "</td>

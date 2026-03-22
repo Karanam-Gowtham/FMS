@@ -20,30 +20,42 @@ $show_semester = ($criteria_no === CRIT_6_1_1_A);
 $show_branch_dropdown = in_array($criteria_no, [CRIT_6_1_1_A, CRIT_6_1_1_F, CRIT_6_1_1_I]);
 function processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section) {
     if (!$show_branch_dropdown || !isset($_POST['branch'])) {
-        $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        while ($row = $result->fetch_assoc()) {
-            outputExcelRow($row, $show_section, false, false);
-        }
+        handleExcelNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section);
         return;
     }
 
     $branch = $_POST['branch'];
     if (!$show_semester) {
-        $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ssss', $academic_year, $branch, $criteria, $criteria_no);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        while ($row = $result->fetch_assoc()) {
-            outputExcelRow($row, $show_section, $show_semester, true);
-        }
+        handleExcelNoSemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section);
         return;
     }
 
+    handleExcelWithSemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section, $show_semester);
+}
+
+function handleExcelNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section) {
+    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        outputExcelRow($row, $show_section, false, false);
+    }
+}
+
+function handleExcelNoSemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section) {
+    $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ssss', $academic_year, $branch, $criteria, $criteria_no);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        outputExcelRow($row, $show_section, false, true);
+    }
+}
+
+function handleExcelWithSemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section, $show_semester) {
     $semesters = ($branch == 'BSH') ? range(1, 2) : range(3, 8);
     foreach ($semesters as $sem) {
         $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND sem = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
@@ -63,9 +75,15 @@ if (isset($_POST['download_excel'])) {
     header('Cache-Control: max-age=0');
     
     echo "Username\tFaculty Name\tAcademic Year\t";
-    if ($show_branch_dropdown) { echo "Branch\t"; }
-    if ($show_semester) { echo "Semester\t"; }
-    if ($show_section) { echo "Section\t"; }
+    if ($show_branch_dropdown) {
+        echo "Branch\t";
+    }
+    if ($show_semester) {
+        echo "Semester\t";
+    }
+    if ($show_section) {
+        echo "Section\t";
+    }
     echo "Filename\tUploaded At\n";
 
     processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section);
@@ -78,9 +96,15 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     echo $row['UserName'] . "\t";
     echo $row['faculty_name'] . "\t";
     echo $row['academic_year'] . "\t";
-    if ($show_branch) { echo $row['branch'] . "\t"; }
-    if ($show_semester) { echo $row['sem'] . "\t"; }
-    if ($show_section) { echo $row['section'] . "\t"; }
+    if ($show_branch) {
+        echo $row['branch'] . "\t";
+    }
+    if ($show_semester) {
+        echo $row['sem'] . "\t";
+    }
+    if ($show_section) {
+        echo $row['section'] . "\t";
+    }
     echo $row['file_name'] . "\t";
     $uploadedAt = new DateTime($row['uploaded_at']);
     echo $uploadedAt->format(DATE_FORMAT_DMY . ' H:i:s') . "\n";
@@ -155,43 +179,63 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
 <?php
 function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section, $show_ext_or_Int) {
     if (!$show_branch_dropdown) {
-        $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
-        $stmt->execute();
-        displayFiles($stmt->get_result(), $show_section, false, false);
+        handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section);
         return;
     }
 
-    if (!isset($_POST['upload'])) return;
+    if (!isset($_POST['upload'])) {
+        return;
+    }
 
     $branch = $_POST['branch'] ?? null;
     if ($show_semester) {
-        $semesters = ($branch === 'BSH') ? range(1, 2) : range(3, 8);
-        foreach ($semesters as $sem) {
-            if ($branch !== 'BSH') echo "<h3>SEMISTER - $sem</h3>";
-            $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND sem = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('ssiss', $academic_year, $branch, $sem, $criteria, $criteria_no);
-            $stmt->execute();
-            displayFiles($stmt->get_result(), $show_section, $show_semester, true);
-        }
+        handleDisplaySemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section, $show_semester);
     } elseif ($show_ext_or_Int) {
-        foreach (['Internal', 'External'] as $type) {
-            echo "<h3>$type</h3>";
-            $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? AND ext_or_int = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('sssss', $academic_year, $branch, $criteria, $criteria_no, $type);
-            $stmt->execute();
-            displayFiles($stmt->get_result(), $show_section, false, true, true);
-        }
+        handleDisplayExtInt($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section);
     } else {
-        $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? AND branch = ? ORDER BY uploaded_at DESC";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ssss', $academic_year, $criteria, $criteria_no, $branch);
-        $stmt->execute();
-        displayFiles($stmt->get_result(), $show_section, false, true);
+        handleDisplayDefault($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section);
     }
+}
+
+function handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section) {
+    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
+    $stmt->execute();
+    displayFiles($stmt->get_result(), $show_section, false, false);
+}
+
+function handleDisplaySemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section, $show_semester) {
+    $semesters = ($branch === 'BSH') ? range(1, 2) : range(3, 8);
+    foreach ($semesters as $sem) {
+        if ($branch !== 'BSH') {
+            echo "<h3>SEMISTER - $sem</h3>";
+        }
+        $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND sem = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('ssiss', $academic_year, $branch, $sem, $criteria, $criteria_no);
+        $stmt->execute();
+        displayFiles($stmt->get_result(), $show_section, $show_semester, true);
+    }
+}
+
+function handleDisplayExtInt($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section) {
+    foreach (['Internal', 'External'] as $type) {
+        echo "<h3>$type</h3>";
+        $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? AND ext_or_int = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('sssss', $academic_year, $branch, $criteria, $criteria_no, $type);
+        $stmt->execute();
+        displayFiles($stmt->get_result(), $show_section, false, true, true);
+    }
+}
+
+function handleDisplayDefault($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section) {
+    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? AND branch = ? ORDER BY uploaded_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ssss', $academic_year, $criteria, $criteria_no, $branch);
+    $stmt->execute();
+    displayFiles($stmt->get_result(), $show_section, false, true);
 }
 
 processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section, $show_ext_or_Int);

@@ -1,5 +1,6 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
+require_once "../includes/constants.php";
 
 
 if (!isset($_SESSION['a_username'])) {
@@ -58,10 +59,9 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                             ob_end_clean();
                         }
     
-                        // Set headers specifically for PDF files
-                        header('Content-Type: application/pdf');
-                        header('Content-Disposition: attachment; filename="' . $fileName . '"');
-                        header('Content-Length: ' . filesize($filePath));
+                        header(TYPE_OCTET_STREAM); // PDF is better as octet-stream for direct attachment or specify application/pdf
+                        header(HEADER_CONTENT_DISPOSITION . $fileName . '"');
+                        header(HEADER_CONTENT_LENGTH . filesize($filePath));
                         header('Pragma: public');
                         header('Expires: 0');
                         header('Cache-Control: must-revalidate');
@@ -111,8 +111,8 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     
                 // Set headers for ZIP download
                 header('Content-Type: application/zip');
-                header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
-                header('Content-Length: ' . filesize($zipFilePath));
+                header(HEADER_CONTENT_DISPOSITION . $zipFileName . '"');
+                header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
                 readfile($zipFilePath);
     
                 // Clean up
@@ -131,7 +131,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 
 // Handle Excel Download
 if (isset($_POST['download_excel'])) {
-    header('Content-Type: application/vnd.ms-excel');
+    header(TYPE_EXCEL);
     header('Content-Disposition: attachment;filename="my_uploads.xls"');
     header('Cache-Control: max-age=0');
     
