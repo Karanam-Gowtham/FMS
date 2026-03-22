@@ -27,7 +27,7 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.15" integrity="sha384-9J/eie52OVscsZkst4qvkkOvH3804cvot2wKJLuZ6Hc3C77tNxZeqj3oRcpchvwN" crossorigin="anonymous"></script>
     <style>
         th { position: sticky; top: 0; z-index: 0; }
         .scroll-box::-webkit-scrollbar { height: 8px; }
