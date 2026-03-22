@@ -1,6 +1,6 @@
 <?php
 include "../../includes/connection.php";
-session_start();
+include_once '../../includes/session.php';
 
 if (empty($_SESSION['username']) && empty($_SESSION['a_username']) && empty($_SESSION['j_username']) && empty($_SESSION['h_username']) && empty($_SESSION['admin']) && empty($_SESSION['c_cord'])) {
     echo "<script>

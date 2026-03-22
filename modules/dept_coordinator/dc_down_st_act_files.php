@@ -297,7 +297,7 @@ include "../../includes/header.php";
         const bodiesSubSelectDiv = document.getElementById('bodies-sub-select-div');
 
         function toggleSubSelect() {
-            if (mainSelect.value === 'Professional Bodies') {
+            if (mainSelect.value === '<?php echo PROFESSIONAL_BODIES; ?>') {
                 bodiesSubSelectDiv.style.display = 'block';
                 bodiesSubSelectDiv.style.marginTop = '20px';
             } else {
@@ -358,11 +358,11 @@ include "../../includes/header.php";
                             <option value="Internships" <?= $main_select == 'Internships' ? 'selected' : '' ?>>Internships
                             </option>
                             <option value="SIH" <?= $main_select == 'SIH' ? 'selected' : '' ?>>SIH</option>
-                            <option value="Professional Bodies" <?= $main_select == 'Professional Bodies' ? 'selected' : '' ?>>Professional Bodies</option>
+                            <option value="<?php echo PROFESSIONAL_BODIES; ?>" <?= $main_select == PROFESSIONAL_BODIES ? 'selected' : '' ?>><?php echo PROFESSIONAL_BODIES; ?></option>
                         </select>
                     </div>
                     <div id="bodies-sub-select-div"
-                        style="display: <?= $main_select == 'Professional Bodies' ? 'block' : 'none' ?>;">
+                        style="display: <?= $main_select == PROFESSIONAL_BODIES ? 'block' : 'none' ?>;">
                         <label for="bodies-sub-select">Select Subcategory:</label>
                         <select id="bodies-sub-select" name="bodies_sub_select">
                             <option value="" disabled selected>Choose an option</option>
@@ -577,7 +577,7 @@ include "../../includes/header.php";
                         break;
 
 
-                    case 'Professional Bodies':
+                    case PROFESSIONAL_BODIES:
 
                         echo "<div class='container11'>
                                 <h2>Student Professional Bodies</h2>";

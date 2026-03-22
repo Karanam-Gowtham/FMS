@@ -1,6 +1,6 @@
 <?php
 include "../../includes/connection.php";
-session_start();
+include_once "../../includes/session.php";
 
 if (!isset($_SESSION['j_username'])) {
     die("You need to log in as Jr Assistant to view this page.");

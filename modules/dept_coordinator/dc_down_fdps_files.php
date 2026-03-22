@@ -626,7 +626,7 @@ include "../../includes/header.php";
                         while ($row = $result_published->fetch_assoc()) {
                             $paperFilePath = fixPath($row["paper_file"]);
                             $pub_raw = json_encode(array_values(array_filter([$paperFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                            $pub_json = str_replace('"', '&quot;', $pub_raw);
+                            $pub_json = str_replace('"', HTM_QUOT, $pub_raw);
 
 
                             echo "<tr>

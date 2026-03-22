@@ -25,8 +25,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
 
     $target_dir = "../../uploads/student_act/";
-    if (!is_dir($target_dir))
+    if (!is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
+    }
 
     $certificate_path = "";
     if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] == 0) {

@@ -1,5 +1,5 @@
 <?php
-session_start();
+include_once 'includes/session.php';
 // Fallback: If session is empty but cookie exists, try to re-attach (though session_start does this usually)
 // The issue might be that iframe considers it a separate context if cookies are strict.
 // For now, let's assume standard session behavior.

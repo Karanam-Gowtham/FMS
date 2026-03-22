@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 define('REGEX_UPLOADS', '/uploads\/.*/');
-define('PROFESSIONAL_BODIES', 'Professional Bodies');
 
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("You need to log in to view uploads.");
@@ -332,7 +331,7 @@ include_once "header_hod.php";
                         </option>
                         <option value="SIH" <?= $main_select == 'SIH' ? 'selected' : '' ?>>SIH</option>
                         <option value="<?= PROFESSIONAL_BODIES ?>" <?= $main_select == PROFESSIONAL_BODIES ? 'selected' : '' ?>>
-                            Professional Bodies</option>
+                            <?= PROFESSIONAL_BODIES ?></option>
                     </select>
                 </div>
                 <div id="bodies-sub-select-div" style="display: none;">

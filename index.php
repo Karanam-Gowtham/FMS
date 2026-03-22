@@ -1,5 +1,5 @@
 <?php
-session_start(); // Start session
+include_once 'includes/session.php'; // Secured Session Start
 include "includes/connection.php";
 
 // Define extra head content (CSS/Styles) before including the header

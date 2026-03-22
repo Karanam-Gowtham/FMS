@@ -438,10 +438,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php endif; ?>
                 <?php
                 $display_event = $event;
-                if ($event === 'calendar')
+                if ($event === 'calendar') {
                     $display_event = 'Academic Calendar';
-                else
+                } else {
                     $display_event = ucfirst($event) . ' Files';
+                }
                 ?>
                 <span class="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
                         <?php echo htmlspecialchars($display_event); ?> </a></span>

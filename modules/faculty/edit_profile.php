@@ -1,5 +1,5 @@
 <?php
-session_start();
+include_once '../../includes/session.php';
 require_once '../../includes/connection.php';
 
 if (empty($_SESSION['username'])) {
