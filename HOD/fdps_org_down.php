@@ -1,9 +1,11 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 session_start();
 
 function fixPath($p) {
-    if (empty($p)) return "";
+    if (empty($p)) {
+        return "";
+    }
     $p = htmlspecialchars_decode($p);
     if (preg_match('/uploads[\/\\\\\\\\].*/', $p, $matches)) {
         return "../" . $matches[0];
@@ -60,7 +62,7 @@ if (isset($_POST['download_excel'])) {
     exit;
 }
 
-include "./header_hod.php";
+include_once "./header_hod.php";
 $conn->close();
 ?>
 
@@ -287,7 +289,9 @@ $conn->close();
             for (const fileUrl of files) {
                 try {
                     const response = await fetch(fileUrl);
-                    if (!response.ok) continue;
+                    if (!response.ok) {
+                        continue;
+                    }
                     const fileArrayBuffer = await response.arrayBuffer();
                     const ext = fileUrl.split('.').pop().toLowerCase();
 
@@ -298,8 +302,11 @@ $conn->close();
                         addedPages += pages.length;
                     } else if (['jpg', 'jpeg', 'png'].includes(ext)) {
                         let image;
-                        if (ext === 'png') image = await mergedPdf.embedPng(fileArrayBuffer);
-                        else image = await mergedPdf.embedJpg(fileArrayBuffer);
+                    if (ext === 'png') {
+                        image = await mergedPdf.embedPng(fileArrayBuffer);
+                    } else {
+                        image = await mergedPdf.embedJpg(fileArrayBuffer);
+                    }
                         const { width, height } = image.scale(1);
                         const page = mergedPdf.addPage([width, height]);
                         page.drawImage(image, { x: 0, y: 0, width, height });

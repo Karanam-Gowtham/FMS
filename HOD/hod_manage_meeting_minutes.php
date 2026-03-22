@@ -1,6 +1,6 @@
 <?php
 require_once '../includes/session.php';
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("Unauthorized access.");
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_id'])) {
     if ($action === 'accept') {
         $stmt = $conn->prepare("UPDATE dept_files SET status = 'Accepted', rejection_reason = NULL WHERE id = ?");
         $stmt->bind_param("i", $id);
-    } else if ($action === 'reject') {
+    } elseif ($action === 'reject') {
         $stmt = $conn->prepare("UPDATE dept_files SET status = 'Rejected', rejection_reason = ? WHERE id = ?");
         $stmt->bind_param("si", $reason, $id);
     }
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_action']) && iss
             $zipName = "meeting_minutes_" . time() . ".zip";
             $zipPath = sys_get_temp_dir() . '/' . $zipName;
 
-            if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+            if ($zip->open($zipPath, ZipArchive::CREATE) === true) {
                 foreach ($selectedFiles as $fileId) {
                     $sql = "SELECT file_path FROM dept_files WHERE id = ?";
                     $stmt = $conn->prepare($sql);
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_action']) && iss
     }
 }
 
-include 'header_hod.php';
+include_once 'header_hod.php';
 ?>
 
 <!DOCTYPE html>
@@ -308,18 +308,23 @@ include 'header_hod.php';
 
                         while ($row = $result->fetch_assoc()) {
                             $statusClass = 'status-pending';
-                            if ($row['status'] === 'Accepted')
+                            if ($row['status'] === 'Accepted') {
                                 $statusClass = 'status-accepted';
-                            if ($row['status'] === 'Rejected')
+                            }
+                            if ($row['status'] === 'Rejected') {
                                 $statusClass = 'status-rejected';
+                            }
 
                             $details = "";
-                            if ($row['semester'])
+                            if ($row['semester']) {
                                 $details .= "Sem: " . $row['semester'] . " ";
-                            if ($row['study_year'])
+                            }
+                            if ($row['study_year']) {
                                 $details .= "Year: " . $row['study_year'] . " ";
-                            if ($row['meeting_no'])
+                            }
+                            if ($row['meeting_no']) {
                                 $details .= "Mtg #: " . $row['meeting_no'];
+                            }
 
                             echo "<tr>";
                             echo "<td><input type='checkbox' name='selected_files[]' value='{$row['id']}'></td>";
@@ -410,4 +415,4 @@ include 'header_hod.php';
     </script>
 </body>
 
-</html>
+</html>

@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -133,7 +133,7 @@ if (session_status() === PHP_SESSION_NONE) {
     </style>
 </head>
 <body>
-<?php include 'header_hod.php'; ?>
+<?php include_once 'header_hod.php'; ?>
     <div class="container">
         <?php
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -164,11 +164,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 <tbody>
                 <?php
                     // Define the data
-                    if($academicYear=='2020-21'){
+                    if ($academicYear == '2020-21') {
                         $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    }else if($academicYear=='2021-22'){
+                    } elseif ($academicYear == '2021-22') {
                         $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    }else{
+                    } else {
                         $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' order by 'Sub_no'";
                     }
 

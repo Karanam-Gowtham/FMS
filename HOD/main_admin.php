@@ -1,5 +1,5 @@
 <?php
-    include "./header_hod.php";
+    include_once "./header_hod.php";
     ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,7 +92,9 @@
         <div class="login-container">
             <form action="" method="POST">
                 <h1 id="hav">Admin<br>Log In</h1>
+                <label for="id">User Id:</label>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
+                <label for="pass">Password:</label>
                 <input type="password" name="password" placeholder="Password" id="pass" required />
                 <button type="submit" name="signIn" class="button1">Log In</button>
             </form>

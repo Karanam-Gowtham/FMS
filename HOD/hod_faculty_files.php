@@ -1,14 +1,15 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+define('NOT_SELECTED', 'Not Selected');
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
-$criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
+$criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT_SELECTED;
 ?>
 
 
@@ -181,7 +182,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
     </style>
 </head>
 <body>
-<?php include 'header_hod.php'; ?>
+<?php include_once 'header_hod.php'; ?>
 <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">
@@ -203,17 +204,17 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             // Get values from POST request
             $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : 'Unknown';
-            $academicYear = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : 'Not Selected';
-            $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
+            $academicYear = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : NOT_SELECTED;
+            $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT_SELECTED;
                 
 
             // Display the AQAR heading and selected details
             echo "<h1>AQAR - " . $academicYear . "</h1>";
-        }else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Get values from POST request
             $designation = isset($_POST['designation']) ? htmlspecialchars($_POST['designation']) : 'Unknown';
-            $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : 'Not Selected';
-            $criteria = isset($_POST['criteria']) ? htmlspecialchars($_POST['criteria']) : 'Not Selected';
+            $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : NOT_SELECTED;
+            $criteria = isset($_POST['criteria']) ? htmlspecialchars($_POST['criteria']) : NOT_SELECTED;
                 
 
             // Display the AQAR heading and selected details
@@ -232,19 +233,19 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
                     <th colspan="4" id="th1">Criteria <?php echo $criteria; ?></th>
                 </tr>
                 <tr id="tr2">
-                    <th>Criteria No</th>
-                    <th>Description</th>
-                    <th>Action</th>
+                    <th scope="col" id="col_crit_no">Criteria No</th>
+                    <th scope="col" id="col_desc">Description</th>
+                    <th scope="col" id="col_action">Action</th>
                 </tr>
             </thead>
                 <tbody>
                 <?php
                     // Define the data
-                    if($academicYear=='2020-21'){
+                    if ($academicYear == '2020-21') {
                         $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    }else if($academicYear=='2021-22'){
+                    } elseif ($academicYear == '2021-22') {
                         $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    }else{
+                    } else {
                         $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' order by 'Sub_no'";
                     }
 

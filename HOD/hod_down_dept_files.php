@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -14,8 +14,9 @@ if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
 
 function fixPath($p)
 {
-    if (empty($p))
+    if (empty($p)) {
         return "";
+    }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
     if (preg_match('/uploads\/.*/', $p, $matches)) {
@@ -24,10 +25,16 @@ function fixPath($p)
     return $p;
 }
 
-$username = isset($_SESSION['h_username']) ? $_SESSION['h_username'] : $_SESSION['admin'];
+$username = $_SESSION['h_username'] ?? $_SESSION['admin'];
 
 // Get selected branch
-$selected_branch = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['selected_branch']) ? $_POST['selected_branch'] : ($_SESSION['dept'] ?? ''));
+if (isset($_GET['dept'])) {
+    $selected_branch = $_GET['dept'];
+} elseif (isset($_POST['selected_branch'])) {
+    $selected_branch = $_POST['selected_branch'];
+} else {
+    $selected_branch = $_SESSION['dept'] ?? '';
+}
 
 // Get file_type1 (action/category)
 if (isset($_GET['event'])) {
@@ -93,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_files']) && 
     }
 }
 
-include "header_hod.php";
+include_once "header_hod.php";
 ?>
 
 <!DOCTYPE html>
@@ -312,9 +319,9 @@ include "header_hod.php";
                 <span>&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../admin/admins.php?dept=<?php echo urlencode($selected_branch); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($selected_branch); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
+                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
                         class="home-icon">HOD</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
+                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
                         class="main-a">Dept_Files(<?php echo htmlspecialchars($action1); ?>) </a></span>
             </div>
         </div>

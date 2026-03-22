@@ -1,18 +1,18 @@
 <?php
-include "../includes/connection.php";
-include "./header_hod.php";
+include_once "../includes/connection.php";
+include_once "./header_hod.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : 'aa';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
 
-if(isset($_POST['criteria'])){
+if (isset($_POST['criteria'])) {
     $criteria = htmlspecialchars($_POST['criteria']);
-}else{
+} else {
     $criteria = htmlspecialchars($_GET['criteria']);
 }
-if(isset($_POST['year'])){
+if (isset($_POST['year'])) {
     $academicYear = htmlspecialchars($_POST['year']);
-}else{
+} else {
     $academicYear = htmlspecialchars($_GET['year']);
 }
 ?>
@@ -213,7 +213,7 @@ if(isset($_POST['year'])){
 
             if ($academicYear == '2020-21') {
                 $sql = "DELETE FROM criteria1 WHERE SI_no=? AND Sub_no=?";
-            } else if ($academicYear == '2021-22') {
+            } elseif ($academicYear == '2021-22') {
                 $sql = "DELETE FROM criteria2 WHERE SI_no=? AND Sub_no=?";
             } else {
                 $sql = "DELETE FROM criteria WHERE SI_no=? AND Sub_no=?";
@@ -247,7 +247,7 @@ if(isset($_POST['year'])){
             <?php
             if ($academicYear == '2020-21') {
                 $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' ORDER BY Sub_no";
-            } else if ($academicYear == '2021-22') {
+            } elseif ($academicYear == '2021-22') {
                 $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' ORDER BY Sub_no";
             } else {
                 $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' ORDER BY Sub_no";

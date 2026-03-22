@@ -1,7 +1,7 @@
 <?php
 ob_start();
 ini_set('display_errors', 0);
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -20,8 +20,9 @@ if (isset($_GET['dept'])) {
 
 function fixPath($p)
 {
-    if (empty($p))
+    if (empty($p)) {
         return "";
+    }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
     if (preg_match('/uploads\/.*/', $p, $matches)) {
@@ -94,8 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
     // HOD actions: mainly download. Delete is disabled for safety unless requested.
     if ($action == 'download') {
-        if (ob_get_length())
+        if (ob_get_length()) {
             ob_end_clean();
+        }
 
         if (count($selectedFiles) == 1) {
             $fileId = $selectedFiles[0];
@@ -250,7 +252,7 @@ if (isset($_POST['export_fdps']) || isset($_POST['export_fdps_org']) || isset($_
     exit;
 }
 
-include "header_hod.php";
+include_once "header_hod.php";
 ?>
 
 <!DOCTYPE html>
@@ -284,9 +286,9 @@ include "header_hod.php";
                 <span>&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
+                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
                         class="home-icon">HOD</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
+                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
                         class="main-a"><?php echo ($catg === 'fdps') ? 'fdps_attended' : htmlspecialchars($catg); ?>_Files</a></span>
             </div>
         </div>

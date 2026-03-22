@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 // Enable error reporting for debugging
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -74,7 +74,7 @@ if (isset($_POST['download_excel'])) {
     exit();
 }
 
-include "header_hod.php";
+include_once "header_hod.php";
 function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     echo $row['UserName'] . "\t";
     echo $row['faculty_name'] . "\t";
@@ -194,7 +194,7 @@ if ($show_branch_dropdown ) {
                     displayFiles($result, $show_section, $show_semester, true);
                 }
             }
-        }else if($show_ext_or_Int){
+        } elseif ($show_ext_or_Int) {
             $query = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? AND ext_or_int = ?" ;
             $ext_or_int1 = 'Internal';
             $stmt = $conn->prepare($query);

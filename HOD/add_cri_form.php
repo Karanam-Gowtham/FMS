@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 
 // Enable exception mode for mysqli
@@ -11,8 +11,8 @@ $year = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : 'Not Selected';
 
 try {
     // Get the academic year and criteria from the POST request
-    $academic_year = isset($_POST['academic_year']) ? $_POST['academic_year'] : (isset($_GET['year']) ? $_GET['year'] : '');
-    $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : (isset($_GET['criteria']) ? $_GET['criteria'] : '');
+    $academic_year = $_POST['academic_year'] ?? $_GET['year'] ?? '';
+    $criteria = $_POST['criteria'] ?? $_GET['criteria'] ?? '';
 
     // Check if the upload form was submitted
     if (isset($_POST['upload'])) {
@@ -23,7 +23,7 @@ try {
         // Determine the correct table based on academic year
         if ($academic_year == '2020-21') {
             $stmt = $conn->prepare("INSERT INTO criteria1 ( SI_no , Sub_no, Des, year) VALUES (?, ?, ?, ?)");
-        } else if ($academic_year == '2021-22') {
+        } elseif ($academic_year == '2021-22') {
             $stmt = $conn->prepare("INSERT INTO criteria2 ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
         } else {
             $stmt = $conn->prepare("INSERT INTO criteria ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
@@ -54,8 +54,8 @@ $conn->close();
 
 
 <?php
-    include "./header_hod.php";
-    ?>
+include_once "./header_hod.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

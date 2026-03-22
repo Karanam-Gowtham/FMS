@@ -1,5 +1,7 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
+
+define('STATUS_ACCEPTED', 'Accepted');
 
 session_start();
 
@@ -16,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Query to fetch records based on the branch
-    $stmt = $conn->prepare("SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'");
+    $stmt = $conn->prepare("SELECT * FROM patents_table WHERE branch = ? AND status = '" . STATUS_ACCEPTED . "'");
     $stmt->bind_param("s", $branch);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -38,7 +40,7 @@ if (isset($_POST['download_excel'])) {
     header("Expires: 0");
 
     // Query to fetch records for the branch
-    $stmt = $conn->prepare("SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'");
+    $stmt = $conn->prepare("SELECT * FROM patents_table WHERE branch = ? AND status = '" . STATUS_ACCEPTED . "'");
     $stmt->bind_param("s", $branch);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -56,7 +58,7 @@ if (isset($_POST['download_excel'])) {
     exit;
 }
 
-include "./header_hod.php";
+include_once "./header_hod.php";
 $conn->close();
 ?>
 
@@ -252,9 +254,6 @@ $conn->close();
                                         <?php } else { ?>
                                             No File
                                         <?php } ?>
-                                    </td>
-
-
                                     </td>
                                     <td><?php echo htmlspecialchars($record['submission_time']); ?></td>
                                 </tr>
