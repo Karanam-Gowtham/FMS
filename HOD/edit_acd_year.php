@@ -1,7 +1,7 @@
 <?php
 // Include database connection
-include '../includes/connection.php';
-include "./header_hod.php";
+include_once '../includes/connection.php';
+include_once "./header_hod.php";
 
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';

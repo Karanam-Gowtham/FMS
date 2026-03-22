@@ -112,7 +112,7 @@ require_once '../includes/session.php';
     </style>
 </head>
 <body>
-<?php include 'header_hod.php'; ?>
+<?php include_once 'header_hod.php'; ?>
     <div class="container11">
         <h1>AQARs Supporting Documents</h1>
         <form action="files_cor.php" method="POST">

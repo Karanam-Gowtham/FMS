@@ -1,5 +1,5 @@
 <?php
-    include "../includes/connection.php";
+    include_once "../includes/connection.php";
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -175,7 +175,7 @@ if (isset($_GET['download_excel'])) {
     </style>
 </head>
 <?php
-    include "header_hod.php";
+    include_once "header_hod.php";
 ?>
 <body>
     <div class="container11">

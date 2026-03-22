@@ -1,16 +1,21 @@
 <?php
 require_once '../includes/session.php';
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 if (!isset($_SESSION['admin'])) {
     die("Unauthorized access. Please log in as Admin.");
 }
 
-$dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SESSION['dept'] : '');
+$dept = '';
+if (isset($_GET['dept'])) {
+    $dept = $_GET['dept'];
+} elseif (isset($_SESSION['dept'])) {
+    $dept = $_SESSION['dept'];
+}
 $designation = "admin";
 $event = "aa"; // Default event for admin
 
-include 'header_hod.php';
+include_once 'header_hod.php';
 ?>
 
 <!DOCTYPE html>

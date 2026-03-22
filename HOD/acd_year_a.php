@@ -97,7 +97,7 @@ require_once '../includes/session.php';
 </head>
 
 <body>
-    <?php include 'header_hod.php'; ?>
+    <?php include_once 'header_hod.php'; ?>
     <main class="main-content">
         <div class="container">
             <!-- Achievements Section -->

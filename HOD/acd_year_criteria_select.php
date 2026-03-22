@@ -1,6 +1,6 @@
 <?php
 require_once '../includes/session.php';
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 if (!isset($_SESSION['admin'])) {
     die("Unauthorized access. Please log in as Admin.");
@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin'])) {
 $designation = "admin";
 $event = "aa";
 
-include 'header_hod.php';
+include_once 'header_hod.php';
 ?>
 
 <!DOCTYPE html>

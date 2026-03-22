@@ -9,10 +9,15 @@ $academic_year = isset($_POST['academic_year']) ? $_POST['academic_year'] : '';
 $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
 $criteria_no = isset($_POST['criteria_no']) ? $_POST['criteria_no'] : '';
 
-$show_section = ($criteria_no == '6.1.1(A)') ? true : false;
-$show_ext_or_Int = ($criteria_no == '6.1.1(I)') ? true : false; //ext or int
-$show_semester = ($criteria_no == '6.1.1(A)') ? true : false; // Show semester-wise for 6.1.1(A)
-$show_branch_dropdown = ($criteria_no == '6.1.1(A)' || $criteria_no == '6.1.1(F)' || $criteria_no == '6.1.1(I)' ) ? true : false; // Display branch dropdown for specific criteria_no
+define('CRIT_6_1_1_A', '6.1.1(A)');
+define('CRIT_6_1_1_I', '6.1.1(I)');
+define('CRIT_6_1_1_F', '6.1.1(F)');
+define('DATE_FORMAT_DMY', 'd/m/Y');
+
+$show_section = ($criteria_no === CRIT_6_1_1_A);
+$show_ext_or_Int = ($criteria_no === CRIT_6_1_1_I);
+$show_semester = ($criteria_no === CRIT_6_1_1_A);
+$show_branch_dropdown = in_array($criteria_no, [CRIT_6_1_1_A, CRIT_6_1_1_F, CRIT_6_1_1_I]);
 if (isset($_POST['download_excel'])) {
     // Set headers for Excel download
     header('Content-Type: application/vnd.ms-excel');
@@ -90,7 +95,7 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     }
     echo $row['file_name'] . "\t";
     $uploadedAt = new DateTime($row['uploaded_at']);
-    echo $uploadedAt->format('d/m/Y H:i:s') . "\n";
+    echo $uploadedAt->format(DATE_FORMAT_DMY . ' H:i:s') . "\n";
 }
 ?>
 
@@ -162,154 +167,66 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
         <?php endif; ?>
 
 <?php
-if ($show_branch_dropdown ) {
-    if (isset($_POST['upload'])) {
-        $academic_year = $_POST['academic_year'];
-        $criteria = $_POST['criteria'];
-        $criteria_no = $_POST['criteria_no'];
-        $branch = isset($_POST['branch']) ? $_POST['branch'] : null;  // Branch is only set if the dropdown is visible
+if (!$show_branch_dropdown) {
+    // Logic when the branch dropdown is not visible (no branch filtering)
+    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    displayFiles($result, $show_section, false, false);
+} elseif (isset($_POST['upload'])) {
+    $academic_year = $_POST['academic_year'];
+    $criteria = $_POST['criteria'];
+    $criteria_no = $_POST['criteria_no'];
+    $branch = $_POST['branch'] ?? null;
 
-        // If branch dropdown is shown, process branch filtering; otherwise, continue without branch
-        if($show_semester){
-            // Process with the branch dropdown logic
-            if ($show_semester && $branch == 'BSH') {
-                for ($sem = 1; $sem <= 2; $sem++) {
-                    // SQL query for files filtering based on semester, academic year, branch, criteria, and criteria_no
-                    $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND sem = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param('ssiss', $academic_year, $branch, $sem, $criteria, $criteria_no);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    displayFiles($result, $show_section, $show_semester, true);
-                }
-            } else {
-                // Process for other semesters or criteria
-                for ($sem = 3; $sem <= 8; $sem++) {
-                    $query = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND sem = ? AND criteria = ? AND criteria_no = ?";
-                    $stmt = $conn->prepare($query);
-                    $stmt->bind_param('ssiss', $academic_year, $branch, $sem, $criteria, $criteria_no);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    ?><h3>SEMISTER - <?php echo "$sem"?></h3><?php
-                    displayFiles($result, $show_section, $show_semester, true);
-                }
+    if ($show_semester) {
+        $semesters = ($branch === 'BSH') ? range(1, 2) : range(3, 8);
+        foreach ($semesters as $sem) {
+            if ($branch !== 'BSH') {
+                echo "<h3>SEMISTER - $sem</h3>";
             }
-        } elseif ($show_ext_or_Int) {
-            $query = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? AND ext_or_int = ?" ;
-            $ext_or_int1 = 'Internal';
-            $stmt = $conn->prepare($query);
-            // Change 'ssiss' to 'ssss' if all are strings
-            $stmt->bind_param('sssss', $academic_year, $branch, $criteria, $criteria_no,$ext_or_int1);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $query1 = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? AND ext_or_int = ?" ;
-            $ext_or_int2 = 'External';
-            $stmt1 = $conn->prepare($query1);
-            // Change 'ssiss' to 'ssss' if all are strings
-            $stmt1->bind_param('sssss', $academic_year, $branch, $criteria, $criteria_no,$ext_or_int2);
-            $stmt1->execute();
-            $result1 = $stmt1->get_result();
-            ?> <h3>Internal</h3>  <?php
-
-            echo "<table><tr>
-            <th>Username</th>
-            <th>Faculty Name</th>
-            <th>Academic Year</th>
-            <th>Filename</th>
-            <th>Ext_or_Int</th>
-            <th>Uploaded At</th>
-            <th>View</th>
-            <th>Download</th>
-            </tr>";
-
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['UserName']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['faculty_name']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['academic_year']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['ext_or_int']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
-
-                    $uploadedAt = new DateTime($row['uploaded_at']);
-                    $formattedDateTime = $uploadedAt->format('d/m/Y') . ' & ' . $uploadedAt->format('H:i:s');
-                    echo "<td>" . $formattedDateTime . "</td>";
-
-                    echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
-                    echo "<td><a href='" . htmlspecialchars('../'.$row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='" . ($show_section ? "9" : "8") . "' id='nod'>No files found</td></tr>";
-            }
-            echo "</table>";
-
-            ?> <h3>External</h3>  <?php
-            echo "<table><tr>
-            <th>Username</th>
-            <th>Faculty Name</th>
-            <th>Academic Year</th>
-            <th>Filename</th>
-            <th>Ext_or_Int</th>
-            <th>Uploaded At</th>
-            <th>View</th>
-            <th>Download</th>
-            </tr>";
-
-            if ($result1->num_rows > 0) {
-                while ($row = $result1->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['UserName']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['faculty_name']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['academic_year']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['ext_or_int']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
-
-                    $uploadedAt = new DateTime($row['uploaded_at']);
-                    $formattedDateTime = $uploadedAt->format('d/m/Y') . ' & ' . $uploadedAt->format('H:i:s');
-                    echo "<td>" . $formattedDateTime . "</td>";
-
-                    echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
-                    echo "<td><a href='" . htmlspecialchars('../'.$row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='" . ($show_section ? "9" : "8") . "' id='nod'>No files found</td></tr>";
-            }
-            echo "</table>";
-        }
-        else{
-            $sql = "SELECT * FROM files WHERE academic_year = ?  AND criteria = ? AND criteria_no = ? AND branch = ? ORDER BY uploaded_at DESC";
+            $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND sem = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
+            $stmt->bind_param('ssiss', $academic_year, $branch, $sem, $criteria, $criteria_no);
             $stmt->execute();
-            $result = $stmt->get_result();
-            displayFiles($result, $show_section, false, $show_branch_dropdown);
+            displayFiles($stmt->get_result(), $show_section, $show_semester, true);
         }
+    } elseif ($show_ext_or_Int) {
+        foreach (['Internal', 'External'] as $type) {
+            echo "<h3>$type</h3>";
+            $sql = "SELECT * FROM files WHERE academic_year = ? AND branch = ? AND criteria = ? AND criteria_no = ? AND ext_or_int = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('sssss', $academic_year, $branch, $criteria, $criteria_no, $type);
+            $stmt->execute();
+            displayFiles($stmt->get_result(), $show_section, false, true, true);
         }
     } else {
-        // Logic when the branch dropdown is not visible (no branch filtering)
-        $sql = "SELECT * FROM files WHERE academic_year = ?  AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+        $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? AND branch = ? ORDER BY uploaded_at DESC";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
+        $stmt->bind_param('ssss', $academic_year, $criteria, $criteria_no, $branch);
         $stmt->execute();
-        $result = $stmt->get_result();
-        displayFiles($result, $show_section, false, false);
+        displayFiles($stmt->get_result(), $show_section, false, true);
     }
+}
 
-function displayFiles($result, $show_section, $show_semester,$show_branch_dropdown1){
+function displayFiles($result, $show_section, $show_semester, $show_branch, $show_ext_int = false) {
     echo "<table><tr>
             <th>Username</th>
             <th>Faculty Name</th>
             <th>Academic Year</th>";
-    if ($show_branch_dropdown1) {
-        echo    "<th>Branch</th>";
+    if ($show_branch) {
+        echo "<th>Branch</th>";
     }
     if ($show_semester) {
         echo "<th>Semester</th>";
     }
     if ($show_section) {
         echo "<th>Section</th>";
+    }
+    if ($show_ext_int) {
+        echo "<th>Ext_or_Int</th>";
     }
     echo "<th>Filename</th>
           <th>Uploaded At</th>
@@ -323,7 +240,7 @@ function displayFiles($result, $show_section, $show_semester,$show_branch_dropdo
             echo "<td>" . htmlspecialchars($row['UserName']) . "</td>";
             echo "<td>" . htmlspecialchars($row['faculty_name']) . "</td>";
             echo "<td>" . htmlspecialchars($row['academic_year']) . "</td>";
-            if ($show_branch_dropdown1) {
+            if ($show_branch) {
                 echo "<td>" . htmlspecialchars($row['branch']) . "</td>";
             }
             if ($show_semester) {
@@ -332,18 +249,25 @@ function displayFiles($result, $show_section, $show_semester,$show_branch_dropdo
             if ($show_section) {
                 echo "<td>" . htmlspecialchars($row['section']) . "</td>";
             }
+            if ($show_ext_int) {
+                echo "<td>" . htmlspecialchars($row['ext_or_int']) . "</td>";
+            }
             echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
 
             $uploadedAt = new DateTime($row['uploaded_at']);
-            $formattedDateTime = $uploadedAt->format('d/m/Y') . ' & ' . $uploadedAt->format('H:i:s');
-            echo "<td>" . $formattedDateTime . "</td>";
+            echo "<td>" . $uploadedAt->format(DATE_FORMAT_DMY . ' & H:i:s') . "</td>";
 
             echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
-            echo "<td><a href='" . htmlspecialchars('../'.$row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
+            echo "<td><a href='" . htmlspecialchars('../' . $row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
             echo "</tr>";
         }
     } else {
-        echo "<tr><td colspan='" . ($show_section ? "9" : "8") . "' id='nod'>No files found</td></tr>";
+        $colspan = 8 + ($show_branch ? 1 : 0) + ($show_semester ? 1 : 0) + ($show_section ? 1 : 0) + ($show_ext_int ? 1 : 0) - 3; // base columns + additives
+        // Wait, simplified: View/Download are 2, uploaded at 1, filename 1. base is 4 + branch/sem/sec/ext.
+        // Let's just use a large enough number or calculate precisely if needed.
+        // Base is Username, FacName, AcdYear, Filename, UploadedAt, View, Download = 7.
+        $colspan = 7 + ($show_branch ? 1 : 0) + ($show_semester ? 1 : 0) + ($show_section ? 1 : 0) + ($show_ext_int ? 1 : 0);
+        echo "<tr><td colspan='$colspan' id='nod'>No files found</td></tr>";
     }
     echo "</table>";
 }

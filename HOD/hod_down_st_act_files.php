@@ -4,6 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+define('REGEX_UPLOADS', '/uploads\/.*/');
+define('PROFESSIONAL_BODIES', 'Professional Bodies');
+
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("You need to log in to view uploads.");
 }
@@ -15,7 +18,7 @@ function fixPath($p)
     }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
-    if (preg_match('/uploads\/.*/', $p, $matches)) {
+    if (preg_match(REGEX_UPLOADS, $p, $matches)) {
         return "../" . $matches[0];
     }
     return $p;
@@ -48,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $tableName = 's_conference_tab';
             $fileColumn = 'certificate_path';
             break;
-        case 'Professional Bodies':
+        case PROFESSIONAL_BODIES:
             $tableName = 's_bodies';
             $fileColumn = 'certificate_path';
             break;
@@ -79,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
             if ($file && !empty($file[$fileColumn])) {
                 $filePath = $file[$fileColumn];
-                if (preg_match('/uploads\/.*/', $filePath, $matches)) {
+                if (preg_match(REGEX_UPLOADS, $filePath, $matches)) {
                     $filePath = "../" . $matches[0];
                 }
 
@@ -112,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
                     if ($file && !empty($file[$fileColumn])) {
                         $filePath = $file[$fileColumn];
-                        if (preg_match('/uploads\/.*/', $filePath, $matches)) {
+                        if (preg_match(REGEX_UPLOADS, $filePath, $matches)) {
                             $filePath = "../" . $matches[0];
                         }
 
@@ -255,7 +258,7 @@ include_once "header_hod.php";
             const mainSelect = document.getElementById('main-select');
             const bodiesSubSelectDiv = document.getElementById('bodies-sub-select-div');
             function toggleSubSelect() {
-                if (mainSelect && mainSelect.value === 'Professional Bodies') {
+                if (mainSelect && mainSelect.value === '<?= PROFESSIONAL_BODIES ?>') {
                     bodiesSubSelectDiv.style.display = 'block';
                     bodiesSubSelectDiv.style.marginTop = '20px';
                 } else if (bodiesSubSelectDiv) {
@@ -328,7 +331,7 @@ include_once "header_hod.php";
                         <option value="Internships" <?= $main_select == 'Internships' ? 'selected' : '' ?>>Internships
                         </option>
                         <option value="SIH" <?= $main_select == 'SIH' ? 'selected' : '' ?>>SIH</option>
-                        <option value="Professional Bodies" <?= $main_select == 'Professional Bodies' ? 'selected' : '' ?>>
+                        <option value="<?= PROFESSIONAL_BODIES ?>" <?= $main_select == PROFESSIONAL_BODIES ? 'selected' : '' ?>>
                             Professional Bodies</option>
                     </select>
                 </div>
@@ -388,7 +391,7 @@ include_once "header_hod.php";
                 } else {
                     echo "<p>No Conferences found.</p>";
                 }
-            } elseif ($main_select == 'Professional Bodies' && $bodies_sub_select) {
+            } elseif ($main_select == PROFESSIONAL_BODIES && $bodies_sub_select) {
                 $sql = "SELECT * FROM s_bodies WHERE Body = ? AND branch = ? AND status = 'Accepted'";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("ss", $bodies_sub_select, $dept);
@@ -396,7 +399,7 @@ include_once "header_hod.php";
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
                     echo "<h2>Student Professional Bodies - " . htmlspecialchars($bodies_sub_select) . "</h2>";
-                    echo "<form method='POST'><input type='hidden' name='main_select' value='Professional Bodies'><input type='hidden' name='bodies_sub_select' value='" . htmlspecialchars($bodies_sub_select) . "'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Date</th></tr>";
+                    echo "<form method='POST'><input type='hidden' name='main_select' value='" . PROFESSIONAL_BODIES . "'><input type='hidden' name='bodies_sub_select' value='" . htmlspecialchars($bodies_sub_select) . "'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Date</th></tr>";
                     while ($row = $result->fetch_assoc()) {
                         $path = fixPath($row['certificate_path']);
                         echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['ID'] . "' data-filepath='$path'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['event_name']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td></tr>";

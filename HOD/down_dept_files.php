@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 // Check connection
 if ($conn->connect_error) {
@@ -17,9 +17,6 @@ if (!$event) {
 
 
 if (isset($_POST['download_excel'])) {
-    if (isset($file_type)) {
-
-    }
     $department = $_POST['branch'] ?? '';
 
     // Set headers for Excel file download
@@ -58,7 +55,7 @@ if (isset($_POST['download_excel'])) {
     exit;
 }
 
-include "./header_hod.php";
+include_once "./header_hod.php";
 
 ?>
 
@@ -297,20 +294,6 @@ include "./header_hod.php";
                                     <a href='$filePath' download class='btn download-btn'>Download</a>
                                 </td>
                             </tr>";
-                }
-
-                echo "</tbody>" ?>
-                <?php
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>
-                            <td>" . htmlspecialchars($row['username']) . "</td>
-                            <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
-                            <td>" . htmlspecialchars($row['file_name']) . "</td>
-                            <td>
-                                <a href='../" . htmlspecialchars($row['file_path']) . "' target='_blank' class='btn view-btn'>View</a>
-                                <a href='../" . htmlspecialchars($row['file_path']) . "' download class='btn download-btn'>Download</a>
-                            </td>
-                        </tr>";
                 }
 
                 echo "</tbody></table>";

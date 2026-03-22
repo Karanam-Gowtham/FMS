@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 session_start();
 
@@ -62,7 +62,7 @@ if (isset($_POST['download_excel'])) {
 }
 
 
-include "./header_hod.php";
+include_once "./header_hod.php";
 $conn->close();
 ?>
 

@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/session.php';
 require_once '../includes/csrf.php';
-include '../includes/connection.php';
+include_once '../includes/connection.php';
 
 
 $dept = isset($_GET['dept']) ? htmlspecialchars($_GET['dept']) : '';
@@ -164,7 +164,7 @@ if (isset($_POST['signIn'])) {
     </style>
 </head>
 <body>
-<?php include 'header_hod.php'; ?>
+<?php include_once 'header_hod.php'; ?>
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">

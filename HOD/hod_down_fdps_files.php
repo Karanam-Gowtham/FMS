@@ -6,6 +6,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+define('REGEX_UPLOADS', '/uploads\/.*/');
+define('PATH_UP_UP', '../../');
+define('ATTR_DATA_FILEPATH', "' data-filepath='");
+define('ATTR_DATA_FILES', "' data-files='");
+define('HTML_QUOT', '&quot;');
+define('HTML_AMP', '&amp;');
+define('HTML_X2F', '&#x2F;');
+
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("You need to log in to view uploads.");
 }
@@ -25,14 +33,14 @@ function fixPath($p)
     }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
-    if (preg_match('/uploads\/.*/', $p, $matches)) {
+    if (preg_match(REGEX_UPLOADS, $p, $matches)) {
         $foundPath = $matches[0];
         if (file_exists("../" . $foundPath)) {
             return "../" . $foundPath;
         } elseif (file_exists($foundPath)) {
             return $foundPath;
-        } elseif (file_exists("../../" . $foundPath)) {
-            return "../../" . $foundPath;
+        } elseif (file_exists(PATH_UP_UP . $foundPath)) {
+            return PATH_UP_UP . $foundPath;
         }
         return "../" . $foundPath; // Default
     }
@@ -111,14 +119,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             if ($file && !empty($file[$fileColumn])) {
                 $filePath = $file[$fileColumn];
                 $p = str_replace('\\', '/', $filePath);
-                if (preg_match('/uploads\/.*/', $p, $matches)) {
+                if (preg_match(REGEX_UPLOADS, $p, $matches)) {
                     $foundPath = $matches[0];
                     if (file_exists("../" . $foundPath)) {
                         $p = "../" . $foundPath;
                     } elseif (file_exists($foundPath)) {
                         $p = $foundPath;
-                    } elseif (file_exists("../../" . $foundPath)) {
-                        $p = "../../" . $foundPath;
+                    } elseif (file_exists(PATH_UP_UP . $foundPath)) {
+                        $p = PATH_UP_UP . $foundPath;
                     }
                 }
 
@@ -154,14 +162,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     if ($file && !empty($file[$fileColumn])) {
                         $f = $file[$fileColumn];
                         $p = str_replace('\\', '/', $f);
-                        if (preg_match('/uploads\/.*/', $p, $matches)) {
+                        if (preg_match(REGEX_UPLOADS, $p, $matches)) {
                             $foundPath = $matches[0];
                             if (file_exists("../" . $foundPath)) {
                                 $p = "../" . $foundPath;
                             } elseif (file_exists($foundPath)) {
                                 $p = $foundPath;
-                            } elseif (file_exists("../../" . $foundPath)) {
-                                $p = "../../" . $foundPath;
+                            } elseif (file_exists(PATH_UP_UP . $foundPath)) {
+                                $p = PATH_UP_UP . $foundPath;
                             }
                         }
                         if (file_exists($p)) {
@@ -340,21 +348,21 @@ include_once "header_hod.php";
                             <input type='hidden' name='category' value='fdps'>
                             <table border='1'>
                                 <tr>
-                                    <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
-                                    <th>Username</th>
-                                    <th>Branch</th>
-                                    <th>Title</th>
-                                    <th>Date From</th>
-                                    <th>Date To</th>
-                                    <th>Organised By</th>
-                                    <th>Location</th>
+                                    <th scope='col' id='th_select_all'><input type='checkbox' onclick='toggleSelectAll(this)' onkeydown='if(event.key === \"Enter\") this.click()'></th>
+                                    <th scope='col' id='th_username'>Username</th>
+                                    <th scope='col' id='th_branch'>Branch</th>
+                                    <th scope='col' id='th_title'>Title</th>
+                                    <th scope='col' id='th_date_from'>Date From</th>
+                                    <th scope='col' id='th_date_to'>Date To</th>
+                                    <th scope='col' id='th_organised_by'>Organised By</th>
+                                    <th scope='col' id='th_location'>Location</th>
                                 </tr>";
                         while ($row = $result->fetch_assoc()) {
                             $path = fixPath($row["certificate"]);
                             $f_raw = json_encode(array_values(array_filter([$path], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                            $f_json = str_replace('"', '&quot;', $f_raw);
+                            $f_json = str_replace('"', HTML_QUOT, $f_raw);
                             echo "<tr>
-                                <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $path . "' data-files='" . $f_json . "'></td>
+                                <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' " . ATTR_DATA_FILEPATH . $path . ATTR_DATA_FILES . $f_json . "'></td>
                                 <td>" . htmlspecialchars($row['username']) . "</td>
                                 <td>" . htmlspecialchars($row['branch']) . "</td>
                                 <td>" . htmlspecialchars($row['title']) . "</td>
@@ -411,7 +419,7 @@ include_once "header_hod.php";
                                 return strlen($f) > 3;
                             });
                             $files_json_raw = json_encode(array_values($files_to_merge), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                            $files_json = str_replace('"', '&quot;', $files_json_raw);
+                            $files_json = str_replace('"', HTML_QUOT, $files_json_raw);
 
                             $record_title = htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8');
 
@@ -450,8 +458,8 @@ include_once "header_hod.php";
                         while ($row = $result->fetch_assoc()) {
                             $path = fixPath($row["paper_file"]);
                             $pf_raw = json_encode(array_values(array_filter([$path], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                            $pf_json = str_replace('"', '&quot;', $pf_raw);
-                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $path . "' data-files='" . $pf_json . "'></td><td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['journal_name']) . "</td><td>" . htmlspecialchars($row['indexing']) . "</td><td>" . htmlspecialchars($row['date_of_submission']) . "</td><td>" . htmlspecialchars($row['quality_factor']) . "</td><td>" . htmlspecialchars($row['impact_factor']) . "</td><td>" . htmlspecialchars($row['payment']) . "</td></tr>";
+                            $pf_json = str_replace('"', HTML_QUOT, $pf_raw);
+                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' " . ATTR_DATA_FILEPATH . $path . ATTR_DATA_FILES . $pf_json . "'></td><td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['journal_name']) . "</td><td>" . htmlspecialchars($row['indexing']) . "</td><td>" . htmlspecialchars($row['date_of_submission']) . "</td><td>" . htmlspecialchars($row['quality_factor']) . "</td><td>" . htmlspecialchars($row['impact_factor']) . "</td><td>" . htmlspecialchars($row['payment']) . "</td></tr>";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button></div></form>";
                     } else {
@@ -478,8 +486,8 @@ include_once "header_hod.php";
                             $paper_path = fixPath($row["paper_file_path"]);
                             $cf_arr = array_values(array_filter([$cert_path, $paper_path], fn($f) => strlen($f) > 3));
                             $cf_raw = json_encode($cf_arr, JSON_UNESCAPED_SLASHES);
-                            $cf_json = str_replace('"', '&quot;', $cf_raw);
-                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $cert_path . "' data-files='" . $cf_json . "'></td><td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td><td>" . htmlspecialchars($row['to_date']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['location']) . "</td><td>" . htmlspecialchars($row['paper_type']) . "</td></tr>";
+                            $cf_json = str_replace('"', HTML_QUOT, $cf_raw);
+                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' " . ATTR_DATA_FILEPATH . $cert_path . ATTR_DATA_FILES . $cf_json . "'></td><td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td><td>" . htmlspecialchars($row['to_date']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['location']) . "</td><td>" . htmlspecialchars($row['paper_type']) . "</td></tr>";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button></div></form>";
                     } else {
@@ -504,14 +512,17 @@ include_once "header_hod.php";
                         while ($row = $result->fetch_assoc()) {
                             $path = fixPath($row["patent_file"]);
                             $pt_raw = json_encode(array_values(array_filter([$path], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                            $pt_json = str_replace('"', '&quot;', $pt_raw);
-                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $path . "' data-files='" . $pt_json . "'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['patent_title']) . "</td><td>" . htmlspecialchars($row['date_of_issue']) . "</td></tr>";
+                            $pt_json = str_replace('"', HTML_QUOT, $pt_raw);
+                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' " . ATTR_DATA_FILEPATH . $path . ATTR_DATA_FILES . $pt_json . "'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['patent_title']) . "</td><td>" . htmlspecialchars($row['date_of_issue']) . "</td></tr>";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button></div></form>";
                     } else {
                         echo "<p class='no-files'>No patents found.</p>";
                     }
                     echo "</div>";
+                    break;
+                default:
+                    echo "<p class='no-files'>Selected category not found.</p>";
                     break;
             }
         }
@@ -556,7 +567,9 @@ include_once "header_hod.php";
             }
 
             if (filesJson && filesJson !== '') {
-                const decodedJson = filesJson.replace(/&quot;/g, '"').replace(/&#x2F;/g, '/').replace(/&amp;/g, '&');
+                const decodedJson = filesJson.replace(new RegExp(HTML_QUOT, 'g'), '"')
+                                             .replace(new RegExp(HTML_X2F, 'g'), '/')
+                                             .replace(new RegExp(HTML_AMP, 'g'), '&');
                 const files = JSON.parse(decodedJson);
 
                 const { PDFDocument } = PDFLib;
@@ -640,7 +653,9 @@ include_once "header_hod.php";
 
                 let filesToProcess = [];
                 if (filesJson && filesJson !== '') {
-                    const decodedJson = filesJson.replace(/&quot;/g, '"').replace(/&#x2F;/g, '/').replace(/&amp;/g, '&');
+                    const decodedJson = filesJson.replace(new RegExp(HTML_QUOT, 'g'), '"')
+                                                 .replace(new RegExp(HTML_X2F, 'g'), '/')
+                                                 .replace(new RegExp(HTML_AMP, 'g'), '&');
                     filesToProcess = JSON.parse(decodedJson).filter(f => f && f.length > 0);
                 }
                 if (filesToProcess.length === 0 && filePath && filePath !== '') {
