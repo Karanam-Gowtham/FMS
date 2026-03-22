@@ -9,6 +9,9 @@ if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
 $dept = $_GET['dept'] ?? $_SESSION['dept'] ?? '';
 $event = $_GET['event'] ?? 'Dept Meeting Minutes';
 
+define('PATH_UPLOADS', '../uploads/');
+define('PATH_DEEP_UPLOADS', '../../uploads/');
+
 // Handle Accept/Reject Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_id'])) {
     $id = $_POST['action_id'];
@@ -47,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_action']) && iss
             // Actually they save as '../../uploads/filename'. 
             // Relative to modules/dept_coordinator/ it is root/uploads/
             // Relative to HOD/ it should be ../uploads/
-            $realPath = str_replace('../../uploads/', '../uploads/', $path);
+            $realPath = str_replace(PATH_DEEP_UPLOADS, PATH_UPLOADS, $path);
 
             if (file_exists($realPath)) {
                 header('Content-Type: application/octet-stream');
@@ -68,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_action']) && iss
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $file = $result->fetch_assoc();
-                    $realPath = str_replace('../../uploads/', '../uploads/', $file['file_path']);
+                    $realPath = str_replace(PATH_DEEP_UPLOADS, PATH_UPLOADS, $file['file_path']);
                     if (file_exists($realPath)) {
                         $zip->addFile($realPath, basename($realPath));
                     }
@@ -336,7 +339,7 @@ include_once 'header_hod.php';
                             echo "<td><small>" . htmlspecialchars($details) . "</small></td>";
                             echo "<td><span class='status-badge $statusClass'>" . htmlspecialchars($row['status'] ?? 'Pending') . "</span></td>";
                             echo "<td>";
-                            echo "<a href='" . htmlspecialchars(str_replace('../../uploads/', '../uploads/', $row['file_path']), ENT_QUOTES) . "' target='_blank' class='btn btn-view' style='text-decoration:none; margin-right:5px;'>View</a>";
+                            echo "<a href='" . htmlspecialchars(str_replace(PATH_DEEP_UPLOADS, PATH_UPLOADS, $row['file_path']), ENT_QUOTES) . "' target='_blank' class='btn btn-view' style='text-decoration:none; margin-right:5px;'>View</a>";
 
                             if ($row['status'] !== 'Accepted') {
                                 echo "<button type='button' class='btn btn-accept' onclick='handleAction({$row['id']}, \"accept\")'>Accept</button> ";

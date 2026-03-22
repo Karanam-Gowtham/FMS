@@ -6,32 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-define('COL_FACULTY', 'Faculty Name');
-define('COL_YEAR', 'Academic Year');
-define('COL_FILE', 'file name');
-define('COL_DESC', 'description');
-define('TABLE_FILES', 'files');
-define('CRIT_5_1_1', '5.1.1');
-define('CRIT_5_1_2', '5.1.2');
-define('CRIT_5_1_3', '5.1.3');
-define('CRIT_5_1_4', '5.1.4');
-define('CRIT_5_1_5', '5.1.5');
-define('CRIT_5_2_1', '5.2.1');
-define('CRIT_5_2_2', '5.2.2');
-define('CRIT_5_2_3', '5.2.3');
-define('CRIT_5_3_1', '5.3.1');
-define('CRIT_5_3_2', '5.3.2');
-define('CRIT_5_3_3', '5.3.3');
-define('CRIT_5_4_1', '5.4.1');
-define('CRIT_5_4_2', '5.4.2');
-define('CRIT_6_1_1_A', '6.1.1(A)');
-define('CRIT_6_1_1_F', '6.1.1(F)');
-define('CRIT_6_1_1_I', '6.1.1(I)');
-define('ERR_INVALID_CRIT', 'Invalid criteria or sub-criteria.');
-define('COL_STUDENT_NAME', 'Student Name');
-define('ATTR_DATA_FILEPATH', "' data-filepath='");
-define('NOT_SELECTED', 'Not Selected');
-define('QUOTE_SPACE', "' ");
+require_once "../includes/constants.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
@@ -53,7 +28,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 
     if ($action == 'delete') {
         foreach ($selectedFiles as $fileId) {
-            $sql = "SELECT file_path FROM files WHERE id = ?";
+            $sql = "SELECT file_path FROM " . TABLE_FILES . " WHERE id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $fileId);
             $stmt->execute();
@@ -61,7 +36,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             $file = $result->fetch_assoc();
             if ($file) {
                 unlink('../' . $file['file_path']); // Delete the actual file
-                $sql = "DELETE FROM files WHERE id = ?";
+                $sql = "DELETE FROM " . TABLE_FILES . " WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("i", $fileId);
                 $stmt->execute();
@@ -73,13 +48,12 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             if (count($selectedFiles) == 1) {
                 $fileId = $selectedFiles[0];
 
-                // Determine the table based on criteria and sub-criteria
                 if (
                     $criteria == '1' || $criteria == '2' || $criteria == '3' || $criteria == '4' || $criteria == '7' ||
                     ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_5, CRIT_5_3_2, CRIT_5_4_1, CRIT_5_4_2])) ||
                     ($criteria == '6')
                 ) {
-                    $tableName = "files";
+                    $tableName = TABLE_FILES;
                 } elseif ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_1, CRIT_5_1_2])) {
                     $tableName = "files5_1_1and2";
                 } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_3) {
@@ -137,7 +111,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                         ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_5, CRIT_5_3_2, CRIT_5_4_1, CRIT_5_4_2])) ||
                         ($criteria == '6')
                     ) {
-                        $tableName = "files";
+                        $tableName = TABLE_FILES;
                     } elseif ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_1, CRIT_5_1_2])) {
                         $tableName = "files5_1_1and2";
                     } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_3) {
@@ -225,7 +199,7 @@ if (isset($_POST['download_excel'])) {
         ($criteria == '6' && !in_array($subCriteria, [CRIT_6_1_1_A, CRIT_6_1_1_F, CRIT_6_1_1_I]))
     ) {
         // For files table
-        $tableName = "files";
+        $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, COL_FILE, COL_DESC];
 
         $sql = "SELECT * FROM $tableName  WHERE criteria = ? AND criteria_no = ?";
@@ -234,7 +208,7 @@ if (isset($_POST['download_excel'])) {
         $stmt->bind_param("ss", $criteria, $subCriteria);
     } elseif ($criteria == '1') {
         // For files table with specific criteria_no
-        $tableName = "files";
+        $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, COL_FILE, COL_DESC, "Branch", "Criteria No"];
         $sql = "SELECT * FROM $tableName WHERE criteria = ? AND branch = ?";
         $stmt = $conn->prepare($sql);
@@ -290,21 +264,21 @@ if (isset($_POST['download_excel'])) {
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_A) {
         // For files table with specific criteria_no
-        $tableName = "files";
+        $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, "Branch", COL_DESC, "Sem", "Section", COL_FILE];
         $sql = "SELECT * FROM $tableName WHERE criteria = ? AND criteria_no = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $criteria, $subCriteria);
     } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_F) {
         // For files table with specific criteria_no
-        $tableName = "files";
+        $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, "Branch", COL_DESC, "ext_or_int", COL_FILE];
         $sql = "SELECT * FROM $tableName WHERE  criteria = ? AND criteria_no = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $criteria, $subCriteria);
     } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_I) {
         // For files table with specific criteria_no
-        $tableName = "files";
+        $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, "Branch", COL_DESC, COL_FILE, "Branch", "Criteria No"];
         $sql = "SELECT * FROM $tableName WHERE criteria = ? AND criteria_no = ?";
         $stmt = $conn->prepare($sql);
@@ -763,7 +737,7 @@ if (isset($_POST['download_excel'])) {
                                         <td>" . htmlspecialchars($row['pay']) . "</td>
                                     </tr>";
                             }
-                        } elseif ($criteria == '5' && $subCriteria == '5.2.2') {
+                        } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_2) {
 
                             $sql = "SELECT id, faculty_name, academic_year, student_name, programme, institution, admitted_programme, file_name, file_path
                                         FROM files5_2_2 ";

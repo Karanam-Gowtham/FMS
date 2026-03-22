@@ -1,5 +1,5 @@
 <?php
-    include("connection.php");
+    include "connection.php";
     
 
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -93,33 +93,33 @@
     <div class="container" id="container">
         <div class="form-container sign-up-container">
             <form action="" method="POST">
-                <h1 id="hav">Sign Up</h1>
+                <h1 id="hav_signup">Sign Up</h1>
                 <input type="text" name="name" placeholder="Name" id="name" required />
-                <input type="text" name="userid" placeholder="User ID" id="id" required />
+                <input type="text" name="userid" placeholder="User ID" id="id_signup" required />
                 <input type="email" name="email" placeholder="Email" id="mail" required />
-                <input type="password" name="password" placeholder="Password" id="pass" required />
+                <input type="password" name="password" placeholder="Password" id="pass_signup" required />
                 <input type="password" name="conpass" placeholder="Confirm Password" id="conpass" required />
                 <button type="submit" name="signUp">Sign Up</button>
             </form>
         </div>
         <div class="form-container sign-in-container">
             <form action="" method="POST">
-                <h1 id="hav">Faculty<br>Sign In</h1>
-                <input type="text" name="userid" placeholder="User ID" id="id" required />
-                <input type="password" name="password" placeholder="Password" id="pass" required />
+                <h1 id="hav_signin">Faculty<br>Sign In</h1>
+                <input type="text" name="userid" placeholder="User ID" id="id_signin" required />
+                <input type="password" name="password" placeholder="Password" id="pass_signin" required />
                 <button type="submit" name="signIn">Log In</button>
             </form>
         </div>
         <div class="overlay-container">
             <div class="overlay">
                 <div class="overlay-panel overlay-left">
-                    <h1 id="vit">sign In</h1>
+                    <h1 id="vit_left">sign In</h1>
                     <p>Effortlessly upload and download files with secure, user-friendly simplicity.</p><br><br>
                     <p style="color: rgb(0, 68, 255)">Already have an account?</p>
                     <button class="press" id="signIn">Sign In</button>
                 </div>
                 <div class="overlay-panel overlay-right">
-                    <h2 id="vit">Faculty<br>Sign Up</h1>
+                    <h2 id="vit_right">Faculty<br>Sign Up</h1>
                     <p>Effortlessly upload and download files with secure, user-friendly simplicity.</p><br><br>
                     <p style="color: rgb(0, 68, 255)">Don't have an account?</p>
                     <button class="press" id="signUp" style="color: rgb(57, 49, 5)">Sign Up</button>

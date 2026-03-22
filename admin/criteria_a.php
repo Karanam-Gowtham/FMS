@@ -1,10 +1,11 @@
 <?php
-include("../includes/connection.php");
+include_once "../includes/connection.php";
+include_once "../includes/constants.php";
 include "header_admin.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
-$criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
+$criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT_SELECTED;
 ?>
 
 
@@ -210,7 +211,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
 
             // Display the AQAR heading and selected details
             echo "<h1>AQAR - " . $academicYear . "</h1>";
-        }else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Get values from POST request
             $designation = isset($_POST['designation']) ? htmlspecialchars($_POST['designation']) : 'Unknown';
             $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : 'Not Selected';

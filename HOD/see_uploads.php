@@ -26,8 +26,9 @@ $patents = queryCount($conn, 'patents_table', 'branch', $dept, 'Username');
 function buildMap($rows)
 {
     $m = [];
-    foreach ($rows as $r)
+    foreach ($rows as $r) {
         $m[$r['username']] = (int) $r['cnt'];
+    }
     return $m;
 }
 

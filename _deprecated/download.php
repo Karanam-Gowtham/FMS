@@ -1,5 +1,5 @@
 <?php
-include("connection.php");
+include "connection.php";
 if (isset($_GET['file'])) {
     $file = basename($_GET['file']); // Get the file name and sanitize it
     $filePath = './' . $file; // Path to the file directory

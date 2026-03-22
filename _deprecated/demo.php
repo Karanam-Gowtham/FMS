@@ -1,7 +1,6 @@
 <?php
-include("connection.php");
-
-
+include "connection.php";
+define('SQL_FILE_PATH', "SELECT file_path FROM files WHERE id = ?");
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view your uploads.");
@@ -16,7 +15,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     
     if ($action == 'delete') {
         foreach ($selectedFiles as $fileId) {
-            $sql = "SELECT file_path FROM files WHERE id = ?";
+            $sql = SQL_FILE_PATH;
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $fileId);
             $stmt->execute();
@@ -50,7 +49,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             }
     } elseif ($action == 'view') {
         foreach ($selectedFiles as $fileId) {
-            $sql = "SELECT file_path FROM files WHERE id = ?";
+            $sql = SQL_FILE_PATH;
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $fileId);
             $stmt->execute();
