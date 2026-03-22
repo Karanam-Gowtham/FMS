@@ -142,7 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     readfile($filePathRaw);
                     exit;
                 } else {
-                    echo "<script>alert('File not found. Searched path: " . addslashes($p) . "'); window.location.href = window.location.href;</script>";
+                    $msg = 'File not found. Searched path: ' . $p;
+                    echo "<script>alert(" . json_encode($msg) . "); window.location.href = window.location.href;</script>";
                     exit;
                 }
             } else {

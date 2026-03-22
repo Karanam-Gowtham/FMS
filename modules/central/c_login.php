@@ -37,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </script>";
         exit();
     } else {
-        $error = "Invalid email or password for the $event event.";
+        $error = "Invalid email or password for the " . htmlspecialchars($event) . " event.";
         echo "<script>
-            alert('$error');
+            alert(" . json_encode($error) . ");
         </script>";
     }
 }

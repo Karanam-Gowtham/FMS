@@ -347,7 +347,7 @@ include("../../includes/header.php");
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                         href="cc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
-                        class="home-icon"><?php echo urlencode($desg); ?></a></span>
+                        class="home-icon"><?php echo htmlspecialchars($desg); ?></a></span>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
                         class="main-a">student_activity_Files</a></span>
                 <span id="sp">&nbsp; >> &nbsp;</span>

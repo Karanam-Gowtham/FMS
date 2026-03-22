@@ -127,7 +127,7 @@ include "../../includes/header.php";
 <head>
     <meta charset="UTF-8">
     <?php
-    echo "$action1"; ?>
+    echo htmlspecialchars($action1); ?>
 
     <title>Retrieve Files</title>
 
@@ -480,10 +480,10 @@ include "../../includes/header.php";
                     <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' data-filepath=\"$file_path\" onchange='trackOrder(event)'></td>
 
                     
-                    <td>$username</td>
-                    <td>$selected_branch</td>
-                    <td>" . $row['sub_file_type'] . "</td>
-                    <td>" . $row['file_name'] . "</td>
+                    <td>" . htmlspecialchars($username) . "</td>
+                    <td>" . htmlspecialchars($selected_branch) . "</td>
+                    <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
+                    <td>" . htmlspecialchars($row['file_name']) . "</td>
                 </tr>";
                     $id++;
                 }

@@ -363,7 +363,7 @@ include("header_hod.php");
                     echo "<form method='POST'><input type='hidden' name='main_select' value='Journals'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Title</th><th>Journal</th><th>Date</th></tr>";
                     while ($row = $result->fetch_assoc()) {
                         $path = fixPath($row['paper_file']);
-                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' data-filepath='$path'></td><td>{$row['Username']}</td><td>{$row['paper_title']}</td><td>{$row['journal_name']}</td><td>{$row['date_of_submission']}</td></tr>";
+                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' data-filepath='$path'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['journal_name']) . "</td><td>" . htmlspecialchars($row['date_of_submission']) . "</td></tr>";
                     }
                     echo "</table><br><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' value='download' class='btn download-btn'>Download</button></form>";
                 } else {
@@ -380,7 +380,7 @@ include("header_hod.php");
                     echo "<form method='POST'><input type='hidden' name='main_select' value='Conferences'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Title</th><th>Organized By</th><th>Date</th></tr>";
                     while ($row = $result->fetch_assoc()) {
                         $path = fixPath($row['certificate_path']);
-                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' data-filepath='$path'></td><td>{$row['Username']}</td><td>{$row['paper_title']}</td><td>{$row['organised_by']}</td><td>{$row['from_date']}</td></tr>";
+                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' data-filepath='$path'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td></tr>";
                     }
                     echo "</table><br><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' value='download' class='btn download-btn'>Download</button></form>";
                 } else {
@@ -393,11 +393,11 @@ include("header_hod.php");
                 $stmt->execute();
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
-                    echo "<h2>Student Professional Bodies - $bodies_sub_select</h2>";
+                    echo "<h2>Student Professional Bodies - " . htmlspecialchars($bodies_sub_select) . "</h2>";
                     echo "<form method='POST'><input type='hidden' name='main_select' value='Professional Bodies'><input type='hidden' name='bodies_sub_select' value='$bodies_sub_select'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Date</th></tr>";
                     while ($row = $result->fetch_assoc()) {
                         $path = fixPath($row['certificate_path']);
-                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['ID'] . "' data-filepath='$path'></td><td>{$row['Username']}</td><td>{$row['event_name']}</td><td>{$row['from_date']}</td></tr>";
+                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['ID'] . "' data-filepath='$path'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['event_name']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td></tr>";
                     }
                     echo "</table><br><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' value='download' class='btn download-btn'>Download</button></form>";
                 } else {
@@ -410,11 +410,11 @@ include("header_hod.php");
                 $stmt->execute();
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
-                    echo "<h2>Student $main_select</h2>";
+                    echo "<h2>Student " . htmlspecialchars($main_select) . "</h2>";
                     echo "<form method='POST'><input type='hidden' name='main_select' value='$main_select'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Organized By</th><th>Date</th></tr>";
                     while ($row = $result->fetch_assoc()) {
                         $path = fixPath($row['certificate_path']);
-                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['ID'] . "' data-filepath='$path'></td><td>{$row['Username']}</td><td>{$row['event_name']}</td><td>{$row['organised_by']}</td><td>{$row['from_date']}</td></tr>";
+                        echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['ID'] . "' data-filepath='$path'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['event_name']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td></tr>";
                     }
                     echo "</table><br><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' value='download' class='btn download-btn'>Download</button></form>";
                 } else {

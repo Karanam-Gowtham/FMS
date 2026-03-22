@@ -281,7 +281,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon">dept_coordinator</a></span>
                 <?php endif; ?>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
-                        class="main-a"><?php echo "$event" ?>_Files</a></span>
+                        class="main-a"><?php echo htmlspecialchars($event); ?>_Files</a></span>
                 <span id="sp">&nbsp; >> &nbsp;</span>
             </div>
         </div>
@@ -289,7 +289,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="cont1">
         <div class="container11">
-            <h1>Upload <?php echo ucfirst($event); ?> Files</h1>
+            <h1>Upload <?php echo htmlspecialchars(ucfirst($event)); ?> Files</h1>
             <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
                 <label for="file_name">File Name:</label>
                 <input type="text" name="file_name" id="file_name" required>

@@ -259,14 +259,14 @@ include "../../includes/header.php";
                 </svg>
             </a>
             <span id="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="cc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>&designation=<?php echo "$desg" ?>" class="home-icon"><?php echo urlencode($desg); ?></a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo "$selected_file_type" ?>_Files</a></span>
+            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="cc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>&designation=<?php echo urlencode($desg); ?>" class="home-icon"><?php echo htmlspecialchars($desg); ?></a></span>
+            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($selected_file_type) ?>_Files</a></span>
             <span id="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>
 </nav>
 <div class="container11">
-    <h1>Retrieve <?php echo"$selected_file_type"; ?></h1>
+    <h1>Retrieve <?php echo htmlspecialchars($selected_file_type); ?></h1>
 </div>
 
 <div class="container111">

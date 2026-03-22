@@ -96,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload <?php echo $event; ?></title>
+    <title>Upload <?php echo htmlspecialchars($event); ?></title>
     <style>
         /* Styles unchanged */
         body {
@@ -294,14 +294,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Faculty </a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
-                        <?php echo "$event" ?> </a></span>
+                        <?php echo htmlspecialchars($event); ?> </a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span>
             </div>
         </div>
     </nav>
     <div class="cont1">
         <div class="container11">
-            <h1>Upload <?php echo $event; ?></h1>
+            <h1>Upload <?php echo htmlspecialchars($event); ?></h1>
             <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
                 <label for="file_name">File Name:</label>
                 <input type="text" name="file_name" id="file_name" required>

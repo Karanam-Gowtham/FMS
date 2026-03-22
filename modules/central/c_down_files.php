@@ -270,14 +270,14 @@ include "../../includes/header.php";
                 </svg>
             </a>
             <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../../index.php" class="home-icon">Central</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_upload.php?event=<?php echo "$event" ?>" class="home-icon"><?php echo"$event" ?></a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo "$selected_file_type" ?><?php echo"$event" ?> Files</a></span>
+            <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_upload.php?event=<?php echo urlencode($event) ?>" class="home-icon"><?php echo htmlspecialchars($event) ?></a></span>
+            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($selected_file_type) ?><?php echo htmlspecialchars($event) ?> Files</a></span>
             <span id="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>
 </nav>
 <div class="container11">
-    <h1>Retrieve <?php echo"$event"; ?> Files</h1>
+    <h1>Retrieve <?php echo htmlspecialchars($event); ?> Files</h1>
 </div>
 
 <div class="container111">

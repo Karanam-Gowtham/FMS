@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_id'])) {
     }
 
     if (isset($stmt) && $stmt->execute()) {
-        $success_msg = "File " . ucfirst($action) . "ed successfully.";
+        $success_msg = "File " . htmlspecialchars(ucfirst($action)) . "ed successfully.";
     }
 }
 
@@ -323,11 +323,11 @@ include 'header_hod.php';
 
                             echo "<tr>";
                             echo "<td><input type='checkbox' name='selected_files[]' value='{$row['id']}'></td>";
-                            echo "<td>{$row['username']}</td>";
+                            echo "<td>" . htmlspecialchars($row['username']) . "</td>";
                             $display_year = ($row['meeting_no']) ? "Mtg #" . $row['meeting_no'] : $row['academic_year'];
                             echo "<td>$display_year</td>";
-                            echo "<td>{$row['sub_file_type']}</td>";
-                            echo "<td>{$row['file_name']}</td>";
+                            echo "<td>" . htmlspecialchars($row['sub_file_type']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
                             echo "<td><small>$details</small></td>";
                             echo "<td><span class='status-badge $statusClass'>" . ($row['status'] ?? 'Pending') . "</span></td>";
                             echo "<td>";

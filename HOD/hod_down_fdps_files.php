@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     readfile($p);
                     exit;
                 } else {
-                    echo "<script>alert('File not found. Path: " . addslashes($p) . "'); window.location.href = window.location.href;</script>";
+                    echo "<script>alert('File not found. Path: " . htmlspecialchars($p, ENT_QUOTES) . "'); window.location.href = window.location.href;</script>";
                     exit;
                 }
             }
@@ -287,14 +287,14 @@ include("header_hod.php");
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
                         class="home-icon">HOD</a></span>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
-                        class="main-a"><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?>_Files</a></span>
+                        class="main-a"><?php echo ($catg === 'fdps') ? 'fdps_attended' : htmlspecialchars($catg); ?>_Files</a></span>
             </div>
         </div>
     </nav>
 
     <div class="div1">
         <div class="filter-section">
-            <h1><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?> Files</h1>
+            <h1><?php echo ($catg === 'fdps') ? 'fdps_attended' : htmlspecialchars($catg); ?> Files</h1>
             <form method="POST" class="filter-form">
                 <input type="hidden" name="action_F" value="<?php echo htmlspecialchars($catg); ?>">
                 <?php
@@ -422,7 +422,7 @@ include("header_hod.php");
                                      data-filepath='$mergedPath'
                                      data-files='$files_json'
                                      data-title='$record_title'></td>
-                                 <td>{$row['username']}</td><td>{$row['branch']}</td><td>{$row['title']}</td><td>{$row['date_from']}</td><td>{$row['date_to']}</td><td>{$row['organised_by']}</td><td>{$row['location']}</td>
+                                 <td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['title']) . "</td><td>" . htmlspecialchars($row['date_from']) . "</td><td>" . htmlspecialchars($row['date_to']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['location']) . "</td>
                              </tr>";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='btn download-btn' onclick='bulkDownload()'>Download Selected</button></div></form>";
@@ -449,7 +449,7 @@ include("header_hod.php");
                             $path = fixPath($row["paper_file"]);
                             $pf_raw = json_encode(array_values(array_filter([$path], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
                             $pf_json = str_replace('"', '&quot;', $pf_raw);
-                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $path . "' data-files='" . $pf_json . "'></td><td>{$row['username']}</td><td>{$row['branch']}</td><td>{$row['paper_title']}</td><td>{$row['journal_name']}</td><td>{$row['indexing']}</td><td>{$row['date_of_submission']}</td><td>{$row['quality_factor']}</td><td>{$row['impact_factor']}</td><td>{$row['payment']}</td></tr>";
+                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $path . "' data-files='" . $pf_json . "'></td><td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['journal_name']) . "</td><td>" . htmlspecialchars($row['indexing']) . "</td><td>" . htmlspecialchars($row['date_of_submission']) . "</td><td>" . htmlspecialchars($row['quality_factor']) . "</td><td>" . htmlspecialchars($row['impact_factor']) . "</td><td>" . htmlspecialchars($row['payment']) . "</td></tr>";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button></div></form>";
                     } else {
@@ -477,7 +477,7 @@ include("header_hod.php");
                             $cf_arr = array_values(array_filter([$cert_path, $paper_path], fn($f) => strlen($f) > 3));
                             $cf_raw = json_encode($cf_arr, JSON_UNESCAPED_SLASHES);
                             $cf_json = str_replace('"', '&quot;', $cf_raw);
-                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $cert_path . "' data-files='" . $cf_json . "'></td><td>{$row['username']}</td><td>{$row['branch']}</td><td>{$row['paper_title']}</td><td>{$row['from_date']}</td><td>{$row['to_date']}</td><td>{$row['organised_by']}</td><td>{$row['location']}</td><td>{$row['paper_type']}</td></tr>";
+                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $cert_path . "' data-files='" . $cf_json . "'></td><td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['paper_title']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td><td>" . htmlspecialchars($row['to_date']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['location']) . "</td><td>" . htmlspecialchars($row['paper_type']) . "</td></tr>";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button></div></form>";
                     } else {
@@ -503,7 +503,7 @@ include("header_hod.php");
                             $path = fixPath($row["patent_file"]);
                             $pt_raw = json_encode(array_values(array_filter([$path], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
                             $pt_json = str_replace('"', '&quot;', $pt_raw);
-                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $path . "' data-files='" . $pt_json . "'></td><td>{$row['Username']}</td><td>{$row['branch']}</td><td>{$row['patent_title']}</td><td>{$row['date_of_issue']}</td></tr>";
+                            echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' data-filepath='" . $path . "' data-files='" . $pt_json . "'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['patent_title']) . "</td><td>" . htmlspecialchars($row['date_of_issue']) . "</td></tr>";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button></div></form>";
                     } else {

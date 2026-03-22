@@ -278,7 +278,7 @@ $conn->close();
                 </svg>
             </a>
             <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_login.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo "$event" ?> Files</a></span>
+            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($event); ?> Files</a></span>
             <span id="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>
@@ -286,7 +286,7 @@ $conn->close();
 
     <div class="container11">
         
-    <a href="c_down_files.php?event=<?php echo"$event" ?>"><button class="btn_12">view <?php echo htmlspecialchars($event); ?> details</button></a>
+    <a href="c_down_files.php?event=<?php echo urlencode($event); ?>"><button class="btn_12">view <?php echo htmlspecialchars($event); ?> details</button></a>
     <div class="container111">
         <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
             <h1><?php echo htmlspecialchars($event); ?> Events</h1>

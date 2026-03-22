@@ -359,13 +359,13 @@ include "../../includes/header.php";
                             href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon">dept_coordinator</a></span>
                 <?php endif; ?>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
-                        class="main-a"><?php echo "$event" ?>_Files</a></span>
+                        class="main-a"><?php echo htmlspecialchars($event); ?>_Files</a></span>
                 <span id="sp">&nbsp; >> &nbsp;</span>
             </div>
         </div>
     </nav>
     <div class="container11">
-        <h1>Retrieve <?php echo "$event"; ?> Files</h1>
+        <h1>Retrieve <?php echo htmlspecialchars($event); ?> Files</h1>
 
         <?php
         $selected_file_type = $_POST['selected_file_type'] ?? '';
@@ -459,7 +459,7 @@ include "../../includes/header.php";
 
                 echo "</form>";
             } else {
-                echo "<p class='no-files'>No files found for '$selected_file_type'.</p>";
+                echo "<p class='no-files'>No files found for '" . htmlspecialchars($selected_file_type) . "'.</p>";
             }
 
             $stmt->close();

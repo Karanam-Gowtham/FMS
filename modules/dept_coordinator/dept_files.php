@@ -444,14 +444,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $display_event = ucfirst($event) . ' Files';
                 ?>
                 <span id="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
-                        <?php echo $display_event; ?> </a></span>
+                        <?php echo htmlspecialchars($display_event); ?> </a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span>
             </div>
         </div>
     </nav>
     <div class="cont1">
         <div class="container11">
-            <h1>Upload <?php echo $display_event; ?></h1>
+            <h1>Upload <?php echo htmlspecialchars($display_event); ?></h1>
             <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
                 <label for="file_name">File Name:</label>
                 <input type="text" name="file_name" id="file_name" required>

@@ -374,7 +374,7 @@ include("../../includes/header.php");
                         class="home-icon">dept_coordinator</a></span>
             <?php endif; ?>
             <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
-                    class="main-a"><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?>_Files</a></span>
+                    class="main-a"><?php echo htmlspecialchars(($catg === 'fdps') ? 'fdps_attended' : (string)$catg); ?>_Files</a></span>
             <span id="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>
@@ -383,7 +383,7 @@ include("../../includes/header.php");
 <div class="div1">
     <div class="filter-section">
 
-        <h1><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?> Files</h1>
+        <h1><?php echo htmlspecialchars(($catg === 'fdps') ? 'fdps_attended' : (string)$catg); ?> Files</h1>
         <form method="POST" class="filter-form">
             <input type="hidden" name="action_F" value="<?php echo htmlspecialchars($catg); ?>">
             <?php

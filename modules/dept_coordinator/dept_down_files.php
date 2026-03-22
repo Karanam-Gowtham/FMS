@@ -449,15 +449,15 @@ include "../../includes/header.php";
                     echo "<tr>
                         <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "'
                                 data-filepath=\"$file_path\"></td>
-                        <td>$id</td>
-                        <td>$username</td>
-                        <td>" . $row['dept'] . "</td>
-                        <td>" . (($row['file_type'] === 'Dept Meeting Minutes' && $row['meeting_no']) ? "Meeting " .
+                        <td>" . htmlspecialchars($id) . "</td>
+                        <td>" . htmlspecialchars($username) . "</td>
+                        <td>" . htmlspecialchars($row['dept']) . "</td>
+                        <td>" . htmlspecialchars(($row['file_type'] === 'Dept Meeting Minutes' && $row['meeting_no']) ? "Meeting " .
                         $row['meeting_no'] : $row['academic_year']) . "</td>
-                        <td>" . $row['file_type'] . "</td>
-                        <td>" . $row['sub_file_type'] . "</td>
-                        <td>" . $row['file_name'] . "</td>
-                        <td style='color: $statusColor; font-weight: bold;'>$status</td>
+                        <td>" . htmlspecialchars($row['file_type']) . "</td>
+                        <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
+                        <td>" . htmlspecialchars($row['file_name']) . "</td>
+                        <td style='color: $statusColor; font-weight: bold;'>" . htmlspecialchars($status) . "</td>
                     </tr>";
                     $id++;
                 }
@@ -471,7 +471,7 @@ include "../../includes/header.php";
             </table>
         </form>";
             } else {
-                echo "<p class='no-files'>No files found for " . ucfirst($file_type) . ".</p>";
+                echo "<p class='no-files'>No files found for " . htmlspecialchars(ucfirst($file_type)) . ".</p>";
             }
 
             $stmt->close();
