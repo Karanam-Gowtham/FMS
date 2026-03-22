@@ -273,7 +273,9 @@ $conn->close();
             <p class="no-records">No records found for the selected branch.</p>
         <?php } ?>
     </div>
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"
+        integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8="
+        crossorigin="anonymous"></script>
     <script>
         async function mergeRecordFiles(filesJson, title) {
             const files = JSON.parse(filesJson);

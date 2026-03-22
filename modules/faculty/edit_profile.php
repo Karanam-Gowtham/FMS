@@ -149,8 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle photo
     if (isset($_FILES['photo_path']) && $_FILES['photo_path']['error'] === UPLOAD_ERR_OK) {
         $target_dir = "../../uploads/";
-        if (!is_dir($target_dir))
+        if (!is_dir($target_dir)) {
             mkdir($target_dir, 0777, true);
+        }
 
         $target_file = $target_dir . uniqid() . "_" . basename($_FILES["photo_path"]["name"]);
         if (move_uploaded_file($_FILES["photo_path"]["tmp_name"], $target_file)) {

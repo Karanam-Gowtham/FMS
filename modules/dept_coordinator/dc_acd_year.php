@@ -242,7 +242,7 @@ include '../../includes/header.php';
             margin-left: -17px;
         }
 
-        #sp {
+        .sp {
             color: blue;
         }
     </style>
@@ -262,7 +262,7 @@ include '../../includes/header.php';
                 <span>&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> dept_coordinator
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"> <a href="#" class="main-a"> dept_coordinator
                     </a></span>
             </div>
         </div>

@@ -15,16 +15,16 @@ function fixPath($p)
     $p = str_replace('\\', '/', $p);
     if (preg_match('/uploads\/.*/', $p, $matches)) {
         $foundPath = $matches[0];
-        if (file_exists("../../" . $foundPath)) {
-            return "../../" . $foundPath;
+        if (file_exists(DIR_UP_TWO . $foundPath)) {
+            return DIR_UP_TWO . $foundPath;
         }
-        if (file_exists("../" . $foundPath)) {
-            return "../" . $foundPath;
+        if (file_exists(DIR_UP . $foundPath)) {
+            return DIR_UP . $foundPath;
         }
         if (file_exists($foundPath)) {
             return $foundPath;
         }
-        return "../../" . $foundPath;
+        return DIR_UP_TWO . $foundPath;
     }
     return $p;
 }
@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         default:
             $tableName = 'fdps_tab';
             $fileColumn = 'certificate';
+            break;
     }
 
     // DELETE ACTION
@@ -368,16 +369,16 @@ include "../../includes/header.php";
                     href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                     class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
             <?php if (isset($_SESSION['j_username'])): ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                         href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                         class="home-icon">jr_assistant</a></span>
             <?php else: ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                         class="home-icon">dept_coordinator</a></span>
             <?php endif; ?>
-            <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
+            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
                     class="main-a"><?php echo htmlspecialchars(($catg === 'fdps') ? 'fdps_attended' : (string)$catg); ?>_Files</a></span>
-            <span id="sp">&nbsp; >> &nbsp;</span>
+            <span class="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>
 </nav>
@@ -464,10 +465,10 @@ include "../../includes/header.php";
                         while ($row = $result_fdps->fetch_assoc()) {
                             $certificatePath = fixPath($row["certificate"]);
                             $fdps_raw = json_encode(array_values(array_filter([$certificatePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
-                            $fdps_json = str_replace('"', '&quot;', $fdps_raw);
+                            $fdps_json = str_replace('"', HTM_QUOT, $fdps_raw);
                             echo "<td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
-                                                data-filepath='" . $certificatePath . "'
-                                                data-files='" . $fdps_json . "' onchange='trackOrder(event)'></td>
+                                                " . ATTR_DATA_FILEPATH . $certificatePath . "'
+                                                " . DATA_FILES_PREFIX . $fdps_json . "' onchange='trackOrder(event)'></td>
                                     <td>" . htmlspecialchars($row["username"]) . "</td>
                                     <td>" . htmlspecialchars($row["branch"]) . "</td>
                                     <td>" . htmlspecialchars($row["title"]) . "</td>
@@ -794,6 +795,9 @@ include "../../includes/header.php";
                         echo "<p class='no-files'>No patents found.</p>";
                     }
                     echo "</div>";
+                    break;
+                default:
+                    echo "<div class='container11'><p class='no-files'>Invalid category selected.</p></div>";
                     break;
 
             }

@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: larger;
         }
 
-        #sp {
+        .sp {
             color: blue;
         }
 

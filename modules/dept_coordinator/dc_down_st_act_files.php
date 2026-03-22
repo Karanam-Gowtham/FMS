@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $tableName = 's_conference_tab';
             $fileColumn = 'certificate_path'; // Default, can be changed via select
             break;
-        case 'Professional Bodies':
+        case PROFESSIONAL_BODIES:
             $tableName = 's_bodies';
             $fileColumn = 'certificate_path';
             break;
@@ -332,12 +332,12 @@ include "../../includes/header.php";
                             href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                             class="home-icon">jr_assistant</a></span>
                 <?php else: ?>
-                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                    <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon">dept_coordinator</a></span>
                 <?php endif; ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Dept_Files(Student
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Dept_Files(Student
                         activities) </a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span>
+                <span class="sp">&nbsp; >> &nbsp;</span>
             </div>
         </div>
     </nav>
@@ -721,10 +721,11 @@ include "../../includes/header.php";
                         } else {
                             echo "<p class='no-files'>No " . htmlspecialchars($main_select) . " entries found.</p>";
                         }
-                        echo "</div>";
-                        break;
-
-
+                    echo "</div>";
+                    break;
+                default:
+                    echo "<div class='container11'><p class='no-files'>Internal Error: Invalid main selection.</p></div>";
+                    break;
                 }
             }
             ?>

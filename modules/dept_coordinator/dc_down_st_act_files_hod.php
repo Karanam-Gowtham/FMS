@@ -1,5 +1,5 @@
-<?php
 include "../../includes/connection.php";
+require_once "../../includes/constants.php";
 
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept'];
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $tableName = 's_conference_tab';
             $fileColumn = 'certificate_path'; // Default, can be changed via select
             break;
-        case 'Professional Bodies':
+        case PROFESSIONAL_BODIES:
             $tableName = 's_bodies';
             $fileColumn = 'certificate_path';
             break;
@@ -101,8 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             }
         } else {
             $zip = new ZipArchive();
-            $safe_main_select = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$main_select);
-            $zipFileName = $safe_main_select . time() . ".zip";
+            $safe_category = preg_replace(REGEX_SPECIAL_CHARS, '', (string)$main_select);
+            $zipFileName = $safe_category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
@@ -159,8 +159,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 if (isset($_POST['export_sjournal'])) {
     ob_end_clean();//End previous buffer
     ob_start();// start new buffer for excel
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=journal.xls");
+    header(TYPE_EXCEL);
+    header("Content-Disposition: attachment; filename=Student_Journals.xls");
 
     // Write the Excel content header
     echo "Username\tBranch\tAcademic_Year\tPaper Title\tJournal Name\tIndexing\tDate of Submission\tQuality Factor\tImpact Factor\tPayment\n";
@@ -721,8 +721,11 @@ include "../../includes/header.php";
                         } else {
                             echo "<p class='no-files'>No " . htmlspecialchars($main_select) . " entries found.</p>";
                         }
-                        echo "</div>";
-                        break;
+                    echo "</div>";
+                    break;
+                default:
+                    echo "<div class='container11'><p class='no-files'>Internal Error: Invalid main selection.</p></div>";
+                    break;
 
 
                 }

@@ -26,8 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $year = $_POST['year'];
 
     $target_dir = "../../uploads/patents/";
-    if (!is_dir($target_dir))
+    if (!is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
+    }
 
     $file_name = time() . '_' . basename($_FILES["patent_file"]["name"]);
     $target_file = $target_dir . $file_name;
@@ -100,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-weight: 500;
         }
 
-        #sp {
+        .sp {
             color: blue;
         }
 
@@ -167,12 +168,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                         href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Patents</a></span>
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Patents</a></span>
             </div>
         </div>
     </nav>

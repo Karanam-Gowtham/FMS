@@ -92,14 +92,76 @@ function handleBulkDelete($conn, $selectedFiles, $tableName, $fileColumn, $usern
 /**
  * Handles bulk download of files.
  */
+/**
+ * Handles bulk download of files.
+ */
 function handleBulkDownload($conn, $selectedFiles, $tableName, $fileColumn, $username, $category) {
     if (ob_get_length()) {
         ob_end_clean();
     }
 
     if (count($selectedFiles) == 1) {
-        $fileId = $selectedFiles[0];
-        $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?";
+        handleSingleDownload($conn, $selectedFiles[0], $tableName, $fileColumn, $username);
+    } else {
+        handleZipDownload($conn, $selectedFiles, $tableName, $fileColumn, $username, $category);
+    }
+}
+
+/**
+ * Helper to handle single file download.
+ */
+function handleSingleDownload($conn, $fileId, $tableName, $fileColumn, $username) {
+    $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is", $fileId, $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $file = $result->fetch_assoc();
+
+    if ($file && !empty($file[$fileColumn])) {
+        $finalPath = fixPath($file[$fileColumn]);
+        if ($finalPath && file_exists($finalPath)) {
+            serveFile($finalPath);
+        } else {
+            $msg = 'File not found. Searched path: ' . $finalPath;
+            echo "<script>alert(" . json_encode($msg) . "); window.location.href = window.location.href;</script>";
+            exit;
+        }
+    }
+}
+
+/**
+ * Helper to handle zip download.
+ */
+function handleZipDownload($conn, $selectedFiles, $tableName, $fileColumn, $username, $category) {
+    $zip = new ZipArchive();
+    $zipFileName = $category . "_files_" . time() . ".zip";
+    $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
+    
+    if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        $filesAdded = addFilesToZip($conn, $zip, $selectedFiles, $tableName, $fileColumn, $username);
+        $zip->close();
+
+        if ($filesAdded > 0) {
+            serveZip($zipFilePath, $zipFileName);
+        } else {
+            echo "<script>alert('No valid files were found to add to the ZIP.'); window.location.href = window.location.href;</script>";
+            if (file_exists($zipFilePath)) { unlink($zipFilePath); }
+            exit;
+        }
+    } else {
+        echo "<script>alert('Failed to create zip file.'); window.location.href = window.location.href;</script>";
+        exit;
+    }
+}
+
+/**
+ * Helper to add files to a zip archive.
+ */
+function addFilesToZip($conn, $zip, $selectedFiles, $tableName, $fileColumn, $username) {
+    $filesAdded = 0;
+    foreach ($selectedFiles as $fileId) {
+        $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("is", $fileId, $username);
         $stmt->execute();
@@ -107,82 +169,41 @@ function handleBulkDownload($conn, $selectedFiles, $tableName, $fileColumn, $use
         $file = $result->fetch_assoc();
 
         if ($file && !empty($file[$fileColumn])) {
-            $filePathRaw = $file[$fileColumn];
-            $p = str_replace('\\', '/', $filePathRaw);
-            if (preg_match(REGEX_UPLOADS, $p, $matches)) {
-                $p = DIR_UP_TWO . $matches[0];
+            $path = fixPath($file[$fileColumn]);
+            if ($path && file_exists($path)) {
+                $zip->addFile($path, basename($path));
+                $filesAdded++;
             }
-
-            $finalPath = file_exists($p) ? $p : (file_exists($filePathRaw) ? $filePathRaw : null);
-            if ($finalPath) {
-                header(TYPE_OCTET_STREAM);
-                header(HEADER_CONTENT_DISPOSITION . basename($finalPath) . '"');
-                header(HEADER_CONTENT_LENGTH . filesize($finalPath));
-                ob_clean();
-                flush();
-                readfile($finalPath);
-                exit;
-            } else {
-                $msg = 'File not found. Searched path: ' . $p;
-                echo "<script>alert(" . json_encode($msg) . "); window.location.href = window.location.href;</script>";
-                exit;
-            }
-        }
-    } else {
-        $zip = new ZipArchive();
-        $zipFileName = $category . "_files_" . time() . ".zip";
-        $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
-        $filesAdded = 0;
-
-        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            foreach ($selectedFiles as $fileId) {
-                $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND username = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("is", $fileId, $username);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $file = $result->fetch_assoc();
-
-                if ($file && !empty($file[$fileColumn])) {
-                    $f = $file[$fileColumn];
-                    $p = str_replace('\\', '/', $f);
-                    if (preg_match(REGEX_UPLOADS, $p, $matches)) {
-                        $p = DIR_UP_TWO . $matches[0];
-                    }
-                    if (file_exists($p)) {
-                        $zip->addFile($p, basename($p));
-                        $filesAdded++;
-                    } elseif (file_exists($f)) {
-                        $zip->addFile($f, basename($f));
-                        $filesAdded++;
-                    }
-                }
-            }
-            $zip->close();
-
-            if ($filesAdded > 0) {
-                header('Content-Type: application/zip');
-                header(HEADER_CONTENT_DISPOSITION . basename($zipFileName) . '"');
-                header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
-                ob_clean();
-                flush();
-                readfile($zipFilePath);
-                if (file_exists($zipFilePath)) {
-                    unlink($zipFilePath);
-                }
-                exit;
-            } else {
-                echo "<script>alert('No valid files were found to add to the ZIP.'); window.location.href = window.location.href;</script>";
-                if (file_exists($zipFilePath)) {
-                    unlink($zipFilePath);
-                }
-                exit;
-            }
-        } else {
-            echo "<script>alert('Failed to create zip file.'); window.location.href = window.location.href;</script>";
-            exit;
         }
     }
+    return $filesAdded;
+}
+
+/**
+ * Helper to serve a single file.
+ */
+function serveFile($finalPath) {
+    header(TYPE_OCTET_STREAM);
+    header(HEADER_CONTENT_DISPOSITION . basename($finalPath) . '"');
+    header(HEADER_CONTENT_LENGTH . filesize($finalPath));
+    ob_clean();
+    flush();
+    readfile($finalPath);
+    exit;
+}
+
+/**
+ * Helper to serve a zip file.
+ */
+function serveZip($zipFilePath, $zipFileName) {
+    header('Content-Type: application/zip');
+    header(HEADER_CONTENT_DISPOSITION . basename($zipFileName) . '"');
+    header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
+    ob_clean();
+    flush();
+    readfile($zipFilePath);
+    if (file_exists($zipFilePath)) { unlink($zipFilePath); }
+    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
@@ -704,7 +725,9 @@ include "../../includes/header.php";
     }
 
 </script>
-<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"
+    integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8="
+    crossorigin="anonymous"></script>
 <script>
     async function mergeRecordFiles(filesJson, title) {
         const files = JSON.parse(filesJson);

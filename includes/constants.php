@@ -70,6 +70,8 @@ define('LABEL_SUBMISSION_TIME', "Submission Time");
 define('LABEL_ORGANISED_BY', "Organised By");
 define('LABEL_FROM_DATE', "From Date");
 define('LABEL_TO_DATE', "To Date");
+define('AMC_MTG_MINS', "AMC Meeting Minutes");
+define('BOS_MTG_MINS', "Board Of Studies");
 define('PARAM_DESIGNATION', "&designation=");
 define('PARAM_CRITERIA', "&criteria=");
 define('PARAM_EVENT', "&event=");

@@ -328,7 +328,7 @@ include "../../includes/header.php";
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if (isset($_SESSION['j_username'])): ?>
-                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                    <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Jr
                             Assistant </a></span>
                 <?php else: ?>
@@ -350,7 +350,7 @@ include "../../includes/header.php";
         $is_jr_assistant = isset($_SESSION['j_username']);
         $allowed_file_types = $is_jr_assistant
             ? ['Dept Meeting Minutes', 'admin', 'student', 'calendar']
-            : ['admin', 'faculty', 'student', 'exam', 'student_act', 'AMC Meeting Minutes', 'Board Of Studies'];
+            : ['admin', 'faculty', 'student', 'exam', 'student_act', AMC_MTG_MINS, BOS_MTG_MINS];
         ?>
         <div class="filter-section">
             <form method="POST" class="filter-form">
@@ -361,22 +361,30 @@ include "../../includes/header.php";
                     foreach ($allowed_file_types as $type) {
                         $selected = ($selected_file_type === $type) ? 'selected' : '';
                         $label = $type;
-                        if ($type === 'admin')
+                        if ($type === 'admin') {
                             $label = "Admin Files";
-                        if ($type === 'faculty')
+                        }
+                        if ($type === 'faculty') {
                             $label = "Faculty Files";
-                        if ($type === 'student')
+                        }
+                        if ($type === 'student') {
                             $label = "Student Related Files";
-                        if ($type === 'exam')
+                        }
+                        if ($type === 'exam') {
                             $label = "Exam Section Files";
-                        if ($type === 'student_act')
+                        }
+                        if ($type === 'student_act') {
                             $label = "Student Activities Files";
-                        if ($type === 'AMC Meeting Minutes')
-                            $label = "AMC Meeting Minutes";
-                        if ($type === 'Board Of Studies')
+                        }
+                        if ($type === AMC_MTG_MINS) {
+                            $label = AMC_MTG_MINS;
+                        }
+                        if ($type === BOS_MTG_MINS) {
                             $label = "Board Of Studies (BOS)";
-                        if ($type === 'calendar')
+                        }
+                        if ($type === 'calendar') {
                             $label = "Academic Calendar";
+                        }
                         echo "<option value='$type' $selected>$label</option>";
                     }
                     ?>
@@ -407,20 +415,27 @@ include "../../includes/header.php";
             if ($result->num_rows > 0) {
                 // Determine display label for heading
                 $heading = $file_type;
-                if ($file_type === 'admin')
+                if ($file_type === 'admin') {
                     $heading = "Admin Files";
-                if ($file_type === 'faculty')
+                }
+                if ($file_type === 'faculty') {
                     $heading = "Faculty Files";
-                if ($file_type === 'student')
+                }
+                if ($file_type === 'student') {
                     $heading = "Student Related Files";
-                if ($file_type === 'exam')
+                }
+                if ($file_type === 'exam') {
                     $heading = "Exam Section Files";
-                if ($file_type === 'student_act')
+                }
+                if ($file_type === 'student_act') {
                     $heading = "Student Activities Files";
-                if ($file_type === 'AMC Meeting Minutes')
-                    $heading = "AMC Meeting Minutes";
-                if ($file_type === 'Board Of Studies')
+                }
+                if ($file_type === AMC_MTG_MINS) {
+                    $heading = AMC_MTG_MINS;
+                }
+                if ($file_type === BOS_MTG_MINS) {
                     $heading = "Board Of Studies (BOS)";
+                }
 
                 echo "<h2>" . htmlspecialchars($heading) . "</h2>";
                 echo "<form method='post' action=''>";

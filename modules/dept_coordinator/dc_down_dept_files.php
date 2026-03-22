@@ -191,8 +191,12 @@ include "../../includes/header.php";
             padding: 0 1rem;
         }
 
-        #sp {
-            color: rgb(23, 68, 132);
+        #filter {
+            background-color: rgb(138, 30, 113);
+        }
+
+        .sp {
+            color: blue;
         }
 
         .nav-items {
@@ -399,20 +403,20 @@ include "../../includes/header.php";
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
-                <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
+                <span class="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if (isset($_SESSION['j_username'])): ?>
-                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                    <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                             class="home-icon">jr_assistant</a></span>
                 <?php else: ?>
-                    <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
+                    <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon">dept_coordinator</a></span>
                 <?php endif; ?>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
                         class="main-a">Dept_Files(<?php echo htmlspecialchars($action1); ?>) </a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span>
+                <span class="sp">&nbsp; >> &nbsp;</span>
             </div>
         </div>
     </nav>

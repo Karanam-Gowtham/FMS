@@ -86,7 +86,7 @@ include '../../includes/header.php';
             color: rgb(29, 78, 216);
         }
 
-        #sp {
+        .sp {
             color: blue;
         }
 
@@ -197,7 +197,7 @@ include '../../includes/header.php';
                 <span>&nbsp; >> &nbsp;</span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"> <a href="#" class="main-a"> Jr Assistant
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"> <a href="#" class="main-a"> Jr Assistant
                     </a></span>
             </div>
         </div>
