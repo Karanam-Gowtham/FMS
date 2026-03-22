@@ -394,14 +394,14 @@ include("header_hod.php");
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
                     echo "<h2>Student Professional Bodies - " . htmlspecialchars($bodies_sub_select) . "</h2>";
-                    echo "<form method='POST'><input type='hidden' name='main_select' value='Professional Bodies'><input type='hidden' name='bodies_sub_select' value='$bodies_sub_select'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Date</th></tr>";
+                    echo "<form method='POST'><input type='hidden' name='main_select' value='Professional Bodies'><input type='hidden' name='bodies_sub_select' value='" . htmlspecialchars($bodies_sub_select) . "'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Date</th></tr>";
                     while ($row = $result->fetch_assoc()) {
                         $path = fixPath($row['certificate_path']);
                         echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['ID'] . "' data-filepath='$path'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['event_name']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td></tr>";
                     }
                     echo "</table><br><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' value='download' class='btn download-btn'>Download</button></form>";
                 } else {
-                    echo "<p>No records found for $bodies_sub_select.</p>";
+                    echo "<p>No records found for " . htmlspecialchars($bodies_sub_select) . ".</p>";
                 }
             } elseif (in_array($main_select, ['Projects', 'Internships', 'SIH'])) {
                 $sql = "SELECT * FROM s_events WHERE branch = ? AND activity = ? AND status = 'Accepted'";
@@ -418,7 +418,7 @@ include("header_hod.php");
                     }
                     echo "</table><br><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' value='download' class='btn download-btn'>Download</button></form>";
                 } else {
-                    echo "<p>No $main_select found.</p>";
+                    echo "<p>No " . htmlspecialchars($main_select) . " found.</p>";
                 }
             }
         }

@@ -152,7 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         } else {
             // Handle multiple file download via ZIP
             $zip = new ZipArchive();
-            $zipFileName = $category . "_files_" . time() . ".zip";
+            $safe_category = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$category);
+            $zipFileName = $safe_category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {

@@ -286,7 +286,7 @@ include '../../includes/header.php';
     <script>
         function showLogin() {
             let designation = document.getElementById("designation").value;
-            let dept = "<?php echo "$dept" ?>";
+            let dept = <?php echo json_encode((string)$dept); ?>;
             if (designation) {
                 const username = "<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>";
                 if (designation === "faculty" && username) {

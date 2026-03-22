@@ -458,7 +458,7 @@ include "../../includes/header.php";
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
-                echo "<h2>" . ucfirst($selected_branch) . " Department - " . ucfirst($action1) . " Files</h2>";
+                echo "<h2>" . htmlspecialchars(ucfirst($selected_branch)) . " Department - " . htmlspecialchars(ucfirst($action1)) . " Files</h2>";
                 echo "<form method='post' action=''>";
 
                 echo "<table border='1'>
@@ -498,7 +498,7 @@ include "../../includes/header.php";
                 echo "<button type='button' class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>";
                 echo "</tbody></table></form>";
             } else {
-                echo "<p class='no-files'>No files found for " . ucfirst($selected_branch) . " department in " . ucfirst($action1) . " category.</p>";
+                echo "<p class='no-files'>No files found for " . htmlspecialchars(ucfirst($selected_branch)) . " department in " . htmlspecialchars(ucfirst($action1)) . " category.</p>";
             }
 
             $stmt->close();

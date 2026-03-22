@@ -326,7 +326,7 @@ include("header_hod.php");
             switch ($category) {
                 case 'fdps':
                     echo "<div class='container11'><h2>FDPs Attended</h2>";
-                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='$dept'><button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button></form>";
+                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button></form>";
                     $sql = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
@@ -378,7 +378,7 @@ include("header_hod.php");
                     echo "<div class='container11'><h2>FDPs Organised</h2>";
                     echo "<form method='POST' class='ex_b'>
                             <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
-                            <input type='hidden' name='dept' value='$dept'>
+                            <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                             <button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button>
                           </form>";
                     $sql = "SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'";
@@ -434,7 +434,7 @@ include("header_hod.php");
 
                 case 'published':
                     echo "<div class='container11'><h2>Published Papers</h2>";
-                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='$dept'><button type='submit' class='ex_bt' name='export_published'>Export to Excel</button></form>";
+                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_published'>Export to Excel</button></form>";
                     $sql = "SELECT * FROM published_tab WHERE branch = ? AND status = 'Accepted'";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
@@ -460,7 +460,7 @@ include("header_hod.php");
 
                 case 'conference':
                     echo "<div class='container11'><h2>Conference Papers</h2>";
-                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='$dept'><button type='submit' class='ex_bt' name='export_conference'>Export to Excel</button></form>";
+                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_conference'>Export to Excel</button></form>";
                     $sql = "SELECT * FROM conference_tab WHERE branch = ? AND status = 'Accepted'";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
@@ -488,7 +488,7 @@ include("header_hod.php");
 
                 case 'patents':
                     echo "<div class='container11'><h2>Patents</h2>";
-                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='$dept'><button type='submit' class='ex_bt' name='export_patent'>Export to Excel</button></form>";
+                    echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_patent'>Export to Excel</button></form>";
                     $sql = "SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);

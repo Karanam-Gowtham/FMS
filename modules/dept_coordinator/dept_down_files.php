@@ -461,7 +461,7 @@ include "../../includes/header.php";
                     </tr>";
                     $id++;
                 }
-                echo " <input type='hidden' name='file_type' value='$file_type'>
+                echo " <input type='hidden' name='file_type' value='" . htmlspecialchars($file_type) . "'>
                     <button type='button' onclick='viewSelectedFiles()' class='btn view-btn'>View Selected</button>
                     <button type='submit' name='action' value='download' class='btn download-btn'>Download
                         Selected</button>&nbsp
