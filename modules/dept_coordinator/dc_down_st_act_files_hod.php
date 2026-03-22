@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                 readfile($filePath);
                 exit;
             } else {
-                echo "<script>alert('File not found: " . $file[$fileColumn] . "');</script>";
+                echo "<script>alert('File not found: ' + " . json_encode($file[$fileColumn] ?? '') . ");</script>";
                 exit;
             }
         } else {
@@ -233,7 +233,8 @@ if (isset($_POST['export_sbodies'])) {
     ob_end_clean();
     ob_start();
     header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=$bodies_sub_select.xls");
+    $safe_filename = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$bodies_sub_select);
+    header("Content-Disposition: attachment; filename=$safe_filename.xls");
 
     echo "Username\tBranch\tAcademic_Year\tBody\tEvent Name\tFrom Date\tTo Date\tOrganised By\tLocation\tParticipation Status\n";
     $branch_select = $_POST['branch_select'] ?? '';
@@ -270,7 +271,8 @@ if (isset($_POST['export_sevents'])) {
     ob_end_clean();
     ob_start();
     header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=$main_select.xls");
+    $safe_filename = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$main_select);
+    header("Content-Disposition: attachment; filename=$safe_filename.xls");
 
     echo "Username\tBranch\tAcademic_Year\tActivity\tEvent Name\tFrom Date\tTo Date\tOrganised By\tLocation\tParticipation Status\n";
     $branch_select = $_POST['branch_select'] ?? '';
@@ -717,7 +719,7 @@ include("../../includes/header.php");
                                     </div>
                                     </form>";
                         } else {
-                            echo "<p class='no-files'>No $main_select entries found.</p>";
+                            echo "<p class='no-files'>No " . htmlspecialchars($main_select) . " entries found.</p>";
                         }
                         echo "</div>";
                         break;

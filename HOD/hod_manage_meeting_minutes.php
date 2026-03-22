@@ -324,14 +324,14 @@ include 'header_hod.php';
                             echo "<tr>";
                             echo "<td><input type='checkbox' name='selected_files[]' value='{$row['id']}'></td>";
                             echo "<td>" . htmlspecialchars($row['username']) . "</td>";
-                            $display_year = ($row['meeting_no']) ? "Mtg #" . $row['meeting_no'] : $row['academic_year'];
+                            $display_year = ($row['meeting_no']) ? "Mtg #" . htmlspecialchars($row['meeting_no']) : htmlspecialchars($row['academic_year']);
                             echo "<td>$display_year</td>";
                             echo "<td>" . htmlspecialchars($row['sub_file_type']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
-                            echo "<td><small>$details</small></td>";
-                            echo "<td><span class='status-badge $statusClass'>" . ($row['status'] ?? 'Pending') . "</span></td>";
+                            echo "<td><small>" . htmlspecialchars($details) . "</small></td>";
+                            echo "<td><span class='status-badge $statusClass'>" . htmlspecialchars($row['status'] ?? 'Pending') . "</span></td>";
                             echo "<td>";
-                            echo "<a href='" . str_replace('../../uploads/', '../uploads/', $row['file_path']) . "' target='_blank' class='btn btn-view' style='text-decoration:none; margin-right:5px;'>View</a>";
+                            echo "<a href='" . htmlspecialchars(str_replace('../../uploads/', '../uploads/', $row['file_path']), ENT_QUOTES) . "' target='_blank' class='btn btn-view' style='text-decoration:none; margin-right:5px;'>View</a>";
 
                             if ($row['status'] !== 'Accepted') {
                                 echo "<button type='button' class='btn btn-accept' onclick='handleAction({$row['id']}, \"accept\")'>Accept</button> ";

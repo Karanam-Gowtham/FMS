@@ -411,7 +411,7 @@ include("header_hod.php");
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
                     echo "<h2>Student " . htmlspecialchars($main_select) . "</h2>";
-                    echo "<form method='POST'><input type='hidden' name='main_select' value='$main_select'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Organized By</th><th>Date</th></tr>";
+                    echo "<form method='POST'><input type='hidden' name='main_select' value='" . htmlspecialchars($main_select) . "'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Event</th><th>Organized By</th><th>Date</th></tr>";
                     while ($row = $result->fetch_assoc()) {
                         $path = fixPath($row['certificate_path']);
                         echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row['ID'] . "' data-filepath='$path'></td><td>" . htmlspecialchars($row['Username']) . "</td><td>" . htmlspecialchars($row['event_name']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['from_date']) . "</td></tr>";
