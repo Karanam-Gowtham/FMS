@@ -390,7 +390,7 @@ include "../../includes/header.php";
         <form method="POST" class="filter-form">
             <input type="hidden" name="action_F" value="<?php echo htmlspecialchars($catg); ?>">
             <?php
-            $preselected_dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['dept']) ? $_POST['dept'] : '');
+            $preselected_dept = $_GET['dept'] ?? $_POST['dept'] ?? '';
 
             if ($preselected_dept) {
                 echo '<input type="hidden" name="dept" value="' . htmlspecialchars($preselected_dept) . '">';
@@ -423,8 +423,8 @@ include "../../includes/header.php";
     </div>
 
     <?php
-    $preselected_dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['dept']) ? $_POST['dept'] : '');
-    $preselected_catg = isset($_GET['action_F']) ? $_GET['action_F'] : (isset($_POST['action_F']) ? $_POST['action_F'] : $catg);
+    $preselected_dept = $_GET['dept'] ?? $_POST['dept'] ?? '';
+    $preselected_catg = $_GET['action_F'] ?? $_POST['action_F'] ?? $catg;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' || ($preselected_dept && $preselected_catg)) {
         if ((isset($_POST['sel_btn']) && isset($_POST['dept']) && isset($_POST['action_F'])) || ($preselected_dept && $preselected_catg)) {

@@ -377,7 +377,7 @@ include "../../includes/header.php";
                     <br>
                     <div>
                         <?php
-                        $preselected_branch = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['branch_select']) ? $_POST['branch_select'] : '');
+                        $preselected_branch = $_GET['dept'] ?? $_POST['branch_select'] ?? '';
 
                         // Ensure $branch_select is also updated if not set by POST
                         if (empty($branch_select) && !empty($preselected_branch)) {

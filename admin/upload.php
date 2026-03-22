@@ -6,8 +6,8 @@ if (!isset($_SESSION['a_username'])) {
     die("You need to log in to view your uploads.");
 }
 
-$event = isset($_POST['event']) ? $_POST['event'] : (isset($_GET['event']) ? $_GET['event'] : '');
-$designation = isset($_POST['designation']) ? $_POST['designation'] : (isset($_GET['designation']) ? $_GET['designation'] : '');
+$event = $_POST['event'] ?? $_GET['event'] ?? '';
+$designation = $_POST['designation'] ?? $_GET['designation'] ?? '';
 
 $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
 
@@ -199,7 +199,7 @@ include 'header_admin.php';
             <label for="file_name">File Name:</label>
             <input type="text" id="file_name" name="file_name" required>
 
-            <label for="Description">Description:</label>
+            <label for="Desc">Description:</label>
             <input type="text" id="Desc" name="Desc" required>
 
             <label for="file">Choose files to upload:</label>

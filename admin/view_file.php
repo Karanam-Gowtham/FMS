@@ -32,7 +32,7 @@ if (isset($_GET['file_path'])) {
 
     if ($file) {
         $filePath = $file['file_path'];
-        if (preg_match('/uploads[\/\\\\\\\\].*/', $filePath, $matches)) {
+        if (preg_match('/uploads[\/\\\\].*/', $filePath, $matches)) {
             $filePath = "../" . $matches[0];
         }
     } else {

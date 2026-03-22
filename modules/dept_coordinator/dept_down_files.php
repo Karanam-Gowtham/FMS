@@ -10,7 +10,7 @@ if ($conn->connect_error) {
 if (!isset($_SESSION['username']) && !isset($_SESSION['j_username']) && !isset($_SESSION['h_username'])) {
     die("Please login to access this page.");
 }
-$username = isset($_SESSION['username']) ? $_SESSION['username'] : (isset($_SESSION['h_username']) ? $_SESSION['h_username'] : $_SESSION['j_username']);
+$username = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['j_username'] ?? '';
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -459,7 +459,7 @@ include "../../includes/header.php";
                 while ($row = $result->fetch_assoc()) {
                     $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
                     $status = $row['status'] ?? 'Pending';
-                    $statusColor = ($status === 'Accepted') ? 'green' : (($status === 'Rejected') ? 'red' : 'orange');
+                    $statusColor = ($status === 'Accepted') ? 'green' : ($status === 'Rejected' ? 'red' : 'orange');
 
                     echo "<tr>
                         <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "'

@@ -7,7 +7,7 @@ if (!isset($_SESSION['j_username'])) {
 }
 
 $username = $_SESSION['j_username'];
-$dept = $_GET['dept'] ?? (isset($_SESSION['dept']) ? $_SESSION['dept'] : '');
+$dept = $_GET['dept'] ?? $_SESSION['dept'] ?? '';
 
 if (empty($dept)) {
     die("Department not set.");

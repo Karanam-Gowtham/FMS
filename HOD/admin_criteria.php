@@ -237,10 +237,10 @@ if (isset($_POST['year'])) {
                 <th colspan="5" id="th1">Criteria <?php echo $criteria; ?></th>
             </tr>
             <tr id="tr2">
-                <th>Criteria No</th>
-                <th>Description</th>
-                <th>Action</th>
-                <th>Update</th>
+                <th scope="col">Criteria No</th>
+                <th scope="col">Description</th>
+                <th scope="col">Action</th>
+                <th scope="col">Update</th>
             </tr>
         </thead>
         <tbody>

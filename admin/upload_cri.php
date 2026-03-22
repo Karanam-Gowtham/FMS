@@ -6,8 +6,8 @@ if (!isset($_SESSION['cri_username'])) {
     die("You need to log in to view your uploads.");
 }
 
-$event = isset($_POST['event']) ? $_POST['event'] : (isset($_GET['event']) ? $_GET['event'] : '');
-$designation = isset($_POST['designation']) ? $_POST['designation'] : (isset($_GET['designation']) ? $_GET['designation'] : '');
+$event = $_POST['event'] ?? $_GET['event'] ?? '';
+$designation = $_POST['designation'] ?? $_GET['designation'] ?? '';
 
 $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
 

@@ -5,7 +5,7 @@ require_once '../includes/connection.php';
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("You need to log in to view this page.");
 }
-$dept = isset($_GET['dept']) ? $_GET['dept'] : (isset($_SESSION['dept']) ? $_SESSION['dept'] : '');
+$dept = $_GET['dept'] ?? $_SESSION['dept'] ?? '';
 
 // ─── Fetch achievement counts per faculty ─────────────────────────────────────
 function queryCount($conn, $table, $dept_col, $dept, $user_col = 'username')
@@ -91,9 +91,9 @@ $shortJson = json_encode($shortLabels, JSON_UNESCAPED_UNICODE);
     <title>HOD Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
     <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js" integrity="sha384-y49Zu59jZHJL/PLKgZPv3k2WI9c0Yp3pWB76V80BVCb0QBKS8l4Ff3YslzHVX76Y" crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;

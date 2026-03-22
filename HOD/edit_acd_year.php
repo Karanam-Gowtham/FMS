@@ -36,7 +36,7 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Academic Years</title>
     <style>
@@ -221,12 +221,14 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
 <div class="overlay" id="overlay" onclick="hidePopup()"></div>
 
 <table>
-    <tr>
-        <th>S.No</th>
-        <th>Academic Year</th>
-        <th>Edit</th>
-        <th>Delete</th>
-    </tr>
+    <thead>
+        <tr>
+            <th scope="col">S.No</th>
+            <th scope="col">Academic Year</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
+        </tr>
+    </thead>
 
     <?php
     $sno = 1;
@@ -248,7 +250,7 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
 <!-- Edit Popup -->
 <div class="popup" id="popup">
     <form method="POST">
-        <label>Edit Academic Year:</label><br>
+        <label for="editYearInput">Edit Academic Year:</label><br>
         <input type="text" name="new_year" id="editYearInput" required>
         <input type="hidden" name="old_year" id="oldYearInput">
         <br>

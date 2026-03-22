@@ -9,7 +9,7 @@ echo 'DB Path: ' . $dbPath . PHP_EOL;
 chdir('HOD'); // Simulate HOD directory
 echo 'Current Dir: ' . getcwd() . PHP_EOL;
 
-if (preg_match('/uploads[\/\\\\\\\\].*/', $dbPath, $matches)) {
+if (preg_match('/uploads[\/\\\\].*/', $dbPath, $matches)) {
     $relativeToHod = '../' . $matches[0];
     echo 'Extracted match: ' . $matches[0] . PHP_EOL;
     echo 'Relative to HOD: ' . $relativeToHod . PHP_EOL;

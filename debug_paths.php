@@ -9,7 +9,7 @@ if (!$res) {
 while ($row = $res->fetch_assoc()) {
     $p = $row['path'];
     $fixed = $p;
-    if (preg_match('/uploads[\/\\\\\\\\].*/', $p, $matches)) {
+    if (preg_match('/uploads[\/\\\\].*/', $p, $matches)) {
         $fixed = "../" . $matches[0];
     }
     echo "ID: " . $row['id'] . " | DB: " . $p . " | Fixed: " . $fixed . " | Exists: " . (file_exists("HOD/" . $fixed) ? "YES" : "NO") . "\n";
@@ -19,7 +19,7 @@ $res = $conn->query("SELECT id, merged_file as path, 'FDP ORG' as cat FROM fdps_
 while ($row = $res->fetch_assoc()) {
     $p = $row['path'];
     $fixed = $p;
-    if (preg_match('/uploads[\/\\\\\\\\].*/', $p, $matches)) {
+    if (preg_match('/uploads[\/\\\\].*/', $p, $matches)) {
         $fixed = "../" . $matches[0];
     }
     echo "ID: " . $row['id'] . " | DB: " . $p . " | Fixed: " . $fixed . " | Exists: " . (file_exists("HOD/" . $fixed) ? "YES" : "NO") . "\n";

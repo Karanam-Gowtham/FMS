@@ -222,10 +222,10 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
             <th colspan="4" id="th1">Criteria <?php echo $criteria; ?></th>
         </tr>
         <tr id="tr2">
-            <th>Criteria No</th>
-            <th>Description</th>
-            <th>Action 1</th>
-            <th>Action 2</th>
+            <th scope="col">Criteria No</th>
+            <th scope="col">Description</th>
+            <th scope="col">Action 1</th>
+            <th scope="col">Action 2</th>
         </tr>
     </thead>
     <tbody>

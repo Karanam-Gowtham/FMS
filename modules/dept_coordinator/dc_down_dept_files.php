@@ -12,10 +12,10 @@ if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
 $username = isset($_SESSION['a_username']) ? $_SESSION['a_username'] : $_SESSION['j_username'];
 
 // Get file_type from previous page
-$action1 = isset($_GET['file_type1']) ? $_GET['file_type1'] : (isset($_POST['file_type1']) ? $_POST['file_type1'] : '');
+$action1 = $_GET['file_type1'] ?? $_POST['file_type1'] ?? '';
 
 // Get selected branch from current page
-$selected_branch = isset($_GET['dept']) ? $_GET['dept'] : ($_POST['selected_branch'] ?? '');
+$selected_branch = $_GET['dept'] ?? $_POST['selected_branch'] ?? '';
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
@@ -427,7 +427,7 @@ include "../../includes/header.php";
         <div class="filter-section">
             <form method="POST" class="filter-form">
                 <?php
-                $preselected_branch = isset($_GET['dept']) ? $_GET['dept'] : (isset($_POST['selected_branch']) ? $_POST['selected_branch'] : '');
+                $preselected_branch = $_GET['dept'] ?? $_POST['selected_branch'] ?? '';
                 if ($preselected_branch) {
                     echo '<input type="hidden" name="selected_branch" value="' . htmlspecialchars($preselected_branch) . '">';
                 } else {

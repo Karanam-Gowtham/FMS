@@ -7,7 +7,7 @@ function fixPath($p) {
         return "";
     }
     $p = htmlspecialchars_decode($p);
-    if (preg_match('/uploads[\/\\\\\\\\].*/', $p, $matches)) {
+    if (preg_match('/uploads[\/\\\\].*/', $p, $matches)) {
         return "../" . $matches[0];
     }
     return $p;
@@ -211,15 +211,15 @@ $conn->close();
             <table>
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>Branch</th>
-                        <th>Title</th>
-                        <th>Organised By</th>
-                        <th>Location</th>
-                        <th>Date From</th>
-                        <th>To Date</th>
-                        <th>Submission Time</th>
-                        <th>Action</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Branch</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Organised By</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Date From</th>
+                        <th scope="col">To Date</th>
+                        <th scope="col">Submission Time</th>
+                        <th scope="col">Action</th>
                     </tr>
                 </thead>
                 <tbody>

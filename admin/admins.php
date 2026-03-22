@@ -42,27 +42,19 @@ if ($loggedInRole && $dept) {
         $check->bind_param("s", $_SESSION['username']);
         $check->execute();
         $res = $check->get_result();
-        if ($r = $res->fetch_assoc()) {
-            if (strcasecmp($r['dept'], $dept) == 0) {
-                $matchDept = true;
-            }
+        if (($r = $res->fetch_assoc()) && strcasecmp($r['dept'], $dept) == 0) {
+            $matchDept = true;
         }
     } elseif ($loggedInRole == 'dept_coordinator' && isset($_SESSION['a_username'])) {
         $check = $conn->prepare("SELECT department FROM reg_dept_cord WHERE userid = ?");
         $check->bind_param("s", $_SESSION['a_username']);
         $check->execute();
         $res = $check->get_result();
-        if ($r = $res->fetch_assoc()) {
-            if (strcasecmp($r['department'], $dept) == 0) {
-                $matchDept = true;
-            }
-
-        }
-    } elseif ($loggedInRole == 'hod' && isset($_SESSION['dept'])) {
-        // HOD often has dept in session, but let's trust session if set
-        if (strcasecmp($_SESSION['dept'], $dept) == 0) {
+        if (($r = $res->fetch_assoc()) && strcasecmp($r['department'], $dept) == 0) {
             $matchDept = true;
         }
+    } elseif ($loggedInRole == 'hod' && isset($_SESSION['dept']) && strcasecmp($_SESSION['dept'], $dept) == 0) {
+        $matchDept = true;
     } elseif ($loggedInRole == 'admin') {
         // Admin can access all, so theoretically true, but admin usually doesn't switch depts this way?
         // Admin link usually has specific params. Let's allow for now.
@@ -72,11 +64,8 @@ if ($loggedInRole && $dept) {
         $check->bind_param("s", $_SESSION['j_username']);
         $check->execute();
         $res = $check->get_result();
-        if ($r = $res->fetch_assoc()) {
-            if (strcasecmp($r['department'], $dept) == 0) {
-                $matchDept = true;
-            }
-
+        if (($r = $res->fetch_assoc()) && strcasecmp($r['department'], $dept) == 0) {
+            $matchDept = true;
         }
     }
     // Central Coordinator? Usually global.
@@ -390,7 +379,7 @@ include 'header_admin.php';
     </div>
 
     <div id="loginForm" style="display: none;">
-        <h2 id="welcomeMessage"></h2>
+        <h2 id="welcomeMessage">Login</h2>
         <h4>Please login</h4>
         <form method="POST">
             <?php echo csrf_field(); ?>

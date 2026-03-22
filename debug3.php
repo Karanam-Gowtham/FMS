@@ -8,7 +8,7 @@ $res = $conn->query('SELECT certificate FROM fdps_tab WHERE certificate IS NOT N
 if ($row = $res->fetch_assoc()) {
     $filePath = $row['certificate'];
     echo "Original: " . $filePath . "\n";
-    if (preg_match('/uploads[\/\\\\\\\\].*/', $filePath, $matches)) {
+    if (preg_match('/uploads[\/\\\\].*/', $filePath, $matches)) {
         $testPath = 'HOD/../' . $matches[0];
         echo "Trying: " . $testPath . "\n";
         if (file_exists($testPath)) {
