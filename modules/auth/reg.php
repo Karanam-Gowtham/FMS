@@ -310,13 +310,13 @@
             </select>
 
             <label for="doj">Date of Joining:</label>
-            <input type="date" name="doj" required value="<?php echo isset($_POST['doj']) ? $_POST['doj'] : ''; ?>">
+            <input type="date" name="doj" required value="<?php echo isset($_POST['doj']) ? htmlspecialchars((string)$_POST['doj']) : ''; ?>">
 
             <label for="pern">PERN No:</label>
             <input type="text" name="pern" required value="<?php echo isset($_POST['pern']) ? htmlspecialchars($_POST['pern']) : ''; ?>">
 
             <label for="dob">Date of Birth:</label>
-            <input type="date" name="dob" required value="<?php echo isset($_POST['dob']) ? $_POST['dob'] : ''; ?>">
+            <input type="date" name="dob" required value="<?php echo isset($_POST['dob']) ? htmlspecialchars((string)$_POST['dob']) : ''; ?>">
 
             <label for="gender">Gender:</label>
             <select name="gender" required>

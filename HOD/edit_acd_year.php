@@ -13,7 +13,8 @@ if (isset($_GET['delete'])) {
     $stmt->bind_param("s", $yearToDelete);
     $stmt->execute();
     $stmt->close();
-    header("Location: " . $_SERVER['PHP_SELF']);
+    $safe_url = htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8');
+    header("Location: " . $safe_url);
     exit;
 }
 
@@ -25,7 +26,8 @@ if (isset($_POST['edit_submit'])) {
     $stmt->bind_param("ss", $newYear, $oldYear);
     $stmt->execute();
     $stmt->close();
-    header("Location: " . $_SERVER['PHP_SELF']);
+    $safe_url = htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8');
+    header("Location: " . $safe_url);
     exit;
 }
 
@@ -194,7 +196,7 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
 
         function confirmDelete(year) {
             if (confirm("Are you sure you want to delete the academic year: " + year + "?")) {
-                window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>?delete=" + encodeURIComponent(year);
+                window.location.href = "<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>?delete=" + encodeURIComponent(year);
             }
         }
     </script>

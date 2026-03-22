@@ -33,8 +33,11 @@ if (isset($_GET['download_excel'])) {
     ], "\t");
 
     // Fetch the user's files
-    $query = "SELECT * FROM a_files WHERE academic_year='$academic_year' AND criteria = '$criteria'";
-    $result = mysqli_query($conn, $query);
+    $query = "SELECT * FROM a_files WHERE academic_year=? AND criteria = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "ss", $academic_year, $criteria);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if ($result->num_rows > 0) {
         // Write the rows to the output
@@ -199,8 +202,11 @@ if (isset($_GET['download_excel'])) {
             <?php
             
             // Fetch the user's files from the database, ordered by uploaded_at in descending order
-            $query = "SELECT * FROM a_files WHERE academic_year='$academic_year' AND criteria = '$criteria'";
-            $result = mysqli_query($conn, $query);
+            $query = "SELECT * FROM a_files WHERE academic_year=? AND criteria = ?";
+            $stmt = mysqli_prepare($conn, $query);
+            mysqli_stmt_bind_param($stmt, "ss", $academic_year, $criteria);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
 
             $index = 1; // Initialize index for numbering
             if ($result->num_rows > 0) {

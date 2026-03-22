@@ -274,11 +274,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if (isset($_SESSION['j_username'])): ?>
                     <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
-                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>"
+                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                             class="home-icon">jr_assistant</a></span>
                 <?php else: ?>
                     <span id="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
-                            href="dc_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon">dept_coordinator</a></span>
+                            href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon">dept_coordinator</a></span>
                 <?php endif; ?>
                 <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
                         class="main-a"><?php echo "$event" ?>_Files</a></span>

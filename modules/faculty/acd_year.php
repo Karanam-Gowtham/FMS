@@ -202,37 +202,37 @@ include '../../includes/header.php';
         <div class="container">
             <div class="header">
                 <h1>Achievements</h1>
-                <a href="../common/download_papers1.php?dept=<?php echo "$dept" ?>" class="btn my-achievements">My
+                <a href="../common/download_papers1.php?dept=<?php echo urlencode((string)$dept); ?>" class="btn my-achievements">My
                     Achievements</a>
             </div>
 
             <div class="feedback-grid">
 
 
-                <a href="fdps.php?dept=<?php echo "$dept" ?>&type=faculty" class="feedback-card">
+                <a href="fdps.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>FDPS Attended</h3>
                     </div>
                 </a>
 
-                <a href="fdps_org.php?dept=<?php echo "$dept" ?>&type=faculty" class="feedback-card">
+                <a href="fdps_org.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>FDPS Organized</h3>
                     </div>
                 </a>
 
-                <a href="published.php?dept=<?php echo "$dept" ?>&type=faculty" class="feedback-card">
+                <a href="published.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Papers Published</h3>
                     </div>
                 </a>
 
-                <a href="conference.php?dept=<?php echo "$dept" ?>&type=faculty" class="feedback-card">
+                <a href="conference.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Conferences Published</h3>
                     </div>
                 </a>
-                <a href="patents.php?dept=<?php echo "$dept" ?>&type=faculty" class="feedback-card">
+                <a href="patents.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Patents</h3>
                     </div>
@@ -242,42 +242,42 @@ include '../../includes/header.php';
         <div class="container">
             <div class="header">
                 <h1>Department Files</h1>
-                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo "$dept" ?>"
+                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo urlencode((string)$dept); ?>"
                     class="btn my-achievements">My Dept Files</a>
             </div>
 
             <div class="feedback-grid">
 
 
-                <a href="../dept_coordinator/dept_files.php?event=admin&dept=<?php echo "$dept" ?>"
+                <a href="../dept_coordinator/dept_files.php?event=admin&dept=<?php echo urlencode((string)$dept); ?>"
                     class="feedback-card">
                     <div class="card-content">
                         <h3>Admin Files</h3>
                     </div>
                 </a>
 
-                <a href="../dept_coordinator/dept_files.php?event=faculty&dept=<?php echo "$dept" ?>"
+                <a href="../dept_coordinator/dept_files.php?event=faculty&dept=<?php echo urlencode((string)$dept); ?>"
                     class="feedback-card">
                     <div class="card-content">
                         <h3>Faculty Files</h3>
                     </div>
                 </a>
 
-                <a href="../dept_coordinator/dept_files.php?event=student&dept=<?php echo "$dept" ?>"
+                <a href="../dept_coordinator/dept_files.php?event=student&dept=<?php echo urlencode((string)$dept); ?>"
                     class="feedback-card">
                     <div class="card-content">
                         <h3>Student Related Files</h3>
                     </div>
                 </a>
 
-                <a href="../dept_coordinator/dept_files.php?event=exam&dept=<?php echo "$dept" ?>"
+                <a href="../dept_coordinator/dept_files.php?event=exam&dept=<?php echo urlencode((string)$dept); ?>"
                     class="feedback-card">
                     <div class="card-content">
                         <h3>Exam Section Files</h3>
                     </div>
                 </a>
 
-                <a href="student_act.php?event=student_act&dept=<?php echo "$dept" ?>" class="feedback-card">
+                <a href="student_act.php?event=student_act&dept=<?php echo urlencode((string)$dept); ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>student Activities Files</h3>
                     </div>

@@ -94,7 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             }
         } else {
             $zip = new ZipArchive();
-            $zipFileName = $main_select . "_" . time() . ".zip";
+            $safe_main_select = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$main_select);
+            $zipFileName = $safe_main_select . "_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {

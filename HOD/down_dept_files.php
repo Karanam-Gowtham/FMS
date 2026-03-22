@@ -24,7 +24,9 @@ if (isset($_POST['download_excel'])) {
 
     // Set headers for Excel file download
     header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=dept_files_{$event}_{$department}.xls");
+    $safe_event = str_replace(["\r", "\n", '"'], '', (string)$event);
+    $safe_department = str_replace(["\r", "\n", '"'], '', (string)$department);
+    header("Content-Disposition: attachment; filename=\"dept_files_{$safe_event}_{$safe_department}.xls\"");
     header("Pragma: no-cache");
     header("Expires: 0");
 
@@ -280,7 +282,7 @@ include "./header_hod.php";
                 </form>
                 <?php
                 // Display records
-                echo "<h2>" . ucfirst(str_replace("_", " ", $event)) . " Files for " . ucfirst($department) . "</h2>";
+                echo "<h2>" . htmlspecialchars(ucfirst(str_replace("_", " ", (string)$event))) . " Files for " . htmlspecialchars(ucfirst((string)$department)) . "</h2>";
                 echo "<table class='styled-table'>
                             <thead>
                                 <tr>

@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     }
     $action = $_POST['action'];
     $selectedFiles = $_POST['selected_files'];
-    $category = $_POST['category'];
+    $category = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['category']);
 
     // Determine table and file column based on category
     switch ($category) {
@@ -385,7 +385,7 @@ include("../../includes/header.php");
             <span>&nbsp; >> &nbsp; </span><span class="sid"><a
                     href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                     class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <span>&nbsp; >> &nbsp; </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>"
+            <span>&nbsp; >> &nbsp; </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                     class="home-icon"> Faculty </a></span>
             <span>&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> My Achievements
                 </a></span>
@@ -412,7 +412,7 @@ include("../../includes/header.php");
 
     <?php
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $category = $_POST['category'];
+        $category = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['category']);
 
         switch ($category) {
             case 'fdps':

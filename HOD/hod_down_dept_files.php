@@ -42,62 +42,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_files']) && 
     $action = $_POST['action'];
     $files = $_POST['selected_files'];
 
+    function getSafePathHodDeptDown($fileStr) {
+        $filename = basename(htmlspecialchars_decode(urldecode($fileStr), ENT_QUOTES));
+        $dirs = ['../../uploads/', '../../uploads1/', '../uploads/', '../uploads1/', 'uploads/', 'uploads1/'];
+        foreach ($dirs as $dir) {
+            if (file_exists($dir . $filename) && is_file($dir . $filename)) {
+                return $dir . $filename;
+            }
+        }
+        return false;
+    }
+
     if ($action === 'download') {
         if (count($files) === 1) {
-            $decoded = urldecode($files[0]);
-            // Adjust path: files in DB are relative to root or similar? 
-            // In dc_down_dept_files.php, it uses file_exists($decoded). 
-            // dept_files table typically stores paths like 'uploads/...' or '../uploads/...'. 
-            // We should check if we need to prepend '../' if strictly in HOD dir.
-            // dc_down_dept_files.php is in modules/dept_coordinator, i.e. 2 levels deep. 
-            // HOD is 1 level deep.
-            // If DB paths are relative to root (e.g. 'uploads/file.pdf'), then:
-            // DC (2 levels): '../../uploads/file.pdf' ? No, let's check DB paths logic or existing code.
-            // In dc_acd_year.php, it links to `dc_down_dept_files.php`.
-            // In the display loop of dc_down_dept_files.php: `echo $row['file_path']` etc.
-            // But usually paths are stored relative to where saving script ran.
-            // Let's assume standard behavior: we might need `../$decoded` if $decoded is 'uploads/...'.
-            // dc_down_dept_files checks `file_exists($decoded)`. 
-            // If it works there, and that file is 2 levels deep... wait.
-            // If the DB path is 'uploads/foo.pdf', then `file_exists` from `modules/dept_coordinator` would fail unless it's `../../uploads/foo.pdf`.
-            // If dc_down_dept_files works, maybe DB stores absolute paths or relative to that file?
-            // Actually, in `down_dept_files.php` (HOD folder, 1 level deep), the line 284 was: `$filePath = "../" . htmlspecialchars($row['file_path']);`
-            // So DB stores 'uploads/...' likely.
-            // So in HOD (1 level deep), we need `../` + DB_path.
-            // But `dc_down_dept_files` (2 levels deep) uses `file_exists($decoded)` directly on the value from POST?
-            // Ah, the checkbox value in `dc_down_dept_files` is `urlencode($file_path)`.
-            // And `$file_path` comes from `htmlspecialchars($row['file_path'])`.
-            // So if DB has 'uploads/foo.pdf', checkbox has 'uploads/foo.pdf'.
-            // If `dc_down_dept_files.php` works, it implies `file_exists('uploads/foo.pdf')` works from `modules/dept_coordinator`? 
-            // That implies `modules/dept_coordinator/uploads` exists? Unlikely.
-            // Maybe DB has `../uploads/foo.pdf`?
-            // Let's look at `down_dept_files.php` (HOD) again. Line 284: `$filePath = "../" . htmlspecialchars($row['file_path']);`. 
-            // This suggests DB has `uploads/...` and we need `../` for HOD.
-            // So for HOD `hod_down_dept_files.php`, I should prepend `../` to the path if it's not there.
+            $safePath = getSafePathHodDeptDown($files[0]);
 
-            $file_to_download = $decoded;
-            if (preg_match('/uploads\/.*/', $file_to_download, $matches)) {
-                $file_to_download = "../" . $matches[0];
-            }
-
-            if (file_exists($file_to_download)) {
+            if ($safePath) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"" . basename($file_to_download) . "\"");
-                header('Content-Length: ' . filesize($file_to_download));
-                readfile($file_to_download);
+                header("Content-Disposition: attachment; filename=\"" . basename($safePath) . "\"");
+                header('Content-Length: ' . filesize($safePath));
+                readfile($safePath);
                 exit();
             } else {
-                // Try without ../ just in case
-                if (file_exists($decoded)) {
-                    header('Content-Description: File Transfer');
-                    header('Content-Type: application/octet-stream');
-                    header("Content-Disposition: attachment; filename=\"" . basename($decoded) . "\"");
-                    header('Content-Length: ' . filesize($decoded));
-                    readfile($decoded);
-                    exit();
-                }
-                echo "File not found: $file_to_download";
+                echo "File not found";
             }
         } else {
             $zip = new ZipArchive();
@@ -106,16 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_files']) && 
 
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
                 foreach ($files as $file) {
-                    $decoded = urldecode($file);
-                    $file_to_add = $decoded;
-                    if (preg_match('/uploads\/.*/', $file_to_add, $matches)) {
-                        $file_to_add = "../" . $matches[0];
-                    }
-
-                    if (file_exists($file_to_add)) {
-                        $zip->addFile($file_to_add, basename($decoded));
-                    } elseif (file_exists($decoded)) {
-                        $zip->addFile($decoded, basename($decoded));
+                    $safePath = getSafePathHodDeptDown($file);
+                    if ($safePath) {
+                        $zip->addFile($safePath, basename($safePath));
                     }
                 }
                 $zip->close();
@@ -396,7 +357,7 @@ include "header_hod.php";
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
-                echo "<h2>" . ucfirst($selected_branch) . " Department - " . ucfirst($action1) . " Files</h2>";
+                echo "<h2>" . htmlspecialchars(ucfirst((string)$selected_branch)) . " Department - " . htmlspecialchars(ucfirst((string)$action1)) . " Files</h2>";
                 echo "<form method='post' action=''>";
 
                 echo "<table border='1'>
@@ -416,7 +377,7 @@ include "header_hod.php";
                     echo "<tr>
                     <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' data-filepath=\"$fixed_path\"></td>
                     <td>" . htmlspecialchars($row['username']) . "</td>
-                    <td>$selected_branch</td>
+                    <td>" . htmlspecialchars((string)$selected_branch) . "</td>
                     <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
                     <td>" . htmlspecialchars($row['file_name']) . "</td>
                 </tr>";
@@ -431,7 +392,7 @@ include "header_hod.php";
                 echo "</div>";
                 echo "</form>";
             } else {
-                echo "<p class='no-files'>No files found for " . ucfirst($selected_branch) . " department in " . ucfirst($action1) . " category.</p>";
+                echo "<p class='no-files'>No files found for " . htmlspecialchars(ucfirst((string)$selected_branch)) . " department in " . htmlspecialchars(ucfirst((string)$action1)) . " category.</p>";
             }
             $stmt->close();
         }

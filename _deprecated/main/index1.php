@@ -67,7 +67,7 @@
         <ul>
             <?php
             // Database connection
-            $conn = new mysqli("localhost", "root", "", "file_uploads");
+            $conn = new mysqli("localhost", "root", "your_secure_password", "file_uploads");
 
             // Check connection
             if ($conn->connect_error) {
@@ -102,7 +102,7 @@
             mkdir($targetDir, 0777, true);
         }
 
-        $conn = new mysqli("localhost", "root", "", "file_uploads");
+        $conn = new mysqli("localhost", "root", "your_secure_password", "file_uploads");
 
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);

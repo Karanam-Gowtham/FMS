@@ -29,18 +29,29 @@ if (
     $action = $_POST['action'];
     $files = $_POST['selected_files'];
 
+    function getSafePathCent($fileStr) {
+        $filename = basename(htmlspecialchars_decode(urldecode($fileStr), ENT_QUOTES));
+        $dirs = ['../../uploads/', '../../uploads1/', '../uploads/', '../uploads1/', 'uploads/', 'uploads1/'];
+        foreach ($dirs as $dir) {
+            if (file_exists($dir . $filename) && is_file($dir . $filename)) {
+                return $dir . $filename;
+            }
+        }
+        return false;
+    }
+
     if ($action === 'download') {
         if (count($files) === 1) {
-            $decoded = urldecode($files[0]);
-            if (file_exists($decoded)) {
+            $safePath = getSafePathCent($files[0]);
+            if ($safePath) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"" . basename($decoded) . "\"");
+                header("Content-Disposition: attachment; filename=\"" . basename($safePath) . "\"");
                 header('Expires: 0');
                 header('Cache-Control: must-revalidate');
                 header('Pragma: public');
-                header('Content-Length: ' . filesize($decoded));
-                readfile($decoded);
+                header('Content-Length: ' . filesize($safePath));
+                readfile($safePath);
                 exit();
             } else {
                 echo "File not found.";
@@ -52,9 +63,9 @@ if (
 
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
                 foreach ($files as $file) {
-                    $decoded = urldecode($file);
-                    if (file_exists($decoded)) {
-                        $zip->addFile($decoded, basename($decoded));
+                    $safePath = getSafePathCent($file);
+                    if ($safePath) {
+                        $zip->addFile($safePath, basename($safePath));
                     }
                 }
                 $zip->close();
@@ -70,20 +81,20 @@ if (
         }
     } elseif ($action === 'delete') {
         foreach ($files as $file) {
-            $decoded = urldecode($file);
+            $decoded = htmlspecialchars_decode(urldecode($file), ENT_QUOTES);
+            $safePath = getSafePathCent($file);
             $stmt = $conn->prepare("DELETE FROM central_files WHERE file_path = ?");
             $stmt->bind_param("s", $decoded);
 
             $stmt->execute();
-            if (file_exists($decoded)) {
-                unlink($decoded);
+            if ($safePath) {
+                unlink($safePath);
             }
         }
         echo "<script>
                 alert('Selected files deleted.');
                 window.location.href = 'c_down_files.php?event=" . urlencode($event) . "';
             </script>";
-
     }
 }
 

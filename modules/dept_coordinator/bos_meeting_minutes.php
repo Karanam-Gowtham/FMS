@@ -301,7 +301,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
-                        href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
+                        href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Faculty </a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
                         <?php echo "$event" ?> </a></span>
                 <span id="sp">&nbsp; >> &nbsp; </span>

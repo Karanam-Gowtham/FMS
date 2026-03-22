@@ -56,7 +56,7 @@ if (isset($_POST['upload'])) {
                 echo "Error: " . $stmt->error;
             }
         } else {
-            echo "<p class='error-message'>Error moving uploaded file: $filename</p>";
+            echo "<p class='error-message'>Error moving uploaded file: " . htmlspecialchars($filename) . "</p>";
         }
     }
 
@@ -170,9 +170,9 @@ include 'header_admin.php';
         <h1>Upload Files</h1>
         <form action="upload_cent.php" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
             <!-- Hidden fields for academic_year, criteria, and criteria_no -->
-            <input type="hidden" name="academic_year" id="academic_year" value="<?php echo $academic_year; ?>">
-            <input type="hidden" name="criteria" id="criteria" value="<?php echo $criteria; ?>">
-            <input type="hidden" name="criteria_no" id="criteria_no" value="<?php echo $criteria_no; ?>">
+            <input type="hidden" name="academic_year" id="academic_year" value="<?php echo htmlspecialchars((string)$academic_year); ?>">
+            <input type="hidden" name="criteria" id="criteria" value="<?php echo htmlspecialchars((string)$criteria); ?>">
+            <input type="hidden" name="criteria_no" id="criteria_no" value="<?php echo htmlspecialchars((string)$criteria_no); ?>">
             <input type="hidden" name="event" value="<?php echo htmlspecialchars($event); ?>">
             <input type="hidden" name="designation" value="<?php echo htmlspecialchars($designation); ?>">
 

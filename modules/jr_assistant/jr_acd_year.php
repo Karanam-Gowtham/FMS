@@ -207,7 +207,7 @@ include '../../includes/header.php';
         <div class="container">
             <div class="header">
                 <h1>Meeting Minutes Management</h1>
-                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo "$dept" ?>" class="btn btn-primary">My
+                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo urlencode((string)$dept); ?>" class="btn btn-primary">My
                     Uploads</a>
             </div>
 

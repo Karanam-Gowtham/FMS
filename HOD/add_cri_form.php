@@ -11,8 +11,8 @@ $year = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : 'Not Selected';
 
 try {
     // Get the academic year and criteria from the POST request
-    $academic_year = isset($_POST['academic_year']) ? $_POST['academic_year'] : '';
-    $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
+    $academic_year = isset($_POST['academic_year']) ? $_POST['academic_year'] : (isset($_GET['year']) ? $_GET['year'] : '');
+    $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : (isset($_GET['criteria']) ? $_GET['criteria'] : '');
 
     // Check if the upload form was submitted
     if (isset($_POST['upload'])) {
@@ -122,7 +122,7 @@ $conn->close();
                     </svg>
                 </a>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="sid"> <a href="admin_criteria.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>&criteria=<?php echo urlencode($criteria); ?>&year=<?php echo urlencode($year); ?>" class="home-icon">Criteria <?php echo"$criteria" ?>  </a></span>
+                <span class="sid">&nbsp;  >> &nbsp; </span><span class="sid"> <a href="admin_criteria.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>&criteria=<?php echo urlencode($criteria); ?>&year=<?php echo urlencode($year); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?>  </a></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Add Criteria</a></span>
             </div>
         </div>
@@ -134,8 +134,8 @@ $conn->close();
         <h1>Upload Files</h1>
         <form action="add_cri_form.php" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
             <!-- Hidden fields for academic_year, criteria -->
-            <input type="hidden" name="academic_year" id="academic_year" value="<?php echo $academic_year; ?>">
-            <input type="hidden" name="criteria" id="criteria" value="<?php echo $criteria; ?>">
+            <input type="hidden" name="academic_year" id="academic_year" value="<?php echo htmlspecialchars($academic_year); ?>">
+            <input type="hidden" name="criteria" id="criteria" value="<?php echo htmlspecialchars($criteria); ?>">
 
             <label for="cri_no">Criteria No:</label>
             <input type="text" id="cri_no" name="cri_no" required>

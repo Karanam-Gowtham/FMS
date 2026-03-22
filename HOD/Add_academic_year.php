@@ -12,19 +12,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $year = trim($_POST["year"]);
 
     if (!empty($year)) {
-        $check = "SELECT * FROM academic_year WHERE year = '$year'";
-        $check_result = mysqli_query($conn, $check);
+        $check = "SELECT * FROM academic_year WHERE year = ?";
+        $stmt_check = mysqli_prepare($conn, $check);
+        mysqli_stmt_bind_param($stmt_check, "s", $year);
+        mysqli_stmt_execute($stmt_check);
+        mysqli_stmt_store_result($stmt_check);
 
-        if (mysqli_num_rows($check_result) > 0) {
-            $error = "Academic year '$year' already exists.";
+        if (mysqli_stmt_num_rows($stmt_check) > 0) {
+            $error = "Academic year '" . htmlspecialchars($year) . "' already exists.";
         } else {
-            $insert = "INSERT INTO academic_year (year) VALUES ('$year')";
-            if (mysqli_query($conn, $insert)) {
-                $success = "Academic year '$year' added successfully!";
+            $insert = "INSERT INTO academic_year (year) VALUES (?)";
+            $stmt_insert = mysqli_prepare($conn, $insert);
+            mysqli_stmt_bind_param($stmt_insert, "s", $year);
+            if (mysqli_stmt_execute($stmt_insert)) {
+                $success = "Academic year '" . htmlspecialchars($year) . "' added successfully!";
             } else {
                 $error = "Error: " . mysqli_error($conn);
             }
+            mysqli_stmt_close($stmt_insert);
         }
+        mysqli_stmt_close($stmt_check);
     } else {
         $error = "Please enter an academic year.";
     }

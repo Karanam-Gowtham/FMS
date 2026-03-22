@@ -429,10 +429,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <?php if ($role === 'faculty'): ?>
                     <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
-                            href="../faculty/acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Faculty </a></span>
+                            href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Faculty </a></span>
                 <?php else: ?>
                     <span id="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
-                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo "$dept" ?>" class="home-icon"> Jr
+                            href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Jr
                             Assistant
                         </a></span>
                 <?php endif; ?>

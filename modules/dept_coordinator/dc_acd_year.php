@@ -273,7 +273,7 @@ include '../../includes/header.php';
             <div class="header">
                 <h1>Achievements</h1>
                 <div class="up_ach">
-                    <a href="dc_up_files.php?event=Achievements&dept=<?php echo "$dept" ?>" class="feedback-card_1">
+                    <a href="dc_up_files.php?event=Achievements&dept=<?php echo urlencode((string)$dept); ?>" class="feedback-card_1">
                         <div class="card-content_1">
                             <h3>Upload Achievement Files </h3>
                         </div>
@@ -323,7 +323,7 @@ include '../../includes/header.php';
             <div class="header">
                 <h1>Department Files</h1>
                 <div class="up_ach">
-                    <a href="dc_up_files.php?event=dept&dept=<?php echo "$dept" ?>" class="feedback-card1">
+                    <a href="dc_up_files.php?event=dept&dept=<?php echo urlencode((string)$dept); ?>" class="feedback-card1">
                         <div class="card-content_1">
                             <h3>Upload Department Files </h3>
                         </div>

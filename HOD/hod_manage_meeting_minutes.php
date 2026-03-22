@@ -93,7 +93,7 @@ include 'header_hod.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage <?php echo $event; ?></title>
+    <title>Manage <?php echo htmlspecialchars((string)$event); ?></title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -266,14 +266,14 @@ include 'header_hod.php';
             <div class="breadcrumb">
                 <a href="../index.php">Home</a> &nbsp; >> &nbsp;
                 <a href="see_uploads.php">HOD Dashboard</a> &nbsp; >> &nbsp;
-                <span>Manage <?php echo $event; ?></span>
+                <span>Manage <?php echo htmlspecialchars((string)$event); ?></span>
             </div>
         </div>
     </div>
 
     <div class="main-container">
         <div class="card">
-            <h1><?php echo $event; ?> - Pending Approval</h1>
+            <h1><?php echo htmlspecialchars((string)$event); ?> - Pending Approval</h1>
 
             <?php if (isset($success_msg)): ?>
                 <div
