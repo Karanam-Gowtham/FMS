@@ -1,5 +1,6 @@
 <?php
-include("../../includes/connection.php");
+include "../../includes/connection.php";
+require_once "../../includes/constants.php";
 
 
 if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
@@ -155,152 +156,131 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 ///------------------------------------------------------------------------------------------------------------
 // SQL query to fetch all records from the fdps_tab table
 
-if (isset($_POST['export_sjournal'])) {
-    ob_end_clean();//End previous buffer
-    ob_start();// start new buffer for excel
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=journal.xls");
-
-    // Write the Excel content header
-    echo "Username\tBranch\tAcademic_Year\tPaper Title\tJournal Name\tIndexing\tDate of Submission\tQuality Factor\tImpact Factor\tPayment\n";
-    $branch_select = $_POST['branch_select'] ?? '';
-    // Prepare and execute the SQL query
-    $sql_sjournal = "SELECT * FROM s_journal_tab WHERE branch = ?";
-    $stmt_sjournal = $conn->prepare($sql_sjournal);
-    $stmt_sjournal->bind_param("s", $branch_select);
-    $stmt_sjournal->execute();
-    $result_sjournal = $stmt_sjournal->get_result();
-
-    // Fetch and write data rows
-    if ($result_sjournal->num_rows > 0) {
-        while ($row = $result_sjournal->fetch_assoc()) {
-            echo $row['Username'] . "\t" .
-                $row['branch'] . "\t" .
-                $row['acd_year'] . "\t" .
-                $row['paper_title'] . "\t" .
-                $row['journal_name'] . "\t" .
-                $row['indexing'] . "\t" .
-                $row['date_of_submission'] . "\t" .
-                $row['quality_factor'] . "\t" .
-                $row['impact_factor'] . "\t" .
-                $row['payment'] . "\n";
-        }
-    }
-
-    // End script execution
-    ob_end_flush(); // End current buffer
-    exit;
-}
-
-if (isset($_POST['export_sconference'])) {
+/**
+ * Exports Student Journal records to Excel.
+ */
+function exportStudentJournal($conn, $branch) {
     ob_end_clean();
     ob_start();
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=conferences.xls");
+    header(TYPE_EXCEL);
+    header('Content-Disposition: attachment; filename=journal.xls');
 
-    echo "Username\tBranch\tAcademic_Year\tPaper Title\tFrom Date\tTo Date\tOrganised By\tLocation\tPaper Type\n";
-    $branch_select = $_POST['branch_select'] ?? '';
+    echo "Username\tBranch\tAcademic_Year\tPaper Title\tJournal Name\tIndexing\tDate of Submission\tQuality Factor\tImpact Factor\tPayment\n";
 
-    $sql_sconference = "SELECT * FROM s_conference_tab WHERE branch = ?";
-    $stmt_sconference = $conn->prepare($sql_sconference);
-    $stmt_sconference->bind_param("s", $branch_select);
-    $stmt_sconference->execute();
-    $result_sconference = $stmt_sconference->get_result();
+    $sql = "SELECT * FROM s_journal_tab WHERE branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $branch);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    while ($row = $result_sconference->fetch_assoc()) {
+    while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
-            $row['Username'],
-            $row['branch'],
-            $row['acd_year'],
-            $row['paper_title'],
-            $row['from_date'],
-            $row['to_date'],
-            $row['organised_by'],
-            $row['location'],
-            $row['paper_type']
+            $row['Username'], $row['branch'], $row['acd_year'], $row['paper_title'],
+            $row['journal_name'], $row['indexing'], $row['date_of_submission'],
+            $row['quality_factor'], $row['impact_factor'], $row['payment']
         ]) . "\n";
     }
-
     ob_end_flush();
     exit;
-
 }
 
-// Handle export for Published Papers
-if (isset($_POST['export_sbodies'])) {
-    $bodies_sub_select = $_POST['bodies_sub_select'];
+/**
+ * Exports Student Conference records to Excel.
+ */
+function exportStudentConference($conn, $branch) {
     ob_end_clean();
     ob_start();
-    header("Content-Type: application/vnd.ms-excel");
-    $safe_filename = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$bodies_sub_select);
+    header(TYPE_EXCEL);
+    header('Content-Disposition: attachment; filename=conferences.xls');
+
+    echo "Username\tBranch\tAcademic_Year\tPaper Title\tFrom Date\tTo Date\tOrganised By\tLocation\tPaper Type\n";
+
+    $sql = "SELECT * FROM s_conference_tab WHERE branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $branch);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        echo implode("\t", [
+            $row['Username'], $row['branch'], $row['acd_year'], $row['paper_title'],
+            $row['from_date'], $row['to_date'], $row['organised_by'],
+            $row['location'], $row['paper_type']
+        ]) . "\n";
+    }
+    ob_end_flush();
+    exit;
+}
+
+/**
+ * Exports Professional Bodies records to Excel.
+ */
+function exportStudentBodies($conn, $branch, $body) {
+    ob_end_clean();
+    ob_start();
+    header(TYPE_EXCEL);
+    $safe_filename = preg_replace(REGEX_SPECIAL_CHARS, '', (string)$body);
     header("Content-Disposition: attachment; filename=$safe_filename.xls");
 
     echo "Username\tBranch\tAcademic_Year\tBody\tEvent Name\tFrom Date\tTo Date\tOrganised By\tLocation\tParticipation Status\n";
-    $branch_select = $_POST['branch_select'] ?? '';
 
-    $sql_sbodies = "SELECT * FROM s_bodies WHERE Body = ? and branch = ?";
-    $stmt_sbodies = $conn->prepare($sql_sbodies);
-    $stmt_sbodies->bind_param("ss", $bodies_sub_select, $branch_select);
-    $stmt_sbodies->execute();
-    $result_sbodies = $stmt_sbodies->get_result();
+    $sql = "SELECT * FROM s_bodies WHERE Body = ? AND branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $body, $branch);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    while ($row = $result_sbodies->fetch_assoc()) {
+    while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
-            $row['Username'],
-            $row['branch'],
-            $row['acd_year'],
-            $row['Body'],
-            $row['event_name'],
-            $row['from_date'],
-            $row['to_date'],
-            $row['organised_by'],
-            $row['location'],
-            $row['participation_status']
+            $row['Username'], $row['branch'], $row['acd_year'], $row['Body'],
+            $row['event_name'], $row['from_date'], $row['to_date'],
+            $row['organised_by'], $row['location'], $row['participation_status']
         ]) . "\n";
     }
-
     ob_end_flush();
     exit;
-
 }
 
-// Handle export for Conference Papers
-if (isset($_POST['export_sevents'])) {
-    $main_select = $_POST['main_select'] ?? '';
+/**
+ * Exports Student Events (Projects, Internships, SIH) to Excel.
+ */
+function exportStudentEvents($conn, $branch, $activity) {
     ob_end_clean();
     ob_start();
-    header("Content-Type: application/vnd.ms-excel");
-    $safe_filename = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$main_select);
+    header(TYPE_EXCEL);
+    $safe_filename = preg_replace(REGEX_SPECIAL_CHARS, '', (string)$activity);
     header("Content-Disposition: attachment; filename=$safe_filename.xls");
 
     echo "Username\tBranch\tAcademic_Year\tActivity\tEvent Name\tFrom Date\tTo Date\tOrganised By\tLocation\tParticipation Status\n";
-    $branch_select = $_POST['branch_select'] ?? '';
 
+    $sql = "SELECT * FROM s_events WHERE branch = ? AND activity = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $branch, $activity);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    $sql_sevents = "SELECT * FROM s_events WHERE branch = ? and activity = ?";
-    $stmt_sevents = $conn->prepare($sql_sevents);
-    $stmt_sevents->bind_param("ss", $branch_select, $main_select);
-    $stmt_sevents->execute();
-    $result_sevents = $stmt_sevents->get_result();
-
-    while ($row = $result_sevents->fetch_assoc()) {
+    while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
-            $row['Username'],
-            $row['branch'],
-            $row['acd_year'],
-            $row['activity'],
-            $row['event_name'],
-            $row['from_date'],
-            $row['to_date'],
-            $row['organised_by'],
-            $row['location'],
-            $row['participation_status']
+            $row['Username'], $row['branch'], $row['acd_year'], $row['activity'],
+            $row['event_name'], $row['from_date'], $row['to_date'],
+            $row['organised_by'], $row['location'], $row['participation_status']
         ]) . "\n";
     }
-
     ob_end_flush();
     exit;
+}
 
+if (isset($_POST['export_sjournal'])) {
+    exportStudentJournal($conn, $_POST['branch_select'] ?? '');
+}
+if (isset($_POST['export_sconference'])) {
+    exportStudentConference($conn, $_POST['branch_select'] ?? '');
+}
+if (isset($_POST['export_sbodies'])) {
+    exportStudentBodies($conn, $_POST['branch_select'] ?? '', $_POST['bodies_sub_select'] ?? '');
+}
+if (isset($_POST['export_sevents'])) {
+    exportStudentEvents($conn, $_POST['branch_select'] ?? '', $_POST['main_select'] ?? '');
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------

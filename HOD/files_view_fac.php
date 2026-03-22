@@ -241,22 +241,29 @@ function handleDisplayDefault($conn, $academic_year, $branch, $criteria, $criter
 processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section, $show_ext_or_Int);
 
 function displayFiles($result, $show_section, $show_semester, $show_branch, $show_ext_int = false) {
+    $columns = [];
+    if ($show_branch) {
+        $columns['branch'] = 'Branch';
+    }
+    if ($show_semester) {
+        $columns['sem'] = 'Semester';
+    }
+    if ($show_section) {
+        $columns['section'] = 'Section';
+    }
+    if ($show_ext_int) {
+        $columns['ext_or_int'] = 'Ext_or_Int';
+    }
+
     echo "<table><tr>
             <th>Username</th>
             <th>Faculty Name</th>
             <th>Academic Year</th>";
-    if ($show_branch) {
-        echo "<th>Branch</th>";
+    
+    foreach ($columns as $label) {
+        echo "<th>" . htmlspecialchars($label) . "</th>";
     }
-    if ($show_semester) {
-        echo "<th>Semester</th>";
-    }
-    if ($show_section) {
-        echo "<th>Section</th>";
-    }
-    if ($show_ext_int) {
-        echo "<th>Ext_or_Int</th>";
-    }
+
     echo "<th>Filename</th>
           <th>Uploaded At</th>
           <th>View</th>
@@ -266,36 +273,23 @@ function displayFiles($result, $show_section, $show_semester, $show_branch, $sho
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['UserName']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['faculty_name']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['academic_year']) . "</td>";
-            if ($show_branch) {
-                echo "<td>" . htmlspecialchars($row['branch']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['UserName'] ?? '') . "</td>";
+            echo "<td>" . htmlspecialchars($row['faculty_name'] ?? '') . "</td>";
+            echo "<td>" . htmlspecialchars($row['academic_year'] ?? '') . "</td>";
+            
+            foreach ($columns as $key => $label) {
+                echo "<td>" . htmlspecialchars($row[$key] ?? '') . "</td>";
             }
-            if ($show_semester) {
-                echo "<td>" . htmlspecialchars($row['sem']) . "</td>";
-            }
-            if ($show_section) {
-                echo "<td>" . htmlspecialchars($row['section']) . "</td>";
-            }
-            if ($show_ext_int) {
-                echo "<td>" . htmlspecialchars($row['ext_or_int']) . "</td>";
-            }
-            echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
 
+            echo "<td>" . htmlspecialchars($row['file_name'] ?? '') . "</td>";
             $uploadedAt = new DateTime($row['uploaded_at']);
             echo "<td>" . $uploadedAt->format(DATE_FORMAT_DMY . ' & H:i:s') . "</td>";
-
             echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
             echo "<td><a href='" . htmlspecialchars('../' . $row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
             echo "</tr>";
         }
     } else {
-        $colspan = 8 + ($show_branch ? 1 : 0) + ($show_semester ? 1 : 0) + ($show_section ? 1 : 0) + ($show_ext_int ? 1 : 0) - 3; // base columns + additives
-        // Wait, simplified: View/Download are 2, uploaded at 1, filename 1. base is 4 + branch/sem/sec/ext.
-        // Let's just use a large enough number or calculate precisely if needed.
-        // Base is Username, FacName, AcdYear, Filename, UploadedAt, View, Download = 7.
-        $colspan = 7 + ($show_branch ? 1 : 0) + ($show_semester ? 1 : 0) + ($show_section ? 1 : 0) + ($show_ext_int ? 1 : 0);
+        $colspan = 7 + count($columns);
         echo "<tr><td colspan='$colspan' id='nod'>No files found</td></tr>";
     }
     echo "</table>";

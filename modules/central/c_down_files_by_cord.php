@@ -304,15 +304,15 @@ include "../../includes/header.php";
         <label for="event">Choose Event:</label>
         <select name="event" id="event" required>
             <option value="" disabled selected>Select an Event</option>
-            <option value="NCC" <?php if ($event === "NCC") echo "selected"; ?>>NCC</option>
-            <option value="Sports" <?php if ($event === "Sports") echo "selected"; ?>>Sports</option>
-            <option value="Clubs" <?php if ($event === "Clubs") echo "selected"; ?>>Clubs</option>
-            <option value="NSS" <?php if ($event === "NSS") echo "selected"; ?>>NSS</option>
-            <option value="Women Empowerment" <?php if ($event === "Women Empowerment") echo "selected"; ?>>Women Empowerment</option>
-            <option value="IIC" <?php if ($event === "IIC") echo "selected"; ?>>IIC</option>
-            <option value="PASH" <?php if ($event === "PASH") echo "selected"; ?>>PASH</option>
-            <option value="Antiragging" <?php if ($event === "Antiragging") echo "selected"; ?>>Antiragging</option>
-            <option value="SAC" <?php if ($event === "SAC") echo "selected"; ?>>SAC</option>
+            <option value="NCC" <?php if ($event === "NCC") { echo "selected"; } ?>>NCC</option>
+            <option value="Sports" <?php if ($event === "Sports") { echo "selected"; } ?>>Sports</option>
+            <option value="Clubs" <?php if ($event === "Clubs") { echo "selected"; } ?>>Clubs</option>
+            <option value="NSS" <?php if ($event === "NSS") { echo "selected"; } ?>>NSS</option>
+            <option value="Women Empowerment" <?php if ($event === "Women Empowerment") { echo "selected"; } ?>>Women Empowerment</option>
+            <option value="IIC" <?php if ($event === "IIC") { echo "selected"; } ?>>IIC</option>
+            <option value="PASH" <?php if ($event === "PASH") { echo "selected"; } ?>>PASH</option>
+            <option value="Antiragging" <?php if ($event === "Antiragging") { echo "selected"; } ?>>Antiragging</option>
+            <option value="SAC" <?php if ($event === "SAC") { echo "selected"; } ?>>SAC</option>
         </select>
         <button type="submit">Submit</button>
     </form>

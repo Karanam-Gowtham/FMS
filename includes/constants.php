@@ -73,6 +73,9 @@ define('LABEL_TO_DATE', "To Date");
 define('PARAM_DESIGNATION', "&designation=");
 define('PARAM_CRITERIA', "&criteria=");
 define('PARAM_EVENT', "&event=");
+define('SQL_AND_STATUS_EQ', " AND status = '");
+define('LOC_C_AQAR_FILES', "Location: c_aqar_files.php?designation=");
+define('REGEX_SPECIAL_CHARS', "/[^a-zA-Z0-9_.-]/");
 define('DATE_FORMAT_DMY', "d/m/Y");
 define('REGEX_UPLOADS', "/uploads\/.*/");
 define('PATH_UPLOADS', "../uploads/");
@@ -92,7 +95,7 @@ define('STATUS_REJECTED_DEPT_COORD', 'Rejected by Dept Coordinator');
 define('ERR_INVALID_CRIT', 'Invalid criteria or sub-criteria.');
 
 // Other Constants
-define('ATTR_DATA_FILEPATH', "' data-filepath='");
+define('ATTR_DATA_FILEPATH', " data-filepath='");
 define('QUOTE_SPACE', "' ");
 define('NOT_SELECTED', 'Not Selected');
 define('HEADER_CONTENT_DISPOSITION', 'Content-Disposition: attachment; filename="');

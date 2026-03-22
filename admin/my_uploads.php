@@ -171,7 +171,9 @@ $mergedFolder = "uploads/merged/";
 
 // Function to delete folder and its contents
 function deleteFolder($folder) {
-    if (!is_dir($folder)) return;
+    if (!is_dir($folder)) {
+        return;
+    }
     
     $files = array_diff(scandir($folder), ['.', '..']);
     foreach ($files as $file) {

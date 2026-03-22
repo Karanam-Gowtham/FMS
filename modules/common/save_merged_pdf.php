@@ -1,5 +1,5 @@
 <?php
-include("../../includes/connection.php");
+include "../../includes/connection.php";
 
 $logged = isset($_SESSION['username'])
     || isset($_SESSION['a_username'])
@@ -26,7 +26,11 @@ function deleteFolder($folderPath) {
     $files = array_diff(scandir($folderPath), ['.', '..']);
     foreach ($files as $file) {
         $filePath = "$folderPath/$file";
-        is_dir($filePath) ? deleteFolder($filePath) : unlink($filePath);
+        if (is_dir($filePath)) {
+            deleteFolder($filePath);
+        } else {
+             unlink($filePath);
+        }
     }
     rmdir($folderPath);
 }

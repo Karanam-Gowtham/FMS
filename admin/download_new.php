@@ -129,7 +129,7 @@ include "header_admin.php";
             <?php foreach ($data as $row): ?>
                 <tr>
                     <td>
-                        <input type="checkbox" name="selected_files[]" <?php echo ATTR_DATA_FILEPATH; ?>="../<?php echo $row['file_path']; ?><?php echo QUOTE_SPACE; ?> onchange="trackOrder(event)">
+                        <input type="checkbox" name="selected_files[]" <?php echo ATTR_DATA_FILEPATH; ?>../<?php echo $row['file_path']; ?><?php echo QUOTE_SPACE; ?> onchange="trackOrder(event)">
                     </td>
                     <td><?= $row['id'] ?></td>
                     <td><?= $row['faculty_name'] ?></td>

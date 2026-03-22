@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($designation == "faculty") {
             if (isset($_SESSION['username'])) {
-                header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                header(LOC_C_AQAR_FILES . urlencode($designation) . PARAM_EVENT . urlencode($dept));
                 exit();
             }
 
@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($login_stmt->execute() === TRUE) {
                     $_SESSION['username'] = $userid;
                     ob_end_clean();
-                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    header(LOC_C_AQAR_FILES . urlencode($designation) . PARAM_EVENT . urlencode($dept));
                     exit();
                 }
                 $login_stmt->close();
@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                     ob_end_clean();
 
-                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    header(LOC_C_AQAR_FILES . urlencode($designation) . PARAM_EVENT . urlencode($dept));
                     exit();
                 } else {
                     $login_error = true;
@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                     ob_end_clean();
 
-                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    header(LOC_C_AQAR_FILES . urlencode($designation) . PARAM_EVENT . urlencode($dept));
                     exit();
                 } else {
                     $login_error = true;
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                     ob_end_clean();
 
-                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    header(LOC_C_AQAR_FILES . urlencode($designation) . PARAM_EVENT . urlencode($dept));
                     exit();
                 } else {
                     $login_error = true;
@@ -94,12 +94,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($designation == "hod" && $userid == "hod" && $password == "123") {
                 $_SESSION['h_username'] = $userid;
                 ob_end_clean();
-                header("Location: c_aqar_files.php?designation=" . urlencode("hod") . "&event=" . urlencode($dept));
+                header(LOC_C_AQAR_FILES . urlencode("hod") . PARAM_EVENT . urlencode($dept));
                 exit();
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
                 $_SESSION['admin'] = $userid;
                 ob_end_clean();
-                header("Location: ./hod/acd_year_aa.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                header("Location: ./hod/acd_year_aa.php?designation=" . urlencode($designation) . PARAM_EVENT . urlencode($dept));
                 exit();
             } else {
                 $login_error = true;

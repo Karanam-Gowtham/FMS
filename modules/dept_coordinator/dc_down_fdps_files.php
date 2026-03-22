@@ -1,5 +1,6 @@
 <?php
-include("../../includes/connection.php");
+include "../../includes/connection.php";
+require_once "../../includes/constants.php";
 
 if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
     die("You need to log in to view your uploads.");
@@ -7,18 +8,22 @@ if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
 
 function fixPath($p)
 {
-    if (empty($p))
+    if (empty($p)) {
         return "";
+    }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
     if (preg_match('/uploads\/.*/', $p, $matches)) {
         $foundPath = $matches[0];
-        if (file_exists("../../" . $foundPath))
+        if (file_exists("../../" . $foundPath)) {
             return "../../" . $foundPath;
-        if (file_exists("../" . $foundPath))
+        }
+        if (file_exists("../" . $foundPath)) {
             return "../" . $foundPath;
-        if (file_exists($foundPath))
+        }
+        if (file_exists($foundPath)) {
             return $foundPath;
+        }
         return "../../" . $foundPath;
     }
     return $p;
@@ -193,50 +198,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 ///------------------------------------------------------------------------------------------------------------
 // SQL query to fetch all records from the fdps_tab table
 
-if (isset($_POST['export_fdps'])) {
-    ob_end_clean();//End previous buffer
-    ob_start();// start new buffer for excel
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=fdps_records.xls");
-
-    // Write the Excel content header
-    echo "Username\tBranch\tTitle\tDate From\tDate To\tOrganised By\tLocation\n";
-
-    $dept = $_POST['dept'];
-    // Prepare and execute the SQL query
-    $sql = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $dept);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // Fetch and write data rows
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            echo $row['username'] . "\t" .
-                $row['branch'] . "\t" .
-                $row['title'] . "\t" .
-                $row['date_from'] . "\t" .
-                $row['date_to'] . "\t" .
-                $row['organised_by'] . "\t" .
-                $row['location'] . "\n";
-        }
-    }
-
-    // End script execution
-    ob_end_flush();//End current buffer
-    exit;
-}
-
-if (isset($_POST['export_fdps_org'])) {
+/**
+ * Exports FDPs Attended records to Excel.
+ */
+function exportFdpsAttended($conn, $dept) {
     ob_end_clean();
     ob_start();
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=fdps_organized.xls");
+    header(TYPE_EXCEL);
+    header('Content-Disposition: attachment; filename=fdps_records.xls');
 
     echo "Username\tBranch\tTitle\tDate From\tDate To\tOrganised By\tLocation\n";
 
-    $sql = "SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'";
+    $sql = "SELECT * FROM fdps_tab WHERE branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $dept);
     $stmt->execute();
@@ -244,29 +217,53 @@ if (isset($_POST['export_fdps_org'])) {
 
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
-            $row['username'],
-            $row['branch'],
-            $row['title'],
-            $row['date_from'],
-            $row['date_to'],
-            $row['organised_by'],
-            $row['location']
+            $row['username'], $row['branch'], $row['title'], $row['date_from'],
+            $row['date_to'], $row['organised_by'], $row['location']
         ]) . "\n";
     }
     ob_end_flush();
     exit;
 }
 
-// Handle export for Published Papers
-if (isset($_POST['export_published'])) {
+/**
+ * Exports FDPs Organized records to Excel.
+ */
+function exportFdpsOrganized($conn, $dept) {
     ob_end_clean();
     ob_start();
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=published_papers.xls");
+    header(TYPE_EXCEL);
+    header('Content-Disposition: attachment; filename=fdps_organized.xls');
+
+    echo "Username\tBranch\tTitle\tDate From\tDate To\tOrganised By\tLocation\n";
+
+    $sql = "SELECT * FROM fdps_org_tab WHERE branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $dept);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        echo implode("\t", [
+            $row['username'], $row['branch'], $row['title'], $row['date_from'],
+            $row['date_to'], $row['organised_by'], $row['location']
+        ]) . "\n";
+    }
+    ob_end_flush();
+    exit;
+}
+
+/**
+ * Exports Published Papers records to Excel.
+ */
+function exportPublishedPapers($conn, $dept) {
+    ob_end_clean();
+    ob_start();
+    header(TYPE_EXCEL);
+    header('Content-Disposition: attachment; filename=published_papers.xls');
 
     echo "Username\tBranch\tPaper Title\tJournal Name\tIndexing\tDate of Submission\tQuality Factor\tImpact Factor\tPayment\n";
 
-    $sql = "SELECT * FROM published_tab WHERE branch = ? AND status = 'Accepted'";
+    $sql = "SELECT * FROM published_tab WHERE branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $dept);
     $stmt->execute();
@@ -274,31 +271,27 @@ if (isset($_POST['export_published'])) {
 
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
-            $row['username'],
-            $row['branch'],
-            $row['paper_title'],
-            $row['journal_name'],
-            $row['indexing'],
-            $row['date_of_submission'],
-            $row['quality_factor'],
-            $row['impact_factor'],
-            $row['payment']
+            $row['username'], $row['branch'], $row['paper_title'], $row['journal_name'],
+            $row['indexing'], $row['date_of_submission'], $row['quality_factor'],
+            $row['impact_factor'], $row['payment']
         ]) . "\n";
     }
     ob_end_flush();
     exit;
 }
 
-// Handle export for Conference Papers
-if (isset($_POST['export_conference'])) {
+/**
+ * Exports Conference Papers records to Excel.
+ */
+function exportConferencePapers($conn, $dept) {
     ob_end_clean();
     ob_start();
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=conference_papers.xls");
+    header(TYPE_EXCEL);
+    header('Content-Disposition: attachment; filename=conference_papers.xls');
 
     echo "Username\tBranch\tPaper Title\tFrom Date\tTo Date\tOrganised By\tLocation\tPaper Type\n";
 
-    $sql = "SELECT * FROM conference_tab WHERE branch = ? AND status = 'Accepted'";
+    $sql = "SELECT * FROM conference_tab WHERE branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $dept);
     $stmt->execute();
@@ -306,31 +299,26 @@ if (isset($_POST['export_conference'])) {
 
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
-            $row['username'],
-            $row['branch'],
-            $row['paper_title'],
-            $row['from_date'],
-            $row['to_date'],
-            $row['organised_by'],
-            $row['location'],
-            $row['paper_type']
+            $row['username'], $row['branch'], $row['paper_title'], $row['from_date'],
+            $row['to_date'], $row['organised_by'], $row['location'], $row['paper_type']
         ]) . "\n";
     }
     ob_end_flush();
     exit;
 }
 
-// Handle export for Patents
-if (isset($_POST['export_patent'])) {
+/**
+ * Exports Patents records to Excel.
+ */
+function exportPatents($conn, $dept) {
     ob_end_clean();
     ob_start();
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=patents.xls");
+    header(TYPE_EXCEL);
+    header('Content-Disposition: attachment; filename=patents.xls');
 
-    echo "Username\tBranch\tPatent Title\tDate of Issue\n"; // fixed "Issuen"
+    echo "Username\tBranch\tPatent Title\tDate of Issue\n";
 
-
-    $sql = "SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'";
+    $sql = "SELECT * FROM patents_table WHERE branch = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $dept);
     $stmt->execute();
@@ -338,14 +326,27 @@ if (isset($_POST['export_patent'])) {
 
     while ($row = $result->fetch_assoc()) {
         echo implode("\t", [
-            $row['Username'],
-            $row['branch'],
-            $row['patent_title'],
-            $row['date_of_issue']
+            $row['Username'], $row['branch'], $row['patent_title'], $row['date_of_issue']
         ]) . "\n";
     }
     ob_end_flush();
     exit;
+}
+
+if (isset($_POST['export_fdps'])) {
+    exportFdpsAttended($conn, $_POST['dept']);
+}
+if (isset($_POST['export_fdps_org'])) {
+    exportFdpsOrganized($conn, $_POST['dept'] ?? $dept);
+}
+if (isset($_POST['export_published'])) {
+    exportPublishedPapers($conn, $dept);
+}
+if (isset($_POST['export_conference'])) {
+    exportConferencePapers($conn, $dept);
+}
+if (isset($_POST['export_patent'])) {
+    exportPatents($conn, $dept);
 }
 //---------------------------------------------------------------------------------------------------------------------------------
 

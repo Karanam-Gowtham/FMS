@@ -566,7 +566,7 @@ if (isset($_POST['download_excel'])) {
                         <?php
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                            <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                            <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                             " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                 onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                             <td>" . $id++ . "</td>
@@ -598,7 +598,7 @@ if (isset($_POST['download_excel'])) {
                         <?php
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -628,9 +628,9 @@ if (isset($_POST['download_excel'])) {
                             <th>ngo name</th>
                             </tr>
                             <?php
-                            while ($row = $result->fetch_assoc()) {
+                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -663,7 +663,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -694,7 +694,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -724,7 +724,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -753,7 +753,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -781,7 +781,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -811,7 +811,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -840,7 +840,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -868,7 +868,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -897,7 +897,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>
@@ -925,7 +925,7 @@ if (isset($_POST['download_excel'])) {
                             <?php
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . " 
                                         " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " 
                                         onchange='trackOrder(event)' onkeydown='if(event.key === \"Enter\") this.click()'></td>
                                         <td>" . $id++ . "</td>

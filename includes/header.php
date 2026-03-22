@@ -239,8 +239,9 @@ ob_start(); // Start output buffering
             }
         }
     </style>
-    <?php if (isset($extra_head))
-        echo $extra_head; ?>
+    <?php if (isset($extra_head)) {
+        echo $extra_head;
+    } ?>
 </head>
 
 <body>

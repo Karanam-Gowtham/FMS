@@ -105,7 +105,7 @@ if (isset($_POST['export_excel']) && !empty($selected_branch)) {
     header("Content-Disposition: attachment; filename=files_export.xls");
     echo "Username\tBranch\tFile Type\tSub File Type\tFile Name\n";
 
-    $sql = "SELECT dept, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ? AND status = 'Accepted'";
+    $sql = "SELECT dept, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $selected_branch, $action1);
     $stmt->execute();
@@ -451,7 +451,7 @@ include "../../includes/header.php";
     <div class="container111">
         <?php
         if (!empty($selected_branch)) {
-            $sql = "SELECT file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ? AND status = 'Accepted'";
+            $sql = "SELECT file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ?" . SQL_AND_STATUS_EQ . STATUS_ACCEPTED . "'";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ss", $selected_branch, $action1);
             $stmt->execute();

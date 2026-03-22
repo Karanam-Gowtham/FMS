@@ -331,10 +331,10 @@ function build_query($conn, $table, $id_col, $user_col, $desc_col, $date_col, $f
         $q .= " AND $user_col = '$user_esc'";
     } elseif ($role == 'HOD') {
         // HOD sees everything pending for them (step 1 for faculty files, step 1 for dept_files)
-        $q .= " AND status = '" . STATUS_PENDING_HOD . "'";
+        $q .= SQL_AND_STATUS_EQ . STATUS_PENDING_HOD . "'";
     } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
         // Dept Coordinator sees everything pending for them (step 2 for faculty files)
-        $q .= " AND status = '" . STATUS_PENDING_DEPT_COORD . "'";
+        $q .= SQL_AND_STATUS_EQ . STATUS_PENDING_DEPT_COORD . "'";
     } elseif ($role == 'Central_Coordinator') {
         // Central sees everything that has passed HOD
         $q .= " AND status NOT IN ('" . STATUS_PENDING_DEPT_COORD . "', '" . STATUS_REJECTED_DEPT_COORD . "', '" . STATUS_PENDING_HOD . "', '" . STATUS_REJECTED_HOD . "')";
@@ -414,7 +414,7 @@ if ($role == 'Faculty') {
     // Dept Coordinator or Jr Assistant is the UPLOADER for these files, so show their own uploads
     $q .= " AND username = '$user_esc'";
 } elseif ($role == 'HOD') {
-    $q .= " AND status = '" . STATUS_PENDING_HOD . "'";
+    $q .= SQL_AND_STATUS_EQ . STATUS_PENDING_HOD . "'";
 } elseif ($role == 'Central_Coordinator') {
     $q .= " AND status NOT IN ('" . STATUS_PENDING_DEPT_COORD . "', '" . STATUS_REJECTED_DEPT_COORD . "', '" . STATUS_PENDING_HOD . "', '" . STATUS_REJECTED_HOD . "')";
 }

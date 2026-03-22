@@ -20,8 +20,8 @@ if (isset($_GET['dept'])) {
 }
 
 // Connect to the database
-include("../../includes/connection.php");
-include("../../includes/header.php");
+include "../../includes/connection.php";
+include "../../includes/header.php";
 
 // Check connection
 if ($conn->connect_error) {
@@ -311,7 +311,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <select name="year" id="academic-year" required>
                         <option value="" disabled selected>Select an academic year</option>
                         <?php
-                        include("../../includes/connection.php"); // Must be before this code
+                        include "../../includes/connection.php"; // Must be before this code
                         
                         $query = "SELECT year FROM academic_year ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);
