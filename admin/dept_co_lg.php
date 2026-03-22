@@ -1,13 +1,14 @@
 <?php
-include("../includes/connection.php"); // Include your database connection file
+require_once __DIR__ . '/../includes/session.php';
+include __DIR__ . '/../includes/connection.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
+    csrf_validate();
     if (isset($_POST['signIn'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        // Use reg_dept_cord table instead of Admin_reg
         $stmt = $conn->prepare("SELECT department FROM reg_dept_cord WHERE userid = ? AND password = ?");
         $stmt->bind_param("ss", $username, $password);
         $stmt->execute();
@@ -16,14 +17,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $department = $row['department'];
-
-            // Set session variables
             $_SESSION['a_username'] = $username;
-
-            // Redirect to the correct dashboard with department parameter
             header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=" . urlencode($department));
             exit();
-
         } else {
             echo "<script>alert('Wrong User Name or password!');</script>";
         }
@@ -128,6 +124,7 @@ include "header_admin.php";
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
+                <?php echo csrf_field(); ?>
                 <h1 id="hav">Dept Co-odinator<br>Log In</h1>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />

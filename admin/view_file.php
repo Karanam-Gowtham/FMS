@@ -1,7 +1,19 @@
 <?php
-include("../includes/connection.php");
+require_once __DIR__ . '/../includes/session.php';
+include __DIR__ . '/../includes/connection.php';
 
-
+$logged = isset($_SESSION['username'])
+    || isset($_SESSION['a_username'])
+    || isset($_SESSION['j_username'])
+    || isset($_SESSION['h_username'])
+    || isset($_SESSION['admin'])
+    || isset($_SESSION['c_cord'])
+    || isset($_SESSION['c_username'])
+    || isset($_SESSION['cri_username']);
+if (!$logged) {
+    http_response_code(403);
+    exit('Access denied');
+}
 
 
 if (isset($_GET['file_path'])) {

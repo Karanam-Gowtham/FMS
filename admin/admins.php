@@ -94,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     if ($login_stmt->execute() === TRUE) {
                         session_regenerate_id(true);
                         $_SESSION['username'] = $userid;
-                        ob_end_clean(); // Clear buffer before redirect
+                        ob_end_clean();
                         header("Location: ../modules/faculty/acd_year.php?dept=$dept");
                         exit();
                     }
@@ -120,13 +120,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                     ob_end_clean();
             
-                    // Redirect only after successful login
                     header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=$dept");
                     exit();
                 } else {
                     $error_message = "Invalid username, password, or department mismatch.";
                 }
-            
+                $stmt->close();
             
             } elseif ($designation == "hod") {
                 $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
@@ -136,7 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
-                    // Validate that the HOD belongs to the selected department
                     if (strtoupper($row['department']) === strtoupper($dept)) {
                         session_regenerate_id(true);
                         $_SESSION['h_username'] = $userid;
@@ -168,6 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 } else {
                     $error_message = "Invalid username, password, or department mismatch for Jr Assistant.";
                 }
+                $stmt->close();
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
                 session_regenerate_id(true);
                 $_SESSION['admin'] = $userid;

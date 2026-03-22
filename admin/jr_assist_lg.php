@@ -1,13 +1,14 @@
 <?php
-include("../includes/connection.php"); // Include your database connection file
+require_once __DIR__ . '/../includes/session.php';
+include __DIR__ . '/../includes/connection.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
+    csrf_validate();
     if (isset($_POST['signIn'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        // Use reg_jr_assistant table
         $stmt = $conn->prepare("SELECT department FROM reg_jr_assistant WHERE userid = ? AND password = ?");
         $stmt->bind_param("ss", $username, $password);
         $stmt->execute();
@@ -16,15 +17,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $department = $row['department'];
-
-            // Set session variables
             $_SESSION['j_username'] = $username;
             $_SESSION['dept'] = $department;
-
-            // Redirect to the dashboard
             header("Location: ../modules/jr_assistant/jr_acd_year.php?dept=" . urlencode($department));
             exit();
-
         } else {
             echo "<script>alert('Wrong User Name or password!');</script>";
         }
@@ -129,6 +125,7 @@ include "header_admin.php";
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
+                <?php echo csrf_field(); ?>
                 <h1 id="hav">Jr Assistant<br>Log In</h1>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />

@@ -4,6 +4,7 @@ session_start();
 // The issue might be that iframe considers it a separate context if cookies are strict.
 // For now, let's assume standard session behavior.
 include 'includes/connection.php';
+require_once __DIR__ . '/includes/csrf.php';
 
 // Auto-migrate tables
 $tables = [
@@ -55,8 +56,33 @@ if ($check_history->num_rows == 0) {
 
 // --- AJAX Handler for History ---
 if (isset($_GET['action']) && $_GET['action'] == 'get_history' && isset($_GET['file_id'], $_GET['table_name'])) {
+    $logged = isset($_SESSION['username'])
+        || isset($_SESSION['a_username'])
+        || isset($_SESSION['j_username'])
+        || isset($_SESSION['h_username'])
+        || isset($_SESSION['admin'])
+        || isset($_SESSION['c_cord'])
+        || isset($_SESSION['c_username'])
+        || isset($_SESSION['cri_username']);
+    if (!$logged) {
+        header('Content-Type: application/json');
+        http_response_code(403);
+        echo json_encode([]);
+        exit;
+    }
     $fid = intval($_GET['file_id']);
     $tbl = $_GET['table_name'];
+    $allowed_history_tables = [
+        'files', 'files5_1_1and2', 'files5_1_3', 'files5_1_4', 'files5_2_1', 'files5_2_2',
+        'fdps_tab', 'fdps_org_tab', 'conference_tab', 'published_tab', 'patents_table',
+        's_journal_tab', 's_conference_tab', 's_events', 's_bodies', 'dept_files',
+    ];
+    if (!in_array($tbl, $allowed_history_tables, true)) {
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode([]);
+        exit;
+    }
     // Collapse duplicate rejection messages (same user + reason) keeping most recent timestamp
     $stmt = $conn->prepare("
         SELECT rejected_by, rejection_reason, MAX(created_at) AS created_at
@@ -124,6 +150,10 @@ if (isset($_SESSION['username'])) {
 if (!$role) {
     header("Location: index.php");
     exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
 }
 
 // --- Handle Re-upload ---
@@ -279,8 +309,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
 $files = [];
 
 // Helper to build partial query
-function build_query($table, $id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col, $role, $user_id, $dept)
+function build_query($conn, $table, $id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col, $role, $user_id, $dept)
 {
+    $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
     // Basic projection
     $q = "SELECT 
             $id_col as id, 
@@ -296,7 +327,7 @@ function build_query($table, $id_col, $user_col, $desc_col, $date_col, $file_nam
 
     // Filter by role
     if ($role == 'Faculty') {
-        $q .= " AND $user_col = '$user_id'";
+        $q .= " AND $user_col = '$user_esc'";
     } elseif ($role == 'HOD') {
         // HOD sees everything pending for them (step 1 for faculty files, step 1 for dept_files)
         $q .= " AND status = 'Pending HOD'";
@@ -316,52 +347,53 @@ $queries = [];
 
 if ($role !== 'Jr_Assistant') {
     // 1. files
-    $queries[] = build_query('files', 'id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files', 'id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
     // 2. files5_1_1and2
-    $queries[] = build_query('files5_1_1and2', 'id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_1_1and2', 'id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
     // 3. files5_1_3
-    $queries[] = build_query('files5_1_3', 'id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_1_3', 'id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
     // 4. files5_1_4
-    $queries[] = build_query('files5_1_4', 'id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_1_4', 'id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
     // 5. fdps_tab
-    $queries[] = build_query('fdps_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'fdps_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
 
     // 6. fdps_org_tab
-    $queries[] = build_query('fdps_org_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'fdps_org_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
 
     // 7. conference_tab
-    $queries[] = build_query('conference_tab', 'id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'conference_tab', 'id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
 
     // 8. published_tab
-    $queries[] = build_query('published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
 
     // 9. patents_table
-    $queries[] = build_query('patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id, $dept);
 
     // 10. files5_2_1 (Placement Details)
-    $queries[] = build_query('files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
     // 11. files5_2_2 (Higher Education)
-    $queries[] = build_query('files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
 
     // 12. s_journal_tab (Journal Papers)
-    $queries[] = build_query('s_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
 
     // 13. s_conference_tab (Conference Papers)
-    $queries[] = build_query('s_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
 
     // 14. s_events (Student Activities: Projects, Internships, etc.)
-    $queries[] = build_query('s_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
 
     // 15. s_bodies (Professional Bodies)
-    $queries[] = build_query('s_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
 }
 
 // 16. dept_files (Dept/AMC/BoS Minutes)
+$user_esc = mysqli_real_escape_string($conn, (string) $user_id);
 $q = "SELECT 
             id, 
             username, 
@@ -376,10 +408,10 @@ $q = "SELECT
 
 if ($role == 'Faculty') {
     // If a faculty member uploaded it (e.g. Dept Coord logged in as Faculty), show their uploads
-    $q .= " AND username = '$user_id'";
+    $q .= " AND username = '$user_esc'";
 } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
     // Dept Coordinator or Jr Assistant is the UPLOADER for these files, so show their own uploads
-    $q .= " AND username = '$user_id'";
+    $q .= " AND username = '$user_esc'";
 } elseif ($role == 'HOD') {
     $q .= " AND status = 'Pending HOD'";
 } elseif ($role == 'Central_Coordinator') {
@@ -679,6 +711,7 @@ if ($result) {
                                     <?php if ($can_act):
                                         $buttons_shown = true; ?>
                                         <form method="POST" style="display:inline;">
+                                            <?php echo csrf_field(); ?>
                                             <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
                                             <input type="hidden" name="table_name" value="<?php echo $file['table_name']; ?>">
                                             <input type="hidden" name="action" value="approve">
@@ -711,6 +744,7 @@ if ($result) {
             <span class="close" onclick="closeRejectModal()">&times;</span>
             <h3>Reject File</h3>
             <form method="POST">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="file_id" id="reject_file_id">
                 <input type="hidden" name="table_name" id="reject_table_name">
                 <input type="hidden" name="action" value="reject">
@@ -729,6 +763,7 @@ if ($result) {
             <span class="close" onclick="closeReuploadModal()">&times;</span>
             <h3>Re-upload File</h3>
             <form method="POST" enctype="multipart/form-data">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="file_id" id="reupload_file_id">
                 <input type="hidden" name="table_name" id="reupload_table_name">
                 <input type="hidden" name="action" value="reupload">

@@ -5,7 +5,6 @@ require_once '../../includes/csrf.php';
 
 // Check if the user is already logged in
 if (isset($_SESSION['username'])) {
-    // Redirect to the acd_year.php page if the user is logged in
     header("Location: ../faculty/acd_year.php");
     exit();
 }
@@ -18,23 +17,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
         $department = $_POST['department'];
 
-        // Query to check if the user exists with the entered credentials and department
         $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ? AND dept = ?");
         $stmt->bind_param("sss", $userid, $password, $department);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            // Insert login details into the login_pg table
             $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
             $login_stmt->bind_param("ss", $userid, $password);
 
             if ($login_stmt->execute() === TRUE) {
                 session_regenerate_id(true);
-                // Set session variable upon successful login
                 $_SESSION['username'] = $userid;
-                echo "<script>alert('You logged in successfully!');</script>";
-                header("Location: ../faculty/acd_year.php"); // Redirect to the acd_year.php page
+                header("Location: ../faculty/acd_year.php");
                 exit();
             } else {
                 echo "Error: " . $login_stmt->error;

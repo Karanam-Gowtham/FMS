@@ -21,7 +21,7 @@ if (isset($_SESSION['username'])) {
         $dept = $r['department'];
     }
 } elseif (isset($_SESSION['j_username'])) {
-    $role = 'Dept_Coordinator'; // Jr Assistant handles similar tasks
+    $role = 'Jr_Assistant';
     $user_id = $_SESSION['j_username'];
     $stmt = $conn->prepare("SELECT department FROM reg_jr_assistant WHERE userid = ?");
     $stmt->bind_param("s", $user_id);
@@ -51,29 +51,31 @@ if (!$role) {
 }
 
 // Helper to build partial query (Count version)
-function build_count_query($table, $user_col, $role, $user_id, $dept)
+function build_count_query($conn, $table, $user_col, $role, $user_id, $dept)
 {
+    $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
+    $dept_esc = mysqli_real_escape_string($conn, (string) $dept);
     $q = "SELECT COUNT(*) as cnt FROM $table";
     $join = "";
     $where = " WHERE 1=1";
 
     if ($role == 'Faculty') {
         // Faculty: Notification for pending or rejected files
-        $where .= " AND $table.$user_col = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
-    } elseif ($role == 'Dept_Coordinator') {
-        // Dept Coordinator: Waiting for their approval from THEIR department
+        $where .= " AND $table.$user_col = '$user_esc' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
+    } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
+        // Dept Coordinator / Jr Assistant: Waiting for their approval from THEIR department
         $where .= " AND status = 'Pending Dept Coordinator'";
         if (!empty($dept)) {
             // Join with reg_tab to verify department of the uploader
             $join = " LEFT JOIN reg_tab ON $table.$user_col = reg_tab.userid";
-            $where .= " AND reg_tab.dept = '$dept'";
+            $where .= " AND reg_tab.dept = '$dept_esc'";
         }
     } elseif ($role == 'HOD') {
         // HOD: Waiting for their approval from THEIR department
         $where .= " AND status = 'Pending HOD'";
         if (!empty($dept)) {
             $join = " LEFT JOIN reg_tab ON $table.$user_col = reg_tab.userid";
-            $where .= " AND reg_tab.dept = '$dept'";
+            $where .= " AND reg_tab.dept = '$dept_esc'";
         }
     } elseif ($role == 'Central_Coordinator') {
         // Central Coordinator now just views accepted files; no approval notifications.
@@ -87,32 +89,34 @@ function build_count_query($table, $user_col, $role, $user_id, $dept)
 $queries = [];
 
 // 1. files
-$queries[] = build_count_query('files', 'UserName', $role, $user_id, $dept);
-$queries[] = build_count_query('files5_1_1and2', 'UserName', $role, $user_id, $dept);
-$queries[] = build_count_query('files5_1_3', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('files5_1_4', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('fdps_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('fdps_org_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('conference_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('published_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('patents_table', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query('files5_2_1', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('files5_2_2', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query('s_journal_tab', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query('s_conference_tab', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query('s_events', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query('s_bodies', 'Username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'files', 'UserName', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'files5_1_1and2', 'UserName', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'files5_1_3', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'files5_1_4', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'fdps_tab', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'fdps_org_tab', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'conference_tab', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'published_tab', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'patents_table', 'Username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'files5_2_1', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 'files5_2_2', 'username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 's_journal_tab', 'Username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 's_conference_tab', 'Username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 's_events', 'Username', $role, $user_id, $dept);
+$queries[] = build_count_query($conn, 's_bodies', 'Username', $role, $user_id, $dept);
 
 // Special case for dept_files
+$user_esc_df = mysqli_real_escape_string($conn, (string) $user_id);
+$dept_esc_df = mysqli_real_escape_string($conn, (string) $dept);
 $dept_files_q = "SELECT COUNT(*) as cnt FROM dept_files WHERE (status != 'Accepted' OR status IS NULL)";
 if ($role == 'Faculty') {
-    $dept_files_q .= " AND username = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
+    $dept_files_q .= " AND username = '$user_esc_df' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
 } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
-    $dept_files_q .= " AND username = '$user_id' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
+    $dept_files_q .= " AND username = '$user_esc_df' AND (status LIKE '%Pending%' OR status LIKE '%Rejected%')";
 } elseif ($role == 'HOD') {
     $dept_files_q .= " AND status = 'Pending HOD'";
     if (!empty($dept)) {
-        $dept_files_q .= " AND dept = '$dept'";
+        $dept_files_q .= " AND dept = '$dept_esc_df'";
     }
 } elseif ($role == 'Central_Coordinator') {
     // Hidden for central since no approval steps

@@ -1,5 +1,24 @@
 <?php
-include("../includes/connection.php");
+require_once __DIR__ . '/../includes/session.php';
+include __DIR__ . '/../includes/connection.php';
+require_once __DIR__ . '/../includes/csrf.php';
+
+$logged = isset($_SESSION['username'])
+    || isset($_SESSION['a_username'])
+    || isset($_SESSION['j_username'])
+    || isset($_SESSION['h_username'])
+    || isset($_SESSION['admin'])
+    || isset($_SESSION['c_cord'])
+    || isset($_SESSION['c_username'])
+    || isset($_SESSION['cri_username']);
+if (!$logged) {
+    http_response_code(403);
+    exit('Access denied');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
+}
 
 $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
 $subCriteria = isset($_POST['subCriteria']) ? $_POST['subCriteria'] : '';
@@ -48,6 +67,7 @@ include("header_admin.php");
     <h2>Select Criteria</h2>
     
     <form method="POST" action="">
+        <?php echo csrf_field(); ?>
         <!-- Main Criteria Dropdown -->
         <select name="criteria" id="criteria" onchange="showSubCriteria()" required>
             <option value="">Select the Criteria</option>

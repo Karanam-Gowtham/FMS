@@ -31,7 +31,6 @@ if (isset($_POST['signIn'])) {
     if ($hasDeptCol) {
         $stmt = $conn->prepare("SELECT userid, department, password FROM {$tableName} WHERE userid = ? AND password = ?");
     } else {
-        // No department column; still allow login, dept will be taken from URL if provided
         $stmt = $conn->prepare("SELECT userid, password FROM {$tableName} WHERE userid = ? AND password = ?");
     }
 
@@ -48,7 +47,7 @@ if (isset($_POST['signIn'])) {
                 if ($db_dept === strtoupper($dept)) {
                     session_regenerate_id(true);
                     $_SESSION['h_username'] = $username;
-                    $_SESSION['dept'] = $dept; 
+                    $_SESSION['dept'] = $dept;
                     if (ob_get_level()) {
                         ob_end_clean();
                     }
@@ -58,7 +57,6 @@ if (isset($_POST['signIn'])) {
                     $error = "Invalid login for $dept department. This user belongs to $db_dept.";
                 }
             } else {
-                // If department column missing or no dept in URL, proceed but set session dept best-effort
                 session_regenerate_id(true);
                 $_SESSION['h_username'] = $username;
                 $_SESSION['dept'] = !empty($dept) ? $dept : $db_dept;
