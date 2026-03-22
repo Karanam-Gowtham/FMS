@@ -1,5 +1,5 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 // I will include minimal export if needed, or skip. User asked for styling. I'll include one blocks for structure.
 // ... (Export logic omitted for brevity, but can be added if requested)
 
-include("header_hod.php");
+include "header_hod.php";
 ?>
 
 <!DOCTYPE html>

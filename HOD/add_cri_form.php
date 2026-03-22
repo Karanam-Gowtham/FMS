@@ -1,5 +1,5 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
 
 
 // Enable exception mode for mysqli

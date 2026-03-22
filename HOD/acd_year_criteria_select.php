@@ -162,7 +162,7 @@ include 'header_hod.php';
             <label for="criteria">Select Criteria:</label>
             <select name="criteria" id="criteria" required>
                 <option value="" disabled selected>-- Choose Criteria --</option>
-                <?php for($i=1; $i<=7; $i++) echo "<option value='$i'>Criteria $i</option>"; ?>
+                <?php for($i=1; $i<=7; $i++) { echo "<option value='$i'>Criteria $i</option>"; } ?>
             </select>
 
             <button type="submit">Manage Criteria</button>

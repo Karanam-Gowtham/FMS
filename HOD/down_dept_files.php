@@ -241,24 +241,15 @@ include "./header_hod.php";
                 <label for="department">Select Department:</label>
                 <select name="department" id="department">
                     <option value="" disabled selected>--Select Department--</option>
-                    <option value="AIDS" <?php if ($department == 'AIDS')
-                        echo 'selected'; ?>>AIDS</option>
-                    <option value="AIML" <?php if ($department == 'AIML')
-                        echo 'selected'; ?>>AIML</option>
-                    <option value="CSE" <?php if ($department == 'CSE')
-                        echo 'selected'; ?>>CSE</option>
-                    <option value="CIVIL" <?php if ($department == 'CIVIL')
-                        echo 'selected'; ?>>CIVIL</option>
-                    <option value="MECH" <?php if ($department == 'MECH')
-                        echo 'selected'; ?>>MECH</option>
-                    <option value="EEE" <?php if ($department == 'EEE')
-                        echo 'selected'; ?>>EEE</option>
-                    <option value="ECE" <?php if ($department == 'ECE')
-                        echo 'selected'; ?>>ECE</option>
-                    <option value="IT" <?php if ($department == 'IT')
-                        echo 'selected'; ?>>IT</option>
-                    <option value="BSH" <?php if ($department == 'BSH')
-                        echo 'selected'; ?>>BSH</option>
+                    <option value="AIDS" <?php if ($department == 'AIDS') { echo 'selected'; } ?>>AIDS</option>
+                    <option value="AIML" <?php if ($department == 'AIML') { echo 'selected'; } ?>>AIML</option>
+                    <option value="CSE" <?php if ($department == 'CSE') { echo 'selected'; } ?>>CSE</option>
+                    <option value="CIVIL" <?php if ($department == 'CIVIL') { echo 'selected'; } ?>>CIVIL</option>
+                    <option value="MECH" <?php if ($department == 'MECH') { echo 'selected'; } ?>>MECH</option>
+                    <option value="EEE" <?php if ($department == 'EEE') { echo 'selected'; } ?>>EEE</option>
+                    <option value="ECE" <?php if ($department == 'ECE') { echo 'selected'; } ?>>ECE</option>
+                    <option value="IT" <?php if ($department == 'IT') { echo 'selected'; } ?>>IT</option>
+                    <option value="BSH" <?php if ($department == 'BSH') { echo 'selected'; } ?>>BSH</option>
                 </select><br>
                 <button type="submit">Filter</button>
             </form>

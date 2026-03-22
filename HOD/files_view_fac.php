@@ -1,5 +1,5 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
 
 // Enable error reporting for debugging
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -74,7 +74,7 @@ if (isset($_POST['download_excel'])) {
     exit();
 }
 
-include("header_hod.php");
+include "header_hod.php";
 function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     echo $row['UserName'] . "\t";
     echo $row['faculty_name'] . "\t";

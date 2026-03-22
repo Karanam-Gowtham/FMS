@@ -185,15 +185,15 @@ $conn->close();
             <label for="branch">Select Branch:</label><br>
             <select name="branch" id="branch" required>
                 <option value="">--Select Branch--</option>
-                <option value="AIDS">AIDS</option>
-                <option value="AIML">AIML</option>
-                <option value="CSE" <?php echo ($branch == 'CSE') ? 'selected' : ''; ?>>CSE</option>
-                <option value="CIVIL" <?php echo ($branch == 'CIVIL') ? 'selected' : ''; ?>>CIVIL</option>
-                <option value="MECH" <?php echo ($branch == 'MECH') ? 'selected' : ''; ?>>MECH</option>
-                <option value="EEE" <?php echo ($branch == 'EEE') ? 'selected' : ''; ?>>EEE</option>
-                <option value="ECE" <?php echo ($branch == 'ECE') ? 'selected' : ''; ?>>ECE</option>
-                <option value="IT" <?php echo ($branch == 'IT') ? 'selected' : ''; ?>>IT</option>
-                <option value="BSH" <?php echo ($branch == 'BSH') ? 'selected' : ''; ?>>BSH</option>
+                <option value="AIDS" <?php if ($branch == 'AIDS') { echo 'selected'; } ?>>AIDS</option>
+                <option value="AIML" <?php if ($branch == 'AIML') { echo 'selected'; } ?>>AIML</option>
+                <option value="CSE" <?php if ($branch == 'CSE') { echo 'selected'; } ?>>CSE</option>
+                <option value="CIVIL" <?php if ($branch == 'CIVIL') { echo 'selected'; } ?>>CIVIL</option>
+                <option value="MECH" <?php if ($branch == 'MECH') { echo 'selected'; } ?>>MECH</option>
+                <option value="EEE" <?php if ($branch == 'EEE') { echo 'selected'; } ?>>EEE</option>
+                <option value="ECE" <?php if ($branch == 'ECE') { echo 'selected'; } ?>>ECE</option>
+                <option value="IT" <?php if ($branch == 'IT') { echo 'selected'; } ?>>IT</option>
+                <option value="BSH" <?php if ($branch == 'BSH') { echo 'selected'; } ?>>BSH</option>
             </select><br>
             <button type="submit">Submit</button>
         </form>

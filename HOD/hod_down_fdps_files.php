@@ -1,7 +1,7 @@
 <?php
 ob_start();
 ini_set('display_errors', 0);
-include("../includes/connection.php");
+include "../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -250,7 +250,7 @@ if (isset($_POST['export_fdps']) || isset($_POST['export_fdps_org']) || isset($_
     exit;
 }
 
-include("header_hod.php");
+include "header_hod.php";
 ?>
 
 <!DOCTYPE html>

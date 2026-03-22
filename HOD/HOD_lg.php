@@ -169,7 +169,7 @@ if (isset($_POST['signIn'])) {
         <div class="login-container">
             <form action="" method="POST">
                 <?php echo csrf_field(); ?>
-                <h1 id="hav">HOD<br>Log In <?php if($dept) echo "($dept)"; ?></h1>
+                <h1 id="hav">HOD<br>Log In <?php if($dept) { echo "($dept)"; } ?></h1>
                 <?php if (!empty($error)): ?>
                     <div style="color:#ffb4b4; margin-bottom:10px;"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>

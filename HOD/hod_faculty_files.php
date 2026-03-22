@@ -1,5 +1,5 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
 
 
 if (session_status() === PHP_SESSION_NONE) {
