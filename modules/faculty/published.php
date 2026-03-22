@@ -1,7 +1,7 @@
 <?php
 
-include("../../includes/connection.php");
-include("../../includes/header.php");
+include "../../includes/connection.php";
+include "../../includes/header.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view this page.");
@@ -31,8 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $year = $_POST['year'];
 
     $target_dir = "../../uploads/published/";
-    if (!is_dir($target_dir))
+    if (!is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
+    }
 
     $file_name = time() . '_' . basename($_FILES["paper_file"]["name"]);
     $target_file = $target_dir . $file_name;

@@ -63,9 +63,9 @@ if (isset($_POST['download_excel'])) {
     header('Cache-Control: max-age=0');
     
     echo "Username\tFaculty Name\tAcademic Year\t";
-    if ($show_branch_dropdown) echo "Branch\t";
-    if ($show_semester) echo "Semester\t";
-    if ($show_section) echo "Section\t";
+    if ($show_branch_dropdown) { echo "Branch\t"; }
+    if ($show_semester) { echo "Semester\t"; }
+    if ($show_section) { echo "Section\t"; }
     echo "Filename\tUploaded At\n";
 
     processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section);
@@ -78,9 +78,9 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     echo $row['UserName'] . "\t";
     echo $row['faculty_name'] . "\t";
     echo $row['academic_year'] . "\t";
-    if ($show_branch) echo $row['branch'] . "\t";
-    if ($show_semester) echo $row['sem'] . "\t";
-    if ($show_section) echo $row['section'] . "\t";
+    if ($show_branch) { echo $row['branch'] . "\t"; }
+    if ($show_semester) { echo $row['sem'] . "\t"; }
+    if ($show_section) { echo $row['section'] . "\t"; }
     echo $row['file_name'] . "\t";
     $uploadedAt = new DateTime($row['uploaded_at']);
     echo $uploadedAt->format(DATE_FORMAT_DMY . ' H:i:s') . "\n";

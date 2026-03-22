@@ -34,7 +34,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     
     } elseif ($action == 'download') {
             $fileId = $selectedFiles[0];
-            $sql = "SELECT file_path FROM files WHERE id = ?";
+            $sql = SQL_FILE_PATH;
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $fileId);
             $stmt->execute();

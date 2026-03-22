@@ -1,7 +1,7 @@
 <?php
 
-include("../../includes/connection.php");
-include("../../includes/header.php");
+include "../../includes/connection.php";
+include "../../includes/header.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view this page.");

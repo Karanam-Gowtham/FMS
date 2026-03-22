@@ -1,10 +1,11 @@
 <?php
 session_start();
-include("e:/set/xampp/htdocs/mini/FMS/includes/connection.php");
+include "e:/set/xampp/htdocs/mini/FMS/includes/connection.php";
 
 $res = $conn->query("SELECT id, certificate as path, 'FDP' as cat FROM fdps_tab WHERE branch = 'CSE' AND status = 'Accepted' LIMIT 3");
-if (!$res)
+if (!$res) {
     die($conn->error);
+}
 while ($row = $res->fetch_assoc()) {
     $p = $row['path'];
     $fixed = $p;

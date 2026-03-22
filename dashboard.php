@@ -631,8 +631,9 @@ if ($result) {
 
     <div class="container">
         <div class="dashboard-card">
-            <h2>Dashboard - <?php echo $role; ?> View <?php if ($dept)
-                    echo "($dept)"; ?></h2>
+            <h2>Dashboard - <?php echo $role; ?> View <?php if ($dept) {
+                    echo "($dept)";
+                } ?></h2>
 
             <?php if (!empty($error)): ?>
                 <p style="color:red;">Error fetching files: <?php echo htmlspecialchars($error); ?></p>
@@ -657,14 +658,15 @@ if ($result) {
                         <?php foreach ($files as $file): ?>
                             <?php
                             $statusClass = 'status-pending-dept';
-                            if ($file['status'] == 'Pending HOD')
+                            if ($file['status'] == 'Pending HOD') {
                                 $statusClass = 'status-pending-hod';
-                            elseif ($file['status'] == 'Pending Central Coordinator')
+                            } elseif ($file['status'] == 'Pending Central Coordinator') {
                                 $statusClass = 'status-pending-central';
-                            elseif ($file['status'] == 'Accepted')
+                            } elseif ($file['status'] == 'Accepted') {
                                 $statusClass = 'status-accepted';
-                            elseif (strpos($file['status'], 'Rejected') !== false)
+                            } elseif (strpos($file['status'], 'Rejected') !== false) {
                                 $statusClass = 'status-rejected';
+                            }
 
                             $display_path = $file['file_path'];
                             $display_path = str_replace(['../../', '../'], '', $display_path);
@@ -693,14 +695,16 @@ if ($result) {
                                 </td>
                                 <td>
                                     <?php
-                                    $can_act = false;
-                                    if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == 'Pending Dept Coordinator')
+                                    if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == 'Pending Dept Coordinator') {
                                         $can_act = true;
-                                    if ($role == 'HOD' && $file['status'] == 'Pending HOD')
+                                    }
+                                    if ($role == 'HOD' && $file['status'] == 'Pending HOD') {
                                         $can_act = true;
+                                    }
                                     // Central Coordinator is now view-only
-                                    if ($role == 'Central_Coordinator')
+                                    if ($role == 'Central_Coordinator') {
                                         $can_act = false;
+                                    }
 
                                     // Re-upload permitted if you can act (Reviewer fixing it) OR if you are Faculty and it was rejected
                                     $can_reupload = $can_act || ($role == 'Faculty' && strpos($file['status'], 'Rejected') !== false);

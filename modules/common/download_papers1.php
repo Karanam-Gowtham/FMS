@@ -1,7 +1,7 @@
 <?php
 ob_start();
 ini_set('display_errors', 0);
-include("../../includes/connection.php");
+include "../../includes/connection.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view your uploads.");
@@ -9,8 +9,9 @@ if (!isset($_SESSION['username'])) {
 
 function fixPath($p)
 {
-    if (empty($p))
+    if (empty($p)) {
         return "";
+    }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
     if (preg_match('/uploads\/.*/', $p, $matches)) {
@@ -372,7 +373,7 @@ if (isset($_POST['export_patent'])) {
 //---------------------------------------------------------------------------------------------------------------------------------
 
 $extra_head = '<link rel="stylesheet" href="../../assets/css/download_pap.css">';
-include("../../includes/header.php");
+include "../../includes/header.php";
 ?>
 <nav class="navbar">
     <div class="nav-container">

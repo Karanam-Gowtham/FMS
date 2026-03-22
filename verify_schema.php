@@ -1,5 +1,5 @@
 <?php
-include("includes/connection.php");
+include "includes/connection.php";
 $res = $conn->query("DESCRIBE fdps_org_tab");
 echo "Column | Type | Null | Default\n";
 echo "---------------------------------\n";

@@ -205,8 +205,8 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             // Get values from POST request
             $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : 'Unknown';
-            $academicYear = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : 'Not Selected';
-            $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
+            $academicYear = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : NOT_SELECTED;
+            $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT_SELECTED;
                 
 
             // Display the AQAR heading and selected details
@@ -214,8 +214,8 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
         } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Get values from POST request
             $designation = isset($_POST['designation']) ? htmlspecialchars($_POST['designation']) : 'Unknown';
-            $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : 'Not Selected';
-            $criteria = isset($_POST['criteria']) ? htmlspecialchars($_POST['criteria']) : 'Not Selected';
+            $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : NOT_SELECTED;
+            $criteria = isset($_POST['criteria']) ? htmlspecialchars($_POST['criteria']) : NOT_SELECTED;
                 
 
             // Display the AQAR heading and selected details
@@ -265,7 +265,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                                     echo "<td class='criteria-no'>$criteriaNo</td>";
                                     echo "<td>$description</td>";
                                     echo "<td>";
-                                    echo "<form action='download.php?year=" . urlencode($academicYear) . "&criteria=" . urlencode($criteria) . "&designation=" . urlencode($designation) . "&event=" . urlencode($event) . "' method='POST'>";
+                                    echo "<form action='download.php?year=" . urlencode($academicYear) . PARAM_CRITERIA . urlencode($criteria) . PARAM_DESIGNATION . urlencode($designation) . PARAM_EVENT . urlencode($event) . "' method='POST'>";
                                     echo "<input type='hidden' name='academic_year' value='" . htmlspecialchars($academicYear) . "'>";
                                     echo "<input type='hidden' name='criteria' value='" . htmlspecialchars($criteria) . "'>";
                                     echo "<input type='hidden' name='criteria_no' value='" . htmlspecialchars($criteriaNo) . "'>";
@@ -273,7 +273,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                                     echo "</form>";
                                     echo "</td>";
                                     echo "<td>";
-                                    echo "<form action='upload.php?year=" . urlencode($academicYear) . "&criteria=" . urlencode($criteria) . "&designation=" . urlencode($designation) . "&event=" . urlencode($event) . "' method='POST'>";
+                                    echo "<form action='upload.php?year=" . urlencode($academicYear) . PARAM_CRITERIA . urlencode($criteria) . PARAM_DESIGNATION . urlencode($designation) . PARAM_EVENT . urlencode($event) . "' method='POST'>";
                                     echo "<input type='hidden' name='academic_year' value='" . htmlspecialchars($academicYear) . "'>";
                                     echo "<input type='hidden' name='criteria' value='" . htmlspecialchars($criteria) . "'>";
                                     echo "<input type='hidden' name='criteria_no' value='" . htmlspecialchars($criteriaNo) . "'>";
@@ -281,7 +281,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                                     echo "</form>";
                                     echo "</td>";
                                     
-                                    echo "<form action='my_uploads.php?year=" . urlencode($academicYear) . "&criteria=" . urlencode($criteria) . "&designation=" . urlencode($designation) . "&event=" . urlencode($event) . "' method='POST'>";
+                                    echo "<form action='my_uploads.php?year=" . urlencode($academicYear) . PARAM_CRITERIA . urlencode($criteria) . PARAM_DESIGNATION . urlencode($designation) . PARAM_EVENT . urlencode($event) . "' method='POST'>";
                                     echo "<input type='hidden' name='academic_year' value='$academicYear'>";
                                     echo "<input type='hidden' name='criteria' value='$criteria'>";
                                     echo "<input type='hidden' name='criteria_no' value='$criteriaNo'>";

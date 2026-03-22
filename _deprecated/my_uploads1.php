@@ -1,5 +1,5 @@
 <?php
-include("connection.php");
+include "connection.php";
 ob_start();
 
 session_start();
@@ -66,7 +66,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
         echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
     
     
-    }else if ($action == 'download') {
+    } elseif ($action == 'download') {
         if (!empty($selectedFiles)) {
             $zip = new ZipArchive();
             $zipFileName = "downloads.zip";
@@ -123,7 +123,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 ?>
 
 <?php 
-include("header.php");
+include "header.php";
 ?>
 
 <!DOCTYPE html>

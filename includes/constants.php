@@ -47,6 +47,44 @@ define('COL_FILE', 'file name');
 define('COL_DESC', 'description');
 define('COL_STUDENT_NAME', 'Student Name');
 
+// User Role Tables
+define('TABLE_REG_FACULTY', 'reg_tab');
+define('TABLE_REG_DEPT_CORD', 'reg_dept_cord');
+define('TABLE_REG_HOD', 'reg_hod');
+define('TABLE_REG_JR_ASSISTANT', 'reg_jr_assistant');
+define('TABLE_LOGIN_PG', 'login_pg');
+
+// Achievement Tables
+define('TABLE_PUBLISHED', 'published_tab');
+define('TABLE_FDPS_ATTENDED', 'fdps_tab');
+define('TABLE_CONFERENCE', 'conference_tab');
+define('TABLE_PATENTS', 'patents_tab');
+define('TABLE_DEPT_FILES', 'dept_files');
+
+// Common Strings
+define('CATEGORY_JOURNALS', "Journals");
+define('CATEGORY_CONFERENCES', "Conferences");
+define('PROFESSIONAL_BODIES', "Professional Bodies");
+define('LABEL_UPLOADED_BY', "Uploaded By");
+define('LABEL_SUBMISSION_TIME', "Submission Time");
+define('LABEL_ORGANISED_BY', "Organised By");
+define('LABEL_FROM_DATE', "From Date");
+define('LABEL_TO_DATE', "To Date");
+define('PARAM_DESIGNATION', "&designation=");
+define('PARAM_CRITERIA', "&criteria=");
+define('PARAM_EVENT', "&event=");
+define('DATE_FORMAT_DMY', "d/m/Y");
+define('REGEX_UPLOADS', "/uploads\/.*/");
+define('PATH_UPLOADS', "../uploads/");
+define('PATH_DEEP_UPLOADS', "../../uploads/");
+define('HTM_QUOT', "&quot;");
+define('DATA_FILES_PREFIX', "' data-files='");
+
+// Statuses
+define('STATUS_PENDING_HOD', 'Pending HOD');
+define('STATUS_ACCEPTED', 'Accepted');
+define('STATUS_REJECTED', 'Rejected');
+
 // Error Messages
 define('ERR_INVALID_CRIT', 'Invalid criteria or sub-criteria.');
 

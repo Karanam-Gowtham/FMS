@@ -1,5 +1,6 @@
 <?php
-include("connection.php");
+include "../includes/connection.php";
+include_once "../includes/constants.php";
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -20,7 +21,7 @@ $records = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['submit_button']) || isset($_POST['export'])) {
-        if ($main_select === 'Journals') {
+        if ($main_select === CATEGORY_JOURNALS) {
                 $query = "SELECT uploaded_by, branch, paper_title, journal_name, indexing, date_of_submission, quality_factor, 
                         impact_factor, payment, submission_time, paper_file  
                         FROM s_journal_tab 
@@ -31,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $result = $stmt->get_result();
                 $records = $result->fetch_all(MYSQLI_ASSOC);
                 $stmt->close();
-        } elseif ($main_select === 'Conferences') {
+        } elseif ($main_select === CATEGORY_CONFERENCES) {
                 $query = "SELECT uploaded_by, branch, paper_title, from_date, to_date, organised_by, location, certificate_path, 
                         paper_type, paper_file_path, submission_time  
                         FROM s_conference_tab 
@@ -43,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $records = $result->fetch_all(MYSQLI_ASSOC);
                 $stmt->close();
             
-        } elseif ($main_select === 'Professional Bodies') {
+        } elseif ($main_select === PROFESSIONAL_BODIES) {
             $query = "SELECT Body, event_name, from_date, to_date, organised_by, location, participation_status, 
                         certificate_path, uploaded_by, branch, submission_time
                         FROM s_bodies 
@@ -74,15 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function getHeadings($main_select, $sub_select = null) {
-    if ($main_select === 'Journals') {
-            return ['ID', 'Uploaded By', 'Branch', 'Paper Title', 'Journal Name', 'Indexing', 'Date of Submission', 'Quality Factor', 'Impact Factor', 'Payment', 'Submission Time', 'Paper File'];
-    } elseif ($main_select === 'Conferences') {
-            return ['ID', 'Uploaded By', 'Branch', 'Paper Title', 'From Date', 'To Date', 'Organised By', 'Location', 'Certificate', 'Paper Type', 'Paper File', 'Submission Time'];
+    if ($main_select === CATEGORY_JOURNALS) {
+            return ['ID', LABEL_UPLOADED_BY, 'Branch', 'Paper Title', 'Journal Name', 'Indexing', 'Date of Submission', 'Quality Factor', 'Impact Factor', 'Payment', LABEL_SUBMISSION_TIME, 'Paper File'];
+    } elseif ($main_select === CATEGORY_CONFERENCES) {
+            return ['ID', LABEL_UPLOADED_BY, 'Branch', 'Paper Title', LABEL_FROM_DATE, LABEL_TO_DATE, LABEL_ORGANISED_BY, 'Location', 'Certificate', 'Paper Type', 'Paper File', LABEL_SUBMISSION_TIME];
     }
-     elseif ($main_select === 'Professional Bodies') {
-        return ['ID', 'Body', 'Event Name', 'From Date', 'To Date', 'Organised By', 'Location', 'Participation Status', 'Certificate', 'Uploaded By', 'Branch', 'Submission Time'];
+     elseif ($main_select === PROFESSIONAL_BODIES) {
+        return ['ID', 'Body', 'Event Name', LABEL_FROM_DATE, LABEL_TO_DATE, LABEL_ORGANISED_BY, 'Location', 'Participation Status', 'Certificate', LABEL_UPLOADED_BY, 'Branch', LABEL_SUBMISSION_TIME];
     } else {
-            return ['ID', 'Activity', 'Event Name', 'From Date', 'To Date', 'Organised By', 'Location', 'Participation Status', 'Certificate', 'Uploaded By', 'Branch', 'Submission Time'];
+            return ['ID', 'Activity', 'Event Name', LABEL_FROM_DATE, LABEL_TO_DATE, LABEL_ORGANISED_BY, 'Location', 'Participation Status', 'Certificate', LABEL_UPLOADED_BY, 'Branch', LABEL_SUBMISSION_TIME];
         }
 }
 
@@ -114,7 +115,7 @@ if (isset($_POST['export'])) {
     exit;
 }
 
-    include "./header.php";
+    include "header.php";
 
 ?>
 
@@ -155,16 +156,16 @@ if (isset($_POST['export'])) {
                     <label for="main-select" id="l1">Select Category:</label>
                     <select id="main-select" name="main_select">
                         <option value="" disabled selected>Choose an option</option>
-                        <option value="Journals" <?= $main_select == 'Journals' ? 'selected' : '' ?>>Journals</option>
-                        <option value="Conferences" <?= $main_select == 'Conferences' ? 'selected' : '' ?>>Conferences</option>
+                        <option value="Journals" <?= $main_select == CATEGORY_JOURNALS ? 'selected' : '' ?>>Journals</option>
+                        <option value="Conferences" <?= $main_select == CATEGORY_CONFERENCES ? 'selected' : '' ?>>Conferences</option>
                         <option value="Projects" <?= $main_select == 'Projects' ? 'selected' : '' ?>>Projects</option>
                         <option value="Internships" <?= $main_select == 'Internships' ? 'selected' : '' ?>>Internships</option>
                         <option value="SIH" <?= $main_select == 'SIH' ? 'selected' : '' ?>>SIH</option>
-                        <option value="Professional Bodies" <?= $main_select == 'Professional Bodies' ? 'selected' : '' ?>>Professional Bodies</option>
+                        <option value="Professional Bodies" <?= $main_select == PROFESSIONAL_BODIES ? 'selected' : '' ?>>Professional Bodies</option>
                     </select>
                 </div>
                 
-                <div id="bodies-sub-select-div" style="display: <?= $main_select == 'Professional Bodies' ? 'block' : 'none' ?>;">
+                <div id="bodies-sub-select-div" style="display: <?= $main_select == PROFESSIONAL_BODIES ? 'block' : 'none' ?>;">
                     <label for="bodies-sub-select">Select Subcategory:</label>
                     <select id="bodies-sub-select" name="bodies_sub_select">
                         <option value="" disabled selected>Choose an option</option>
@@ -271,7 +272,7 @@ if (isset($_POST['export'])) {
     const bodiesSubSelectDiv = document.getElementById('bodies-sub-select-div');
     
     mainSelect.addEventListener('change', function() {
-        if (mainSelect.value === 'Professional Bodies') {
+        if (mainSelect.value === PROFESSIONAL_BODIES) {
             bodiesSubSelectDiv.style.display = 'block';
             papersSubSelectDiv.style.display = 'none';
         } else {

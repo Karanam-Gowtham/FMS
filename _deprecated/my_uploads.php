@@ -1,5 +1,5 @@
 <?php
-include("connection.php");
+include "connection.php";
 
 
 
@@ -33,7 +33,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
         echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
     
     
-    }else if ($action == 'download') {
+    } elseif ($action == 'download') {
         if (!empty($selectedFiles)) {
             $zip = new ZipArchive();
             $zipFileName = "downloads.zip";
@@ -107,7 +107,9 @@ $mergedFolder = "uploads/merged/";
 
 // Function to delete folder and its contents
 function deleteFolder($folder) {
-    if (!is_dir($folder)) return;
+    if (!is_dir($folder)) {
+        return;
+    }
     
     $files = array_diff(scandir($folder), ['.', '..']);
     foreach ($files as $file) {

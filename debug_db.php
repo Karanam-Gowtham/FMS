@@ -1,5 +1,5 @@
 <?php
-include("includes/connection.php");
+include "includes/connection.php";
 $res = $conn->query("SELECT certificate FROM fdps_tab LIMIT 1");
 if ($row = $res->fetch_assoc()) {
     echo "FDP Path: " . $row['certificate'] . "\n";

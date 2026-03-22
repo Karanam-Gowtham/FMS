@@ -1,5 +1,5 @@
 <?php
-include("../includes/connection.php");
+include "../includes/connection.php";
 
 
 if (!isset($_SESSION['cri_username'])) {
@@ -38,7 +38,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
         echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
     
     
-    }else if ($action == 'download') {
+    } elseif ($action == 'download') {
         if (!empty($selectedFiles)) {
             if (count($selectedFiles) == 1) {
                 $fileId = $selectedFiles[0];

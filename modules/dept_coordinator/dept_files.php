@@ -26,8 +26,8 @@ if (isset($_GET['dept'])) {
 $event = $_GET['event'] ?? '';
 
 // Connect to the database
-include("../../includes/connection.php");
-include("../../includes/header.php");
+include "../../includes/connection.php";
+include "../../includes/header.php";
 
 // Check connection
 if ($conn->connect_error) {

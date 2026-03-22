@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/session.php';
 include_once "../includes/connection.php";
+require_once "../includes/constants.php";
 
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("Unauthorized access.");
@@ -9,8 +10,6 @@ if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
 $dept = $_GET['dept'] ?? $_SESSION['dept'] ?? '';
 $event = $_GET['event'] ?? 'Dept Meeting Minutes';
 
-define('PATH_UPLOADS', '../uploads/');
-define('PATH_DEEP_UPLOADS', '../../uploads/');
 
 // Handle Accept/Reject Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_id'])) {
