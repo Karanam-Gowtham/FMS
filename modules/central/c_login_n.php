@@ -7,8 +7,7 @@ require_once '../../includes/csrf.php';
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
 $login_error = false;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['signIn'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
         csrf_validate();
         $userid = trim($_POST['userid']);
         $password = trim($_POST['password']);
@@ -106,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
     }
-}
+
 
 $extra_head = "
     <style>

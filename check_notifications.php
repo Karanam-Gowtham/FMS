@@ -154,10 +154,8 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
         $stmt_dept->bind_param("s", $user_id);
         $stmt_dept->execute();
         $res_dept = $stmt_dept->get_result();
-        if ($row_dept = $res_dept->fetch_assoc()) {
-            if ($row_dept['dept'] == 'CSE') {
-                $shouldSendEmail = true;
-            }
+        if (($row_dept = $res_dept->fetch_assoc()) && $row_dept['dept'] == 'CSE') {
+            $shouldSendEmail = true;
         }
 
         if ($shouldSendEmail) {
@@ -205,8 +203,8 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
         if (time() - $last_sent > $throttle_time) {
             require_once 'includes/send_email.php';
             // For testing: ensuring we are calling the function correctly
-            // sendNotificationEmail($toEmail, $recipientName, $pendingCount, $role)
-            if (sendNotificationEmail($email, $recipientName, $count, $role)) {
+            // sendNotificationEmail($toEmail, $recipientName, $pendingCount)
+            if (sendNotificationEmail($email, $recipientName, $count)) {
                 $_SESSION[$session_key] = time();
             }
         }

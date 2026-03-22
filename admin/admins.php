@@ -71,8 +71,7 @@ if ($loggedInRole && $dept) {
     // Central Coordinator? Usually global.
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['signIn'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
         $userid = trim($_POST['userid']);
         $password = trim($_POST['password']);
         $designation = trim($_POST['designation']);
@@ -174,7 +173,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             } else {
                 $error_message = "Invalid username or password.";
-            }
             }
         }
     }

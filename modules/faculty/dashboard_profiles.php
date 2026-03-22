@@ -74,8 +74,9 @@ $result = $conn->query($sql);
         <!-- Filters -->
         <div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-8 bg-white p-6 rounded-lg shadow-md">
             <div class="flex-1">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Department</label>
+                <label for="branchFilter" class="block text-sm font-medium text-gray-700 mb-2">Filter by Department</label>
                 <select 
+                    id="branchFilter"
                     name="branch" 
                     onchange="applyFilters()"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
@@ -94,8 +95,9 @@ $result = $conn->query($sql);
             </div>
 
             <div class="flex-1">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Search by Name</label>
+                <label for="nameSearch" class="block text-sm font-medium text-gray-700 mb-2">Search by Name</label>
                 <input 
+                    id="nameSearch"
                     type="text" 
                     name="search" 
                     placeholder="Search by Name" 
@@ -127,7 +129,7 @@ $result = $conn->query($sql);
                                             <img 
                                                 src="<?= $row['photo_path'] ?: '../../uploads/default_pic.png' ?>" 
                                                 class="w-12 h-12 rounded-full object-cover border border-gray-200"
-                                                alt="Faculty Photo"
+                                                alt="Faculty"
                                             >
                                         </td>
                                         <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['faculty_name']) ?></td>

@@ -194,17 +194,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container11">
         <h2>FDPs Attended</h2>
         <form method="POST" enctype="multipart/form-data">
-            <label>Title of FDP:</label>
-            <input type="text" name="title" required>
+            <label for="title">Title of FDP:</label>
+            <input type="text" id="title" name="title" required>
 
-            <label>Organised By:</label>
-            <input type="text" name="organised_by" required>
+            <label for="organised_by">Organised By:</label>
+            <input type="text" id="organised_by" name="organised_by" required>
 
-            <label>Location:</label>
-            <input type="text" name="location" required>
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
 
-            <label>Academic Year:</label>
-            <select name="year" required>
+            <label for="year">Academic Year:</label>
+            <select id="year" name="year" required>
                 <option value="">Select Year</option>
                 <?php
                 $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
@@ -217,14 +217,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ?>
             </select>
 
-            <label>Date From:</label>
-            <input type="date" name="date_from" required>
+            <label for="date_from">Date From:</label>
+            <input type="date" id="date_from" name="date_from" required>
 
-            <label>Date To:</label>
-            <input type="date" name="date_to" required>
+            <label for="date_to">Date To:</label>
+            <input type="date" id="date_to" name="date_to" required>
 
-            <label>Certificate:</label>
-            <input type="file" name="certificate" required>
+            <label for="certificate">Certificate:</label>
+            <input type="file" id="certificate" name="certificate" required>
 
             <button type="submit">Submit</button>
         </form>

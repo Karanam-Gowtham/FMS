@@ -309,16 +309,6 @@ include '../../includes/header.php';
                     </form>
                 </div>
             </div>
-       
-    </main>
-    <!-- <?php  
-                        // Show button only for specific designations
-                        if (in_array($designation, ['dept_coordinator', 'hod', 'central_coordinator'])) {
-                            echo '
-                            <form action="c_down_files_by_cord.php" method="GET">
-                                <button type="submit" class="button12" style="margin-top: 1.8rem;">Central Activities Files</button>
-                            </form>';
-                        }
-                        ?>-->
+            </div>
 </body>
 </html>

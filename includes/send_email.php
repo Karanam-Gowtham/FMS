@@ -1,13 +1,11 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 // Load PHPMailer manually since composer is not available
 require __DIR__ . '/PHPMailer/src/Exception.php';
 require __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require __DIR__ . '/PHPMailer/src/SMTP.php';
 
-function sendNotificationEmail($toEmail, $recipientName, $pendingCount, $role)
+function sendNotificationEmail($toEmail, $recipientName, $pendingCount)
 {
     if (empty($toEmail)) {
         return false;
@@ -43,7 +41,7 @@ function sendNotificationEmail($toEmail, $recipientName, $pendingCount, $role)
 
         $mail->send();
         return true;
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         return false;
     }
 }

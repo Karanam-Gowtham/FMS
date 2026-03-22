@@ -98,7 +98,7 @@ td {
 }
 
 td a button {
-    background: #2a9d8f;
+    background: #1e756a;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -116,7 +116,7 @@ td a button:hover {
     text-align: center;
     font-size: 1.2rem;
     font-weight: bold;
-    color: #e63946;
+    color: #fca5a5;
 }
 
 /* Responsive Styles */

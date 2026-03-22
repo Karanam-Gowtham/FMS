@@ -69,7 +69,7 @@ body::before {
 h2 {
     font-size: 2rem;
     margin-bottom: 1.5rem;
-    color: #60a5fa;
+    color: #93c5fd;
 }
 
 /* Form Styles */
@@ -98,7 +98,7 @@ h2 {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #60a5fa;
+    border-color: #93c5fd;
     background: rgba(255, 255, 255, 0.15);
 }
 
@@ -114,7 +114,7 @@ h2 {
     font-size: 1rem;
     font-weight: bold;
     color: white;
-    background-color: #60a5fa;
+    background-color: #2563eb;
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
@@ -122,7 +122,7 @@ h2 {
 }
 
 .button1:hover {
-    background-color: #1b75d1;
+    background-color: #1d4ed8;
     transform: translateY(-2px);
     
 }
@@ -202,8 +202,8 @@ h2 {
 .buttons1 a.faculty-files,
 .buttons1 a.student-files,
 .buttons1 a.exam-files {
-    background: linear-gradient(135deg, #934430, #feb47b); /* Orange gradient */
-    color: black;
+    background: linear-gradient(135deg, #fb923c, #fed7aa); /* Orange gradient */
+    color: #431407;
     font-weight: bold;
     cursor: pointer;
     width: 80%;

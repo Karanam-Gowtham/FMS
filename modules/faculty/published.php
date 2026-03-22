@@ -187,14 +187,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container11">
         <h2>Upload Published Paper</h2>
         <form method="POST" enctype="multipart/form-data">
-            <label>Paper Title:</label>
-            <input type="text" name="paper_title" required>
+            <label for="paper_title">Paper Title:</label>
+            <input type="text" id="paper_title" name="paper_title" required>
 
-            <label>Journal Name:</label>
-            <input type="text" name="journal_name" required>
+            <label for="journal_name">Journal Name:</label>
+            <input type="text" id="journal_name" name="journal_name" required>
 
-            <label>Indexing (SCI/SCOPUS/UGC):</label>
-            <select name="indexing" required>
+            <label for="indexing">Indexing (SCI/SCOPUS/UGC):</label>
+            <select id="indexing" name="indexing" required>
                 <option value="">Select Indexing</option>
                 <option value="SCI">SCI</option>
                 <option value="SCOPUS">SCOPUS</option>
@@ -202,8 +202,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <option value="Other">Other</option>
             </select>
 
-            <label>Academic Year:</label>
-            <select name="year" required>
+            <label for="year">Academic Year:</label>
+            <select id="year" name="year" required>
                 <option value="">Select Year</option>
                 <?php
                 $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
@@ -216,23 +216,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ?>
             </select>
 
-            <label>Date of Submission:</label>
-            <input type="date" name="date_of_submission" required>
+            <label for="date_of_submission">Date of Submission:</label>
+            <input type="date" id="date_of_submission" name="date_of_submission" required>
 
-            <label>Quality Factor:</label>
-            <input type="text" name="quality_factor" placeholder="e.g. 1.5">
+            <label for="quality_factor">Quality Factor:</label>
+            <input type="text" id="quality_factor" name="quality_factor" placeholder="e.g. 1.5">
 
-            <label>Impact Factor:</label>
-            <input type="text" name="impact_factor" placeholder="e.g. 2.0">
+            <label for="impact_factor">Impact Factor:</label>
+            <input type="text" id="impact_factor" name="impact_factor" placeholder="e.g. 2.0">
 
-            <label>Payment:</label>
-            <select name="payment">
+            <label for="payment">Payment:</label>
+            <select id="payment" name="payment">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
             </select>
 
-            <label>Paper File:</label>
-            <input type="file" name="paper_file" required>
+            <label for="paper_file">Paper File:</label>
+            <input type="file" id="paper_file" name="paper_file" required>
 
             <button type="submit">Submit</button>
         </form>

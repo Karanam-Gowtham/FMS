@@ -177,9 +177,9 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     <?php endif; ?>
 
 <?php
-function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section, $show_ext_or_Int) {
-    if (!$show_branch_dropdown) {
-        handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section);
+function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $options) {
+    if (!$options['show_branch_dropdown']) {
+        handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $options['show_section']);
         return;
     }
 
@@ -188,12 +188,12 @@ function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, 
     }
 
     $branch = $_POST['branch'] ?? null;
-    if ($show_semester) {
-        handleDisplaySemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section, $show_semester);
-    } elseif ($show_ext_or_Int) {
-        handleDisplayExtInt($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section);
+    if ($options['show_semester']) {
+        handleDisplaySemester($conn, $academic_year, $branch, $criteria, $criteria_no, $options['show_section'], $options['show_semester']);
+    } elseif ($options['show_ext_or_Int']) {
+        handleDisplayExtInt($conn, $academic_year, $branch, $criteria, $criteria_no, $options['show_section']);
     } else {
-        handleDisplayDefault($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section);
+        handleDisplayDefault($conn, $academic_year, $branch, $criteria, $criteria_no, $options['show_section']);
     }
 }
 
@@ -238,7 +238,13 @@ function handleDisplayDefault($conn, $academic_year, $branch, $criteria, $criter
     displayFiles($stmt->get_result(), $show_section, false, true);
 }
 
-processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section, $show_ext_or_Int);
+$options = [
+    'show_branch_dropdown' => $show_branch_dropdown,
+    'show_semester' => $show_semester,
+    'show_section' => $show_section,
+    'show_ext_or_Int' => $show_ext_or_Int
+];
+processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $options);
 
 function displayFiles($result, $show_section, $show_semester, $show_branch, $show_ext_int = false) {
     $columns = [];

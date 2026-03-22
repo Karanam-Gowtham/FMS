@@ -263,23 +263,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="hidden" name="merged_pdf_data" id="merged_pdf_data">
             <div class="form-grid">
                 <div class="form-group full-width">
-                    <label>Title of FDP:</label>
-                    <input type="text" name="title" required placeholder="Enter FDP Title">
+                    <label for="title">Title of FDP:</label>
+                    <input type="text" id="title" name="title" required placeholder="Enter FDP Title">
                 </div>
 
                 <div class="form-group full-width">
-                    <label>Organised By:</label>
-                    <input type="text" name="organised_by" required placeholder="Instituion/Organization Name">
+                    <label for="organised_by">Organised By:</label>
+                    <input type="text" id="organised_by" name="organised_by" required placeholder="Instituion/Organization Name">
                 </div>
 
                 <div class="form-group full-width">
-                    <label>Location:</label>
-                    <input type="text" name="location" required placeholder="City, State">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" required placeholder="City, State">
                 </div>
 
                 <div class="form-group full-width">
-                    <label>Academic Year:</label>
-                    <select name="year" required>
+                    <label for="year">Academic Year:</label>
+                    <select id="year" name="year" required>
                         <option value="">Select Year</option>
                         <?php
                         $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
@@ -294,58 +294,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="form-group">
-                    <label>Date From:</label>
-                    <input type="date" name="date_from" required>
+                    <label for="date_from">Date From:</label>
+                    <input type="date" id="date_from" name="date_from" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Date To:</label>
-                    <input type="date" name="date_to" required>
+                    <label for="date_to">Date To:</label>
+                    <input type="date" id="date_to" name="date_to" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Certificate:</label>
-                    <input type="file" name="certificate" accept=".pdf,.png,.jpg,.jpeg">
+                    <label for="certificate">Certificate:</label>
+                    <input type="file" id="certificate" name="certificate" accept=".pdf,.png,.jpg,.jpeg">
                 </div>
 
                 <div class="form-group">
-                    <label>Brochure:</label>
-                    <input type="file" name="brochure" accept=".pdf,.png,.jpg,.jpeg">
+                    <label for="brochure">Brochure:</label>
+                    <input type="file" id="brochure" name="brochure" accept=".pdf,.png,.jpg,.jpeg">
                 </div>
 
                 <div class="form-group">
-                    <label>Schedule/Invitation:</label>
-                    <input type="file" name="schedule" accept=".pdf,.png,.jpg,.jpeg">
+                    <label for="schedule">Schedule/Invitation:</label>
+                    <input type="file" id="schedule" name="schedule" accept=".pdf,.png,.jpg,.jpeg">
                 </div>
 
                 <div class="form-group">
-                    <label>Attendance Forms:</label>
-                    <input type="file" name="attendance" accept=".pdf,.png,.jpg,.jpeg">
+                    <label for="attendance">Attendance Forms:</label>
+                    <input type="file" id="attendance" name="attendance" accept=".pdf,.png,.jpg,.jpeg">
                 </div>
 
                 <div class="form-group">
-                    <label>Feedback Forms:</label>
-                    <input type="file" name="feedback" accept=".pdf,.png,.jpg,.jpeg">
+                    <label for="feedback">Feedback Forms:</label>
+                    <input type="file" id="feedback" name="feedback" accept=".pdf,.png,.jpg,.jpeg">
                 </div>
 
                 <div class="form-group">
-                    <label>Report:</label>
-                    <input type="file" name="report" accept=".pdf,.doc,.docx">
+                    <label for="report">Report:</label>
+                    <input type="file" id="report" name="report" accept=".pdf,.doc,.docx">
                 </div>
 
                 <div class="form-group">
-                    <label>Photo 1:</label>
-                    <input type="file" name="photo1" accept=".png,.jpg,.jpeg">
+                    <label for="photo1">Photo 1:</label>
+                    <input type="file" id="photo1" name="photo1" accept=".png,.jpg,.jpeg">
                 </div>
 
                 <div class="form-group">
-                    <label>Photo 2:</label>
-                    <input type="file" name="photo2" accept=".png,.jpg,.jpeg">
+                    <label for="photo2">Photo 2:</label>
+                    <input type="file" id="photo2" name="photo2" accept=".png,.jpg,.jpeg">
                 </div>
 
                 <div class="form-group full-width">
-                    <label>Photo 3 (Optional):</label>
-                    <input type="file" name="photo3" accept=".png,.jpg,.jpeg">
+                    <label for="photo3">Photo 3 (Optional):</label>
+                    <input type="file" id="photo3" name="photo3" accept=".png,.jpg,.jpeg">
                 </div>
 
                 <div class="full-width">

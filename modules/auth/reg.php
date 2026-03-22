@@ -36,32 +36,29 @@
 
         // Improved Login for File Upload with Debugging
         function handleUploadDebug($fileInputName, $prefix, $upload_dir_fs, $upload_dir_db, &$errors) {
+            $result = false;
+            
             if (!isset($_FILES[$fileInputName])) {
                 $errors[] = "File input '$fileInputName' is missing.";
-                return false;
-            }
-            
-            $file = $_FILES[$fileInputName];
-            
-            if ($file['error'] != UPLOAD_ERR_OK) {
-                // ... error mapping ...
-                $errors[] = "Upload error for '$fileInputName' code: " . $file['error'];
-                return false;
-            }
-
-            $filename = basename($file['name']);
-            $filename = preg_replace("/[^a-zA-Z0-9\._-]/", "", $filename);
-            
-            $unique_name = uniqid() . "_" . $prefix . "_" . $filename;
-            $target_fs = $upload_dir_fs . $unique_name;
-            $target_db = $upload_dir_db . $unique_name;
-
-            if (move_uploaded_file($file['tmp_name'], $target_fs)) {
-                return $target_db;
+            } elseif ($_FILES[$fileInputName]['error'] != UPLOAD_ERR_OK) {
+                $errors[] = "Upload error for '$fileInputName' code: " . $_FILES[$fileInputName]['error'];
             } else {
-                $errors[] = "Failed to move file '$fileInputName' to '$target_fs'";
-                return false;
+                $file = $_FILES[$fileInputName];
+                $filename = basename($file['name']);
+                $filename = preg_replace("/[^a-zA-Z0-9\._-]/", "", $filename);
+                
+                $unique_name = uniqid() . "_" . $prefix . "_" . $filename;
+                $target_fs = $upload_dir_fs . $unique_name;
+                $target_db = $upload_dir_db . $unique_name;
+
+                if (move_uploaded_file($file['tmp_name'], $target_fs)) {
+                    $result = $target_db;
+                } else {
+                    $errors[] = "Failed to move file '$fileInputName' to '$target_fs'";
+                }
             }
+            
+            return $result;
         }
 
         $errors = [];

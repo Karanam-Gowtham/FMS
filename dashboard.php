@@ -310,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
 $files = [];
 
 // Helper to build partial query
-function build_query($conn, $table, $id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col, $role, $user_id, $dept)
+function build_query($conn, $table, $id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col, $role, $user_id)
 {
     $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
     // Basic projection
@@ -348,49 +348,49 @@ $queries = [];
 
 if ($role !== 'Jr_Assistant') {
     // 1. files
-    $queries[] = build_query($conn, 'files', 'id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files', 'id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
 
     // 2. files5_1_1and2
-    $queries[] = build_query($conn, 'files5_1_1and2', 'id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_1_1and2', 'id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
 
     // 3. files5_1_3
-    $queries[] = build_query($conn, 'files5_1_3', 'id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_1_3', 'id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
 
     // 4. files5_1_4
-    $queries[] = build_query($conn, 'files5_1_4', 'id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_1_4', 'id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
 
     // 5. fdps_tab
-    $queries[] = build_query($conn, 'fdps_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'fdps_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id);
 
     // 6. fdps_org_tab
-    $queries[] = build_query($conn, 'fdps_org_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'fdps_org_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id);
 
     // 7. conference_tab
-    $queries[] = build_query($conn, 'conference_tab', 'id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'conference_tab', 'id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id);
 
     // 8. published_tab
-    $queries[] = build_query($conn, 'published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id);
 
     // 9. patents_table
-    $queries[] = build_query($conn, 'patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id);
 
     // 10. files5_2_1 (Placement Details)
-    $queries[] = build_query($conn, 'files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
 
     // 11. files5_2_2 (Higher Education)
-    $queries[] = build_query($conn, 'files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 'files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
 
     // 12. s_journal_tab (Journal Papers)
-    $queries[] = build_query($conn, 's_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id);
 
     // 13. s_conference_tab (Conference Papers)
-    $queries[] = build_query($conn, 's_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id);
 
     // 14. s_events (Student Activities: Projects, Internships, etc.)
-    $queries[] = build_query($conn, 's_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id);
 
     // 15. s_bodies (Professional Bodies)
-    $queries[] = build_query($conn, 's_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id, $dept);
+    $queries[] = build_query($conn, 's_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id);
 }
 
 // 16. dept_files (Dept/AMC/BoS Minutes)
@@ -690,9 +690,9 @@ if ($result) {
                                         <br><small
                                             style="color:red;"><?php echo htmlspecialchars($file['rejection_reason']); ?></small>
                                     <?php endif; ?>
-                                    <br><a href="#"
-                                        onclick="openHistoryModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>'); return false;"
-                                        style="font-size:0.8em; color:#666;">View History</a>
+                                    <br><button type="button"
+                                        onclick="openHistoryModal(<?php echo $file['id']; ?>, '<?php echo $file['table_name']; ?>');"
+                                        style="font-size:0.8em; color:#666; background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;">View History</button>
                                 </td>
                                 <td>
                                     <?php
@@ -746,7 +746,7 @@ if ($result) {
 
     <div id="rejectModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeRejectModal()">&times;</span>
+            <button type="button" class="close" onclick="closeRejectModal()" aria-label="Close" style="background:none;border:none;cursor:pointer;">&times;</button>
             <h3>Reject File</h3>
             <form method="POST">
                 <?php echo csrf_field(); ?>
@@ -765,7 +765,7 @@ if ($result) {
 
     <div id="reuploadModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeReuploadModal()">&times;</span>
+            <button type="button" class="close" onclick="closeReuploadModal()" aria-label="Close" style="background:none;border:none;cursor:pointer;">&times;</button>
             <h3>Re-upload File</h3>
             <form method="POST" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
@@ -785,7 +785,7 @@ if ($result) {
 
     <div id="historyModal" class="modal">
         <div class="modal-content" style="width: 500px;">
-            <span class="close" onclick="closeHistoryModal()">&times;</span>
+            <button type="button" class="close" onclick="closeHistoryModal()" aria-label="Close" style="background:none;border:none;cursor:pointer;">&times;</button>
             <h3>Rejection History</h3>
             <div id="historyContent" style="max-height: 300px; overflow-y: auto;">
                 <p>Loading...</p>

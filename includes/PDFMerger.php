@@ -37,7 +37,6 @@ namespace PDFMerger;
 class PDFMerger
 {
 	private $_files;	//['form.pdf']  ["1,2,4, 5-19"]
-	private $_fpdi;
 
 	/**
 	 * Merge PDFs.
@@ -84,7 +83,7 @@ class PDFMerger
 	{
 		if(!isset($this->_files) || !is_array($this->_files))
 		{
-			throw new \exception("No PDFs to merge.");
+			throw new \Exception("No PDFs to merge.");
 		}
 
 		$fpdi = new \TCPDI;
@@ -118,7 +117,7 @@ class PDFMerger
 			{
 				if(!$template = $fpdi->importPage($page))
 				{
-					throw new \exception("Could not load page '$page' in PDF '$filename'. Check that the page exists.");
+					throw new \Exception("Could not load page '$page' in PDF '$filename'. Check that the page exists.");
 				}
 				$this->_addPageFromTemplate($fpdi, $template);
 			}
@@ -158,7 +157,7 @@ class PDFMerger
 			return true;
 		}
 
-		throw new \exception("Error outputting PDF to '$outputmode'.");
+		throw new \Exception("Error outputting PDF to '$outputmode'.");
 	}
 
 	/**
@@ -208,7 +207,7 @@ class PDFMerger
 				$x = $ind[0]; //start page
 				$y = $ind[1]; //end page
 
-				if($x > $y): throw new \Exception("Starting page, '$x' is greater than ending page '$y'."); return false; endif;
+				if($x > $y): throw new \Exception("Starting page, '$x' is greater than ending page '$y'."); endif;
 
 				//add middle pages
 				while($x <= $y): $newpages[] = (int) $x; $x++; endwhile;

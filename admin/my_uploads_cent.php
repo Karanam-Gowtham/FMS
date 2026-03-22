@@ -40,8 +40,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
         echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
     
     
-    } else if ($action == 'download') {
-        if (!empty($selectedFiles)) {
+    } elseif ($action == 'download' && !empty($selectedFiles)) {
             if (count($selectedFiles) == 1) {
                 $fileId = $selectedFiles[0];
                 $sql = "SELECT file_path FROM a_c_files WHERE id = ?";
@@ -106,7 +105,6 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     echo "Failed to create ZIP file.";
                 }
             }
-        }
     }
 }
 
