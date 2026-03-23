@@ -1,5 +1,5 @@
 <?php
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 include_once "../../includes/session.php";
 
 if (!isset($_SESSION['j_username'])) {
@@ -13,7 +13,7 @@ if (empty($dept)) {
     die("Department not set.");
 }
 
-include '../../includes/header.php';
+include_once '../../includes/header.php';
 ?>
 
 <!DOCTYPE html>
@@ -257,4 +257,4 @@ include '../../includes/header.php';
     </main>
 </body>
 
-</html>
+</html>

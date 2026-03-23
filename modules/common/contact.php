@@ -1,12 +1,12 @@
 <?php
 require_once '../../includes/session.php';
 require_once '../../includes/csrf.php';
-include '../../includes/connection.php'; // Include the database connection
-include '../../includes/header.php'; // Include the header file
+include_once '../../includes/connection.php'; // Include the database connection
+include_once '../../includes/header.php'; // Include the header file
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    csrf_validate();
+    csrfValidate();
     // Get the form data
     $full_name = $_POST['full_name'];
     $email = $_POST['email'];
@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="contact-form">
                     <h2>Send us a Message</h2>
                     <form action="" method="POST" id="contactForm">
-                        <?php echo csrf_field(); ?>
+                        <?php echo csrfField(); ?>
                         <div class="form-group">
                             <label for="full_name">Full Name</label>
                             <input type="text" name="full_name" id="full_name" required>

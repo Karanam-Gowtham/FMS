@@ -73,8 +73,8 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
             cursor: pointer;
             color: white;
         }
-        .edit-btn11 { background-color: #4CAF50; }
-        .delete-btn11 { background-color: #f44336; }
+        .edit-btn11 { background-color: #2e7d32; }
+        .delete-btn11 { background-color: #c62828; }
 
         .popup {
         display: none;
@@ -211,14 +211,14 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
                     </svg>
                 </a>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?>  </a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="Add_academic_year.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Add Academic Year ?>  </a></span>
+                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="Add_academic_year.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Add Academic Year</a></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Edit Academic Year  </a></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span>
             </div>
         </div>
     </nav>
 
-<div class="overlay" id="overlay" onclick="hidePopup()"></div>
+<div class="overlay" id="overlay" onclick="hidePopup()" onKeyDown="if(event.key === 'Enter' || event.keyCode === 13 || event.key === ' ') hidePopup()" role="button" tabindex="0"></div>
 
 <table>
     <thead>

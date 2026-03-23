@@ -10,7 +10,7 @@ if (isset($_SESSION['username'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    csrf_validate();
+    csrfValidate();
     // Handling Sign In
     if (isset($_POST['signIn'])) {
         $userid = $_POST['userid'];
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
             $login_stmt->bind_param("ss", $userid, $password);
 
-            if ($login_stmt->execute() === TRUE) {
+            if ($login_stmt->execute() === true) {
                 session_regenerate_id(true);
                 $_SESSION['username'] = $userid;
                 header("Location: ../faculty/acd_year.php");
@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -135,7 +135,7 @@ include "../../includes/header.php";
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
-                <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                 <h1 id="hav">Faculty<br>Log In</h1>
                 <input type="text" name="userid" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />

@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 require_once "../includes/constants.php";
 
 
@@ -210,7 +210,7 @@ if (isset($_POST['download_excel'])) {
     exit;
 }
 
-include "header_admin.php";
+include_once "header_admin.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">

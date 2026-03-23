@@ -1,4 +1,5 @@
-include "../../includes/connection.php";
+<?php
+include_once "../../includes/connection.php";
 require_once "../../includes/constants.php";
 
 if (isset($_GET['dept'])) {
@@ -307,9 +308,10 @@ if (isset($_POST['export_sevents'])) {
 //---------------------------------------------------------------------------------------------------------------------------------
 
 $extra_head = '<link rel="stylesheet" href="../../assets/css/s_down_files1.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>';
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 
 ?>
+
 
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
 <script>
@@ -686,15 +688,14 @@ include "../../includes/header.php";
                                                 <th>Organised By</th>
                                                 <th>Location</th>
                                                 <th>Participation Status</th>
-                                                
                                             </tr>";
 
                             while ($row = $result_sevents->fetch_assoc()) {
                                 $certificatePath = htmlspecialchars($row["certificate_path"]);
                                 echo "<tr>
-                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["ID"] . "' 
+                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["ID"] . "'
                                                 data-filepath='" . $certificatePath . "' onchange='trackOrder(event)'></td>
-                                            
+
                                             <td>" . htmlspecialchars($row["Username"]) . "</td>
                                             <td>" . htmlspecialchars($row["branch"]) . "</td>
                                             <td>" . htmlspecialchars($row["acd_year"]) . "</td>
@@ -900,4 +901,4 @@ include "../../includes/header.php";
         </script>
 </body>
 
-</html>
+</html>

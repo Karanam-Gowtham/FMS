@@ -1,5 +1,5 @@
 <?php
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 require_once "../../includes/constants.php";
 
 
@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     // Determine table and file column based on category
     switch ($main_select) {
         case 'Journals':
+        default:
             $tableName = 's_journal_tab';
             $fileColumn = 'paper_file';
             break;
@@ -45,11 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $tableName = 's_events';
             $fileColumn = 'certificate_path';
             break;
-        default:
-            $tableName = 's_journal_tab';
-            $fileColumn = 'paper_file';
-    }
-
+        }
     // DELETE ACTION
     if ($action === 'delete') {
         foreach ($selectedFiles as $fileId) {
@@ -286,9 +283,10 @@ if (isset($_POST['export_sevents'])) {
 //---------------------------------------------------------------------------------------------------------------------------------
 
 $extra_head = '<link rel="stylesheet" href="../../assets/css/s_down_files1.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>';
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 
 ?>
+
 
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
 <script>
@@ -898,4 +896,4 @@ include "../../includes/header.php";
         </script>
 </body>
 
-</html>
+</html>

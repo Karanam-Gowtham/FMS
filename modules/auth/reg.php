@@ -8,7 +8,7 @@
     $msg_type = "";
     
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        csrf_validate();
+        csrfValidate();
     }
     
     if (isset($_POST['register'])) {
@@ -252,7 +252,7 @@
     </style>
     CSS;
 
-    include '../../includes/header.php'; 
+    include_once '../../includes/header.php';
 ?>
 
 <div class="registration-container">
@@ -266,7 +266,7 @@
         <?php endif; ?>
 
         <form method="post" action="" enctype="multipart/form-data">
-            <?php echo csrf_field(); ?>
+            <?php echo csrfField(); ?>
             
             <label for="faculty_name">Faculty Name:</label>
             <input type="text" name="faculty_name" required value="<?php echo isset($_POST['faculty_name']) ? htmlspecialchars($_POST['faculty_name']) : ''; ?>">

@@ -61,14 +61,14 @@ select {
 
 button {
     background: #ffd700;
-    color: #3b3b3b;
+    color: #1a1a1a;
     font-weight: bold;
     cursor: pointer;
 }
 
 button:hover {
     background: #f4a261;
-    color: #fff;
+    color: #000000;
 }
 
 /* Table Styles */
@@ -109,6 +109,7 @@ td a button {
 
 td a button:hover {
     background: #e76f51;
+    color: #000000;
 }
 
 /* No Data Row */

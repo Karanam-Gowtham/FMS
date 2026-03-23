@@ -101,7 +101,6 @@
         </div>
     </div>
     </body>
-</html>
 <script type="text/javascript">
     document.querySelector("form").addEventListener("submit", function(event) {
         event.preventDefault(); // Prevent form from submitting
@@ -119,5 +118,5 @@
         }
     });
 </script>
-
 </html>
+

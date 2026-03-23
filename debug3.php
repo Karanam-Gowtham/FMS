@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Debug script to check view_file_hod.php logic
-require 'includes/connection.php';
+require_once 'includes/connection.php';
 $res = $conn->query('SELECT certificate FROM fdps_tab WHERE certificate IS NOT NULL LIMIT 1');
 if ($row = $res->fetch_assoc()) {
     $filePath = $row['certificate'];

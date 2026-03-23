@@ -1,7 +1,7 @@
 <?php
 
-include "../../includes/connection.php";
-include "../../includes/header.php";
+include_once "../../includes/connection.php";
+include_once "../../includes/header.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view this page.");
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status = 'Pending HOD';
 
     // Using s_events table as seen in dashboard.php
-    $sql = "INSERT INTO s_events (Username, event_name, acd_year, certificate_path, submission_time, status) 
+    $sql = "INSERT INTO s_events (Username, event_name, acd_year, certificate_path, submission_time, status)
             VALUES (?, ?, ?, ?, NOW(), ?)";
 
     $stmt = $conn->prepare($sql);
@@ -254,7 +254,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <select name="year" id="academic-year" required>
                         <option value="" disabled selected>Select an academic year</option>
                         <?php
-                        include "../../includes/connection.php";
+                        include_once "../../includes/connection.php";
                         $query = "SELECT year FROM academic_year ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);
                         if ($result && mysqli_num_rows($result) > 0) {
@@ -277,4 +277,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </body>
 
-</html><?php $conn->close(); ?>
+</html>
+<?php $conn->close(); ?>
+

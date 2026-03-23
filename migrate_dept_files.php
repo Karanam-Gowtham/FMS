@@ -1,5 +1,5 @@
 <?php
-include "includes/connection.php";
+include_once "includes/connection.php";
 
 $queries = [
     "ALTER TABLE dept_files ADD COLUMN IF NOT EXISTS semester INT NULL AFTER file_path",
@@ -14,4 +14,4 @@ foreach ($queries as $q) {
         echo "Error: " . $conn->error . " for $q\n";
     }
 }
-?>
+

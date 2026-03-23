@@ -1,14 +1,14 @@
 <?php
 ob_start(); // Start output buffering at the very top
 session_start();
-include '../../includes/connection.php';
+include_once '../../includes/connection.php';
 require_once '../../includes/csrf.php';
 
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
 $login_error = false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
-        csrf_validate();
+        csrfValidate();
         $userid = trim($_POST['userid']);
         $password = trim($_POST['password']);
         $designation = trim($_POST['designation']);
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
             if ($result->num_rows > 0) {
                 $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
                 $login_stmt->bind_param("ss", $userid, $password);
-                if ($login_stmt->execute() === TRUE) {
+                if ($login_stmt->execute() === true) {
                     $_SESSION['username'] = $userid;
                     ob_end_clean();
                     header(LOC_C_AQAR_FILES . urlencode($designation) . PARAM_EVENT . urlencode($dept));
@@ -233,7 +233,7 @@ $extra_head = "
     </style>
 ";
 
-include '../../includes/header.php';
+include_once '../../includes/header.php';
 ?>
 
     <nav class="navbar">
@@ -269,10 +269,10 @@ include '../../includes/header.php';
         </div>
 
         <div id="loginForm" style="display: none;">
-            <h2 id="welcomeMessage"></h2>
+            <h2 id="welcomeMessage">Login</h2>
             <h4>Please login</h4>
             <form method="POST">
-                <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                 <input type="hidden" name="designation" id="designationHidden">
                 <input type="text" placeholder="Username" name="userid" required>
                 <input type="password" placeholder="Password" name="password" required>

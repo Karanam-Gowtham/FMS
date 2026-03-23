@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 require_once "../includes/constants.php";
 
 
@@ -82,7 +82,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             $zipFileName = "downloads.zip";
             $zipFilePath = "uploads1/" . $zipFileName;
     
-            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 // Reverse the order of selected file IDs
                 $selectedFiles = array_reverse($selectedFiles);
     
@@ -163,7 +163,7 @@ if (isset($_POST['download_excel'])) {
     exit();
 }
 
-include 'header_admin.php';
+include_once 'header_admin.php';
 
 
 $mergedFolder = "uploads/merged/";
@@ -464,7 +464,7 @@ if (is_dir($mergedFolder)) {
         <form method="POST" action="">
         <table>
             <tr>
-                <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+                <th><input type="checkbox" onclick="toggleSelectAll(this)" onKeyDown="if(event.key === 'Enter') toggleSelectAll(this)"></th>
                 <th>ID</th>
                 <th>Faculty Name</th>
                 <th>Academic Year</th>
@@ -491,9 +491,9 @@ if (is_dir($mergedFolder)) {
                     $formattedDateTime = $uploadedAt->format('Y/m/d') . ' & ' . $uploadedAt->format('H:i:s');
 
                     echo "<tr>";
-                    echo "<td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                    data-filepath='" . htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8') . "' 
-                    onchange='trackOrder(event)'></td>";
+                    echo "<td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
+                    data-filepath='" . htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8') . "'
+                    onchange='trackOrder(event)' onKeyDown=\"if(event.key === 'Enter') this.click()\"></td>";
                     echo "<td>" . $id . "</td>";
                     echo "<td>" . htmlspecialchars($row['Faculty_name']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['academic_year']) . "</td>";
@@ -630,3 +630,4 @@ if (is_dir($mergedFolder)) {
         
     </script>
 </html>
+

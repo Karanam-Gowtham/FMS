@@ -8,5 +8,4 @@ if (file_exists($p)) {
     echo "Doesn't exist.\n";
     echo "CWD is " . getcwd() . "\n";
     echo "Scan of ../: " . implode(", ", scandir("../")) . "\n";
-}
-?>
+}

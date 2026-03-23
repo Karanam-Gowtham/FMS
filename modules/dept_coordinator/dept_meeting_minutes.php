@@ -14,8 +14,8 @@ if (isset($_GET['dept'])) {
 }
 
 // Connect to the database
-include "../../includes/connection.php";
-include "../../includes/header.php";
+include_once "../../includes/connection.php";
+include_once "../../includes/header.php";
 
 // Check connection
 if ($conn->connect_error) {
@@ -313,7 +313,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
 </body>
 </html>
-
 <?php
 $conn->close();
-?>
+

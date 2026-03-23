@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
-include __DIR__ . '/../includes/connection.php';
+include_once __DIR__ . '/../includes/connection.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
 // Enable error reporting for debugging
@@ -22,7 +22,7 @@ if (!$logged) {
 require_once "../includes/constants.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_validate();
+    csrfValidate();
 }
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
@@ -328,7 +328,7 @@ if (isset($_POST['download_excel'])) {
 
 ?>
 <?php
-include "header_admin.php";
+include_once "header_admin.php";
 ?>
 
 <!DOCTYPE html>
@@ -523,7 +523,7 @@ include "header_admin.php";
             <div class="header-section">
                 <h1>Uploaded Files</h1>
                 <form method="POST">
-                    <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                     <input type="hidden" name="criteria" value="<?= htmlspecialchars($criteria) ?>">
                     <input type="hidden" name="subCriteria" value="<?= htmlspecialchars($subCriteria) ?>">
                     <input type="hidden" name="branch_s" value="<?= htmlspecialchars($branch_s) ?>">
@@ -532,7 +532,7 @@ include "header_admin.php";
             </div>
             <!-- Form for branch selection -->
             <form method="POST" action="">
-                <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                 <input type="hidden" name="criteria" value="<?= htmlspecialchars($criteria) ?>">
                 <input type="hidden" name="criteria_no" value="<?= htmlspecialchars($subCriteria) ?>">
 

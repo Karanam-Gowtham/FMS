@@ -1,5 +1,5 @@
 <?php
-require 'includes/connection.php';
+require_once 'includes/connection.php';
 $res = $conn->query('SELECT certificate FROM fdps_tab WHERE certificate IS NOT NULL LIMIT 1');
 if ($row = $res->fetch_assoc()) {
     $dbPath = $row['certificate'];

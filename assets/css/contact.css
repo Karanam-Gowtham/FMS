@@ -43,13 +43,13 @@ body::before {
 h2 {
     font-size: 2rem;
     margin-bottom: 2rem;
-    color: #93c5fd;
+    color: #bfdbfe;
 }
 
 h3 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
-    color: #93c5fd;
+    color: #bfdbfe;
 }
 
 .info-section {
@@ -93,6 +93,7 @@ h3 {
 
 .social-icon:hover {
     background: #93c5fd;
+    color: #000000;
     transform: translateY(-2px);
 }
 

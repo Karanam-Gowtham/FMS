@@ -1,7 +1,7 @@
 <?php
 
-include "../../includes/connection.php";
-include "../../includes/header.php";
+include_once "../../includes/connection.php";
+include_once "../../includes/header.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view this page.");
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $target_file = $target_dir . $file_name;
     $db_path = "uploads/fdps/" . $file_name; // Relative path for DB if that's the convention
     // Actually look at dc_up_files.php: '../../uploads/' . $_FILES['file']['name'];
-    // It stores full path? 
+    // It stores full path?
     // Let's use the convention seen in download_papers1.php which uses file_exists($file[$fileColumn]).
     // In dashboard.php reupload: $fs_path = __DIR__ . '/' . $relative;
     // Let's store "../../uploads/fdps/..." to be safe or relative.
@@ -233,4 +233,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </body>
 
 </html>
-<?php $conn->close(); ?>
+<?php $conn->close(); ?>

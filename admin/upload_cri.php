@@ -1,5 +1,5 @@
 <?php
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 
 if (!isset($_SESSION['cri_username'])) {
@@ -69,7 +69,7 @@ if (isset($_POST['upload'])) {
 ?>
 
 <?php 
-include 'header_admin.php';
+include_once 'header_admin.php';
 ?>
 
 <!DOCTYPE html>
@@ -141,7 +141,7 @@ include 'header_admin.php';
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_aqar_files.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="criteria_cri_a.php?year=<?php echo urlencode($academic_year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Upload Files  </a></span>
+                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Upload Files</a></span>
 
             </div>
         </div>

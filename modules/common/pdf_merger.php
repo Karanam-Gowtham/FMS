@@ -1,6 +1,6 @@
 <?php
-    include '../../includes/connection.php';
-    include '../../includes/header.php';
+    include_once '../../includes/connection.php';
+    include_once '../../includes/header.php';
 ?>
 
 <!DOCTYPE html>

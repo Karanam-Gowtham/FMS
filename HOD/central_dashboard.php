@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
@@ -47,7 +47,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
                 justify-content: center;
             }
             .btn111 {
-            background-color: #4CAF50;
+            background-color: #2e7d32; /* Darker green for better contrast */
             border: none;
             color: white;
             padding: 12px 24px;
@@ -227,7 +227,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
     </style>
 </head>
 <body>
-<?php include 'header_hod.php'; ?>
+<?php include_once 'header_hod.php'; ?>
 <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">

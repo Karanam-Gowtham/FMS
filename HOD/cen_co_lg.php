@@ -1,5 +1,5 @@
 <?php
-    include "./header_hod.php";
+    include_once "./header_hod.php";
     ?>
 <!DOCTYPE html>
 <html lang="en">

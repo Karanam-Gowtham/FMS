@@ -1,13 +1,13 @@
 <?php
-include 'includes/connection.php';
+include_once 'includes/connection.php';
 
 echo "<h2>Cleaning up Duplicate Rejection History</h2>";
 
 // finding duplicates
 $sql = "
-    SELECT file_id, table_name, rejection_reason, created_at, GROUP_CONCAT(id) as ids, COUNT(*) as count 
-    FROM rejection_history 
-    GROUP BY file_id, table_name, rejection_reason, created_at 
+    SELECT file_id, table_name, rejection_reason, created_at, GROUP_CONCAT(id) as ids, COUNT(*) as count
+    FROM rejection_history
+    GROUP BY file_id, table_name, rejection_reason, created_at
     HAVING count > 1
 ";
 
@@ -20,7 +20,7 @@ if ($result->num_rows > 0) {
         
         $ids = explode(',', $row['ids']);
         // Keep the first one (or last, doesn't matter for duplicates)
-        $keep_id = array_shift($ids); 
+        $keep_id = array_shift($ids);
         
         // Delete the rest
         if (!empty($ids)) {
@@ -40,4 +40,3 @@ if ($result->num_rows > 0) {
 }
 
 echo "<h3>Total deleted: $deleted_total</h3>";
-?>

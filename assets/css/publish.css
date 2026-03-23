@@ -27,7 +27,6 @@ body::before {
 .contact-wrapper {
     
     width:50vw;
-    margin-top: 100px;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(6px);
     padding: 10px 2rem 2rem 2rem;
@@ -94,6 +93,7 @@ h3 {
 
 .social-icon:hover {
     background: #60a5fa;
+    color: #000000;
     transform: translateY(-2px);
 }
 
@@ -128,7 +128,7 @@ h3 {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 0.5rem;
     background: rgba(255, 255, 255, 0.1);
-    color: black;
+    color: white;
     font-weight: bold;
     font-size: 1rem;
 }

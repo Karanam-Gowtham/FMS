@@ -1,5 +1,5 @@
 <?php
-require 'includes/connection.php';
+require_once 'includes/connection.php';
 foreach (['fdps_org_tab', 'files'] as $table) {
     echo "Table: $table\n";
     $res = $conn->query("DESCRIBE $table");

@@ -1,5 +1,6 @@
 <?php
 include_once "../includes/connection.php";
+include_once "../includes/constants.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -430,4 +431,4 @@ include_once "header_hod.php";
     </div>
 </body>
 
-</html>
+</html>

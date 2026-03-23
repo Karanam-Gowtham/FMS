@@ -1,6 +1,6 @@
 <?php
 ob_start(); // Start output buffering
-include '../../includes/connection.php';
+include_once '../../includes/connection.php';
 
 // Retrieve designation from URL or POST
 $event = isset($_REQUEST['event']) ? htmlspecialchars($_REQUEST['event']) : '';
@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-include '../../includes/header.php';
+include_once '../../includes/header.php';
 ?>
 
 

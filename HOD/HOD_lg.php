@@ -8,7 +8,7 @@ $dept = isset($_GET['dept']) ? htmlspecialchars($_GET['dept']) : '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_validate();
+    csrfValidate();
 }
 
 if (isset($_POST['signIn'])) {
@@ -168,7 +168,7 @@ if (isset($_POST['signIn'])) {
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
-                <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                 <h1 id="hav">HOD<br>Log In <?php if($dept) { echo "($dept)"; } ?></h1>
                 <?php if (!empty($error)): ?>
                     <div style="color:#ffb4b4; margin-bottom:10px;"><?php echo htmlspecialchars($error); ?></div>
@@ -181,3 +181,4 @@ if (isset($_POST['signIn'])) {
     </div>
     </body>
 </html>
+

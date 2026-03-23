@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
-include __DIR__ . '/../includes/connection.php';
+include_once __DIR__ . '/../includes/connection.php';
 
 $logged = isset($_SESSION['username'])
     || isset($_SESSION['a_username'])
@@ -21,7 +21,7 @@ if (isset($_GET['file_path'])) {
     if (preg_match('/uploads[\/\\\\].*/', $filePath, $matches)) {
         $filePath = "../" . $matches[0];
     }
-} else if (isset($_GET['id'])) {
+} elseif (isset($_GET['id'])) {
     $fileId = intval($_GET['id']);
     $sql = "SELECT file_path FROM a_files WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -54,5 +54,4 @@ if (file_exists($filePath)) {
 }
 
 
-$conn->close();
-?>
+$conn->close();

@@ -1,5 +1,5 @@
 <?php
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 session_start();
 
 if ($conn->connect_error) {
@@ -118,8 +118,9 @@ if (isset($_POST['export_excel']) && !empty($selected_branch)) {
     exit;
 }
 
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

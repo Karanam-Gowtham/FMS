@@ -26,8 +26,8 @@ if (isset($_GET['dept'])) {
 $event = $_GET['event'] ?? '';
 
 // Connect to the database
-include "../../includes/connection.php";
-include "../../includes/header.php";
+include_once "../../includes/connection.php";
+include_once "../../includes/header.php";
 
 // Check connection
 if ($conn->connect_error) {
@@ -195,9 +195,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acd_year = $_POST['year'];
     $file_type = $_POST['file_type'];
     $file_name = $_POST['file_name'];
-    $study_year = $_POST['study_year'] ?? NULL;
-    $semester = $_POST['semester'] ?? NULL;
-    $review_period = $_POST['review_period'] ?? NULL;
+    $study_year = $_POST['study_year'] ?? null;
+    $semester = $_POST['semester'] ?? null;
+    $review_period = $_POST['review_period'] ?? null;
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
 
     // Upload the file to the server
@@ -462,7 +462,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <select name="year" id="academic-year" required>
                         <option value="" disabled selected>Select an academic year</option>
                         <?php
-                        include "../../includes/connection.php"; // Must be before this code
+                        include_once "../../includes/connection.php"; // Must be before this code
                         
                         $query = "SELECT year FROM academic_year ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);
@@ -540,3 +540,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php
 $conn->close();
 ?>
+

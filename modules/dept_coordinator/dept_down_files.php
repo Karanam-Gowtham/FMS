@@ -1,5 +1,5 @@
 <?php
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -98,8 +98,9 @@ if (
     }
 }
 
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -399,8 +400,7 @@ include "../../includes/header.php";
         $file_types_to_show = $selected_file_type ? [$selected_file_type] : [];
         foreach ($file_types_to_show as $file_type) {
             if ($file_type === 'student_act') {
-                $sql = "SELECT 'student_act' as file_type, branch as dept, acd_year as academic_year, event_name as sub_file_type, event_name as 
-        file_name, certificate_path as file_path, status, '' as meeting_no FROM s_events WHERE Username = ? AND status = 'Accepted'";
+                $sql = "SELECT 'student_act' as file_type, branch as dept, acd_year as academic_year, event_name as sub_file_type, event_name as file_name, certificate_path as file_path, status, '' as meeting_no FROM s_events WHERE Username = ? AND status = 'Accepted'";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("s", $username);
             } else {
@@ -459,7 +459,12 @@ include "../../includes/header.php";
                 while ($row = $result->fetch_assoc()) {
                     $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
                     $status = $row['status'] ?? 'Pending';
-                    $statusColor = ($status === 'Accepted') ? 'green' : ($status === 'Rejected' ? 'red' : 'orange');
+                    $statusColor = 'orange';
+                    if ($status === 'Accepted') {
+                        $statusColor = 'green';
+                    } elseif ($status === 'Rejected') {
+                        $statusColor = 'red';
+                    }
 
                     echo "<tr>
                         <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "'
@@ -519,4 +524,4 @@ include "../../includes/header.php";
 
 </body>
 
-</html>
+</html>

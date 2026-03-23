@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
-include __DIR__ . '/../includes/connection.php';
+include_once __DIR__ . '/../includes/connection.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    csrf_validate();
+    csrfValidate();
     if (isset($_POST['signIn'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 }
-include "header_admin.php";
+include_once "header_admin.php";
 ?>
 
 
@@ -124,7 +124,7 @@ include "header_admin.php";
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
-                <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                 <h1 id="hav">Dept Co-odinator<br>Log In</h1>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />

@@ -101,7 +101,7 @@ if (session_status() === PHP_SESSION_NONE) {
             top: 20px;
             left: 680px;
             padding: 10px 20px;
-            background-color: green;
+            background-color: #1b5e20;
             color: white;
             border: none;
             border-radius: 5px;
@@ -140,7 +140,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 // Get the academic year and criteria from the POST request
                 $academicYear = htmlspecialchars($_POST['year']);
                 $criteria = htmlspecialchars($_POST['criteria']);
-                
                 // Display the AQAR heading
                 echo "<h1>AQAR - " . $academicYear . "</h1>";
             } else {
@@ -178,7 +177,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             if ($result->num_rows > 0) {
                                 // Loop through the result set and display rows
                                 while ($row = $result->fetch_assoc()) {
-                                    $criteriaNo = $row['Sub_no'];  
+                                    $criteriaNo = $row['Sub_no'];
                                     $description = $row['Des'];
 
                                     // Display rows

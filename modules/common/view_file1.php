@@ -81,4 +81,4 @@ header("Cache-Control: public, must-revalidate, max-age=3600");
 
 readfile($resolvedPath);
 exit;
-?>
+

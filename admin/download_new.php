@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
-include __DIR__ . '/../includes/connection.php';
+include_once __DIR__ . '/../includes/connection.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
 $logged = isset($_SESSION['username'])
@@ -17,7 +17,7 @@ if (!$logged) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_validate();
+    csrfValidate();
 }
 
 $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
@@ -25,8 +25,8 @@ $subCriteria = isset($_POST['subCriteria']) ? $_POST['subCriteria'] : '';
 $data = [];
 
 if ($criteria && in_array($criteria, ["1", "2", "3", "4", "7"])) {
-    $query = "SELECT id, faculty_name, academic_year, file_name, file_path, criteria_no 
-              FROM files 
+    $query = "SELECT id, faculty_name, academic_year, file_name, file_path, criteria_no
+              FROM files
               WHERE criteria = ?
               ORDER BY criteria_no ASC";
 
@@ -47,10 +47,8 @@ if ($criteria && in_array($criteria, ["1", "2", "3", "4", "7"])) {
         ];
     }
 }
-?>
 
-<?php 
-include "header_admin.php";
+include_once "header_admin.php";
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +65,7 @@ include "header_admin.php";
     <h2>Select Criteria</h2>
     
     <form method="POST" action="">
-        <?php echo csrf_field(); ?>
+        <?php echo csrfField(); ?>
         <!-- Main Criteria Dropdown -->
         <select name="criteria" id="criteria" onchange="showSubCriteria()" required>
             <option value="">Select the Criteria</option>

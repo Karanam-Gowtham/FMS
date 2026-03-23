@@ -2,13 +2,13 @@
 ob_start(); // Start output buffering at the very top
 require_once '../includes/session.php';
 require_once '../includes/csrf.php';
-include '../includes/connection.php';
+include_once '../includes/connection.php';
 
 $dept = isset($_GET['dept']) ? $_GET['dept'] : '';
 $error_message = ""; // Error message for popup
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_validate();
+    csrfValidate();
 }
 
 if (isset($_POST['logout'])) {
@@ -178,7 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
     }
 }
 // Include header ONLY after all possible redirects
-include 'header_admin.php';
+include_once 'header_admin.php';
 ?>
 
 <!DOCTYPE html>
@@ -380,7 +380,7 @@ include 'header_admin.php';
         <h2 id="welcomeMessage">Login</h2>
         <h4>Please login</h4>
         <form method="POST">
-            <?php echo csrf_field(); ?>
+            <?php echo csrfField(); ?>
             <input type="hidden" name="designation" id="designationHidden">
             <input type="text" placeholder="Username" name="userid" required>
             <input type="password" placeholder="Password" name="password" required>

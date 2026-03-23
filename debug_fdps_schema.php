@@ -1,5 +1,5 @@
 <?php
-include "includes/connection.php";
+include_once "includes/connection.php";
 $tables = ['fdps_tab', 'fdps_org_tab', 'published_tab', 'conference_tab', 'patents_table'];
 foreach ($tables as $t) {
     echo "Table: $t\n";
@@ -10,4 +10,3 @@ foreach ($tables as $t) {
         }
     }
 }
-?>

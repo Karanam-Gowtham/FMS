@@ -43,7 +43,7 @@ h1{
     text-align: center;
 }
 h3{
-    color:#6ab6d1;
+    color:#92d4e8;
 }
 .upload-container h1 {
     margin-bottom: 20px;
@@ -91,7 +91,7 @@ h3{
 /* Button Styling */
 .upload-container button {
     background: #ffcc00;
-    color: #333;
+    color: black;
     border: none;
     border-radius: 5px;
     padding: 10px 15px;
@@ -112,7 +112,7 @@ h3{
     position: absolute; /* Position relative to the viewport */
     top: 20px; /* Distance from the top */
     left: 20px; /* Distance from the left */
-    background: #1e90ff;
+    background: #1971c2;
     color: #f5f5f5;
     border: none;
     border-radius: 5px;
@@ -125,6 +125,7 @@ h3{
 
 .logout-btn:hover {
     background: #1c86ee;
+    color: #000000;
     box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4);
 }
 

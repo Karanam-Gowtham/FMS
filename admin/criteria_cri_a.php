@@ -1,6 +1,6 @@
-include "../includes/connection.php";
+include_once "../includes/connection.php";
 include_once "../includes/constants.php";
-include "header_admin.php";
+include_once "header_admin.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';

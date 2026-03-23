@@ -1,13 +1,13 @@
 <?php
 require_once "../../includes/session.php";
 require_once "../../includes/csrf.php";
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
 $event = $_GET['event'] ?? 'Unknown';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_validate();
+    csrfValidate();
     $email = $_POST['email'];
     $password = $_POST['password'];
 
@@ -191,7 +191,7 @@ $extra_head = "
     </style>
 ";
 
-include '../../includes/header.php';
+include_once '../../includes/header.php';
 ?>
 
 <nav class="navbar">
@@ -216,7 +216,7 @@ include '../../includes/header.php';
             <p class="error"><?php echo $error; ?></p>
         <?php endif; ?>
         <form method="POST" action="">
-            <?php echo csrf_field(); ?>
+            <?php echo csrfField(); ?>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>

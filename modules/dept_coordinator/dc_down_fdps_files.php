@@ -1,5 +1,5 @@
 <?php
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 require_once "../../includes/constants.php";
 
 if (!isset($_SESSION['a_username']) && !isset($_SESSION['j_username'])) {
@@ -13,20 +13,20 @@ function fixPath($p)
     }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
+    $finalPath = $p;
     if (preg_match('/uploads\/.*/', $p, $matches)) {
         $foundPath = $matches[0];
         if (file_exists(DIR_UP_TWO . $foundPath)) {
-            return DIR_UP_TWO . $foundPath;
+            $finalPath = DIR_UP_TWO . $foundPath;
+        } elseif (file_exists(DIR_UP . $foundPath)) {
+            $finalPath = DIR_UP . $foundPath;
+        } elseif (file_exists($foundPath)) {
+            $finalPath = $foundPath;
+        } else {
+            $finalPath = DIR_UP_TWO . $foundPath;
         }
-        if (file_exists(DIR_UP . $foundPath)) {
-            return DIR_UP . $foundPath;
-        }
-        if (file_exists($foundPath)) {
-            return $foundPath;
-        }
-        return DIR_UP_TWO . $foundPath;
     }
-    return $p;
+    return $finalPath;
 }
 
 $username = isset($_SESSION['a_username']) ? $_SESSION['a_username'] : $_SESSION['j_username'];
@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $zipFileName = $safe_category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
-            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 foreach ($selectedFiles as $fileId) {
                     $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND branch = ?";
                     $stmt = $conn->prepare($sql);
@@ -352,7 +352,7 @@ if (isset($_POST['export_patent'])) {
 //---------------------------------------------------------------------------------------------------------------------------------
 
 $extra_head = '<link rel="stylesheet" href="../../assets/css/download_pap.css"><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>';
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 
 ?>
 

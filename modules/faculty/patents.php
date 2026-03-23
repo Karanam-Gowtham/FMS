@@ -1,7 +1,7 @@
 <?php
 
-include "../../includes/connection.php";
-include "../../includes/header.php";
+include_once "../../includes/connection.php";
+include_once "../../includes/header.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view this page.");
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (move_uploaded_file($_FILES["patent_file"]["tmp_name"], $target_file)) {
         $status = 'Pending HOD';
-        $sql = "INSERT INTO patents_table (username, branch, patent_title, date_of_issue, patent_file, submission_time, year, status) 
+        $sql = "INSERT INTO patents_table (username, branch, patent_title, date_of_issue, patent_file, submission_time, year, status)
                 VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)";
 
         $stmt = $conn->prepare($sql);
@@ -181,14 +181,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container11">
         <h2>Upload Patent Details</h2>
         <form method="POST" enctype="multipart/form-data">
-            <label>Patent Title:</label>
-            <input type="text" name="patent_title" required>
+            <label for="patent_title">Patent Title:</label>
+            <input type="text" id="patent_title" name="patent_title" required>
 
-            <label>Date of Issue:</label>
-            <input type="date" name="date_of_issue" required>
+            <label for="date_of_issue">Date of Issue:</label>
+            <input type="date" id="date_of_issue" name="date_of_issue" required>
 
-            <label>Academic Year:</label>
-            <select name="year" required>
+            <label for="year">Academic Year:</label>
+            <select id="year" name="year" required>
                 <option value="">Select Year</option>
                 <?php
                 $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
@@ -201,8 +201,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ?>
             </select>
 
-            <label>Patent File:</label>
-            <input type="file" name="patent_file" required>
+            <label for="patent_file">Patent File:</label>
+            <input type="file" id="patent_file" name="patent_file" required>
 
             <button type="submit">Submit</button>
         </form>
@@ -211,4 +211,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </body>
 
 </html>
-<?php $conn->close(); ?>
+<?php $conn->close(); ?>

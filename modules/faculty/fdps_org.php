@@ -1,7 +1,7 @@
 <?php
 
-include "../../includes/connection.php";
-include "../../includes/header.php";
+include_once "../../includes/connection.php";
+include_once "../../includes/header.php";
 
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view this page.");
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $status = 'Pending HOD';
 
-    $sql = "INSERT INTO fdps_org_tab (username, branch, title, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photo1, photo2, photo3, merged_file, submission_time, status) 
+    $sql = "INSERT INTO fdps_org_tab (username, branch, title, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photo1, photo2, photo3, merged_file, submission_time, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
     $stmt = $conn->prepare($sql);
@@ -418,4 +418,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </body>
 
 </html>
-<?php $conn->close(); ?>
+<?php $conn->close(); ?>

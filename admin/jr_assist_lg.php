@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
-include __DIR__ . '/../includes/connection.php';
+include_once __DIR__ . '/../includes/connection.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 }
-include "header_admin.php";
+include_once "header_admin.php";
 ?>
 
 

@@ -325,7 +325,7 @@ ob_start(); // Start output buffering
             style="position:relative; width:90%; height:90%; background:white; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.5); overflow:hidden; margin: 2.5% auto;">
             <button onclick="closeDashboard()"
                 style="position:absolute; top:10px; right:15px; font-size:30px; line-height:30px; font-weight:bold; color:#333; background:white; border:none; cursor:pointer; z-index:10000; padding:0 5px; border-radius:50%;">&times;</button>
-            <iframe id="dashboardFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+            <iframe id="dashboardFrame" src="" style="width:100%; height:100%; border:none;" title="Notification Dashboard"></iframe>
         </div>
     </div>
 
@@ -382,8 +382,7 @@ ob_start(); // Start output buffering
         }
 
         document.addEventListener('DOMContentLoaded', updateDashboardBadge);
-        setInterval(updateDashboardBadge, 30000); 
+        setInterval(updateDashboardBadge, 30000);
     </script>
     <?php
     ob_flush(); // Flush output to prevent header issues
-    ?>

@@ -1,9 +1,8 @@
-<?php
 include_once 'includes/session.php';
 // Fallback: If session is empty but cookie exists, try to re-attach (though session_start does this usually)
 // The issue might be that iframe considers it a separate context if cookies are strict.
 // For now, let's assume standard session behavior.
-include 'includes/connection.php';
+include_once 'includes/connection.php';
 require_once 'includes/constants.php';
 require_once __DIR__ . '/includes/csrf.php';
 
@@ -154,7 +153,7 @@ if (!$role) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_validate();
+    csrfValidate();
 }
 
 // --- Handle Re-upload ---
@@ -310,8 +309,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
 $files = [];
 
 // Helper to build partial query
-function build_query($conn, $table, $id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col, $role, $user_id)
+function buildQuery($conn, $table, $cols, $role, $user_id)
 {
+    list($id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col) = $cols;
     $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
     // Basic projection
     $q = "SELECT 
@@ -348,49 +348,49 @@ $queries = [];
 
 if ($role !== 'Jr_Assistant') {
     // 1. files
-    $queries[] = build_query($conn, 'files', 'id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 'files', ['id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
 
     // 2. files5_1_1and2
-    $queries[] = build_query($conn, 'files5_1_1and2', 'id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_1_1and2', ['id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
 
     // 3. files5_1_3
-    $queries[] = build_query($conn, 'files5_1_3', 'id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_1_3', ['id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
 
     // 4. files5_1_4
-    $queries[] = build_query($conn, 'files5_1_4', 'id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_1_4', ['id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
 
     // 5. fdps_tab
-    $queries[] = build_query($conn, 'fdps_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id);
+    $queries[] = buildQuery($conn, 'fdps_tab', ['id', 'username', 'title', 'submission_time', 'title', 'certificate'], $role, $user_id);
 
     // 6. fdps_org_tab
-    $queries[] = build_query($conn, 'fdps_org_tab', 'id', 'username', 'title', 'submission_time', 'title', 'certificate', $role, $user_id);
+    $queries[] = buildQuery($conn, 'fdps_org_tab', ['id', 'username', 'title', 'submission_time', 'title', 'certificate'], $role, $user_id);
 
     // 7. conference_tab
-    $queries[] = build_query($conn, 'conference_tab', 'id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 'conference_tab', ['id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path'], $role, $user_id);
 
     // 8. published_tab
-    $queries[] = build_query($conn, 'published_tab', 'id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file', $role, $user_id);
+    $queries[] = buildQuery($conn, 'published_tab', ['id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file'], $role, $user_id);
 
     // 9. patents_table
-    $queries[] = build_query($conn, 'patents_table', 'id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file', $role, $user_id);
+    $queries[] = buildQuery($conn, 'patents_table', ['id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file'], $role, $user_id);
 
     // 10. files5_2_1 (Placement Details)
-    $queries[] = build_query($conn, 'files5_2_1', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_2_1', ['id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
 
     // 11. files5_2_2 (Higher Education)
-    $queries[] = build_query($conn, 'files5_2_2', 'id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_2_2', ['id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
 
     // 12. s_journal_tab (Journal Papers)
-    $queries[] = build_query($conn, 's_journal_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file', $role, $user_id);
+    $queries[] = buildQuery($conn, 's_journal_tab', ['id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file'], $role, $user_id);
 
     // 13. s_conference_tab (Conference Papers)
-    $queries[] = build_query($conn, 's_conference_tab', 'id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 's_conference_tab', ['id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path'], $role, $user_id);
 
     // 14. s_events (Student Activities: Projects, Internships, etc.)
-    $queries[] = build_query($conn, 's_events', 'id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 's_events', ['id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path'], $role, $user_id);
 
     // 15. s_bodies (Professional Bodies)
-    $queries[] = build_query($conn, 's_bodies', 'id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path', $role, $user_id);
+    $queries[] = buildQuery($conn, 's_bodies', ['id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path'], $role, $user_id);
 }
 
 // 16. dept_files (Dept/AMC/BoS Minutes)
@@ -626,7 +626,7 @@ if ($result) {
 
     <?php
     if (!isset($_GET['mode']) || $_GET['mode'] != 'iframe') {
-        include 'includes/header.php';
+        include_once 'includes/header.php';
     }
     ?>
 
@@ -716,7 +716,7 @@ if ($result) {
                                     <?php if ($can_act):
                                         $buttons_shown = true; ?>
                                         <form method="POST" style="display:inline;">
-                                            <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                                             <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
                                             <input type="hidden" name="table_name" value="<?php echo $file['table_name']; ?>">
                                             <input type="hidden" name="action" value="approve">

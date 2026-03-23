@@ -223,7 +223,7 @@ $conn->close();
             <div class="error"><?php echo $error; ?></div>
             <script>alert("<?php echo $error; ?>");</script>
         <?php endif; ?>
-        
+
         <form method="POST">
             <label for="year">Enter Academic Year (e.g., 2024-25):</label>
             <input type="text" id="year" name="year" placeholder="YYYY-YY" required>
@@ -234,3 +234,4 @@ $conn->close();
 
 </body>
 </html>
+

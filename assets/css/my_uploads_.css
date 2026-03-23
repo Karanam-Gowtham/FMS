@@ -15,7 +15,6 @@ body {
 }
 
 .container11 {
-    margin-left: 10px;
     margin-top: 40px;
     margin-left: 50px;
 }
@@ -43,7 +42,7 @@ td {
 }
 
 th {
-    background-color: #007bff;
+    background-color: #0062cc;
     color: #fff;
     text-transform: uppercase;
 }
@@ -68,11 +67,11 @@ button {
 
 button#view {
     background-color: #28a745;
-    color: white;
+    color: #000000;
 }
 
 button#down {
-    background-color: #007bff;
+    background-color: #0062cc;
     color: white;
 }
 
@@ -91,7 +90,7 @@ button#del {
     margin: 10px;
     padding: 10px 20px;
     background-color: #28a745;
-    color: white;
+    color: #000000;
     border-radius: 5px;
     text-decoration: none;
     font-weight: bold;

@@ -1,7 +1,7 @@
 <?php
 ob_start();
 ini_set('display_errors', 0);
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 require_once "../../includes/constants.php";
 
 if (!isset($_SESSION['username'])) {
@@ -15,19 +15,21 @@ function fixPath($p)
     }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
+    $finalPath = $p;
     if (preg_match(REGEX_UPLOADS, $p, $matches)) {
         $foundPath = $matches[0];
         // Relative to modules/common/
         if (file_exists(DIR_UP_TWO . $foundPath)) {
-            return DIR_UP_TWO . $foundPath;
+            $finalPath = DIR_UP_TWO . $foundPath;
         } elseif (file_exists(DIR_UP . $foundPath)) {
-            return DIR_UP . $foundPath;
+            $finalPath = DIR_UP . $foundPath;
         } elseif (file_exists($foundPath)) {
-            return $foundPath;
+            $finalPath = $foundPath;
+        } else {
+            $finalPath = DIR_UP_TWO . $foundPath; // Default for common
         }
-        return DIR_UP_TWO . $foundPath; // Default for common
     }
-    return $p;
+    return $finalPath;
 }
 
 $username = $_SESSION['username'];
@@ -138,7 +140,7 @@ function handleZipDownload($conn, $selectedFiles, $tableName, $fileColumn, $user
     $zipFileName = $category . "_files_" . time() . ".zip";
     $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
     
-    if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+    if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
         $filesAdded = addFilesToZip($conn, $zip, $selectedFiles, $tableName, $fileColumn, $username);
         $zip->close();
 
@@ -212,7 +214,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     }
     $action = $_POST['action'];
     $selectedFiles = $_POST['selected_files'];
-    $category = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['category']);
+    $category = preg_replace('/\W/', '', $_POST['category']);
+
     $config = getCategoryConfig($category);
 
     if ($action == 'delete') {
@@ -483,7 +486,7 @@ function renderPatents($conn, $username) {
 
 
 $extra_head = '<link rel="stylesheet" href="../../assets/css/download_pap.css">';
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 ?>
 <nav class="navbar">
     <div class="nav-container">

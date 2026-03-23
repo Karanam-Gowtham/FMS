@@ -33,18 +33,20 @@ function fixPath($p)
     }
     $p = htmlspecialchars_decode($p);
     $p = str_replace('\\', '/', $p);
+    $resultPath = $p;
     if (preg_match(REGEX_UPLOADS, $p, $matches)) {
         $foundPath = $matches[0];
         if (file_exists("../" . $foundPath)) {
-            return "../" . $foundPath;
+            $resultPath = "../" . $foundPath;
         } elseif (file_exists($foundPath)) {
-            return $foundPath;
+            $resultPath = $foundPath;
         } elseif (file_exists(PATH_UP_UP . $foundPath)) {
-            return PATH_UP_UP . $foundPath;
+            $resultPath = PATH_UP_UP . $foundPath;
+        } else {
+            $resultPath = "../" . $foundPath; // Default
         }
-        return "../" . $foundPath; // Default
     }
-    return $p;
+    return $resultPath;
 }
 
 $catg = '';
@@ -76,10 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     $category = $_POST['category'];
 
     switch ($category) {
-        case 'fdps':
-            $tableName = 'fdps_tab';
-            $fileColumn = 'certificate';
-            break;
         case 'fdps_org':
             $tableName = 'fdps_org_tab';
             $fileColumn = 'merged_file';
@@ -96,9 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $tableName = 'patents_table';
             $fileColumn = 'patent_file';
             break;
+        case 'fdps':
         default:
             $tableName = 'fdps_tab';
             $fileColumn = 'certificate';
+            break;
     }
 
     // HOD actions: mainly download. Delete is disabled for safety unless requested.

@@ -1,6 +1,6 @@
 <?php
 // Database configuration
-include '../../includes/connection.php';
+include_once '../../includes/connection.php';
 
 
     
@@ -11,7 +11,7 @@ if (!isset($_SESSION['c_cord'])) {
 }
 
 $username = $_SESSION['c_cord'];
-include '../../includes/header.php';
+include_once '../../includes/header.php';
 $event = htmlspecialchars($_GET['event'] ?? 'Unknown');
 
 // Check connection
@@ -44,10 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Create uploads directory if it doesn't exist
-    if (!is_dir($uploadDir)) {
-        if (!mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
-            die("Failed to create upload directory.");
-        }
+    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
+        die("Failed to create upload directory.");
     }
 
     // Move the main file to the uploads directory
@@ -327,7 +325,7 @@ $conn->close();
                     <select name="year" id="academic-year" required>
                         <option value="" disabled selected>Select an academic year</option>
                         <?php
-                        include "../../includes/connection.php"; // Must be before this code
+                        include_once "../../includes/connection.php"; // Must be before this code
 
                         $query = "SELECT year FROM academic_year ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);
@@ -377,7 +375,7 @@ $conn->close();
                     <input type="file" id="photo4" class="file" name="photo4" required>
                 </div>
 
-            <center><button type="submit" class="btn1">Upload</button></center>
+            <div style="text-align: center;"><button type="submit" class="btn1">Upload</button></div>
         </form>
     </div>
     

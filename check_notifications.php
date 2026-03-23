@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'includes/connection.php';
+include_once 'includes/connection.php';
 require_once 'includes/constants.php';
 
 // --- Authorization & Role Detection ---
@@ -52,7 +52,7 @@ if (!$role) {
 }
 
 // Helper to build partial query (Count version)
-function build_count_query($conn, $table, $user_col, $role, $user_id, $dept)
+function buildCountQuery($conn, $table, $user_col, $role, $user_id, $dept)
 {
     $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
     $dept_esc = mysqli_real_escape_string($conn, (string) $dept);
@@ -90,21 +90,21 @@ function build_count_query($conn, $table, $user_col, $role, $user_id, $dept)
 $queries = [];
 
 // 1. files
-$queries[] = build_count_query($conn, 'files', 'UserName', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'files5_1_1and2', 'UserName', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'files5_1_3', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'files5_1_4', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'fdps_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'fdps_org_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'conference_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'published_tab', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'patents_table', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'files5_2_1', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 'files5_2_2', 'username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 's_journal_tab', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 's_conference_tab', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 's_events', 'Username', $role, $user_id, $dept);
-$queries[] = build_count_query($conn, 's_bodies', 'Username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'files', 'UserName', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'files5_1_1and2', 'UserName', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'files5_1_3', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'files5_1_4', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'fdps_tab', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'fdps_org_tab', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'conference_tab', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'published_tab', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'patents_table', 'Username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'files5_2_1', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 'files5_2_2', 'username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 's_journal_tab', 'Username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 's_conference_tab', 'Username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 's_events', 'Username', $role, $user_id, $dept);
+$queries[] = buildCountQuery($conn, 's_bodies', 'Username', $role, $user_id, $dept);
 
 // Special case for dept_files
 $user_esc_df = mysqli_real_escape_string($conn, (string) $user_id);
@@ -159,7 +159,7 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
         }
 
         if ($shouldSendEmail) {
-            // Fetch email from table where it exists. 
+            // Fetch email from table where it exists.
             // User asked to add email to `admin_login` previously, but `reg_tab` naturally has email too.
             // Let's use `reg_tab` email if available as it's more likely to be the personal/official one.
             // Or `admin_login` if that was the instruction.
@@ -189,8 +189,8 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
         $stmt_e = $conn->prepare("SELECT email FROM reg_dept_cord WHERE userid = ?");
         $stmt_e->bind_param("s", $user_id);
         // ... execute and fetch
-        $shouldSendEmail = true; 
-    } 
+        $shouldSendEmail = true;
+    }
     */
 
     // 2. Send Email if justified and email found
@@ -213,4 +213,3 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
 
 header('Content-Type: application/json');
 echo json_encode(['count' => $count]);
-?>

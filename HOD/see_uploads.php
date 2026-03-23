@@ -489,7 +489,7 @@ $shortJson = json_encode($shortLabels, JSON_UNESCAPED_UNICODE);
 </head>
 
 <body>
-    <?php include 'header_hod.php'; ?>
+    <?php include_once 'header_hod.php'; ?>
 
     <!-- Global Tooltip -->
     <div class="bi-tooltip" id="biTooltip"></div>
@@ -951,4 +951,4 @@ $shortJson = json_encode($shortLabels, JSON_UNESCAPED_UNICODE);
     </script>
 </body>
 
-</html>
+</html>

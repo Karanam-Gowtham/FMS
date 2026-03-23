@@ -1,5 +1,5 @@
 <?php
-include 'includes/connection.php';
+include_once 'includes/connection.php';
 
 $tables = [
     'files',
@@ -21,7 +21,7 @@ foreach ($tables as $table) {
         $check_col = $conn->query("SHOW COLUMNS FROM $table LIKE 'status'");
         if ($check_col->num_rows == 0) {
             $sql = "ALTER TABLE $table ADD COLUMN status VARCHAR(50) DEFAULT 'Pending HOD'";
-            if ($conn->query($sql) === TRUE) {
+            if ($conn->query($sql) === true) {
                 echo "Added 'status' to $table.<br>";
             } else {
                 echo "Error adding 'status' to $table: " . $conn->error . "<br>";
@@ -32,7 +32,7 @@ foreach ($tables as $table) {
         $check_col = $conn->query("SHOW COLUMNS FROM $table LIKE 'rejection_reason'");
         if ($check_col->num_rows == 0) {
             $sql = "ALTER TABLE $table ADD COLUMN rejection_reason TEXT";
-            if ($conn->query($sql) === TRUE) {
+            if ($conn->query($sql) === true) {
                 echo "Added 'rejection_reason' to $table.<br>";
             } else {
                 echo "Error adding 'rejection_reason' to $table: " . $conn->error . "<br>";
@@ -44,4 +44,3 @@ foreach ($tables as $table) {
 }
 
 $conn->close();
-?>

@@ -1,9 +1,9 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 // Load PHPMailer manually since composer is not available
-require __DIR__ . '/PHPMailer/src/Exception.php';
-require __DIR__ . '/PHPMailer/src/PHPMailer.php';
-require __DIR__ . '/PHPMailer/src/SMTP.php';
+require_once __DIR__ . '/PHPMailer/src/Exception.php';
+require_once __DIR__ . '/PHPMailer/src/PHPMailer.php';
+require_once __DIR__ . '/PHPMailer/src/SMTP.php';
 
 function sendNotificationEmail($toEmail, $recipientName, $pendingCount)
 {
@@ -45,4 +45,3 @@ function sendNotificationEmail($toEmail, $recipientName, $pendingCount)
         return false;
     }
 }
-?>

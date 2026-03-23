@@ -1,5 +1,5 @@
 <?php
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 session_start();
 
 if ($conn->connect_error) {
@@ -102,7 +102,7 @@ if (
 
 // Get the selected file type from POST
 
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 ?>
 
 <!DOCTYPE html>
