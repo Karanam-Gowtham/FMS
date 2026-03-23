@@ -85,7 +85,7 @@ require_once '../includes/session.php';
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;          
+            font-size: 16px;
         }
         .home-button:hover {
             background-color: rgb(86, 5, 5);
@@ -100,7 +100,7 @@ require_once '../includes/session.php';
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;          
+            font-size: 16px;
         }
         .home-button1:hover {
             background-color: blueviolet;

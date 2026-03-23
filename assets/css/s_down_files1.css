@@ -5,10 +5,11 @@
         /* General Styling */
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to right, #1e3c72, #2a5298);
-            color: #fff;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* Rich dark gradient */
+            color: #ffffff;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
         }
 
         header {
@@ -54,17 +55,17 @@
         }
 
         .sid {
-            color: rgb(48, 30, 138);
+            color: #6a82fb; /* Bright blue for dark background */
             font-weight: 500;
         }
 
         .main-a {
-            color: rgb(138, 30, 113);
-            font-weight: 500;
+            color: #fc5c7d; /* Vibrant pink for contrast */
+            font-weight: 600;
         }
 
         .main-a:hover {
-            color: rgb(182, 64, 211);
+            color: #ff9a9e;
         }
 
         .home-icon {
@@ -78,13 +79,15 @@
 
         /* Container Styling */
         .container11 {
-            margin: 20px auto;
-            width: 90%;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            color: #333;
+            margin: 40px auto;
+            width: 95%;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05); /* Glassmorphism */
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
         }
 
         /* Filter Section */
@@ -180,10 +183,10 @@
 
         th,
         td {
-            padding: 12px;
+            padding: 16px;
             text-align: center;
-            border-bottom: 2px solid #ddd;
-            color: #333;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
         }
 
         th {
@@ -197,12 +200,12 @@
         }
 
         tr:hover {
-            background: #007bff;
+            background: #004085; /* Darker blue for better contrast */
             transition: 0.3s;
         }
 
         tr:hover td {
-            color: #fff !important;
+            color: #ffffff !important;
         }
 
         /* Buttons */
@@ -217,7 +220,7 @@
 
         #view {
             background-color: #17a2b8;
-            color: darkblue;
+            color: #ffffff;
         }
 
         #view:hover {
@@ -286,63 +289,6 @@
             background: #032949;
             color: white;
             margin-left: 150px;
-        }
-
-        .view-btn {
-            background: #42a5f5;
-            color: white;
-            margin-right: 10px;
-        }
-
-        .view-btn:hover {
-            background: #1e88e5;
-        }
-
-        .download-btn {
-            background: #66bb6a;
-            color: white;
-        }
-
-        .download-btn:hover {
-            background: #43a047;
-        }
-
-        .delete-btn {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .delete-btn:hover {
-            background: #c0392b;
-        }
-
-        .btn1 {
-            display: flex;
-
-            flex-direction: row;
-            font-size: 1rem;
-            text-decoration: none;
-            border-radius: 5px;
-            color: white;
-            font-weight: bold;
-            height: 15px;
-        }
-
-        .view-btn {
-            margin-right: 20px;
-            background: #42a5f5;
-        }
-
-        .view-btn:hover {
-            background: #1e88e5;
-        }
-
-        .download-btn {
-            background: #66bb6a;
-        }
-
-        .download-btn:hover {
-            background: #43a047;
         }
 
         .a_div {

@@ -322,7 +322,7 @@ include_once "header_hod.php";
             <form method="POST" action="">
                 <div class="main_select_div">
                     <label for="main-select">Select Category:</label>
-                    <select id="main-select" name="main_select" onchange="this.form.submit()">
+                    <select id="main-select" name="main_select" onchange="this.form.submit()" onkeydown="if(event.key === 'Enter') this.form.submit()">
                         <option value="" disabled selected>Choose an option</option>
                         <option value="Journals" <?= $main_select == 'Journals' ? 'selected' : '' ?>>Journals</option>
                         <option value="Conferences" <?= $main_select == 'Conferences' ? 'selected' : '' ?>>Conferences
@@ -337,7 +337,7 @@ include_once "header_hod.php";
                 </div>
                 <div id="bodies-sub-select-div" style="display: none;">
                     <label for="bodies-sub-select">Select Subcategory:</label>
-                    <select id="bodies-sub-select" name="bodies_sub_select" onchange="this.form.submit()">
+                    <select id="bodies-sub-select" name="bodies_sub_select" onchange="this.form.submit()" onkeydown="if(event.key === 'Enter') this.form.submit()">
                         <option value="" disabled selected>Choose an option</option>
                         <option value="ISTE" <?= $bodies_sub_select == 'ISTE' ? 'selected' : '' ?>>ISTE</option>
                         <option value="CSI" <?= $bodies_sub_select == 'CSI' ? 'selected' : '' ?>>CSI</option>
@@ -431,4 +431,5 @@ include_once "header_hod.php";
     </div>
 </body>
 
-</html>
+</html>
+

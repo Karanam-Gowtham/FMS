@@ -240,7 +240,7 @@ $conn->close();
                         });
                         $files_json = htmlspecialchars(json_encode(array_values($files_to_merge)), ENT_QUOTES, 'UTF-8');
                         $record_title = htmlspecialchars($record['title'], ENT_QUOTES, 'UTF-8');
-                        
+
                         $merged_path = fixPath($record['merged_file']);
                         $has_merged = (!empty($merged_path) && file_exists($merged_path));
                         ?>

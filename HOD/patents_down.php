@@ -60,7 +60,7 @@ if (isset($_POST['download_excel'])) {
 
 include_once "./header_hod.php";
 $conn->close();
-?>
+
 
 <!DOCTYPE html>
 <html lang="en">

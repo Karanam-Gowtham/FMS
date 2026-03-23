@@ -59,107 +59,115 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             }
         }
         echo "<script>alert('Files deleted successfully.');</script>";
-    } elseif ($action == 'download' && !empty($selectedFiles)) {
-            if (count($selectedFiles) == 1) {
-                $fileId = $selectedFiles[0];
-                $sql = "SELECT file_path FROM a_c_files WHERE id = ?";
+    } elseif ($action == 'download' && count($selectedFiles) == 1) {
+        $fileId = $selectedFiles[0];
+        $sql = "SELECT file_path FROM a_c_files WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $fileId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $file = $result->fetch_assoc();
+
+        // if not found, fallback to a_files
+        if (!$file) {
+            $sql = "SELECT file_path FROM a_files WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $fileId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $file = $result->fetch_assoc();
+        }
+
+        if ($file) {
+            $filePath = $file['file_path'];
+            $fileName = basename($filePath);
+
+            if (file_exists($filePath) && ob_get_length()) {
+                ob_end_clean();
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: attachment; filename="' . $fileName . '"');
+                header('Content-Length: ' . filesize($filePath));
+                header('Pragma: public');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Content-Transfer-Encoding: binary');
+
+                flush();
+                readfile($filePath);
+                exit;
+            } elseif (file_exists($filePath)) {
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: attachment; filename="' . $fileName . '"');
+                header('Content-Length: ' . filesize($filePath));
+                header('Pragma: public');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Content-Transfer-Encoding: binary');
+
+                flush();
+                readfile($filePath);
+                exit;
+            } else {
+                echo "File not found.";
+            }
+        }
+    } elseif ($action == 'download' && count($selectedFiles) > 1) {
+        $zip = new ZipArchive();
+        $zipFileName = "downloads.zip";
+        $zipFilePath = "Uploads1/" . $zipFileName;
+
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            $selectedFiles = array_reverse($selectedFiles);
+            $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
+
+            // first try a_c_files
+            $sql = "SELECT file_path, file_name FROM a_c_files WHERE id IN ($placeholders)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            // if none, fallback to a_files
+            if ($result->num_rows === 0) {
+                $sql = "SELECT file_path, file_name FROM a_files WHERE id IN ($placeholders)";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $fileId);
+                $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
                 $stmt->execute();
                 $result = $stmt->get_result();
-                $file = $result->fetch_assoc();
+            }
 
-                // if not found, fallback to a_files
-                if (!$file) {
-                    $sql = "SELECT file_path FROM a_files WHERE id = ?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("i", $fileId);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $file = $result->fetch_assoc();
-                }
-    
-                if ($file) {
-                    $filePath = $file['file_path'];
-                    $fileName = basename($filePath);
-    
-                    if (file_exists($filePath)) {
-                        if (ob_get_length()) {
-                            ob_end_clean();
-                        }
-                        header('Content-Type: application/pdf');
-                        header('Content-Disposition: attachment; filename="' . $fileName . '"');
-                        header('Content-Length: ' . filesize($filePath));
-                        header('Pragma: public');
-                        header('Expires: 0');
-                        header('Cache-Control: must-revalidate');
-                        header('Content-Transfer-Encoding: binary');
-    
-                        flush();
-                        readfile($filePath);
-                        exit;
-                    } else {
-                        echo "File not found.";
-                    }
-                }
-            } else {
-                $zip = new ZipArchive();
-                $zipFileName = "downloads.zip";
-                $zipFilePath = "Uploads1/" . $zipFileName;
-                
-                if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-                    $selectedFiles = array_reverse($selectedFiles);
-                    $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
-                    
-                    // first try a_c_files
-                    $sql = "SELECT file_path, file_name FROM a_c_files WHERE id IN ($placeholders)";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
+            $filesAdded = false;
 
-                    // if none, fallback to a_files
-                    if ($result->num_rows === 0) {
-                        $sql = "SELECT file_path, file_name FROM a_files WHERE id IN ($placeholders)";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
+            while ($file = $result->fetch_assoc()) {
+                $filePath = $file['file_path'];
+                if (file_exists($filePath)) {
+                    if ($zip->addFile($filePath, basename($filePath))) {
+                        $filesAdded = true;
                     }
-                
-                    $filesAdded = false;
-                
-                    while ($file = $result->fetch_assoc()) {
-                        $filePath = $file['file_path'];
-                        if (file_exists($filePath)) {
-                            if ($zip->addFile($filePath, basename($filePath))) {
-                                $filesAdded = true;
-                            }
-                        }
-                    }
-                
-                    $zip->close();
-                
-                    if ($filesAdded) {
-                        if (ob_get_length()) {
-                            ob_clean();
-                        }
-                        ob_end_flush();
-                
-                        header('Content-Type: application/zip');
-                        header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
-                        header('Content-Length: ' . filesize($zipFilePath));
-                        readfile($zipFilePath);
-                
-                        unlink($zipFilePath);
-                        exit;
-                    } else {
-                        echo "No files were added to the ZIP archive.";
-                    }
-                } else {
-                    echo "Failed to create ZIP file.";
                 }
             }
+
+            $zip->close();
+
+            if ($filesAdded) {
+                if (ob_get_length()) {
+                    ob_clean();
+                }
+                ob_end_flush();
+
+                header('Content-Type: application/zip');
+                header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
+                header('Content-Length: ' . filesize($zipFilePath));
+                readfile($zipFilePath);
+
+                unlink($zipFilePath);
+                exit;
+            } else {
+                echo "No files were added to the ZIP archive.";
+            }
+        } else {
+            echo "Failed to create ZIP file.";
+        }
     }
 }
 

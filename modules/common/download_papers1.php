@@ -48,20 +48,14 @@ $category = "fdps";
  * @return array
  */
 function getCategoryConfig($category) {
-    switch ($category) {
-        case 'fdps':
-            return ['tableName' => 'fdps_tab', 'fileColumn' => 'certificate'];
-        case 'fdps_org':
-            return ['tableName' => 'fdps_org_tab', 'fileColumn' => 'certificate'];
-        case 'published':
-            return ['tableName' => 'published_tab', 'fileColumn' => 'paper_file'];
-        case 'conference':
-            return ['tableName' => 'conference_tab', 'fileColumn' => 'certificate_path'];
-        case 'patents':
-            return ['tableName' => 'patents_table', 'fileColumn' => 'patent_file'];
-        default:
-            return ['tableName' => 'fdps_tab', 'fileColumn' => 'certificate'];
-    }
+    $config_map = [
+        'fdps'       => ['tableName' => 'fdps_tab', 'fileColumn' => 'certificate'],
+        'fdps_org'   => ['tableName' => 'fdps_org_tab', 'fileColumn' => 'certificate'],
+        'published'  => ['tableName' => 'published_tab', 'fileColumn' => 'paper_file'],
+        'conference' => ['tableName' => 'conference_tab', 'fileColumn' => 'certificate_path'],
+        'patents'    => ['tableName' => 'patents_table', 'fileColumn' => 'patent_file']
+    ];
+    return isset($config_map[$category]) ? $config_map[$category] : $config_map['fdps'];
 }
 
 /**

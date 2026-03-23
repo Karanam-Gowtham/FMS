@@ -145,7 +145,6 @@ if (isset($_POST['year'])) {
             z-index: 99;
             margin-top: 80px;
             border-bottom: 1px solid #eee;
- 
         font-size: larger;
     }
 

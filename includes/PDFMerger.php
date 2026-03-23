@@ -152,23 +152,14 @@ class PDFMerger
      */
     private function switchMode($mode)
     {
-        switch (strtolower($mode)) {
-            case 'download':
-                return 'D';
-                break;
-            case 'browser':
-                return 'I';
-                break;
-            case 'file':
-                return 'F';
-                break;
-            case 'string':
-                return 'S';
-                break;
-            default:
-                return 'I';
-                break;
-        }
+        $mode_map = [
+            'download' => 'D',
+            'browser'  => 'I',
+            'file'     => 'F',
+            'string'   => 'S'
+        ];
+        $mode = strtolower($mode);
+        return isset($mode_map[$mode]) ? $mode_map[$mode] : 'I';
     }
 
     /**

@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $zipFileName = $safe_category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
-            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 $filesAdded = 0;
                 foreach ($selectedFiles as $fileId) {
                     $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND branch = ? AND status = 'Accepted'";
@@ -770,4 +770,4 @@ include_once "header_hod.php";
 
 </body>
 
-</html>
+</html>
