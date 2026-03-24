@@ -224,14 +224,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<img src='" . $img_src . "' class='profile-image' alt='Profile Photo' onerror=\"this.src='../../assets/img/profile_icon.png'\">";
         ?>
         <form method="post" enctype="multipart/form-data">
-            <label>Name:</label>
-            <input type="text" name="faculty_name" value="<?= htmlspecialchars($user['faculty_name']); ?>" required>
+            <label for="faculty_name">Name:</label>
+            <input type="text" name="faculty_name" id="faculty_name" value="<?= htmlspecialchars($user['faculty_name']); ?>" required>
 
-            <label>Designation:</label>
-            <input type="text" name="designation" value="<?= htmlspecialchars($user['designation']); ?>" required>
+            <label for="designation">Designation:</label>
+            <input type="text" name="designation" id="designation" value="<?= htmlspecialchars($user['designation']); ?>" required>
 
             <label for="qualification">Highest Qualification:</label>
-                <select name="qualification" required>
+                <select name="qualification" id="qualification" required>
                     <option value="">Select Qualification</option>
                     <option value="B.Sc" <?= ($user['qualification'] == "B.Sc" ? "selected" : "") ?>>B.Sc</option>
                     <option value="B.Com" <?= ($user['qualification'] == "B.Com" ? "selected" : "") ?>>B.Com</option>
@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
 
                 <label for="dept">Department:</label>
-                <select name="dept" required>
+                <select name="dept" id="dept" required>
                     <option value="">Select Department</option>
                     <option value="AIDS" <?= ($user['dept'] == "AIDS" ? "selected" : "") ?>>AIDS</option>
                     <option value="AIML" <?= ($user['dept'] == "AIML" ? "selected" : "") ?>>AIML</option>
@@ -264,42 +264,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-            <label>PERN Number:</label>
-            <input type="text" name="pern_no" value="<?= htmlspecialchars($user['pern_no']); ?>" required>
+            <label for="pern_no">PERN Number:</label>
+            <input type="text" name="pern_no" id="pern_no" value="<?= htmlspecialchars($user['pern_no']); ?>" required>
 
-            <label>Date of Birth:</label>
-            <input type="date" name="dob" value="<?= htmlspecialchars($user['dob']); ?>" required>
+            <label for="dob">Date of Birth:</label>
+            <input type="date" name="dob" id="dob" value="<?= htmlspecialchars($user['dob']); ?>" required>
 
-            <label>Gender:</label>
-            <select name="gender" required>
+            <label for="gender">Gender:</label>
+            <select name="gender" id="gender" required>
                 <option value="Male" <?= ($user['gender'] == "Male" ? "selected" : "") ?>>Male</option>
                 <option value="Female" <?= ($user['gender'] == "Female" ? "selected" : "") ?>>Female</option>
                 <option value="Other" <?= ($user['gender'] == "Other" ? "selected" : "") ?>>Other</option>
             </select>
 
-            <label>Email:</label>
-            <input type="email" name="email" value="<?= htmlspecialchars($user['email']); ?>" required>
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" value="<?= htmlspecialchars($user['email']); ?>" required>
 
-            <label>Aadhar:</label>
-            <input type="text" name="aadhar" value="<?= htmlspecialchars($user['aadhar']); ?>" required>
+            <label for="aadhar">Aadhar:</label>
+            <input type="text" name="aadhar" id="aadhar" value="<?= htmlspecialchars($user['aadhar']); ?>" required>
 
-            <label>PAN:</label>
-            <input type="text" name="pan" value="<?= htmlspecialchars($user['pan']); ?>" required>
+            <label for="pan">PAN:</label>
+            <input type="text" name="pan" id="pan" value="<?= htmlspecialchars($user['pan']); ?>" required>
 
-            <label>Phone:</label>
-            <input type="text" name="phone" value="<?= htmlspecialchars($user['phone']); ?>" required>
+            <label for="phone">Phone:</label>
+            <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($user['phone']); ?>" required>
 
-            <label>Address:</label>
-            <textarea name="address" required><?= htmlspecialchars($user['address']); ?></textarea>
+            <label for="address">Address:</label>
+            <textarea name="address" id="address" required><?= htmlspecialchars($user['address']); ?></textarea>
 
-            <label>Experience:</label>
-            <textarea name="experience"><?= htmlspecialchars($user['experience']); ?></textarea>
+            <label for="experience">Experience:</label>
+            <textarea name="experience" id="experience"><?= htmlspecialchars($user['experience']); ?></textarea>
 
-            <label>Password:</label>
-            <input type="text" name="password" value="<?= htmlspecialchars($user['password']); ?>" required>
+            <label for="password">Password:</label>
+            <input type="text" name="password" id="password" value="<?= htmlspecialchars($user['password']); ?>" required>
             
-            <label>Upload New Photo:</label>
-            <input type="file" name="photo_path" accept="image/*">
+            <label for="photo">Upload New Photo:</label>
+            <input type="file" name="photo_path" id="photo" accept="image/*">
 
             <button type="submit">Update Profile</button>
         </form>

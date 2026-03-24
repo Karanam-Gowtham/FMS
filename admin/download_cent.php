@@ -52,21 +52,11 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             $filePath = $file['file_path'];
             $fileName = basename($filePath);
 
-            if (file_exists($filePath) && ob_get_length()) {
-                ob_end_clean();
+            if (file_exists($filePath)) {
+                if (ob_get_length()) {
+                    ob_end_clean();
+                }
 
-                header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="' . $fileName . '"');
-                header('Content-Length: ' . filesize($filePath));
-                header('Pragma: public');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Content-Transfer-Encoding: binary');
-
-                flush();
-                readfile($filePath);
-                exit;
-            } elseif (file_exists($filePath)) {
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: attachment; filename="' . $fileName . '"');
                 header('Content-Length: ' . filesize($filePath));

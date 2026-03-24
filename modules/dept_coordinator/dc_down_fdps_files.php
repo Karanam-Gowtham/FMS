@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     // Determine table and file column based on category
     switch ($category) {
         case 'fdps':
+        default:
             $tableName = 'fdps_tab';
             $fileColumn = 'certificate';
             break;
@@ -92,10 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         case 'patents':
             $tableName = 'patents_table';
             $fileColumn = 'patent_file';
-            break;
-        default:
-            $tableName = 'fdps_tab';
-            $fileColumn = 'certificate';
             break;
     }
 
@@ -426,8 +423,7 @@ include_once "../../includes/header.php";
     $preselected_dept = $_GET['dept'] ?? $_POST['dept'] ?? '';
     $preselected_catg = $_GET['action_F'] ?? $_POST['action_F'] ?? $catg;
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' || ($preselected_dept && $preselected_catg)) {
-        if ((isset($_POST['sel_btn']) && isset($_POST['dept']) && isset($_POST['action_F'])) || ($preselected_dept && $preselected_catg)) {
+    if (($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sel_btn']) && isset($_POST['dept']) && isset($_POST['action_F'])) || ($preselected_dept && $preselected_catg)) {
             $dept = $preselected_dept;
             $category = $preselected_catg;
 
@@ -802,7 +798,6 @@ include_once "../../includes/header.php";
 
             }
         }
-    }
     ?>
 </div>
 

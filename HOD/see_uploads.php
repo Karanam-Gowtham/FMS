@@ -521,36 +521,36 @@ $shortJson = json_encode($shortLabels, JSON_UNESCAPED_UNICODE);
 
         <!-- KPI Cards -->
         <div class="kpi-row">
-            <div class="kpi-card att" onclick="highlightCategory(0)" tabindex="0" role="button" onkeydown="if(event.key === 'Enter') this.click()">
+            <button type="button" class="kpi-card att" onclick="highlightCategory(0)" tabindex="0" onkeydown="if(event.key === 'Enter') this.click()">
                 <div class="kpi-icon">🎓</div>
                 <div class="kpi-label">FDPs Attended</div>
                 <div class="kpi-value" data-target="<?= $totA ?>">0</div>
                 <div class="kpi-sub">Accepted records</div>
-            </div>
-            <div class="kpi-card org" onclick="highlightCategory(1)" tabindex="0" role="button" onkeydown="if(event.key === 'Enter') this.click()">
+            </button>
+            <button type="button" class="kpi-card org" onclick="highlightCategory(1)" tabindex="0" onkeydown="if(event.key === 'Enter') this.click()">
                 <div class="kpi-icon">🏫</div>
                 <div class="kpi-label">FDPs Organised</div>
                 <div class="kpi-value" data-target="<?= $totO ?>">0</div>
                 <div class="kpi-sub">Accepted records</div>
-            </div>
-            <div class="kpi-card pub" onclick="highlightCategory(2)" tabindex="0" role="button" onkeydown="if(event.key === 'Enter') this.click()">
+            </button>
+            <button type="button" class="kpi-card pub" onclick="highlightCategory(2)" tabindex="0" onkeydown="if(event.key === 'Enter') this.click()">
                 <div class="kpi-icon">📄</div>
                 <div class="kpi-label">Published Papers</div>
                 <div class="kpi-value" data-target="<?= $totP ?>">0</div>
                 <div class="kpi-sub">Accepted records</div>
-            </div>
-            <div class="kpi-card conf" onclick="highlightCategory(3)" tabindex="0" role="button" onkeydown="if(event.key === 'Enter') this.click()">
+            </button>
+            <button type="button" class="kpi-card conf" onclick="highlightCategory(3)" tabindex="0" onkeydown="if(event.key === 'Enter') this.click()">
                 <div class="kpi-icon">🎤</div>
                 <div class="kpi-label">Conferences</div>
                 <div class="kpi-value" data-target="<?= $totC ?>">0</div>
                 <div class="kpi-sub">Accepted records</div>
-            </div>
-            <div class="kpi-card pat" onclick="highlightCategory(4)" tabindex="0" role="button" onkeydown="if(event.key === 'Enter') this.click()">
+            </button>
+            <button type="button" class="kpi-card pat" onclick="highlightCategory(4)" tabindex="0" onkeydown="if(event.key === 'Enter') this.click()">
                 <div class="kpi-icon">💡</div>
                 <div class="kpi-label">Patents</div>
                 <div class="kpi-value" data-target="<?= $totPat ?>">0</div>
                 <div class="kpi-sub">Accepted records</div>
-            </div>
+            </button>
         </div>
 
         <!-- Charts -->

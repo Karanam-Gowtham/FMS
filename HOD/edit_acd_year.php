@@ -218,7 +218,7 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
         </div>
     </nav>
 
-<div class="overlay" id="overlay" onclick="hidePopup()" onKeyDown="if(event.key === 'Enter' || event.keyCode === 13 || event.key === ' ') hidePopup()" role="button" tabindex="0"></div>
+<button class="overlay" id="overlay" onclick="hidePopup()" onKeyDown="if(event.key === 'Enter' || event.keyCode === 13 || event.key === ' ') hidePopup()" tabindex="0" aria-label="Close popup" style="border: none; width: 100%; height: 100%;"></button>
 
 <table>
     <thead>

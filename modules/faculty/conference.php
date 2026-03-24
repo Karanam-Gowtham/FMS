@@ -207,18 +207,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container11">
         <h2>Conference Details</h2>
         <form method="POST" enctype="multipart/form-data">
-            <label>Title of Paper:</label>
-            <input type="text" name="paper_title" required>
+            <label for="paper_title">Title of Paper:</label>
+            <input type="text" name="paper_title" id="paper_title" required>
 
-            <label>Type:</label>
+            <label for="paper_type">Type:</label>
             <select name="paper_type" id="paper_type" onchange="togglePaperFile()" required>
                 <option value="Presented">Presented</option>
                 <option value="Participated">Participated</option>
                 <option value="Attended">Attended</option>
             </select>
 
-            <label>Academic Year:</label>
-            <select name="year" required>
+            <label for="year">Academic Year:</label>
+            <select name="year" id="year" required>
                 <option value="">Select Year</option>
                 <?php
                 $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
@@ -231,23 +231,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ?>
             </select>
 
-            <label>Organised By:</label>
-            <input type="text" name="organised_by" required>
+            <label for="organised_by">Organised By:</label>
+            <input type="text" name="organised_by" id="organised_by" required>
 
-            <label>Location:</label>
-            <input type="text" name="location" required>
+            <label for="location">Location:</label>
+            <input type="text" name="location" id="location" required>
 
-            <label>From Date:</label>
-            <input type="date" name="from_date" required>
+            <label for="from_date">From Date:</label>
+            <input type="date" name="from_date" id="from_date" required>
 
-            <label>To Date:</label>
-            <input type="date" name="to_date" required>
+            <label for="to_date">To Date:</label>
+            <input type="date" name="to_date" id="to_date" required>
 
-            <label>Certificate (PDF/Image):</label>
-            <input type="file" name="certificate" required>
+            <label for="certificate">Certificate (PDF/Image):</label>
+            <input type="file" name="certificate" id="certificate" required>
 
-            <label>Paper File (Optional):</label>
-            <input type="file" name="paper_file">
+            <label for="paper_file">Paper File (Optional):</label>
+            <input type="file" name="paper_file" id="paper_file">
 
             <button type="submit">Submit</button>
         </form>

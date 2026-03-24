@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     // Determine table and file column based on category
     switch ($main_select) {
         case 'Journals':
+        default:
             $tableName = 's_journal_tab';
             $fileColumn = 'paper_file';
             break;
@@ -61,9 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $tableName = 's_events';
             $fileColumn = 'certificate_path';
             break;
-        default:
-            $tableName = 's_journal_tab';
-            $fileColumn = 'paper_file';
     }
 
     if ($action === 'download') {
