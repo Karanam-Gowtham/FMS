@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         } else {
             // Handle multiple file download via ZIP
             $zip = new ZipArchive();
-            $safe_category = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$category);
+            $safe_category = preg_replace('/[^\w.-]/', '', (string)$category);
             $zipFileName = $safe_category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
@@ -910,7 +910,7 @@ include_once "../../includes/header.php";
                 } else {
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = `FDP_Organized_${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+                    link.download = `FDP_Organized_${title.replace(/\W/gi, '_')}.pdf`;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -1118,7 +1118,7 @@ include_once "../../includes/header.php";
 
         const link = document.createElement('a');
         link.href = url;
-        link.download = `FDP_Organized_${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+        link.download = `FDP_Organized_${title.replace(/\W/gi, '_')}.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1136,4 +1136,4 @@ include_once "../../includes/header.php";
 
 </body>
 
-</html>
+</html>

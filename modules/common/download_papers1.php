@@ -521,7 +521,7 @@ include_once "../../includes/header.php";
 
     <?php
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category'])) {
-        $category = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['category']);
+        $category = preg_replace('/\W/', '', $_POST['category']);
         switch ($category) {
             case 'fdps':
                 renderFdpsAttended($conn, $username);
@@ -793,4 +793,4 @@ include_once "../../includes/header.php";
 </script>
 </body>
 
-</html>
+</html>

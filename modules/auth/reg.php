@@ -6,11 +6,11 @@
     // Handle Registration Logic
     $message = "";
     $msg_type = "";
-    
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         csrfValidate();
     }
-    
+
     if (isset($_POST['register'])) {
         $faculty_name = trim($_POST['faculty_name']);
         $designation = trim($_POST['designation']);
@@ -37,7 +37,7 @@
         // Improved Login for File Upload with Debugging
         function handleUploadDebug($fileInputName, $prefix, $upload_dir_fs, $upload_dir_db, &$errors) {
             $result = false;
-            
+
             if (!isset($_FILES[$fileInputName])) {
                 $errors[] = "File input '$fileInputName' is missing.";
             } elseif ($_FILES[$fileInputName]['error'] != UPLOAD_ERR_OK) {
@@ -45,7 +45,7 @@
             } else {
                 $file = $_FILES[$fileInputName];
                 $filename = basename($file['name']);
-                $filename = preg_replace("/[^a-zA-Z0-9\._-]/", "", $filename);
+                $filename = preg_replace("/[^\w.-]/", "", $filename);
                 
                 $unique_name = uniqid() . "_" . $prefix . "_" . $filename;
                 $target_fs = $upload_dir_fs . $unique_name;
@@ -57,7 +57,7 @@
                     $errors[] = "Failed to move file '$fileInputName' to '$target_fs'";
                 }
             }
-            
+
             return $result;
         }
 
@@ -363,3 +363,5 @@
         </form>
     </div>
 </div>
+</body>
+</html>

@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 return ""; // Skip invalid files
             }
 
-            $fileName = time() . '_' . $fileInputName . '_' . preg_replace("/[^a-zA-Z0-9.]/", "_", basename($_FILES[$fileInputName]["name"]));
+            $fileName = time() . '_' . $fileInputName . '_' . preg_replace("/[^\w.]/", "_", basename($_FILES[$fileInputName]["name"]));
             $targetFile = $target_dir . $fileName;
             if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
                 return $targetFile;
@@ -418,4 +418,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </body>
 
 </html>
-<?php $conn->close(); ?>
+<?php $conn->close(); ?>
+

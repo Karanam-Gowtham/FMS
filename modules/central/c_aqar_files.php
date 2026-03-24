@@ -86,7 +86,7 @@ include_once '../../includes/header.php';
             .container {
                 margin-top:100px;
                 margin-bottom:150px;
-                left:200px;    
+                left:200px;
                 background: rgba(0, 0, 0, 0.7);
                 box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.7);
                 backdrop-filter: blur(10px);
@@ -208,7 +208,7 @@ include_once '../../includes/header.php';
             z-index: 99;
             margin-top: 80px;
             border-bottom: 1px solid #eee;
- 
+
         font-size: larger;
     }
 
@@ -261,7 +261,7 @@ include_once '../../includes/header.php';
                 </a>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"><?php echo htmlspecialchars($designation); ?>  </a></span>
-                
+
             </div>
         </div>
     </nav>

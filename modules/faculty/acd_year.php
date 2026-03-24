@@ -1,5 +1,5 @@
 <?php
-include "../../includes/connection.php";
+include_once "../../includes/connection.php";
 
 
 
@@ -15,7 +15,7 @@ if (isset($_GET['dept'])) {
 } else {
     echo "Department not set.";
 }
-include '../../includes/header.php';
+include_once '../../includes/header.php';
 ?>
 
 
@@ -304,4 +304,4 @@ include '../../includes/header.php';
     <script src="script.js"></script>
 </body>
 
-</html>
+</html>

@@ -133,7 +133,7 @@ include_once "../../includes/header.php";
         .sp{
             color:blue;
         }
-        
+
         .nav-container {
             background-color: white;
             width:150vw;

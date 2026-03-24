@@ -14,11 +14,9 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AQAR Criteria Page</title>
-    <style>
-         body {
+        body {
             font-family: Arial, sans-serif;
             background-color: rgb(54, 180, 226);
-            
             justify-content: center;
             margin: 0;
         }
@@ -199,7 +197,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
 
             // Display the AQAR heading and selected details
             echo "<h1>AQAR - " . $academicYear . "</h1>";
-        }else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Get values from POST request
             $designation = isset($_POST['designation']) ? htmlspecialchars($_POST['designation']) : 'Unknown';
             $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : NOT_SELECTED;
@@ -233,7 +231,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
         // Query data depending on year
         if ($academicYear == '2020-21') {
             $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' ORDER BY Sub_no";
-        } else if ($academicYear == '2021-22') {
+        } elseif ($academicYear == '2021-22') {
             $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' ORDER BY Sub_no";
         } else {
             $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' ORDER BY Sub_no";

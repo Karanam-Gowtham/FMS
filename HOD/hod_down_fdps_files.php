@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             }
         } else {
             $zip = new ZipArchive();
-            $safe_category = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$category);
+            $safe_category = preg_replace('/[^\w.-]/', '', (string)$category);
             $zipFileName = $safe_category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
@@ -770,4 +770,5 @@ include_once "header_hod.php";
 
 </body>
 
-</html>
+</html>
+

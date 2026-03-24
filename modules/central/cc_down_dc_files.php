@@ -313,7 +313,7 @@ include_once "../../includes/header.php";
             echo "<button type='button' id='mergeBtn' class='merge' onclick='mergePDFs()' disabled>Merge PDFs</button>&nbsp";
             echo "<button type='submit' name='action' value='delete' class='btn delete-btn'>Delete Selected</button>";
             echo "<button type='button' class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>";
-       
+
             echo "</form>";
         } else {
             echo "<p class='no-files'>No files found for '" . htmlspecialchars($selected_file_type) . "'.</p>";

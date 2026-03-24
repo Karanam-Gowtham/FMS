@@ -21,7 +21,7 @@
             font-size: 2rem;
             font-weight: 600;
             margin-top: 00px;
-            color: white;
+            color: #eff6ff;
         }
 
         .div1 {
@@ -192,7 +192,7 @@
         }
 
         tr:hover {
-            background: #007bff;
+            background: #0056b3;
             transition: 0.3s;
         }
 

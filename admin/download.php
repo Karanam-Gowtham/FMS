@@ -36,7 +36,6 @@ $subCriteria = isset($_POST['criteria_no']) ? $_POST['criteria_no'] : '';
 // Initialize $branch to avoid undefined variable warnings
 $branch_s = isset($_POST['branch_s']) ? $_POST['branch_s'] : '';
 
-
 if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $criteria = $_POST['criteria'];
     $subCriteria = $_POST['subCriteria'];
@@ -120,7 +119,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                 $zipFileName = "downloads.zip";
                 $zipFilePath = "../uploads/" . $zipFileName;
 
-                if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                     $selectedFiles = array_reverse($selectedFiles);
 
                     // Determine the table based on criteria and sub-criteria
@@ -201,8 +200,6 @@ if (isset($_POST['download_excel'])) {
     $criteria = $_POST['criteria'];
     $subCriteria = $_POST['subCriteria'];
     $branch_s = $_POST['branch_s'];
-
-
     // Set headers for Excel download
     header("Content-Type: application/vnd.ms-excel");
     header("Content-Disposition: attachment; filename=my_uploads.xls");
@@ -588,7 +585,7 @@ include_once "header_admin.php";
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
                             <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . QUOTE_SPACE . 
-                                ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
+                                ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                             <td>" . $id++ . "</td>
                             <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                             <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -619,7 +616,7 @@ include_once "header_admin.php";
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
                                         <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . ATTR_VAL_DATA_PATH . 
-                                        ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)'></td>
+                                        ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . " onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                                         <td>" . $id++ . "</td>
                                         <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                         <td>" . htmlspecialchars($row['academic_year']) . "</td>

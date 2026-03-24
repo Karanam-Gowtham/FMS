@@ -29,7 +29,7 @@ body::before {
     left: 0;
     width: 100%;
     min-height: 100vh;
-    background: rgba(0, 0, 0, 0.5); /* Adjust the opacity as needed */
+    background: rgba(0, 0, 0, 0.7); /* Adjust the opacity as needed */
     z-index: -1;
 }
 

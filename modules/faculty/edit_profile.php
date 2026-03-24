@@ -97,7 +97,7 @@ $extra_head = "
     </style>
 ";
 
-include "../../includes/header.php";
+include_once "../../includes/header.php";
 $username = $_SESSION['username'];
 
 $query = "SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid 

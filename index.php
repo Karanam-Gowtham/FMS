@@ -1,6 +1,6 @@
 <?php
 include_once 'includes/session.php'; // Secured Session Start
-include "includes/connection.php";
+include_once "includes/connection.php";
 
 // Define extra head content (CSS/Styles) before including the header
 $extra_head = '<link rel="stylesheet" href="' . $base_url . 'assets/css/index1.css">
@@ -156,7 +156,7 @@ nav {
 
 </style>';
 
-include 'includes/header.php'; // Include the header
+include_once 'includes/header.php'; // Include the header
 ?>
 <main class="hero">
     <div class="container">

@@ -135,7 +135,7 @@ include_once "../../includes/header.php";
         #sp{
             color:blue;
         }
-        
+
         .nav-container {
             background-color: white;
             width:150vw;
@@ -242,7 +242,8 @@ include_once "../../includes/header.php";
             text-decoration: none;
             font-weight: bold;
             text-align: center;
-        }select {
+        }
+        select {
                 padding: 8px 12px;
                 border: 1px solid #ccc;
                 border-radius: 6px;

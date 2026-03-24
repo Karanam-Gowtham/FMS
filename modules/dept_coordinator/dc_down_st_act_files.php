@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             }
         } else {
             $zip = new ZipArchive();
-            $safe_main_select = preg_replace('/[^a-zA-Z0-9_.-]/', '', (string)$main_select);
+            $safe_main_select = preg_replace('/[^\w.-]/', '', (string)$main_select);
             $zipFileName = $safe_main_select . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
 
@@ -896,4 +896,5 @@ include_once "../../includes/header.php";
         </script>
 </body>
 
-</html>
+</html>
+

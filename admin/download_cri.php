@@ -78,35 +78,33 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             $file = $result->fetch_assoc();
         }
 
-        if ($file) {
+        if ($file && file_exists($file['file_path'])) {
             $filePath = $file['file_path'];
             $fileName = basename($filePath);
 
-            if (file_exists($filePath)) {
-                if (ob_get_length()) {
-                    ob_end_clean();
-                }
-                header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="' . $fileName . '"');
-                header('Content-Length: ' . filesize($filePath));
-                header('Pragma: public');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Content-Transfer-Encoding: binary');
-
-                flush();
-                readfile($filePath);
-                exit;
-            } else {
-                echo "File not found.";
+            if (ob_get_length()) {
+                ob_end_clean();
             }
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $fileName . '"');
+            header('Content-Length: ' . filesize($filePath));
+            header('Pragma: public');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Content-Transfer-Encoding: binary');
+
+            flush();
+            readfile($filePath);
+            exit;
+        } else {
+            echo "File not found.";
         }
     } elseif ($action == 'download' && count($selectedFiles) > 1) {
         $zip = new ZipArchive();
         $zipFileName = "downloads.zip";
         $zipFilePath = "Uploads1/" . $zipFileName;
 
-        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
             $selectedFiles = array_reverse($selectedFiles);
             $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
 
@@ -438,7 +436,7 @@ include_once "header_admin.php";
                         echo "<tr>
                             <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
                                 " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
-                                onchange='trackOrder(event)'></td>
+                                onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                             <td>" . $id++ . "</td>
                             <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                             <td>" . htmlspecialchars($row['academic_year']) . "</td>

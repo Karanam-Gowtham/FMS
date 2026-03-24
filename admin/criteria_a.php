@@ -1,7 +1,7 @@
 <?php
 include_once "../includes/connection.php";
 include_once "../includes/constants.php";
-include "header_admin.php";
+include_once "header_admin.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
@@ -16,10 +16,9 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AQAR Criteria Page</title>
     <style>
-         body {
+        body {
             font-family: Arial, sans-serif;
             background-color: rgb(54, 180, 226);
-            
             justify-content: center;
             margin: 0;
         }
@@ -245,9 +244,9 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                     // Define the data
                     if($academicYear=='2020-21'){
                         $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    }else if($academicYear=='2021-22'){
+                    } elseif($academicYear=='2021-22'){
                         $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    }else{
+                    } else {
                         $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' order by 'Sub_no'";
                     }
 

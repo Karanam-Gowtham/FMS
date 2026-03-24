@@ -48,14 +48,13 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
         $stmt->execute();
         $result = $stmt->get_result();
 
-        if ($file = $result->fetch_assoc()) {
+        if (($file = $result->fetch_assoc()) && file_exists($file['file_path'])) {
             $filePath = $file['file_path'];
             $fileName = basename($filePath);
 
-            if (file_exists($filePath)) {
-                if (ob_get_length()) {
-                    ob_end_clean();
-                }
+            if (ob_get_length()) {
+                ob_end_clean();
+            }
 
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: attachment; filename="' . $fileName . '"');
@@ -71,13 +70,12 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             } else {
                 echo "File not found.";
             }
-        }
     } elseif ($action == 'download' && count($selectedFiles) > 1) {
         $zip = new ZipArchive();
         $zipFileName = "downloads.zip";
         $zipFilePath = "Uploads1/" . $zipFileName;
 
-        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
             $selectedFiles = array_reverse($selectedFiles);
             $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
             $sql = "SELECT file_path, file_name FROM a_files WHERE id IN ($placeholders)";
@@ -121,7 +119,6 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
         }
     }
 }
-
 if (isset($_POST['download_excel'])) {
     $criteria = $_POST['criteria'];
     $subCriteria = $_POST['subCriteria'];
@@ -413,7 +410,7 @@ include_once "header_admin.php";
                             echo "<tr>
                                 <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
                                     data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
-                                    onchange='trackOrder(event)'></td>
+                                    onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                                 <td>" . $id++ . "</td>
                                 <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                 <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -436,7 +433,7 @@ include_once "header_admin.php";
                             echo "<tr>
                                 <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
                                     data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
-                                    onchange='trackOrder(event)'></td>
+                                    onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                                 <td>" . $id++ . "</td>
                                 <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                 <td>" . htmlspecialchars($row['academic_year']) . "</td>

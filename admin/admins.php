@@ -58,7 +58,7 @@ if ($loggedInRole && $dept) {
     } elseif ($loggedInRole == 'admin') {
         // Admin can access all, so theoretically true, but admin usually doesn't switch depts this way?
         // Admin link usually has specific params. Let's allow for now.
-        $matchDept = true; 
+        $matchDept = true;
     } elseif ($loggedInRole == 'jr_assistant' && isset($_SESSION['j_username'])) {
         $check = $conn->prepare("SELECT department FROM reg_jr_assistant WHERE userid = ?");
         $check->bind_param("s", $_SESSION['j_username']);
@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
                 if ($result->num_rows > 0) {
                     $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
                     $login_stmt->bind_param("ss", $userid, $password);
-                    if ($login_stmt->execute() === TRUE) {
+                    if ($login_stmt->execute() === true) {
                         session_regenerate_id(true);
                         $_SESSION['username'] = $userid;
                         ob_end_clean();
@@ -328,7 +328,6 @@ include_once 'header_admin.php';
         }
 
         .register {
-            
             margin-top: 10px;
         }
         .reg{
