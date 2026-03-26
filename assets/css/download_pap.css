@@ -21,7 +21,7 @@
             font-size: 2rem;
             font-weight: 600;
             margin-top: 00px;
-            color: #eff6ff;
+            color: #ffffff;
         }
 
         .div1 {
@@ -321,5 +321,6 @@
         }
 
         span {
-            color: #cce0ff;
+            color: #ffffff;
+            font-weight: 500;
         }

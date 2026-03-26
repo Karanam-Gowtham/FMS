@@ -113,7 +113,7 @@ h2 {
     font-size: 1rem;
     font-weight: bold;
     color: white;
-    background-color: #1d4ed8;
+    background-color: #0d47a1;
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
@@ -131,8 +131,8 @@ h2 {
 }
 
 .buttons a {
-    background: linear-gradient(120deg, #84fab0, #8fd3f4);
-    color: black;   
+    background: linear-gradient(120deg, #1b5e20, #0d47a1);
+    color: #ffffff;   
     font-weight: bold;
     cursor: pointer;
     width: 80%;
@@ -158,8 +158,8 @@ h2 {
     position: absolute;
     top:-10px;
     right: 620px;
-    color: #fff8f0;
-    background: linear-gradient(135deg, #c85000, #6b006b);  /* Darkened for contrast */
+    color: #ffffff;
+    background: linear-gradient(135deg, #a04000, #4a004a);  /* Darkened for contrast */
     margin-left: auto;  /* Align this button to the right */
     margin-top: 20px;  /* Space from the previous button */
     padding: 14px 30px;
