@@ -129,10 +129,8 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 
             while ($file = $result->fetch_assoc()) {
                 $filePath = $file['file_path'];
-                if (file_exists($filePath)) {
-                    if ($zip->addFile($filePath, basename($filePath))) {
-                        $filesAdded = true;
-                    }
+                if (file_exists($filePath) && $zip->addFile($filePath, basename($filePath))) {
+                    $filesAdded = true;
                 }
             }
 

@@ -211,7 +211,7 @@
         }
 
         #view {
-            background-color: #17a2b8;
+            background-color: #0b7285;
             color: white;
         }
 
@@ -220,7 +220,7 @@
         }
 
         #down {
-            background-color: #28a745;
+            background-color: #218838;
             color: white;
         }
 
@@ -235,7 +235,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s ease-in-out;
-            background-color: #dc3545;
+            background-color: #c62828;
             color: white;
         }
 
@@ -278,7 +278,7 @@
         }
 
         .view-btn {
-            background: #1565c0;
+            background: #0d47a1;
             color: #ffffff;
             margin-right: 18px;
         }
@@ -288,7 +288,7 @@
         }
 
         .download-btn {
-            background: #66bb6a;
+            background: #2e7d32;
             color: white;
         }
 

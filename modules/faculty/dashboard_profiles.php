@@ -161,7 +161,7 @@ $result = $conn->query($sql);
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
             <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl">&times;</button>
             <div class="flex items-center gap-4 mb-6">
-                <img id="modalPhoto" src="../../uploads/default_pic.png" class="w-20 h-20 rounded-full border object-cover" alt="Faculty Photo">
+                <img id="modalPhoto" src="../../uploads/default_pic.png" class="w-20 h-20 rounded-full border object-cover" alt="Faculty">
                 <h3 class="text-xl font-bold text-gray-800">Faculty Details</h3>
             </div>
             <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 text-sm"></div>

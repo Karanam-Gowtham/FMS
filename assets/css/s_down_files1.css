@@ -219,7 +219,7 @@
         }
 
         #view {
-            background-color: #17a2b8;
+            background-color: #0b7285;
             color: #ffffff;
         }
 
@@ -228,7 +228,7 @@
         }
 
         #down {
-            background-color: #28a745;
+            background-color: #218838;
             color: white;
         }
 
@@ -243,7 +243,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s ease-in-out;
-            background-color: #dc3545;
+            background-color: #c62828;
             color: white;
         }
 
@@ -286,7 +286,7 @@
         }
 
         .btn11 {
-            background: #032949;
+            background: #021a2f;
             color: white;
             margin-left: 150px;
         }

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../includes/session.php';
 include_once "../includes/connection.php";
 require_once "../includes/constants.php";
@@ -418,3 +418,6 @@ include_once 'header_hod.php';
 </body>
 
 </html>
+
+
+
