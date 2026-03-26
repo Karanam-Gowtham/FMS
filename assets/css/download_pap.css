@@ -150,7 +150,7 @@
         }
 
         .filter-button {
-            background-color: #007bff;
+            background-color: #0d47a1;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -161,7 +161,7 @@
         }
 
         .filter-button:hover {
-            background-color: #0056b3;
+            background-color: #0d3b87;
         }
 
         /* Table Styling */
@@ -293,16 +293,16 @@
         }
 
         .download-btn:hover {
-            background: #43a047;
+            background: #1b5e20;
         }
 
         .delete-btn {
-            background: #e74c3c;
+            background: #c62828;
             color: white;
         }
 
         .delete-btn:hover {
-            background: #c0392b;
+            background: #b71c1c;
         }
 
         .btn1 {

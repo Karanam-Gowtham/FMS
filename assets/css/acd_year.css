@@ -60,7 +60,7 @@ body::before {
     margin:30px;
     padding-top:30px;
     padding-left:20px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4); /* Darkened for accessibility */
     border-radius: 0.5rem;
 }
 
@@ -68,7 +68,7 @@ body::before {
 h2 {
     font-size: 2rem;
     margin-bottom: 2rem;
-    color: #eff6ff;
+    color: #ffffff;
 }
 
 /* Form Styles */
@@ -83,12 +83,14 @@ h2 {
     font-weight: bold;
 }
 
-.form-group select {
+.form-group select,
+.form-group input,
+.form-group textarea {
     width: 90%;
     padding: 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.5); /* Much darker for white text */
     color: white;
     font-size: 1rem;
     font-weight: bold;
@@ -98,7 +100,7 @@ h2 {
 .form-group textarea:focus {
     outline: none;
     border-color: #93c5fd;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.7); /* Even darker on focus */
 }
 
 .form-group textarea {
@@ -144,8 +146,8 @@ h2 {
     text-decoration: none; /* Ensures no underline */
 }
 .buttons a:hover {
-    background: linear-gradient(120deg, #8fd3f4, #84fab0);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(120deg, #0d47a1, #1b5e20); /* Darker on hover too */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 .buttons a:active {
     transform: scale(0.98);
@@ -201,7 +203,7 @@ h2 {
 .buttons1 a.faculty-files,
 .buttons1 a.student-files,
 .buttons1 a.exam-files {
-    background: linear-gradient(135deg, #d35400, #e67e22); /* Darker orange gradient */
+    background: linear-gradient(135deg, #a04000, #9c4103); /* WCAG AAA Orange for visibility */
     color: #ffffff;
     font-weight: 800;
     cursor: pointer;
@@ -215,8 +217,8 @@ h2 {
 }
 
 .buttons1 a:hover {
-    background: linear-gradient(135deg, #feb47b, #ff7e5f); /* Reverse gradient */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #c2410c, #9a3412); /* WCAG AAA Dark Orange on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 .buttons1 a:active {
