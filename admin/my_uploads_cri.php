@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once "../includes/connection.php";
 require_once "../includes/constants.php";
 
@@ -19,7 +19,7 @@ $a_username = $_SESSION['cri_username'];
 if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $selectedFiles = $_POST['selected_files'];
     $action = $_POST['action'];
-    
+
     if ($action == 'delete') {
         foreach ($selectedFiles as $fileId) {
             $sql = "SELECT file_path FROM a_cri_files WHERE id = ?";
@@ -37,8 +37,8 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             }
         }
         echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
-    
-    
+
+
     } elseif ($action == 'download') {
         if (!empty($selectedFiles)) {
             if (count($selectedFiles) == 1) {
@@ -48,17 +48,17 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                 $stmt->bind_param("i", $fileId);
                 $stmt->execute();
                 $result = $stmt->get_result();
-    
+
                 if ($file = $result->fetch_assoc()) {
                     $filePath = $file['file_path'];
                     $fileName = basename($filePath); // Extract file name from file path
-    
+
                     if (file_exists($filePath)) {
                         // Clean the output buffer to avoid corrupt file downloads
                         if (ob_get_length()) {
                             ob_end_clean();
                         }
-    
+
                         // Set headers specifically for PDF files
                         header(TYPE_OCTET_STREAM);
                         header(HEADER_CONTENT_DISPOSITION . $fileName . '"');
@@ -67,7 +67,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                         header('Expires: 0');
                         header('Cache-Control: must-revalidate');
                         header('Content-Transfer-Encoding: binary');
-    
+
                         // Stream the PDF to the browser
                         flush(); // Ensure headers are sent
                         readfile($filePath);
@@ -77,30 +77,30 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     }
                 }
             } else {
-            
+
             $zip = new ZipArchive();
             $zipFileName = "downloads.zip";
             $zipFilePath = "uploads1/" . $zipFileName;
-    
+
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 // Reverse the order of selected file IDs
                 $selectedFiles = array_reverse($selectedFiles);
-    
+
                 // Convert selected file IDs to placeholders for SQL
                 $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
                 $sql = "SELECT file_path, file_name FROM a_cri_files WHERE id IN ($placeholders)";
-    
+
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
                 $stmt->execute();
                 $result = $stmt->get_result();
-    
+
                 // Store files in an array
                 $files = [];
                 while ($file = $result->fetch_assoc()) {
                     $files[] = $file;
                 }
-    
+
                 // Maintain the reversed order while adding files to the zip
                 foreach ($files as $file) {
                     $filePath = $file['file_path'];
@@ -109,13 +109,13 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     }
                 }
                 $zip->close();
-    
+
                 // Set headers for ZIP download
                 header('Content-Type: application/zip');
                 header(HEADER_CONTENT_DISPOSITION . $zipFileName . '"');
                 header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
                 readfile($zipFilePath);
-    
+
                 // Clean up
                 unlink($zipFilePath);
                 exit;
@@ -124,7 +124,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             }
         }
     }
-    
+
 }
 }
 
@@ -135,29 +135,29 @@ if (isset($_POST['download_excel'])) {
     header(TYPE_EXCEL);
     header('Content-Disposition: attachment;filename="my_uploads.xls"');
     header('Cache-Control: max-age=0');
-    
+
     // Output Excel Headers
     echo "ID\tUsername\tFaculty Name\tAcademic Year\tFilename\tCriteria\tCriteria No\n";
-    
+
     $sql = "SELECT * FROM a_cri_files WHERE username = ? ORDER BY uploaded_at DESC";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $a_username);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     $id = 1;
     while ($row = $result->fetch_assoc()) {
         $uploadedAt = new DateTime($row['uploaded_at']);
         $formattedDateTime = $uploadedAt->format('Y/m/d H:i:s');
-        
+
         echo $id . "\t";
         echo $row['username'] . "\t";
         echo $row['Faculty_name'] . "\t";
         echo $row['academic_year'] . "\t";
-        echo $row['file_name'] . "\t";  
+        echo $row['file_name'] . "\t";
         echo $row['criteria'] . "\t";
         echo $row['criteria_no'] . "\t";
-        
+
         $id++;
     }
     exit();
@@ -173,7 +173,7 @@ function deleteFolder($folder) {
     if (!is_dir($folder)) {
         return;
     }
-    
+
     $files = array_diff(scandir($folder), ['.', '..']);
     foreach ($files as $file) {
         $filePath = $folder . DIRECTORY_SEPARATOR . $file;
@@ -387,7 +387,7 @@ if (is_dir($mergedFolder)) {
             z-index: 99;
             margin-top: 80px;
             border-bottom: 1px solid #eee;
- 
+
         font-size: larger;
     }
 
@@ -514,7 +514,7 @@ if (is_dir($mergedFolder)) {
                 <button type="button" id="mergeBtn" class="merg" onclick="mergePDFs()" disabled>Merge PDFs</button>
                 <button type="submit" id="del"  name="action" value="delete">Delete</button><br><br>
                 <button type="button" class="merge" id="mergedFileButton" onclick="viewMergedFile()" style="display:none;">View Merged File</button>
-                
+
             </div>
             </form>
             <?php
@@ -627,7 +627,7 @@ if (is_dir($mergedFolder)) {
             }
         }
 
-        
+
     </script>
 </html>
 

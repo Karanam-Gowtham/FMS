@@ -22,7 +22,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $subCriteria = $_POST['subCriteria'];
     $selectedFiles = $_POST['selected_files'];
     $action = $_POST['action'];
-    
+
     if ($action == 'delete') {
         foreach ($selectedFiles as $fileId) {
             $sql = "SELECT file_path FROM a_files WHERE id = ?";
@@ -56,20 +56,20 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                 ob_end_clean();
             }
 
-                header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="' . $fileName . '"');
-                header('Content-Length: ' . filesize($filePath));
-                header('Pragma: public');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Content-Transfer-Encoding: binary');
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $fileName . '"');
+            header('Content-Length: ' . filesize($filePath));
+            header('Pragma: public');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Content-Transfer-Encoding: binary');
 
-                flush();
-                readfile($filePath);
-                exit;
-            } else {
-                echo "File not found.";
-            }
+            flush();
+            readfile($filePath);
+            exit;
+        } else {
+            echo "File not found.";
+        }
     } elseif ($action == 'download' && count($selectedFiles) > 1) {
         $zip = new ZipArchive();
         $zipFileName = "downloads.zip";
@@ -123,7 +123,7 @@ if (isset($_POST['download_excel'])) {
     $criteria = $_POST['criteria'];
     $subCriteria = $_POST['subCriteria'];
     $branch_s = $_POST['branch_s'];
-    
+
     header("Content-Type: application/vnd.ms-excel");
     header("Content-Disposition: attachment; filename=my_Uploads.xls");
 
@@ -133,8 +133,8 @@ if (isset($_POST['download_excel'])) {
     $headers = ["Faculty Name", "Academic Year", "Dept", "Description", "File Name", "Criteria No"];
     fputcsv($output, $headers, "\t");
 
-    $sql = "SELECT faculty_name, academic_year, dept, Description, file_name, criteria_no 
-            FROM a_files 
+    $sql = "SELECT faculty_name, academic_year, dept, Description, file_name, criteria_no
+            FROM a_files
             WHERE criteria = ? AND criteria_no = ? AND Dept = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sss", $criteria, $subCriteria, $branch_s);
@@ -276,7 +276,7 @@ include_once "header_admin.php";
             z-index: 99;
             margin-top: 80px;
             border-bottom: 1px solid #eee;
- 
+
             font-size: larger;
         }
 
@@ -378,7 +378,7 @@ include_once "header_admin.php";
                 <input type="hidden" name="branch_s" value="<?= htmlspecialchars($branch_s) ?>">
                 <table>
                     <tr>
-                        <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+                        <th><input type="checkbox" onclick="toggleSelectAll(this)" onkeydown="if(event.key==='Enter')this.click()"></th>
                         <th>SI NO</th>
                         <th>Faculty Name</th>
                         <th>Academic Year</th>
@@ -390,17 +390,17 @@ include_once "header_admin.php";
                     <?php
                     $id = 1;
                     if (!empty($criteria) && isset($_POST['submit_branch'])) {
-                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no 
-                                FROM a_files 
+                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no
+                                FROM a_files
                                 WHERE criteria = ? AND criteria_no = ?";
                         $params = ["ss", $criteria, $subCriteria];
-                        
+
                         if ($criteria == '1' && !empty($branch_s) && $branch_s != 'ALL') {
                             $sql .= " AND dept = ?";
                             $params[0] .= "s";
                             $params[] = $branch_s;
                         }
-                        
+
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param(...$params);
                         $stmt->execute();
@@ -408,8 +408,8 @@ include_once "header_admin.php";
 
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
+                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
+                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "'
                                     onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                                 <td>" . $id++ . "</td>
                                 <td>" . htmlspecialchars($row['faculty_name']) . "</td>
@@ -421,8 +421,8 @@ include_once "header_admin.php";
                             </tr>";
                         }
                     } else {
-                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no 
-                                FROM a_files 
+                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no
+                                FROM a_files
                                 WHERE criteria = ? AND criteria_no = ?";
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param("ss", $criteria, $subCriteria);
@@ -431,8 +431,8 @@ include_once "header_admin.php";
 
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
-                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
+                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
+                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "'
                                     onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                                 <td>" . $id++ . "</td>
                                 <td>" . htmlspecialchars($row['faculty_name']) . "</td>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/session.php';
 include_once "../includes/connection.php";
 require_once "../includes/constants.php";
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_action']) && iss
             $path = $file['file_path'];
             // Adjust path if needed. dept_meeting_minutes.php saves as '../../uploads/...'
             // From HOD directory, ../../uploads/ is correct if uploaded from modules/dept_coordinator/
-            // Actually they save as '../../uploads/filename'. 
+            // Actually they save as '../../uploads/filename'.
             // Relative to modules/dept_coordinator/ it is root/uploads/
             // Relative to HOD/ it should be ../uploads/
             $realPath = str_replace(PATH_DEEP_UPLOADS, PATH_UPLOADS, $path);
@@ -417,4 +417,4 @@ include_once 'header_hod.php';
     </script>
 </body>
 
-</html>
+</html>

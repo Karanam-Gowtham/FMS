@@ -1,4 +1,4 @@
-include_once 'includes/session.php';
+﻿include_once 'includes/session.php';
 // Fallback: If session is empty but cookie exists, try to re-attach (though session_start does this usually)
 // The issue might be that iframe considers it a separate context if cookies are strict.
 // For now, let's assume standard session behavior.
@@ -314,16 +314,16 @@ function buildQuery($conn, $table, $cols, $role, $user_id)
     list($id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col) = $cols;
     $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
     // Basic projection
-    $q = "SELECT 
-            $id_col as id, 
-            $user_col as username, 
-            $desc_col as description, 
-            $date_col as uploaded_at, 
-            $file_name_col as file_name, 
-            $file_path_col as file_path, 
-            status, 
-            rejection_reason, 
-            '$table' as table_name 
+    $q = "SELECT
+            $id_col as id,
+            $user_col as username,
+            $desc_col as description,
+            $date_col as uploaded_at,
+            $file_name_col as file_name,
+            $file_path_col as file_path,
+            status,
+            rejection_reason,
+            '$table' as table_name
           FROM $table WHERE (status != '" . STATUS_ACCEPTED . "' OR status IS NULL)";
 
     // Filter by role
@@ -395,16 +395,16 @@ if ($role !== 'Jr_Assistant') {
 
 // 16. dept_files (Dept/AMC/BoS Minutes)
 $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
-$q = "SELECT 
-            id, 
-            username, 
-            CONCAT(file_type, ' - ', sub_file_type) as description, 
-            uploaded_at, 
-            file_name, 
-            file_path, 
-            status, 
-            rejection_reason, 
-            'dept_files' as table_name 
+$q = "SELECT
+            id,
+            username,
+            CONCAT(file_type, ' - ', sub_file_type) as description,
+            uploaded_at,
+            file_name,
+            file_path,
+            status,
+            rejection_reason,
+            'dept_files' as table_name
           FROM dept_files WHERE (status != '" . STATUS_ACCEPTED . "' OR status IS NULL)";
 
 if ($role == 'Faculty') {

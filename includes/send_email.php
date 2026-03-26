@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 use PHPMailer\PHPMailer\PHPMailer;
 // Load PHPMailer manually since composer is not available
 require_once __DIR__ . '/PHPMailer/src/Exception.php';

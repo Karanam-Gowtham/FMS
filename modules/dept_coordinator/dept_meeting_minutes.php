@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file_name = $_POST['file_name'];
     $student_year = 0; // Removed from form
     $semester = 0; // Removed from form
-    $review_period = NULL; // Removed from form
+    $review_period = null; // Removed from form
     $meeting_no = $_POST['meeting_no'] ?? $next_meeting_no;
     $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
     

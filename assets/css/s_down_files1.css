@@ -55,7 +55,7 @@
         }
 
         .sid {
-            color: #6a82fb; /* Bright blue for dark background */
+            color: #3949ab; /* Darkened for WCAG contrast on white nav */
             font-weight: 500;
         }
 
@@ -196,7 +196,7 @@
         }
 
         tr:nth-child(even) {
-            background: #f0f5ff;
+            background: #e8efff;
         }
 
         tr:hover {
@@ -270,7 +270,7 @@
             text-align: center;
             font-size: 1.2rem;
             font-weight: bold;
-            color: #ff0000;
+            color: #ff6b6b;
             margin-top: 20px;
         }
 
@@ -296,7 +296,7 @@
         }
 
         span {
-            color: #002752;
+            color: #cce0ff;
         }
 
         #bodies-sub-select-div {

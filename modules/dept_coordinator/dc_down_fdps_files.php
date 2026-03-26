@@ -73,11 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
     // Determine table and file column based on category
     switch ($category) {
-        case 'fdps':
-        default:
-            $tableName = 'fdps_tab';
-            $fileColumn = 'certificate';
-            break;
         case 'fdps_org':
             $tableName = 'fdps_org_tab';
             $fileColumn = 'merged_file';
@@ -93,6 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         case 'patents':
             $tableName = 'patents_table';
             $fileColumn = 'patent_file';
+            break;
+        case 'fdps':
+        default:
+            $tableName = 'fdps_tab';
+            $fileColumn = 'certificate';
             break;
     }
 
@@ -462,7 +462,7 @@ include_once "../../includes/header.php";
                             $certificatePath = fixPath($row["certificate"]);
                             $fdps_raw = json_encode(array_values(array_filter([$certificatePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES);
                             $fdps_json = str_replace('"', HTM_QUOT, $fdps_raw);
-                            echo "<td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+                            echo "<td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "'
                                                 " . ATTR_DATA_FILEPATH . $certificatePath . "'
                                                 " . DATA_FILES_PREFIX . $fdps_json . "' onchange='trackOrder(event)'></td>
                                     <td>" . htmlspecialchars($row["username"]) . "</td>
@@ -482,7 +482,7 @@ include_once "../../includes/header.php";
                                     <button type='submit' name='action' class='btn delete-btn' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
                                     <br>
                                     <button type='button' class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>
-                               
+
                               </form>";
                     } else {
                         echo "<p class='no-files'>No FDPs attended found.</p>";
@@ -555,7 +555,7 @@ include_once "../../includes/header.php";
                             $mergedPath = $hasMerged ? "../../" . htmlspecialchars($row['merged_file']) : "";
 
                             echo "<tr>
-                                     <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+                                     <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "'
                                          data-filepath='$mergedPath'
                                          data-files='$files_json'
                                          data-title='$record_title'></td>
@@ -616,7 +616,7 @@ include_once "../../includes/header.php";
                                             <th>Quality Factor</th>
                                             <th>Impact Factor</th>
                                             <th>Payment</th>
-                                            
+
                                         </tr>";
 
                         while ($row = $result_published->fetch_assoc()) {
@@ -626,7 +626,7 @@ include_once "../../includes/header.php";
 
 
                             echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "'
                                         data-filepath='" . $paperFilePath . "'
                                         data-files='" . $pub_json . "'></td>
                                         <td>" . htmlspecialchars($row["username"]) . "</td>
@@ -649,7 +649,7 @@ include_once "../../includes/header.php";
                                     <button type='submit' class='btn delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
                                     <br>
                                     <button type='button' class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>
-                               
+
                                   </form>";
                     } else {
                         echo "<p class='no-files'>No published papers found.</p>";
@@ -698,7 +698,7 @@ include_once "../../includes/header.php";
                             $cf_json = str_replace('"', '&quot;', $cf_raw);
 
                             echo "<tr>
-                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "'
                                                 data-filepath='" . $certificatePath . "'
                                                 data-files='" . $cf_json . "'></td>
                                             <td>" . htmlspecialchars($row["username"]) . "</td>
@@ -720,7 +720,7 @@ include_once "../../includes/header.php";
                                     <button type='submit' class='btn delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
                                     <br>
                                     <button type='button'  class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>
-                               
+
                                       </form>";
                     } else {
                         echo "<p class='no-files'>No conference papers found.</p>";
@@ -757,7 +757,7 @@ include_once "../../includes/header.php";
                                             <th>Branch</th>
                                             <th>Patent Title</th>
                                             <th>Date of Issue</th>
-                                            
+
                                         </tr>";
 
                         while ($row = $result_patents->fetch_assoc()) {
@@ -767,7 +767,7 @@ include_once "../../includes/header.php";
 
 
                             echo "<tr>
-                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "'
                                                 data-filepath='" . $patentFilePath . "'
                                                 data-files='" . $pat_json . "' onchange='trackOrder(event)'></td>
                                             <td>" . htmlspecialchars($row["Username"]) . "</td>
@@ -785,7 +785,7 @@ include_once "../../includes/header.php";
                                     <button type='submit' class='btn delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button>
                                     <br>
                                     <button type='button' class='merge' id='mergedFileButton' onclick='viewMergedFile()' style='display:none;'>View Merged File</button>
-                               
+
                                   </form>";
                     } else {
                         echo "<p class='no-files'>No patents found.</p>";
@@ -1136,4 +1136,4 @@ include_once "../../includes/header.php";
 
 </body>
 
-</html>
+</html>

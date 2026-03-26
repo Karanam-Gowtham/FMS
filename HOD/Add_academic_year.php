@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Include database connection
 include_once '../includes/connection.php';
 include_once "./header_hod.php";
@@ -151,7 +151,7 @@ $conn->close();
             color: #721c24;
         }
         /* Navigation */
-    .navbar { 
+    .navbar {
         font-size: larger;
     }
 

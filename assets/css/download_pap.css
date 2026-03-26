@@ -35,7 +35,7 @@
         }
 
         #sp {
-            color: blue;
+            color: #1a237e;
         }
 
         .nav-container {
@@ -59,7 +59,7 @@
         }
 
         .main-a {
-            color: rgb(138, 30, 113);
+            color: rgb(120, 20, 97);
             font-weight: 500;
         }
 
@@ -262,7 +262,7 @@
             text-align: center;
             font-size: 1.2rem;
             font-weight: bold;
-            color: #ff0000;
+            color: #b30000;
             margin-top: 20px;
         }
 
@@ -278,8 +278,8 @@
         }
 
         .view-btn {
-            background: #42a5f5;
-            color: #000000;
+            background: #1565c0;
+            color: #ffffff;
             margin-right: 18px;
         }
 
@@ -321,5 +321,5 @@
         }
 
         span {
-            color: #002752;
+            color: #cce0ff;
         }

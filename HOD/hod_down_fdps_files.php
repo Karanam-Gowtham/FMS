@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start();
 ini_set('display_errors', 0);
 include_once "../includes/connection.php";
@@ -428,7 +428,7 @@ include_once "header_hod.php";
                             $mergedPath = $record_has_merged ? $actual_merged_path : "";
 
                             echo "<tr>
-                                 <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+                                 <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "'
                                      data-filepath='$mergedPath'
                                      data-files='$files_json'
                                      data-title='$record_title'></td>
@@ -771,4 +771,3 @@ include_once "header_hod.php";
 </body>
 
 </html>
-

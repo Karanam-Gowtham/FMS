@@ -24,7 +24,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $subCriteria = $_POST['subCriteria'];
     $selectedFiles = $_POST['selected_files'];
     $action = $_POST['action'];
-    
+
     if ($action == 'delete') {
         foreach ($selectedFiles as $fileId) {
             $sql = "SELECT file_path FROM a_c_files WHERE id = ?";
@@ -46,13 +46,13 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 
             if ($file) {
                 unlink($file['file_path']);
-                $sql = "DELETE FROM a_c_files WHERE id = ?"; 
+                $sql = "DELETE FROM a_c_files WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("i", $fileId);
                 $stmt->execute();
 
                 // Also delete from a_files if present
-                $sql = "DELETE FROM a_files WHERE id = ?"; 
+                $sql = "DELETE FROM a_files WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("i", $fileId);
                 $stmt->execute();
@@ -85,6 +85,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             if (ob_get_length()) {
                 ob_end_clean();
             }
+
             header('Content-Type: application/pdf');
             header('Content-Disposition: attachment; filename="' . $fileName . '"');
             header('Content-Length: ' . filesize($filePath));
@@ -162,7 +163,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 if (isset($_POST['download_excel'])) {
     $criteria = $_POST['criteria'];
     $subCriteria = $_POST['subCriteria'];
-    
+
     header("Content-Type: application/vnd.ms-excel");
     header("Content-Disposition: attachment; filename=my_Uploads.xls");
 
@@ -171,8 +172,8 @@ if (isset($_POST['download_excel'])) {
     $headers = ["Faculty Name", "Academic Year", "Description", "File Name","Criteria", "Criteria No"];
     fputcsv($output, $headers, "\t");
 
-    $sql = "SELECT faculty_name, academic_year, Description, file_name, criteria, criteria_no 
-            FROM a_c_files 
+    $sql = "SELECT faculty_name, academic_year, Description, file_name, criteria, criteria_no
+            FROM a_c_files
             WHERE criteria = ? AND criteria_no = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $criteria, $subCriteria);
@@ -181,8 +182,8 @@ if (isset($_POST['download_excel'])) {
 
     // fallback to a_files if empty
     if ($result->num_rows === 0) {
-        $sql = "SELECT faculty_name, academic_year, Description, file_name, criteria, criteria_no 
-                FROM a_files 
+        $sql = "SELECT faculty_name, academic_year, Description, file_name, criteria, criteria_no
+                FROM a_files
                 WHERE criteria = ? AND criteria_no = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $criteria, $subCriteria);
@@ -322,7 +323,7 @@ include_once "header_admin.php";
             z-index: 99;
             margin-top: 80px;
             border-bottom: 1px solid #eee;
- 
+
             font-size: larger;
         }
 
@@ -401,7 +402,7 @@ include_once "header_admin.php";
                 <input type="hidden" name="branch_s" value="<?= htmlspecialchars($branch_s) ?>">
                 <table>
                     <tr>
-                        <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+                        <th><input type="checkbox" onclick="toggleSelectAll(this)" onkeydown="if(event.key==='Enter')this.click()"></th>
                         <th>SI NO</th>
                         <th>Faculty Name</th>
                         <th>Academic Year</th>
@@ -413,8 +414,8 @@ include_once "header_admin.php";
                     </tr>
                     <?php
                     $id = 1;
-                    $sql = "SELECT id, faculty_name, academic_year, description, file_name, file_path, criteria, criteria_no 
-                            FROM a_c_files 
+                    $sql = "SELECT id, faculty_name, academic_year, description, file_name, file_path, criteria, criteria_no
+                            FROM a_c_files
                             WHERE criteria = ? AND criteria_no = ?";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("ss", $criteria, $subCriteria);
@@ -423,8 +424,8 @@ include_once "header_admin.php";
 
                     // fallback if no rows
                     if ($result->num_rows === 0) {
-                        $sql = "SELECT id, faculty_name, academic_year,Dept, description, file_name, file_path, criteria, criteria_no 
-                                FROM a_files 
+                        $sql = "SELECT id, faculty_name, academic_year,Dept, description, file_name, file_path, criteria, criteria_no
+                                FROM a_files
                                 WHERE criteria = ? AND criteria_no = ?";
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param("ss", $criteria, $subCriteria);
@@ -434,7 +435,7 @@ include_once "header_admin.php";
 
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>
-                            <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                            <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
                                 " . ATTR_DATA_FILEPATH . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . QUOTE_SPACE . "
                                 onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
                             <td>" . $id++ . "</td>

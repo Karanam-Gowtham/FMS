@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once "../../includes/session.php";
 require_once "../../includes/csrf.php";
 include_once "../../includes/connection.php";
@@ -24,15 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'SAC' => ['email' => 'sac@gmail.com', 'password' => '123']
     ];
 
-    if (isset($credentials[$event]) && 
-        $credentials[$event]['email'] === $email && 
+    if (isset($credentials[$event]) &&
+        $credentials[$event]['email'] === $email &&
         $credentials[$event]['password'] === $password) {
         // Redirect to the dashboard with the event value
         session_regenerate_id(true);
         $_SESSION['c_cord'] = $email;
         echo "<script>
             alert('Login successful! ');
-           
+
             window.location.href = 'c_upload.php?event=" . urlencode($event) . "';
         </script>";
         exit();
@@ -51,7 +51,7 @@ $extra_head = "
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
-           
+
             justify-content: center;
             height: 100vh;
             margin: 0;
@@ -67,7 +67,7 @@ $extra_head = "
             background: rgba(0, 0, 0, 0.5);
             z-index: -1;
         }
-        
+
         .container11{
             margin-top: -80px;
             display:flex;
@@ -222,8 +222,8 @@ include_once '../../includes/header.php';
             <button type="submit">Login</button>
         </form>
     </div>
-    
-    
+
+
     </div>
 </body>
 </html>

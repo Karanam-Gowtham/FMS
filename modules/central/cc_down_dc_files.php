@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once "../../includes/connection.php";
 session_start();
 
@@ -129,7 +129,7 @@ include_once "../../includes/header.php";
             color: darkblue;
         }
         /* Navigation */
-        .navbar { 
+        .navbar {
             margin-top: -80px;
             font-size: larger;
         }
@@ -137,7 +137,7 @@ include_once "../../includes/header.php";
         .sp{
             color:blue;
         }
-        
+
         .nav-container {
             background-color: white;
             width:150vw;
@@ -184,7 +184,7 @@ include_once "../../includes/header.php";
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             color: #333;
         }
-        
+
         .container111{
             margin-bottom: 50px;
         }

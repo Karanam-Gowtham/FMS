@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once "../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -550,8 +550,8 @@ if (isset($_POST['download_excel'])) {
                         // Fetch files based on selected branch
                         if ($criteria == '1' && !empty($branch_s)) {
 
-                            $sql = "SELECT id, faculty_name, academic_year, branch, description, file_name, file_path, criteria_no 
-                            FROM files 
+                            $sql = "SELECT id, faculty_name, academic_year, branch, description, file_name, file_path, criteria_no
+                            FROM files
                             WHERE criteria = ? AND criteria_no = ? AND branch = ?";
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("sss", $criteria, $subCriteria, $branch_s);
@@ -607,7 +607,7 @@ if (isset($_POST['download_excel'])) {
                         }
                         } elseif ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_1, CRIT_5_1_2])) {
 
-                            $sql = "SELECT id, faculty_name, academic_year, scheme_name, gov_students, gov_amount, inst_students, inst_amount, ngo_students, ngo_amount, ngo_name, file_name,file_path 
+                            $sql = "SELECT id, faculty_name, academic_year, scheme_name, gov_students, gov_amount, inst_students, inst_amount, ngo_students, ngo_amount, ngo_name, file_name,file_path
                                         FROM files5_1_1and2 WHERE criteria_no=?";
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("s", $subCriteria);
@@ -643,7 +643,7 @@ if (isset($_POST['download_excel'])) {
                             }
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_3) {
 
-                            $sql = "SELECT id, faculty_name, academic_year, programme_name, year, students_enrolled, agency_details, file_name, file_path 
+                            $sql = "SELECT id, faculty_name, academic_year, programme_name, year, students_enrolled, agency_details, file_name, file_path
                                         FROM files5_1_3";
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
@@ -670,7 +670,7 @@ if (isset($_POST['download_excel'])) {
                             }
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_4) {
 
-                            $sql = "SELECT id, faculty_name, academic_year, activity_exam, students_exam, career_details, students_career, students_placed, file_name,file_path 
+                            $sql = "SELECT id, faculty_name, academic_year, activity_exam, students_exam, career_details, students_career, students_placed, file_name,file_path
                                         FROM files5_1_4 WHERE username = ?";
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("s", $username);
@@ -933,4 +933,3 @@ if (isset($_POST['download_excel'])) {
 </body>
 
 </html>
-

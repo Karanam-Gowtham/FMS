@@ -27,11 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
     // Determine table and file column based on category
     switch ($main_select) {
-        case 'Journals':
-        default:
-            $tableName = 's_journal_tab';
-            $fileColumn = 'paper_file';
-            break;
         case 'Conferences':
             $tableName = 's_conference_tab';
             $fileColumn = 'certificate_path'; // Default, can be changed via select
@@ -45,6 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         case 'SIH':
             $tableName = 's_events';
             $fileColumn = 'certificate_path';
+            break;
+        case 'Journals':
+        default:
+            $tableName = 's_journal_tab';
+            $fileColumn = 'paper_file';
             break;
         }
     // DELETE ACTION
@@ -511,7 +511,7 @@ include_once "../../includes/header.php";
                             echo "<form method='POST' action=''>
                                <input type='hidden' name='main_select' value='" . htmlspecialchars($main_select) . "'>
                                 <input type='hidden' name='branch_select' value='" . htmlspecialchars($branch_select) . "'>
-                
+
                                 <table border='1'>
                                     <tr>
                                         <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
@@ -531,7 +531,7 @@ include_once "../../includes/header.php";
                                 $certificatepath = htmlspecialchars($row["certificate_path"]);
                                 $paperPath = htmlspecialchars($row["paper_file_path"]);
                                 echo "<tr>
-                                    <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "' 
+                                    <td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . "'
                                         data-filepath='" . $certificatepath . "'  onchange='trackOrder(event)'></td>
                                     <td>" . htmlspecialchars($row["Username"]) . "</td>
                                     <td>" . htmlspecialchars($row["branch"]) . "</td>
@@ -595,7 +595,7 @@ include_once "../../includes/header.php";
                             echo "<form method='POST' action=''>
                             <input type='hidden' name='main_select' value='" . htmlspecialchars($main_select) . "'>
                             <input type='hidden' name='branch_select' value='" . htmlspecialchars($branch_select) . "'>
-                
+
                                     <table border='1'>
                                         <tr>
                                             <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
@@ -609,13 +609,13 @@ include_once "../../includes/header.php";
                                             <th>Organised By</th>
                                             <th>Location</th>
                                             <th>Participation Status</th>
-                                            
+
                                         </tr>";
 
                             while ($row = $result_sbodies->fetch_assoc()) {
                                 $certificatePath = htmlspecialchars($row["certificate_path"]);
                                 echo "<tr>
-                                        <td><input type='checkbox' name='selected_files[]' value='" . $row["ID"] . "' 
+                                        <td><input type='checkbox' name='selected_files[]' value='" . $row["ID"] . "'
                                             data-filepath='" . $certificatePath . "'  onchange='trackOrder(event)'></td>
                                         <td>" . htmlspecialchars($row["Username"]) . "</td>
                                         <td>" . htmlspecialchars($row["branch"]) . "</td>
@@ -627,7 +627,7 @@ include_once "../../includes/header.php";
                                         <td>" . htmlspecialchars($row["organised_by"]) . "</td>
                                         <td>" . htmlspecialchars($row["location"]) . "</td>
                                         <td>" . htmlspecialchars($row["participation_status"]) . "</td>
-                                        
+
                                       </tr>";
                             }
 
@@ -670,7 +670,7 @@ include_once "../../includes/header.php";
                             echo "<form method='POST' action=''>
                                         <input type='hidden' name='main_select' value='" . htmlspecialchars($main_select) . "'>
                                         <input type='hidden' name='branch_select' value='" . htmlspecialchars($branch_select) . "'>
-                
+
                                         <table border='1'>
                                             <tr>
                                                 <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
@@ -684,15 +684,15 @@ include_once "../../includes/header.php";
                                                 <th>Organised By</th>
                                                 <th>Location</th>
                                                 <th>Participation Status</th>
-                                                
+
                                             </tr>";
 
                             while ($row = $result_sevents->fetch_assoc()) {
                                 $certificatePath = htmlspecialchars($row["certificate_path"]);
                                 echo "<tr>
-                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["ID"] . "' 
+                                            <td><input type='checkbox' name='selected_files[]' value='" . $row["ID"] . "'
                                                 data-filepath='" . $certificatePath . "' onchange='trackOrder(event)'></td>
-                                            
+
                                             <td>" . htmlspecialchars($row["Username"]) . "</td>
                                             <td>" . htmlspecialchars($row["branch"]) . "</td>
                                             <td>" . htmlspecialchars($row["acd_year"]) . "</td>
@@ -897,4 +897,3 @@ include_once "../../includes/header.php";
 </body>
 
 </html>
-

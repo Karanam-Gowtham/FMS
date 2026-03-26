@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once "../includes/connection.php";
 
 
@@ -46,7 +46,7 @@ if (isset($_POST['upload'])) {
 
         if (move_uploaded_file($_FILES['files']['tmp_name'][$key], $filepath)) {
             // Use prepared statements to prevent SQL injection
-            $sql = "INSERT INTO a_files (username, academic_year, Dept, criteria, criteria_no, uploaded_at,Description, Faculty_name, file_name, file_path) 
+            $sql = "INSERT INTO a_files (username, academic_year, Dept, criteria, criteria_no, uploaded_at,Description, Faculty_name, file_name, file_path)
                     VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ssssssssss", $username, $academic_year,$dept, $criteria, $criteria_no, $currentDateTime, $desc, $faculty_name, $filename, $filepath);
@@ -69,7 +69,7 @@ if (isset($_POST['upload'])) {
 }
 ?>
 
-<?php 
+<?php
 include_once 'header_admin.php';
 ?>
 
@@ -88,7 +88,7 @@ include_once 'header_admin.php';
             z-index: 99;
             margin-top: 80px;
             border-bottom: 1px solid #eee;
- 
+
         font-size: larger;
     }
 

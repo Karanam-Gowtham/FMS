@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start(); // Start output buffering
 include_once '../../includes/connection.php';
 
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         case 'dept_coordinator':
             header("Location: ../../admin/criteria_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
             exit();
-        
+
         case 'central_coordinator':
             header("Location: ../../admin/criteria_cent_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
             exit();
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: ../../HOD/acd_year_aa.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
             exit();
         default:
-            // If designation is invalid, we might want to show an alert, but since we are before HTML, 
+            // If designation is invalid, we might want to show an alert, but since we are before HTML,
             // we can trigger a script via echo, but we cleaned the buffer.
             // Be careful not to break HTML structure later.
             // Better to handle default case by falling through to page render with an error message variable.
@@ -68,7 +68,7 @@ include_once '../../includes/header.php';
                 padding: 0;
                 overflow: hidden;
             }
-            
+
             body::before {
                 content: '';
                 position: absolute;
@@ -96,7 +96,7 @@ include_once '../../includes/header.php';
                 width: 400px;
                 animation: fadeIn 1s ease-in-out;
             }
-            
+
 
             h1 {
                 font-size: 1.8rem;

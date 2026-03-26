@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once "../includes/connection.php";
 include_once "./header_hod.php";
 
@@ -27,7 +27,7 @@ if (isset($_POST['year'])) {
         body {
             font-family: Arial, sans-serif;
             background-color: rgb(54, 180, 226);
-            
+
             justify-content: center;
             margin: 0;
         }
@@ -196,7 +196,7 @@ if (isset($_POST['year'])) {
                 </a>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Criteria <?php echo"$criteria" ?>  </a></span>
-                
+
             </div>
         </div>
     </nav>
@@ -204,7 +204,7 @@ if (isset($_POST['year'])) {
 <div class="container">
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST" || $_SERVER["REQUEST_METHOD"] == "GET") {
-        
+
         echo "<h1>AQAR - $academicYear </h1>";
 
         if (isset($_POST['delete'])) {
@@ -255,7 +255,7 @@ if (isset($_POST['year'])) {
 
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $criteriaNo = $row['Sub_no'];  
+                    $criteriaNo = $row['Sub_no'];
                     $description = $row['Des'];
 
                     echo "<tr>";

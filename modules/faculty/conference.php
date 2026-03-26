@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 include_once "../../includes/connection.php";
 include_once "../../includes/header.php";
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $status = 'Pending HOD';
 
-    $sql = "INSERT INTO conference_tab (username, branch, paper_title, from_date, to_date, organised_by, location, certificate_path, paper_type, paper_file_path, submission_time, year, status) 
+    $sql = "INSERT INTO conference_tab (username, branch, paper_title, from_date, to_date, organised_by, location, certificate_path, paper_type, paper_file_path, submission_time, year, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
 
     $stmt = $conn->prepare($sql);

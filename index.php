@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once 'includes/session.php'; // Secured Session Start
 include_once "includes/connection.php";
 

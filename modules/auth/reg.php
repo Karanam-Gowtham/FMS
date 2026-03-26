@@ -1,4 +1,4 @@
-<?php
+﻿<?php
     require_once '../../includes/session.php';
     require_once '../../includes/connection.php';
     require_once '../../includes/csrf.php';
@@ -46,7 +46,7 @@
                 $file = $_FILES[$fileInputName];
                 $filename = basename($file['name']);
                 $filename = preg_replace("/[^\w.-]/", "", $filename);
-                
+
                 $unique_name = uniqid() . "_" . $prefix . "_" . $filename;
                 $target_fs = $upload_dir_fs . $unique_name;
                 $target_db = $upload_dir_db . $unique_name;
@@ -80,14 +80,14 @@
             $photo_db = handleUploadDebug('photo', 'photo', $upload_dir_fs, $upload_dir_db, $errors);
 
             if ($exp_cert_db && $edu_cert_db && $photo_db) {
-                $stmt = $conn->prepare("INSERT INTO reg_tab 
-                (faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, userid, password, phone, experience, photo_path, doj, exp_cert_path, edu_cert_path) 
+                $stmt = $conn->prepare("INSERT INTO reg_tab
+                (faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, userid, password, phone, experience, photo_path, doj, exp_cert_path, edu_cert_path)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 if ($stmt) {
-                    $stmt->bind_param("sssssssssssssssssss", 
-                    $faculty_name, $designation, $qualification, $dept, $pern, $dob, $gender, $address, 
-                    $email, $aadhar, $pan, $username, $password, $phone, $experience, $photo_db, 
+                    $stmt->bind_param("sssssssssssssssssss",
+                    $faculty_name, $designation, $qualification, $dept, $pern, $dob, $gender, $address,
+                    $email, $aadhar, $pan, $username, $password, $phone, $experience, $photo_db,
                     $doj, $exp_cert_db, $edu_cert_db);
 
                     if ($stmt->execute()) {
@@ -258,7 +258,7 @@
 <div class="registration-container">
     <div class="registration-form">
         <h2>Faculty Registration</h2>
-        
+
         <?php if (!empty($message)): ?>
             <div class="alert-box <?php echo $msg_type; ?>" style="display: block;">
                 <?php echo $message; ?>
@@ -267,7 +267,7 @@
 
         <form method="post" action="" enctype="multipart/form-data">
             <?php echo csrfField(); ?>
-            
+
             <label for="faculty_name">Faculty Name:</label>
             <input type="text" name="faculty_name" required value="<?php echo isset($_POST['faculty_name']) ? htmlspecialchars($_POST['faculty_name']) : ''; ?>">
 

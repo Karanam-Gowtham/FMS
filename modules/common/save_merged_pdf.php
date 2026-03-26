@@ -62,5 +62,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["merged_pdf"])) {
 } else {
     echo json_encode(["error" => "Invalid request."]);
 }
-?>
 

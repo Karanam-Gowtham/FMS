@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once "../includes/connection.php";
 include_once "../includes/constants.php";
 include_once "header_admin.php";
@@ -140,7 +140,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
             z-index: 99;
             margin-top: 80px;
             border-bottom: 1px solid #eee;
- 
+
         font-size: larger;
     }
 
@@ -194,7 +194,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_aqar_files.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Criteria <?php echo"$criteria" ?>  </a></span>
-                
+
             </div>
         </div>
     </nav>
@@ -206,7 +206,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
             $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : 'Unknown';
             $academicYear = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : NOT_SELECTED;
             $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT_SELECTED;
-                
+
 
             // Display the AQAR heading and selected details
             echo "<h1>AQAR - " . $academicYear . "</h1>";
@@ -215,7 +215,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
             $designation = isset($_POST['designation']) ? htmlspecialchars($_POST['designation']) : 'Unknown';
             $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : NOT_SELECTED;
             $criteria = isset($_POST['criteria']) ? htmlspecialchars($_POST['criteria']) : NOT_SELECTED;
-                
+
 
             // Display the AQAR heading and selected details
             echo "<h1>AQAR - " . $academicYear . "</h1>";
@@ -256,7 +256,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                             if ($result->num_rows > 0) {
                                 // Loop through the result set and display rows
                                 while ($row = $result->fetch_assoc()) {
-                                    $criteriaNo = $row['Sub_no'];  
+                                    $criteriaNo = $row['Sub_no'];
                                     $description = $row['Des'];
 
                                     // Display rows
@@ -279,7 +279,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                                     echo "<button class='btn_u' type='submit'>Upload Files</button>";
                                     echo "</form>";
                                     echo "</td>";
-                                    
+
                                     echo "<form action='my_uploads.php?year=" . urlencode($academicYear) . PARAM_CRITERIA . urlencode($criteria) . PARAM_DESIGNATION . urlencode($designation) . PARAM_EVENT . urlencode($event) . "' method='POST'>";
                                     echo "<input type='hidden' name='academic_year' value='$academicYear'>";
                                     echo "<input type='hidden' name='criteria' value='$criteria'>";

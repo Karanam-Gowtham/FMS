@@ -75,9 +75,9 @@ $result = $conn->query($sql);
         <div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-8 bg-white p-6 rounded-lg shadow-md">
             <div class="flex-1">
                 <label for="branchFilter" class="block text-sm font-medium text-gray-700 mb-2">Filter by Department</label>
-                <select 
+                <select
                     id="branchFilter"
-                    name="branch" 
+                    name="branch"
                     onchange="applyFilters()"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 >
@@ -96,12 +96,12 @@ $result = $conn->query($sql);
 
             <div class="flex-1">
                 <label for="nameSearch" class="block text-sm font-medium text-gray-700 mb-2">Search by Name</label>
-                <input 
+                <input
                     id="nameSearch"
-                    type="text" 
-                    name="search" 
-                    placeholder="Search by Name" 
-                    value="<?= htmlspecialchars($search) ?>" 
+                    type="text"
+                    name="search"
+                    placeholder="Search by Name"
+                    value="<?= htmlspecialchars($search) ?>"
                     onkeyup="applyFilters()"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 >
@@ -126,8 +126,8 @@ $result = $conn->query($sql);
                             <?php while ($row = $result->fetch_assoc()): ?>
                                     <tr class="hover:bg-blue-50 transition duration-150">
                                         <td class="px-4 py-3">
-                                            <img 
-                                                src="<?= $row['photo_path'] ?: '../../uploads/default_pic.png' ?>" 
+                                            <img
+                                                src="<?= $row['photo_path'] ?: '../../uploads/default_pic.png' ?>"
                                                 class="w-12 h-12 rounded-full object-cover border border-gray-200"
                                                 alt="Faculty"
                                             >
@@ -137,8 +137,8 @@ $result = $conn->query($sql);
                                         <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['qualification']) ?></td>
                                         <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['dept']) ?></td>
                                         <td class="px-4 py-3">
-                                            <button 
-                                                onclick='openModal(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)' 
+                                            <button
+                                                onclick='openModal(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
                                                 class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition"
                                             >
                                                 View Details
@@ -161,7 +161,7 @@ $result = $conn->query($sql);
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
             <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl">&times;</button>
             <div class="flex items-center gap-4 mb-6">
-                <img id="modalPhoto" src="../../uploads/default_pic.png" class="w-20 h-20 rounded-full border object-cover">
+                <img id="modalPhoto" src="../../uploads/default_pic.png" class="w-20 h-20 rounded-full border object-cover" alt="Faculty Photo">
                 <h3 class="text-xl font-bold text-gray-800">Faculty Details</h3>
             </div>
             <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 text-sm"></div>

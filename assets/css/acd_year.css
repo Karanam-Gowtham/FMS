@@ -158,29 +158,29 @@ h2 {
     position: absolute;
     top:-10px;
     right: 620px;
-    color:white;
-    background: linear-gradient(135deg, #ff9800, #9c0995);  /* Orange gradient */
+    color: #fff8f0;
+    background: linear-gradient(135deg, #c85000, #6b006b);  /* Darkened for contrast */
     margin-left: auto;  /* Align this button to the right */
     margin-top: 20px;  /* Space from the previous button */
     padding: 14px 30px;
 }
 .my-achievements:hover {
-    background: linear-gradient(135deg, #9c0995, #ff9800);  /* Purple gradient */
+    background: linear-gradient(135deg, #6b006b, #c85000);  /* Reversed gradient */
 }
 .my-dept-files {
     position: absolute;
     top:-10px;
     right: 180px;
-    color: #1a2e1a;
+    color: #000000;
     font-weight: 800;
-    background: linear-gradient(135deg, #37ff00, #8cce72);  /* Orange gradient */
+    background: linear-gradient(135deg, #37ff00, #8cce72);
     margin-left: auto;  /* Align this button to the right */
     margin-top: 20px;  /* Space from the previous button */
     padding: 14px 30px;
 
 }
 .my-dept-files:hover {
-    background: linear-gradient(135deg, #8cce72,#37ff00);  /* Purple gradient */
+    background: linear-gradient(135deg, #8cce72, #37ff00);
 }
 
 /* Responsive Design */

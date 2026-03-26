@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once '../../includes/session.php';
 require_once '../../includes/connection.php';
 
@@ -17,7 +17,7 @@ if (empty($_SESSION['username'])) {
 $extra_head = "
     <link rel='stylesheet' href='../../assets/css/index1.css'>
     <style>
-        body { 
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../../assets/img/gmr_landing_page.jpg');
             background-size: cover;
@@ -28,34 +28,34 @@ $extra_head = "
             min-height: 100vh;
         }
         .container11 {
-            max-width: 500px; 
-            margin: 30px auto 50px auto; 
-            padding: 40px; 
-            background: #ffffff; 
-            border-radius: 8px; 
+            max-width: 500px;
+            margin: 30px auto 50px auto;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 8px;
             border: 1px solid #ddd; /* Simple border instead of heavy shadow */
             position: relative;
         }
-        h1 { 
-            text-align: center; 
-            color: #333; 
-            margin-bottom: 30px; 
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
             font-size: 2em;
             border-bottom: 1px solid #eee;
             padding-bottom: 15px;
         }
-        .profile-image { 
-            display:block; 
-            margin:0 auto 30px; 
-            width:150px; 
-            height:150px; 
-            border-radius:50%; 
-            object-fit:cover; 
+        .profile-image {
+            display:block;
+            margin:0 auto 30px;
+            width:150px;
+            height:150px;
+            border-radius:50%;
+            object-fit:cover;
             border: 3px solid #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        label { 
-            font-weight: 600; 
+        label {
+            font-weight: 600;
             color: #555;
             display: block;
             margin-bottom: 5px;
@@ -63,31 +63,31 @@ $extra_head = "
             font-size: 0.95rem;
         }
         input, select, textarea {
-            width: 100%; 
-            padding: 10px; 
-            margin-bottom: 5px; 
-            border: 1px solid #ccc; 
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box; 
+            box-sizing: border-box;
             font-size: 1rem;
         }
         input:focus, select:focus, textarea:focus {
             border-color: #2575fc;
             outline: none;
         }
-        button[type='submit'] { 
-            background-color: #4CAF50; 
-            color: white; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
+        button[type='submit'] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
             width: 100%;
             font-size: 1.1rem;
             font-weight: bold;
             margin-top: 30px;
         }
-        button[type='submit']:hover { 
+        button[type='submit']:hover {
             background-color: #45a049;
         }
         textarea {
@@ -100,7 +100,7 @@ $extra_head = "
 include_once "../../includes/header.php";
 $username = $_SESSION['username'];
 
-$query = "SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid 
+$query = "SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid
           FROM reg_tab WHERE userid = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $username);
@@ -115,7 +115,7 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch user data FIRST
-$query = "SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid 
+$query = "SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid
           FROM reg_tab WHERE userid = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $username);
@@ -163,8 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $target_file = $user['photo_path'];
     }
 
-    $update_query = "UPDATE reg_tab 
-        SET faculty_name=?, designation=?, qualification=?, dept=?, pern_no=?, dob=?, gender=?, address=?, email=?, aadhar=?, pan=?, phone=?, experience=?, password=?, photo_path=? 
+    $update_query = "UPDATE reg_tab
+        SET faculty_name=?, designation=?, qualification=?, dept=?, pern_no=?, dob=?, gender=?, address=?, email=?, aadhar=?, pan=?, phone=?, experience=?, password=?, photo_path=?
         WHERE userid=?";
     $update_stmt = $conn->prepare($update_query);
     $update_stmt->bind_param(
@@ -205,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Determine the correct image source
         // Handles paths stored as "uploads/..." (from registration) or "../../uploads/..." (from edits)
         $img_src = "../../assets/img/profile_icon.png"; // Default
-        
+
         if ($photo_path) {
             // If path starts exactly with "uploads/", it's from reg.php, so we need to go up two levels
             if (strpos($photo_path, 'uploads/') === 0) {
@@ -297,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <label for="password">Password:</label>
             <input type="text" name="password" id="password" value="<?= htmlspecialchars($user['password']); ?>" required>
-            
+
             <label for="photo">Upload New Photo:</label>
             <input type="file" name="photo_path" id="photo" accept="image/*">
 

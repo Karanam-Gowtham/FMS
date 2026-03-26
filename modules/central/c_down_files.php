@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once "../../includes/connection.php";
 session_start();
 
@@ -127,7 +127,7 @@ include_once "../../includes/header.php";
             color: darkblue;
         }
         /* Navigation */
-        .navbar { 
+        .navbar {
             margin-top: -80px;
             font-size: larger;
         }
@@ -182,7 +182,7 @@ include_once "../../includes/header.php";
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             color: #333;
         }
-        
+
         .container111{
             margin-bottom: 50px;
         }
@@ -298,18 +298,18 @@ if (!empty($event)) {
                         <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
                         <th>Username</th>
                         <th>Academic Year</th>";
-                        
+
         if ($event === 'Clubs') {
             echo "<th>Club Name</th>";
         }
-    
+
         echo "      <th>Event Name</th>
                         <th>File Description</th>
                         <th>Photos</th> <!-- New column -->
                     </tr>
                 </thead>
                 <tbody>";
-    
+
         $id = 1;
         while ($row = $result->fetch_assoc()) {
             $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
@@ -317,17 +317,17 @@ if (!empty($event)) {
             $photo2Path = htmlspecialchars($row["photo2"]);
             $photo3Path = htmlspecialchars($row["photo3"]);
             $photo4Path = htmlspecialchars($row["photo4"]);
-        
+
             echo "<tr>
-                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' 
+                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "'
                         data-default='" . $file_path . "' data-id='" . $row["id"] . "' onclick='trackOrder(event)'></td>
                     <td>" . htmlspecialchars($row['uploaded_by']) . "</td>
                     <td>" . htmlspecialchars($row['acd_year']) . "</td>";
-        
+
             if ($event === 'Clubs') {
                 echo "<td>" . htmlspecialchars($row['club_name']) . "</td>";
             }
-        
+
             echo "<td>" . htmlspecialchars($row['event_name']) . "</td>
                   <td>" . htmlspecialchars($row['file_name']) . "</td>
                   <td class='center-cell'>
@@ -341,7 +341,7 @@ if (!empty($event)) {
                         </select>
                   </td>
                 </tr>";
-        
+
             $id++;
         }
 

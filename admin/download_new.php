@@ -115,7 +115,7 @@ include_once "header_admin.php";
     <table id="resultTable">
         <thead>
             <tr>
-                <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+                <th><input type="checkbox" onclick="toggleSelectAll(this)" onkeydown="if(event.key==='Enter')this.click()"></th>
                 <th>ID</th>
                 <th>Faculty Name</th>
                 <th>Academic Year</th>
@@ -127,7 +127,7 @@ include_once "header_admin.php";
             <?php foreach ($data as $row): ?>
                 <tr>
                     <td>
-                        <input type="checkbox" name="selected_files[]" <?php echo ATTR_DATA_FILEPATH; ?>../<?php echo $row['file_path']; ?><?php echo QUOTE_SPACE; ?> onchange="trackOrder(event)">
+                        <input type="checkbox" name="selected_files[]" <?php echo ATTR_DATA_FILEPATH; ?>../<?php echo $row['file_path']; ?><?php echo QUOTE_SPACE; ?> onchange="trackOrder(event)" onkeydown="if(event.key==='Enter')this.click()">
                     </td>
                     <td><?= $row['id'] ?></td>
                     <td><?= $row['faculty_name'] ?></td>

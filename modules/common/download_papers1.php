@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start();
 ini_set('display_errors', 0);
 include_once "../../includes/connection.php";
@@ -133,7 +133,7 @@ function handleZipDownload($conn, $selectedFiles, $tableName, $fileColumn, $user
     $zip = new ZipArchive();
     $zipFileName = $category . "_files_" . time() . ".zip";
     $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
-    
+
     if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
         $filesAdded = addFilesToZip($conn, $zip, $selectedFiles, $tableName, $fileColumn, $username);
         $zip->close();
@@ -734,7 +734,7 @@ include_once "../../includes/header.php";
         }
 
         // In this page, paths seem to be relative to root (from faculty/common perspective usually)
-        // But let's check if they need ../ prefix. 
+        // But let's check if they need ../ prefix.
         // In uploadFile they were saved with ../../uploads path (relative to faculty dir).
         // In download_papers1.php (in modules/common), the path is stored as ../../uploads/...
 
@@ -793,4 +793,4 @@ include_once "../../includes/header.php";
 </script>
 </body>
 
-</html>
+</html>

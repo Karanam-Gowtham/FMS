@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start(); // Start output buffering at the very top
 require_once '../includes/session.php';
 require_once '../includes/csrf.php';
@@ -111,20 +111,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
                 $stmt->bind_param("sss", $userid, $password, $dept);
                 $stmt->execute();
                 $result = $stmt->get_result();
-            
+
                 if ($result->num_rows > 0) {
                     session_regenerate_id(true);
                     $_SESSION['a_username'] = $userid;
                     $stmt->close();
                     ob_end_clean();
-            
+
                     header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=$dept");
                     exit();
                 } else {
                     $error_message = "Invalid username, password, or department mismatch.";
                 }
                 $stmt->close();
-            
+
             } elseif ($designation == "hod") {
                 $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
                 $stmt->bind_param("ss", $userid, $password);
@@ -152,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
                 $stmt->bind_param("sss", $userid, $password, $dept);
                 $stmt->execute();
                 $result = $stmt->get_result();
-            
+
                 if ($result->num_rows > 0) {
                     session_regenerate_id(true);
                     $_SESSION['j_username'] = $userid;
@@ -394,12 +394,12 @@ include_once 'header_admin.php';
         let designation = document.getElementById("designation").value;
         let loggedInRole = "<?php echo $loggedInRole; ?>";
         // Use PHP urlencode to ensure the department string is safe and correct for URLs
-        let currentDept = "<?php echo urlencode($dept); ?>"; 
+        let currentDept = "<?php echo urlencode($dept); ?>";
 
         if (loggedInRole) {
             let sessionDept = "<?php echo isset($_SESSION['dept']) ? urlencode($_SESSION['dept']) : ''; ?>";
             let safeToRedirect = "<?php echo $matchDept ? 'yes' : 'no'; ?>";
-            
+
             if (loggedInRole === designation && safeToRedirect === 'yes') {
                  if (designation === 'faculty') {
                     window.location.href = "../modules/faculty/acd_year.php?dept=" + currentDept;
@@ -415,7 +415,7 @@ include_once 'header_admin.php';
 
                 return;
             }
-            
+
             alert("You are already logged in as " + loggedInRole.replace('_', ' ') + ". Please logout first to switch roles or departments.");
             return;
         }

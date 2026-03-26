@@ -86,7 +86,7 @@ h3 {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
     transition: all 0.3s;
 }
@@ -117,7 +117,7 @@ h3 {
     padding: 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
     color: white;
     font-size: 1rem;
 }   
@@ -127,7 +127,7 @@ h3 {
     padding: 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
     color: white;
     font-weight: bold;
     font-size: 1rem;
