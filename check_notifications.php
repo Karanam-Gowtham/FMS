@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 include_once 'includes/connection.php';
 require_once 'includes/constants.php';
@@ -47,6 +47,8 @@ if (isset($_SESSION['username'])) {
 }
 
 if (!$role) {
+    if (ob_get_length()) ob_clean();
+    header('Content-Type: application/json');
     echo json_encode(['count' => 0]);
     exit();
 }
@@ -211,5 +213,8 @@ if ($count > 0 && !empty($role) && !empty($user_id)) {
     }
 }
 
+if (ob_get_length()) ob_clean();
 header('Content-Type: application/json');
 echo json_encode(['count' => $count]);
+exit;
+?>

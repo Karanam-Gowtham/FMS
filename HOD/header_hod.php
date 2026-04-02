@@ -3,8 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     include_once "../includes/session.php";
 }
 ?>
-<!-- Header CSS -->
-<link rel="stylesheet" href="../assets/css/header.css">
+<!-- Header CSS Included via Internal Style below -->
 <style>
     /* Header Styles */
     header {

@@ -21,18 +21,22 @@
             text-align: center;
             font-size: 2rem;
             font-weight: 600;
-            margin-top: 00px;
+            margin-top: 0px;
             color: #ffffff;
         }
 
         .div1 {
-            margin-top: 100px;
+            margin-top: 20px;
         }
 
         /* Navigation */
         .navbar {
-            margin-top: -80px;
+            position: sticky;
+            top: 70px;
+            z-index: 1000;
             font-size: larger;
+            background-color: white;
+            border-bottom: 1px solid #ddd;
         }
 
         #sp {
@@ -40,9 +44,8 @@
         }
 
         .nav-container {
-            background-color: white;
-            width: 150vw;
-            margin-top: 80px;
+            max-width: 100%;
+            margin: 0 auto;
             padding: 0 1rem;
         }
 
@@ -92,7 +95,9 @@
 
         /* Filter Section */
         .filter-section {
-            margin-left: 50px;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
             width: 90%;
             padding: 15px;
             background: #ffffff;
