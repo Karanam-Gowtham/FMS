@@ -61,6 +61,21 @@ if ($resolvedPath === null) {
     exit("ERROR: File not found. Original path: " . htmlspecialchars($filePath));
 }
 
+require_once __DIR__ . '/../../includes/connection.php';
+require_once __DIR__ . '/../../includes/dept_scope.php';
+
+if (!isset($_SESSION['admin'])) {
+    $ctx = fms_session_role_context($conn);
+    if (
+        $ctx === null
+        || !fms_verify_file_path_access($conn, $filePath, $ctx['role'], $ctx['user_id'], $ctx['dept'])
+    ) {
+        ob_end_clean();
+        header('HTTP/1.1 403 Forbidden');
+        exit('Access denied.');
+    }
+}
+
 // All good — clear any buffered output and stream the file
 while (ob_get_level()) {
     ob_end_clean();

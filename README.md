@@ -1,157 +1,131 @@
-# Faculty Management System (FMS)
+# File Management System (FMS)
 
-## 📌 Project Overview
-The **Faculty Management System (FMS)** is a comprehensive web-based application designed to streamline the management of faculty-related data and administrative processes within an educational institution. It serves as a centralized platform for storing, retrieving, and managing documentation related to:
-- **Academic Activities:** Publications, FDPs, Student Activities.
-- **Accreditation:** NAAC/NBA criteria compliance.
-- **Faculty Achievements:** Awards, recognitions, and professional development.
-
-This system automates the collection of data required for compliance reports, annual quality assurance, and departmental audits, replacing manual paper-based workflows.
+Web application for **GMRIT** (and similar setups): faculty and department file uploads, NAAC/NBA-style criteria documents, approvals, and downloads. Built with **PHP** and **MySQL** (mysqli), served from **Apache** (e.g. XAMPP).
 
 ---
 
-## 🚀 Key Features
+## What it does
 
-### 1. 🔐 Role-Based Access Control (RBAC)
-The system provides secure, role-specific dashboards for different user types:
-*   **Faculty**: Upload documents, view status of uploads, manage profile.
-*   **Department Coordinator (Dept Co-ordinator)**: Review faculty uploads, approve/reject files, manage department data.
-*   **Head of Department (HOD)**: Oversee department activities, generate reports, view analytics.
-*   **Central Coordinator**: Manage institution-wide criteria, central files, and overall accreditation data.
-*   **Administrator**: System configuration, user management, and high-level oversight.
-
-### 2. 📄 comprehensive File Management
-*   **Criteria Mapping**: Uploads are linked to specific NAAC/NBA criteria (e.g., 1.1.1, 1.2.1) for easy retrieval during inspections.
-*   **Academic Year Tracking**: All data is organized by academic year (e.g., 2022-23).
-*   **Status Tracking**: Files go through a workflow (Pending -> Approved/Rejected).
-*   **Bulk Downloads**: Capability to download all files for a specific criteria or department.
-
-### 3. 📊 Activity Tracking Modules
-*   **Publications**: Journal publications, Conference papers, Patents.
-*   **FDPs (Faculty Development Programs)**: Workshops attended or organized by faculty.
-*   **Student Activities**: Projects, internships, and events supervised by faculty.
-*   **Books/Chapters**: Book publications and book chapters.
-
-### 4. 🛠️ Utility Tools
-*   **PDF Merger**: Integrated tool to combine multiple PDF documents.
-*   **Dynamic Reporting**: Generate reports based on criteria, year, or department.
+- **Faculty** upload proofs (publications, FDPs, conferences, patents, student activities, placement/higher-education files, etc.) and track status.
+- **Head of Department (HOD)** reviews items first (`Pending HOD`), then **Department Coordinator** or **Junior Assistant** (`Pending Dept Coordinator`).
+- **Central** flows (NAAC, NBA, NCC, Sports, clubs, etc.) use `modules/central/` and `c_login_n.php` / `c_login.php` with event-based navigation.
+- **Unified dashboard** (`dashboard.php`) lists pending work by role; the main header can open it in a modal iframe and polls `check_notifications.php` for a badge count.
+- **Admin** area under `admin/` handles criteria uploads, bulk download/delete, and department entry via `admins.php`.
 
 ---
 
-## 📂 Project Structure & Components
+## Tech stack
 
-The project is organized into modular directories to separate concerns and user roles.
+| Layer | Details |
+|--------|---------|
+| Server | Apache (typical: XAMPP on Windows) |
+| Language | PHP (7.4+ recommended; 8.x supported) |
+| Database | MySQL / MariaDB, database name `project-fms` |
+| DB API | `mysqli` with prepared statements in many paths |
+| Sessions | PHP sessions; `includes/session.php` sets secure cookie flags when used |
+| CSRF | `includes/csrf.php` — tokens on protected POST forms |
+| Email | Optional notifications via `includes/send_email.php` (e.g. faculty CSE throttle in `check_notifications.php`) |
 
-### 1. 📁 Root Directory
-*   `index.php`: The main entry point and landing page of the application.
-*   `dashboard.php`: The central dashboard logic that routes users based on their role.
-*   `check_notifications.php`: Handles notification logic for pending tasks.
-*   `project_introduction.txt`: High-level summary of the project.
-
-### 2. 📁 `modules/` (Core Logic)
-This directory contains the specific logic for different user roles:
-
-*   **`modules/auth/`**: Authentication scripts (login/logout processing).
-    *   `login.php`: Handles user login requests.
-*   **`modules/faculty/`**: Faculty-specific features.
-    *   `criteria.php`: Interface for selecting accreditation criteria to upload files against.
-    *   `upload.php`: Generic file upload handler.
-    *   Specific upload handlers (e.g., `up5.1.1&2.php`) for complex criteria.
-*   **`modules/dept_coordinator/`**: Department Coordinator workflow.
-    *   `dept_files.php`: View files submitted by faculty in their department.
-    *   `approve_file.php`: Logic to approve a pending file.
-    *   `reject_file.php`: Logic to reject a file with comments.
-*   **`modules/central/`**: Central Coordinator workflow.
-    *   `c_aqar_files.php`: Manage institution-level AQAR files.
-    *   `c_down_files.php`: Download consolidated files.
-
-### 3. 📁 `HOD/` (Head of Department)
-Specific functionalities for HODs:
-*   `HOD_lg.php`: HOD Login page.
-*   `hod_faculty_files.php`: View all files uploaded by faculty in the department.
-*   `files_view_fac.php`: Detailed view of specific faculty files.
-*   `Add_academic_year.php`: Utility to manage academic years.
-*   `approve.php` / `reject.php`: Approval workflow actions.
-
-### 4. 📁 `admin/` (System Administration)
-*   `admins.php`: Dashboard for system administrators.
-*   `criteria_a.php`: Manage the list of accreditation criteria.
-*   `full_report.php`: Generate comprehensive system reports.
-
-### 5. 📁 `includes/` (Shared Utilities)
-*   `connection.php`: Database connection configuration (`project-fms`).
-*   `header.php` / `footer.php`: Reusable UI components.
-*   `session.php`: Session management and security headers.
-*   `csrf.php`: Cross-Site Request Forgery protection.
-
-### 6. 📁 `database/`
-*   `project-fms.sql`: The main SQL dump file to set up the database schema.
-
-### 7. 📁 `assets/`
-*   Contains CSS, JavaScript, images, and third-party libraries (e.g., Bootstrap, FontAwesome).
+**Configuration:** edit `includes/connection.php` for DB host, user, password, database name, and `$base_url` (must match your deployed URL path, e.g. `http://localhost/mini/FMS/`).
 
 ---
 
-## 💾 Database Schema
+## Roles and session variables
 
-The application uses a MySQL database (`project-fms`). Key tables include:
+| Role | Session keys (typical) |
+|------|-------------------------|
+| Faculty | `username` |
+| Department coordinator | `a_username` |
+| Junior assistant | `j_username`, `dept` |
+| HOD | `h_username`, `dept` |
+| Central coordinator | `h_username == 'central'` or central-specific sessions |
+| Admin (hardcoded demo) | `admin` |
 
-*   **User Management**:
-    *   `login_pg`: Stores user credentials for Faculty.
-    *   `admin_login`: Credentials for Administrators.
-    *   `hod_login` (if applicable): Credentials for HODs.
-*   **Criteria Data**:
-    *   `criteria`: Master list of NAAC/NBA criteria descriptions and IDs.
-*   **File Data**:
-    *   `files`: General file uploads linked to criteria.
-    *   `conference_tab`: Conference records.
-    *   `fdps_tab`: FDP records.
-    *   `patents_tab`: Patent records.
-*   **Workflow**:
-    *   Status columns in file tables (e.g., `status = 'Pending'`, `rejection_reason`).
+Registration and logins use tables such as `reg_tab`, `reg_dept_cord`, `reg_hod`, `reg_jr_assistant`, `reg_central_cord`, `reg_cri_cord`. **`login_pg` logs faculty-related sign-ins** (userid/password as stored by the app).
 
 ---
 
-## ⚙️ Installation & Setup Guide
+## Project layout (high level)
 
-### 1. Prerequisites
-*   **Web Server**: Apache (XAMPP, WAMP, or MAMP recommended).
-*   **PHP**: Version 7.4 or higher.
-*   **Database**: MySQL / MariaDB.
+```
+FMS/
+├── index.php                 # Landing page
+├── dashboard.php             # Role-based pending files, approve/reject/re-upload
+├── check_notifications.php   # JSON count for header badge (+ optional email)
+├── includes/
+│   ├── connection.php        # DB + base_url + session bootstrap + CSRF token seed
+│   ├── session.php           # Cookie parameters
+│   ├── csrf.php              # CSRF helpers
+│   ├── header.php            # Shared navigation (Central / Department / Dashboard modal)
+│   └── send_email.php        # Mail helper
+├── modules/
+│   ├── auth/                 # login.php, logout.php, reg.php
+│   ├── faculty/              # Academic year, criteria uploads, profiles, FDPS, etc.
+│   ├── dept_coordinator/     # DC workflows, minutes, downloads
+│   ├── central/              # Central logins and file flows (AQAR, events, uploads)
+│   ├── jr_assistant/         # Junior assistant entry (e.g. jr_acd_year.php)
+│   └── common/               # pdf_merger.php, view_file1.php, save_merged_pdf.php
+├── HOD/                      # HOD pages, downloads, academic year tools, view_file*.php
+├── admin/                    # admins.php, criteria_*.php, upload*.php, download.php, etc.
+├── database/
+│   └── project-fms.sql       # Schema dump (import for fresh install)
+├── assets/                   # CSS, JS, images
+└── _deprecated/              # Old copies; do not use for production paths
+```
 
-### 2. Database Setup
-1.  Open **phpMyAdmin** (e.g., `http://localhost/phpmyadmin`).
-2.  Create a new database named `project-fms`.
-3.  Import the SQL file located at:
-    `e:\set\xampp\htdocs\mini\FMS\database\project-fms.sql`
-
-### 3. Application Configuration
-1.  Place the project folder (`FMS`) in your server's root directory (`htdocs` or `www`).
-2.  Open `includes/connection.php` and verify the database credentials:
-    ```php
-    $conn = mysqli_connect("localhost", "root", "", "project-fms");
-    ```
-    *Update the username (default: `root`) and password (default: empty) if your local setup differs.*
-
-### 4. Running the Project
-1.  Start `Apache` and `MySQL` in XAMPP control panel.
-2.  Open your browser and visit:
-    `http://localhost/mini/FMS/` (Adjust path based on your folder name).
-
----
-
-## 🔄 User Workflow Example (File Upload)
-
-1.  **Faculty Login**: User logs in with faculty credentials.
-2.  **Select Criteria**: User navigates to "Criteria", selects an Academic Year and specific Criteria (e.g., 1.1.1).
-3.  **Upload**: User uploads a PDF proof.
-4.  **Notification**: The system marks the file as "Pending Dept Coordinator".
-5.  **Review**: Dept Coordinator logs in, sees the pending file.
-6.  **Action**:
-    *   **Approve**: File status updates to "Approved".
-    *   **Reject**: Coordinator provides a reason. Status updates to "Rejected". Faculty sees the rejection and can re-upload.
+Root also contains **maintenance/debug scripts** (`migrate_*.php`, `debug_*.php`, `verify_schema.php`, etc.) — use only in development.
 
 ---
 
-## ✨ Developed By
-**FMS Team** - Google Deepmind Advanced Agentic Coding
+## Database
+
+1. Create database **`project-fms`** in phpMyAdmin (or CLI).
+2. Import **`database/project-fms.sql`**.
+3. Adjust credentials in **`includes/connection.php`** if not using `root` with empty password.
+
+Notable concepts:
+
+- Multiple **file tables** (`files`, `files5_*`, `fdps_tab`, `conference_tab`, `published_tab`, `patents_table`, `dept_files`, student activity tables, etc.) with **`status`** and **`rejection_reason`** where applicable.
+- **`rejection_history`** stores rejection audit rows (used from `dashboard.php`).
+- **`academic_year`** and related tables drive year pickers across modules.
+
+---
+
+## Installation (quick)
+
+1. Install **XAMPP** (or similar): Apache + MySQL + PHP.
+2. Copy the project folder under `htdocs` (e.g. `htdocs/mini/FMS`).
+3. Import **`database/project-fms.sql`** into **`project-fms`**.
+4. Set **`includes/connection.php`** database settings and **`$base_url`** to match your URL.
+5. Open **`http://localhost/mini/FMS/`** (adjust host and path).
+
+---
+
+## Security notes (operator awareness)
+
+- **CSRF** is enforced on several POST flows (e.g. dashboard actions, some admin forms, central login form).
+- **Sensitive download/upload endpoints** require a logged-in session (e.g. some `admin/download.php`, `save_merged_pdf.php`, `view_file.php` patterns).
+- **File serving** for uploads should go through the app’s view scripts that restrict paths under `uploads/` where implemented.
+- Passwords are handled **as stored in the database** (plain text in typical legacy flows). Treat the DB as sensitive and restrict access; prefer HTTPS in production.
+
+---
+
+## Typical file workflow
+
+1. Faculty uploads → status often **`Pending HOD`**.
+2. HOD approves → **`Pending Dept Coordinator`** (or **`Accepted`** for certain department-only types).
+3. Department coordinator / junior assistant approves → **`Accepted`**, or reject with reason (logged in **`rejection_history`** where configured).
+4. Faculty may **re-upload** after rejection from **`dashboard.php`** when permitted.
+
+---
+
+## Utilities
+
+- **PDF merge:** `modules/common/pdf_merger.php` and related merge flows in admin.
+- **Merged PDF upload handlers:** `admin/save_merged_pdf.php`, `modules/common/save_merged_pdf.php` (session-protected).
+
+---
+
+## License / attribution
+
+Maintain this README when adding new modules or changing entry URLs. Update **`$base_url`** and any hardcoded paths (`/mini/FMS/` in `includes/header.php` iframe) when deploying to a different base path.

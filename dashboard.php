@@ -5,6 +5,7 @@
 include_once 'includes/connection.php';
 require_once 'includes/constants.php';
 require_once __DIR__ . '/includes/csrf.php';
+require_once __DIR__ . '/includes/dept_scope.php';
 
 // Auto-migrate tables
 $tables = [
@@ -185,6 +186,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         echo "<script>alert('Error: Table configuration not found.');</script>";
     } elseif (isset($_FILES['new_file']) && $_FILES['new_file']['error'] === UPLOAD_ERR_OK) {
 
+        if (!fms_dashboard_row_in_scope($conn, $table_name, $file_id, $role, $user_id, $dept)) {
+            echo "<script>alert('You are not allowed to update this file.');</script>";
+        } else {
+
         $path_col = $table_schema_map[$table_name]['path'];
         $name_col = $table_schema_map[$table_name]['name'];
 
@@ -250,7 +255,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 echo "<script>alert('Failed to move uploaded file.');</script>";
             }
         } else {
-            echo "<script>alert('File record not found.');</script>";
+                echo "<script>alert('File record not found.');</script>";
+        }
         }
     }
 }
@@ -262,10 +268,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
     $reason = isset($_POST['reason']) ? $_POST['reason'] : '';
     $table_name = $_POST['table_name'];
 
-    // Whitelist tables
-    $allowed_tables = ['files', 'files5_1_1and2', 'files5_1_3', 'files5_1_4', 'fdps_tab', 'fdps_org_tab', 'conference_tab', 'published_tab', 'patents_table', 'dept_files'];
+    $allowed_tables = [
+        'files', 'files5_1_1and2', 'files5_1_3', 'files5_1_4', 'files5_2_1', 'files5_2_2',
+        'fdps_tab', 'fdps_org_tab', 'conference_tab', 'published_tab', 'patents_table',
+        's_journal_tab', 's_conference_tab', 's_events', 's_bodies',
+        'dept_files',
+    ];
 
     if (in_array($table_name, $allowed_tables)) {
+        if (!fms_dashboard_row_in_scope($conn, $table_name, $file_id, $role, $user_id, $dept)) {
+            echo "<script>alert('You are not allowed to change this file.');</script>";
+        } else {
         $new_status = '';
 
         if ($role == 'HOD') {
@@ -302,17 +315,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['fil
                 $hist_stmt->execute();
             }
         }
+        }
     }
 }
 
 // --- Fetch Files ---
 $files = [];
 
-// Helper to build partial query
-function buildQuery($conn, $table, $cols, $role, $user_id)
+// Helper to build partial query (HOD / Dept coordinator / Jr assistant scoped to reg_tab.dept)
+function buildQuery($conn, $table, $cols, $role, $user_id, $dept = '')
 {
     list($id_col, $user_col, $desc_col, $date_col, $file_name_col, $file_path_col) = $cols;
     $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
+    $dept_esc = mysqli_real_escape_string($conn, (string) $dept);
     // Basic projection
     $q = "SELECT
             $id_col as id,
@@ -330,14 +345,15 @@ function buildQuery($conn, $table, $cols, $role, $user_id)
     if ($role == 'Faculty') {
         $q .= " AND $user_col = '$user_esc'";
     } elseif ($role == 'HOD') {
-        // HOD sees everything pending for them (step 1 for faculty files, step 1 for dept_files)
         $q .= SQL_AND_STATUS_EQ . STATUS_PENDING_HOD . "'";
     } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
-        // Dept Coordinator sees everything pending for them (step 2 for faculty files)
         $q .= SQL_AND_STATUS_EQ . STATUS_PENDING_DEPT_COORD . "'";
     } elseif ($role == 'Central_Coordinator') {
-        // Central sees everything that has passed HOD
         $q .= " AND status NOT IN ('" . STATUS_PENDING_DEPT_COORD . "', '" . STATUS_REJECTED_DEPT_COORD . "', '" . STATUS_PENDING_HOD . "', '" . STATUS_REJECTED_HOD . "')";
+    }
+
+    if ($dept !== '' && in_array($role, ['HOD', 'Dept_Coordinator', 'Jr_Assistant'], true)) {
+        $q .= " AND EXISTS (SELECT 1 FROM reg_tab r_scope WHERE r_scope.userid = $table.$user_col AND r_scope.dept = '$dept_esc')";
     }
 
     return $q;
@@ -348,53 +364,54 @@ $queries = [];
 
 if ($role !== 'Jr_Assistant') {
     // 1. files
-    $queries[] = buildQuery($conn, 'files', ['id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'files', ['id', 'UserName', 'description', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id, $dept);
 
     // 2. files5_1_1and2
-    $queries[] = buildQuery($conn, 'files5_1_1and2', ['id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_1_1and2', ['id', 'UserName', 'scheme_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id, $dept);
 
     // 3. files5_1_3
-    $queries[] = buildQuery($conn, 'files5_1_3', ['id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_1_3', ['id', 'username', 'programme_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id, $dept);
 
     // 4. files5_1_4
-    $queries[] = buildQuery($conn, 'files5_1_4', ['id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_1_4', ['id', 'username', 'career_details', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id, $dept);
 
     // 5. fdps_tab
-    $queries[] = buildQuery($conn, 'fdps_tab', ['id', 'username', 'title', 'submission_time', 'title', 'certificate'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'fdps_tab', ['id', 'username', 'title', 'submission_time', 'title', 'certificate'], $role, $user_id, $dept);
 
     // 6. fdps_org_tab
-    $queries[] = buildQuery($conn, 'fdps_org_tab', ['id', 'username', 'title', 'submission_time', 'title', 'certificate'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'fdps_org_tab', ['id', 'username', 'title', 'submission_time', 'title', 'certificate'], $role, $user_id, $dept);
 
     // 7. conference_tab
-    $queries[] = buildQuery($conn, 'conference_tab', ['id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'conference_tab', ['id', 'username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path'], $role, $user_id, $dept);
 
     // 8. published_tab
-    $queries[] = buildQuery($conn, 'published_tab', ['id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'published_tab', ['id', 'username', 'journal_name', 'submission_time', 'paper_title', 'paper_file'], $role, $user_id, $dept);
 
     // 9. patents_table
-    $queries[] = buildQuery($conn, 'patents_table', ['id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'patents_table', ['id', 'Username', 'patent_title', 'submission_time', 'patent_title', 'patent_file'], $role, $user_id, $dept);
 
     // 10. files5_2_1 (Placement Details)
-    $queries[] = buildQuery($conn, 'files5_2_1', ['id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_2_1', ['id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id, $dept);
 
     // 11. files5_2_2 (Higher Education)
-    $queries[] = buildQuery($conn, 'files5_2_2', ['id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 'files5_2_2', ['id', 'username', 'student_name', 'uploaded_at', 'file_name', 'file_path'], $role, $user_id, $dept);
 
     // 12. s_journal_tab (Journal Papers)
-    $queries[] = buildQuery($conn, 's_journal_tab', ['id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file'], $role, $user_id);
+    $queries[] = buildQuery($conn, 's_journal_tab', ['id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'paper_file'], $role, $user_id, $dept);
 
     // 13. s_conference_tab (Conference Papers)
-    $queries[] = buildQuery($conn, 's_conference_tab', ['id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 's_conference_tab', ['id', 'Username', 'paper_title', 'submission_time', 'paper_title', 'certificate_path'], $role, $user_id, $dept);
 
-    // 14. s_events (Student Activities: Projects, Internships, etc.)
-    $queries[] = buildQuery($conn, 's_events', ['id', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path'], $role, $user_id);
+    // 14. s_events — primary key column is ID in schema
+    $queries[] = buildQuery($conn, 's_events', ['ID', 'Username', 'event_name', 'submission_time', 'event_name', 'certificate_path'], $role, $user_id, $dept);
 
     // 15. s_bodies (Professional Bodies)
-    $queries[] = buildQuery($conn, 's_bodies', ['id', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path'], $role, $user_id);
+    $queries[] = buildQuery($conn, 's_bodies', ['ID', 'Username', 'Body', 'submission_time', 'event_name', 'certificate_path'], $role, $user_id, $dept);
 }
 
 // 16. dept_files (Dept/AMC/BoS Minutes)
 $user_esc = mysqli_real_escape_string($conn, (string) $user_id);
+$dept_esc_q = mysqli_real_escape_string($conn, (string) $dept);
 $q = "SELECT
             id,
             username,
@@ -408,13 +425,14 @@ $q = "SELECT
           FROM dept_files WHERE (status != '" . STATUS_ACCEPTED . "' OR status IS NULL)";
 
 if ($role == 'Faculty') {
-    // If a faculty member uploaded it (e.g. Dept Coord logged in as Faculty), show their uploads
     $q .= " AND username = '$user_esc'";
 } elseif ($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') {
-    // Dept Coordinator or Jr Assistant is the UPLOADER for these files, so show their own uploads
     $q .= " AND username = '$user_esc'";
 } elseif ($role == 'HOD') {
     $q .= SQL_AND_STATUS_EQ . STATUS_PENDING_HOD . "'";
+    if ($dept !== '') {
+        $q .= " AND dept = '$dept_esc_q'";
+    }
 } elseif ($role == 'Central_Coordinator') {
     $q .= " AND status NOT IN ('" . STATUS_PENDING_DEPT_COORD . "', '" . STATUS_REJECTED_DEPT_COORD . "', '" . STATUS_PENDING_HOD . "', '" . STATUS_REJECTED_HOD . "')";
 }

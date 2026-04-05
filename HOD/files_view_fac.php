@@ -1,5 +1,13 @@
 <?php
 include_once "../includes/connection.php";
+if (session_status() === PHP_SESSION_NONE) {
+    include_once __DIR__ . "/../includes/session.php";
+}
+if (!isset($_SESSION['h_username']) || $_SESSION['h_username'] === 'central' || empty($_SESSION['dept'])) {
+    http_response_code(403);
+    exit('Access denied');
+}
+$hodDept = (string) $_SESSION['dept'];
 
 // Enable error reporting for debugging
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -18,13 +26,16 @@ $show_section = ($criteria_no === CRIT_6_1_1_A);
 $show_ext_or_Int = ($criteria_no === CRIT_6_1_1_I);
 $show_semester = ($criteria_no === CRIT_6_1_1_A);
 $show_branch_dropdown = in_array($criteria_no, [CRIT_6_1_1_A, CRIT_6_1_1_F, CRIT_6_1_1_I]);
-function processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section) {
+function processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section, $hodDept) {
     if (!$show_branch_dropdown || !isset($_POST['branch'])) {
-        handleExcelNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section);
+        handleExcelNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section, $hodDept);
         return;
     }
 
     $branch = $_POST['branch'];
+    if ($branch !== $hodDept) {
+        return;
+    }
     if (!$show_semester) {
         handleExcelNoSemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section);
         return;
@@ -33,10 +44,10 @@ function processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $s
     handleExcelWithSemester($conn, $academic_year, $branch, $criteria, $criteria_no, $show_section, $show_semester);
 }
 
-function handleExcelNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section) {
-    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+function handleExcelNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section, $hodDept) {
+    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? AND branch = ? ORDER BY uploaded_at DESC";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
+    $stmt->bind_param('ssss', $academic_year, $criteria, $criteria_no, $hodDept);
     $stmt->execute();
     $result = $stmt->get_result();
     while ($row = $result->fetch_assoc()) {
@@ -86,7 +97,7 @@ if (isset($_POST['download_excel'])) {
     }
     echo "Filename\tUploaded At\n";
 
-    processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section);
+    processExcelDownload($conn, $academic_year, $criteria, $criteria_no, $show_branch_dropdown, $show_semester, $show_section, $hodDept);
     exit();
 }
 
@@ -147,18 +158,9 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
         <input type="hidden" name="criteria_no" value="<?php echo htmlspecialchars($criteria_no); ?>">
 
         <?php if ($show_branch_dropdown): ?>
-            <label for="branch">Select Branch:</label>
+            <label for="branch">Department:</label>
             <select name="branch" id="branch" required>
-                <option value="" disabled selected>Select Branch</option>
-                <option value="AIDS">AIDS</option>
-                <option value="AIML">AIML</option>
-                <option value="CSE">CSE</option>
-                <option value="CIVIL">CIVIL</option>
-                <option value="MECH">MECH</option>
-                <option value="EEE">EEE</option>
-                <option value="ECE">ECE</option>
-                <option value="IT">IT</option>
-                <option value="BSH">BSH</option>
+                <option value="<?php echo htmlspecialchars($hodDept); ?>" selected><?php echo htmlspecialchars($hodDept); ?></option>
             </select>
         
             <button class='btn1' type="submit" name="upload" id='filter'>Filter Files</button>
@@ -177,9 +179,9 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     <?php endif; ?>
 
 <?php
-function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $options) {
+function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $options, $hodDept) {
     if (!$options['show_branch_dropdown']) {
-        handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $options['show_section']);
+        handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $options['show_section'], $hodDept);
         return;
     }
 
@@ -188,6 +190,10 @@ function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, 
     }
 
     $branch = $_POST['branch'] ?? null;
+    if ($branch !== null && $branch !== $hodDept) {
+        echo '<p class="error">Invalid branch.</p>';
+        return;
+    }
     if ($options['show_semester']) {
         handleDisplaySemester($conn, $academic_year, $branch, $criteria, $criteria_no, $options['show_section'], $options['show_semester']);
     } elseif ($options['show_ext_or_Int']) {
@@ -197,10 +203,10 @@ function processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, 
     }
 }
 
-function handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section) {
-    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? ORDER BY uploaded_at DESC";
+function handleDisplayNoBranch($conn, $academic_year, $criteria, $criteria_no, $show_section, $hodDept) {
+    $sql = "SELECT * FROM files WHERE academic_year = ? AND criteria = ? AND criteria_no = ? AND branch = ? ORDER BY uploaded_at DESC";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sss', $academic_year, $criteria, $criteria_no);
+    $stmt->bind_param('ssss', $academic_year, $criteria, $criteria_no, $hodDept);
     $stmt->execute();
     displayFiles($stmt->get_result(), $show_section, false, false);
 }
@@ -244,7 +250,7 @@ $options = [
     'show_section' => $show_section,
     'show_ext_or_Int' => $show_ext_or_Int
 ];
-processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $options);
+processFileDataDisplay($conn, $academic_year, $criteria, $criteria_no, $options, $hodDept);
 
 function displayFiles($result, $show_section, $show_semester, $show_branch, $show_ext_int = false) {
     $columns = [];
@@ -290,7 +296,8 @@ function displayFiles($result, $show_section, $show_semester, $show_branch, $sho
             echo "<td>" . htmlspecialchars($row['file_name'] ?? '') . "</td>";
             $uploadedAt = new DateTime($row['uploaded_at']);
             echo "<td>" . $uploadedAt->format(DATE_FORMAT_DMY . ' & H:i:s') . "</td>";
-            echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
+            $fp = rawurlencode(str_replace('\\', '/', (string) ($row['file_path'] ?? '')));
+            echo "<td><a href='view_file_hod.php?file_path=" . $fp . "' target='_blank' rel='noopener'><button type='button' id='view' class='btn1'>View</button></a></td>";
             echo "<td><a href='" . htmlspecialchars('../' . $row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
             echo "</tr>";
         }

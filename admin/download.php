@@ -20,6 +20,18 @@ if (!$logged) {
 }
 
 require_once "../includes/constants.php";
+require_once __DIR__ . '/../includes/dept_scope.php';
+
+$dl_ctx = fms_session_role_context($conn);
+$sc_files = fms_download_scope_sql($conn, 'files', $dl_ctx);
+$sc_f5112 = fms_download_scope_sql($conn, 'files5_1_1and2', $dl_ctx);
+$sc_f513 = fms_download_scope_sql($conn, 'files5_1_3', $dl_ctx);
+$sc_f514 = fms_download_scope_sql($conn, 'files5_1_4', $dl_ctx);
+$sc_f521 = fms_download_scope_sql($conn, 'files5_2_1', $dl_ctx);
+$sc_f522 = fms_download_scope_sql($conn, 'files5_2_2', $dl_ctx);
+$sc_f523 = fms_download_scope_sql($conn, 'files5_2_3', $dl_ctx);
+$sc_f531 = fms_download_scope_sql($conn, 'files5_3_1', $dl_ctx);
+$sc_f533 = fms_download_scope_sql($conn, 'files5_3_3', $dl_ctx);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrfValidate();
@@ -35,6 +47,11 @@ $subCriteria = isset($_POST['criteria_no']) ? $_POST['criteria_no'] : '';
 
 // Initialize $branch to avoid undefined variable warnings
 $branch_s = isset($_POST['branch_s']) ? $_POST['branch_s'] : '';
+if ($dl_ctx && ($dl_ctx['role'] ?? '') === 'HOD' && !empty($dl_ctx['dept'])) {
+    if ($criteria === '1' && $branch_s !== '' && $branch_s !== $dl_ctx['dept']) {
+        $branch_s = $dl_ctx['dept'];
+    }
+}
 
 if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $criteria = $_POST['criteria'];
@@ -43,49 +60,53 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $action = $_POST['action'];
 
     if ($action == 'delete') {
-        foreach ($selectedFiles as $fileId) {
-            $sql = "SELECT file_path FROM " . TABLE_FILES . " WHERE id = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $fileId);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $file = $result->fetch_assoc();
-            if ($file) {
-                unlink('../' . $file['file_path']); // Delete the actual file
-                $sql = "DELETE FROM " . TABLE_FILES . " WHERE id = ?";
+        $tableForAction = fms_upload_table_for_criteria($criteria, $subCriteria);
+        if ($tableForAction === null) {
+            echo "<script>alert('Invalid criteria for delete.');</script>";
+        } else {
+            $pkDel = fms_table_pk_column($tableForAction);
+            foreach ($selectedFiles as $fileId) {
+                $fid = (int) $fileId;
+                if ($fid < 1 || !fms_download_row_allowed($conn, $tableForAction, $fid, $dl_ctx)) {
+                    continue;
+                }
+                $sql = "SELECT file_path FROM `$tableForAction` WHERE `$pkDel` = ?";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $fileId);
+                $stmt->bind_param('i', $fid);
                 $stmt->execute();
+                $result = $stmt->get_result();
+                $file = $result->fetch_assoc();
+                $stmt->close();
+                if ($file) {
+                    $disk = '../' . $file['file_path'];
+                    if (is_file($disk)) {
+                        unlink($disk);
+                    }
+                    $sql = "DELETE FROM `$tableForAction` WHERE `$pkDel` = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param('i', $fid);
+                    $stmt->execute();
+                    $stmt->close();
+                }
             }
+            echo "<script>alert('Files deleted successfully.');</script>";
         }
-        echo "<script>alert('Files deleted successfully.');</script>";
     } elseif ($action == 'download') {
         if (!empty($selectedFiles)) {
             if (count($selectedFiles) == 1) {
-                $fileId = $selectedFiles[0];
-
-                // Determine the table based on criteria and sub-criteria
-                if (
-                    $criteria == '1' || $criteria == '2' || $criteria == '3' || $criteria == '4' || $criteria == '7' ||
-                    ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_5, CRIT_5_3_2, CRIT_5_4_1, CRIT_5_4_2])) ||
-                    ($criteria == '6')
-                ) {
-                    $tableName = TABLE_FILES;
-                } elseif ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_1, CRIT_5_1_2])) {
-                    $tableName = "files5_1_1and2";
-                } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_3) {
-                    $tableName = "files5_1_3";
-                } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_4) {
-                    $tableName = "files5_1_4";
-                } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_1) {
-                    $tableName = "files5_2_1";
-                } else {
+                $fileId = (int) $selectedFiles[0];
+                $tableName = fms_upload_table_for_criteria($criteria, $subCriteria);
+                if ($tableName === null) {
                     die(ERR_INVALID_CRIT);
                 }
-
-                $sql = "SELECT file_path FROM $tableName WHERE id = ?";
+                if ($fileId < 1 || !fms_download_row_allowed($conn, $tableName, $fileId, $dl_ctx)) {
+                    http_response_code(403);
+                    exit('Access denied');
+                }
+                $pkDn = fms_table_pk_column($tableName);
+                $sql = "SELECT file_path FROM `$tableName` WHERE `$pkDn` = ?";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $fileId);
+                $stmt->bind_param('i', $fileId);
                 $stmt->execute();
                 $result = $stmt->get_result();
 
@@ -114,39 +135,35 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     }
                 }
             } else {
-                // Create a zip only if multiple files are selected
+                $tableName = fms_upload_table_for_criteria($criteria, $subCriteria);
+                if ($tableName === null) {
+                    die(ERR_INVALID_CRIT);
+                }
+                $pkZip = fms_table_pk_column($tableName);
+                $allowedIds = [];
+                foreach ($selectedFiles as $sid) {
+                    $sid = (int) $sid;
+                    if ($sid > 0 && fms_download_row_allowed($conn, $tableName, $sid, $dl_ctx)) {
+                        $allowedIds[] = $sid;
+                    }
+                }
+                if ($allowedIds === []) {
+                    http_response_code(403);
+                    exit('Access denied');
+                }
+
                 $zip = new ZipArchive();
                 $zipFileName = "downloads.zip";
                 $zipFilePath = "../uploads/" . $zipFileName;
 
                 if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-                    $selectedFiles = array_reverse($selectedFiles);
+                    $allowedIds = array_reverse($allowedIds);
 
-                    // Determine the table based on criteria and sub-criteria
-                    if (
-                        $criteria == '1' || $criteria == '2' || $criteria == '3' || $criteria == '4' || $criteria == '7' ||
-                        ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_5, CRIT_5_3_2, CRIT_5_4_1, CRIT_5_4_2])) ||
-                        ($criteria == '6')
-                    ) {
-                        $tableName = TABLE_FILES;
-                    } elseif ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_1, CRIT_5_1_2])) {
-                        $tableName = "files5_1_1and2";
-                    } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_3) {
-                        $tableName = "files5_1_3";
-                    } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_4) {
-                        $tableName = "files5_1_4";
-                    } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_1) {
-                        $tableName = "files5_2_1";
-                    } else {
-                        die(ERR_INVALID_CRIT);
-                    }
-
-                    // Convert selected file IDs to placeholders for SQL
-                    $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
-                    $sql = "SELECT file_path, file_name FROM $tableName WHERE id IN ($placeholders)";
+                    $placeholders = implode(',', array_fill(0, count($allowedIds), '?'));
+                    $sql = "SELECT file_path, file_name FROM `$tableName` WHERE `$pkZip` IN ($placeholders)";
 
                     $stmt = $conn->prepare($sql);
-                    $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
+                    $stmt->bind_param(str_repeat('i', count($allowedIds)), ...$allowedIds);
                     $stmt->execute();
                     $result = $stmt->get_result();
 
@@ -200,6 +217,11 @@ if (isset($_POST['download_excel'])) {
     $criteria = $_POST['criteria'];
     $subCriteria = $_POST['subCriteria'];
     $branch_s = $_POST['branch_s'];
+    if ($dl_ctx && ($dl_ctx['role'] ?? '') === 'HOD' && !empty($dl_ctx['dept'])) {
+        if ($criteria === '1' && $branch_s !== '' && $branch_s !== $dl_ctx['dept']) {
+            $branch_s = $dl_ctx['dept'];
+        }
+    }
     // Set headers for Excel download
     header("Content-Type: application/vnd.ms-excel");
     header("Content-Disposition: attachment; filename=my_uploads.xls");
@@ -217,7 +239,7 @@ if (isset($_POST['download_excel'])) {
         $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, COL_FILE, COL_DESC];
 
-        $sql = "SELECT * FROM $tableName  WHERE criteria = ? AND criteria_no = ?";
+        $sql = "SELECT * FROM $tableName  WHERE criteria = ? AND criteria_no = ?" . $sc_files;
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $criteria, $subCriteria);
@@ -225,77 +247,81 @@ if (isset($_POST['download_excel'])) {
         // For files table with specific criteria_no
         $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, COL_FILE, COL_DESC, "Branch", "Criteria No"];
-        $sql = "SELECT * FROM $tableName WHERE criteria = ? AND branch = ?";
+        $c1branch = $branch_s;
+        if ($dl_ctx && ($dl_ctx['role'] ?? '') === 'HOD' && !empty($dl_ctx['dept'])) {
+            $c1branch = $dl_ctx['dept'];
+        }
+        $sql = "SELECT * FROM $tableName WHERE criteria = ? AND branch = ?" . $sc_files;
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $criteria, $branch_s);
+        $stmt->bind_param("ss", $criteria, $c1branch);
     } elseif ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_1, CRIT_5_1_2])) {
         // For files5_1_1and2 table
         $tableName = "files5_1_1and2";
         $columns = [COL_FACULTY, COL_YEAR, "Scheme Name", "Gov Students", "Gov Amount", "Inst Students", "Inst Amount", "NGO Students", "NGO Amount", "NGO Name", "file_name"];
-        $sql = "SELECT * FROM $tableName WHERE criteria_no = ?";
+        $sql = "SELECT * FROM $tableName WHERE criteria_no = ?" . $sc_f5112;
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $subCriteria);
     } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_3) {
         // For files5_1_3 table
         $tableName = "files5_1_3";
         $columns = [COL_FACULTY, COL_YEAR, "Programme Name", "Year", "Students Enrolled", "Agency Details", COL_FILE];
-        $sql = "SELECT * FROM $tableName ";
+        $sql = "SELECT * FROM $tableName WHERE 1=1 " . $sc_f513;
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_4) {
         // For files5_1_4 table
         $tableName = "files5_1_4";
         $columns = [COL_FACULTY, COL_YEAR, "Activity Exam", "Students Exam", "Career Details", "Students Career", "Students Placed", COL_FILE];
-        $sql = "SELECT * FROM $tableName ";
+        $sql = "SELECT * FROM $tableName WHERE 1=1 " . $sc_f514;
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_1) {
         // For files5_2_1 table
         $tableName = "files5_2_1";
         $columns = [COL_FACULTY, COL_YEAR, COL_STUDENT_NAME, "Programme", "Employer", "Pay", COL_FILE];
-        $sql = "SELECT * FROM $tableName";
+        $sql = "SELECT * FROM $tableName WHERE 1=1 " . $sc_f521;
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_2) {
         // For files5_2_2 table
         $tableName = "files5_2_2";
         $columns = [COL_FACULTY, COL_YEAR, COL_STUDENT_NAME, "Programme", "Institution", "Admitted Programme", COL_FILE];
-        $sql = "SELECT * FROM $tableName ";
+        $sql = "SELECT * FROM $tableName WHERE 1=1 " . $sc_f522;
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_3) {
         // For files5_2_3 table
         $tableName = "files5_2_3";
         $columns = [COL_FACULTY, COL_YEAR, "Reg No", "Exam", "Exam Status", COL_FILE];
-        $sql = "SELECT * FROM $tableName";
+        $sql = "SELECT * FROM $tableName WHERE 1=1 " . $sc_f523;
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '5' && $subCriteria == CRIT_5_3_1) {
         // For files5_3_1 table
         $tableName = "files5_3_1";
         $columns = [COL_FACULTY, COL_YEAR, "Award Name", "Participation Type", COL_STUDENT_NAME, "Competition Level", "Event Name", "Month Year", COL_FILE];
-        $sql = "SELECT * FROM $tableName";
+        $sql = "SELECT * FROM $tableName WHERE 1=1 " . $sc_f531;
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '5' && $subCriteria == CRIT_5_3_3) {
         // For files5_3_3 table
         $tableName = "files5_3_3";
         $columns = [COL_FACULTY, COL_YEAR, "Event Name", "Event Date", COL_FILE];
-        $sql = "SELECT * FROM $tableName";
+        $sql = "SELECT * FROM $tableName WHERE 1=1 " . $sc_f533;
         $stmt = $conn->prepare($sql);
     } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_A) {
         // For files table with specific criteria_no
         $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, "Branch", COL_DESC, "Sem", "Section", COL_FILE];
-        $sql = "SELECT * FROM $tableName WHERE criteria = ? AND criteria_no = ?";
+        $sql = "SELECT * FROM $tableName WHERE criteria = ? AND criteria_no = ?" . $sc_files;
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $criteria, $subCriteria);
     } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_F) {
         // For files table with specific criteria_no
         $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, "Branch", COL_DESC, "ext_or_int", COL_FILE];
-        $sql = "SELECT * FROM $tableName WHERE  criteria = ? AND criteria_no = ?";
+        $sql = "SELECT * FROM $tableName WHERE  criteria = ? AND criteria_no = ?" . $sc_files;
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $criteria, $subCriteria);
     } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_I) {
         // For files table with specific criteria_no
         $tableName = TABLE_FILES;
         $columns = [COL_FACULTY, COL_YEAR, "Branch", COL_DESC, COL_FILE, "Branch", "Criteria No"];
-        $sql = "SELECT * FROM $tableName WHERE criteria = ? AND criteria_no = ?";
+        $sql = "SELECT * FROM $tableName WHERE criteria = ? AND criteria_no = ?" . $sc_files;
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $criteria, $subCriteria);
     } else {
@@ -408,7 +434,7 @@ include_once "header_admin.php";
             const formData = new FormData();
             formData.append("merged_pdf", new Blob([mergedPdfFile], { type: "application/pdf" }));
 
-            fetch("../save_merged_pdf.php", {
+            fetch("save_merged_pdf.php", {
                 method: "POST",
                 body: formData
             })
@@ -509,8 +535,8 @@ include_once "header_admin.php";
                 <span class="sid">&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="criteria_a.php?year=<?php echo urlencode($academic_year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>"
                         class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?></a></span>
-                <span class="sid">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Uploaded
-                        Files</a></span>
+                <span class="sid">&nbsp; >> &nbsp; </span><span class="main"><span class="main-a">Uploaded
+                        Files</span></span>
 
             </div>
         </div>
@@ -534,8 +560,11 @@ include_once "header_admin.php";
                 <input type="hidden" name="criteria_no" value="<?= htmlspecialchars($subCriteria) ?>">
 
                 <?php if ($criteria == '1'): ?>
-                    <label for="branch_s">Select Branch:</label>
+                    <label for="branch_s"><?= ($dl_ctx && ($dl_ctx['role'] ?? '') === 'HOD') ? 'Department:' : 'Select Branch:' ?></label>
                     <select name="branch_s" id="branch_s">
+                        <?php if ($dl_ctx && ($dl_ctx['role'] ?? '') === 'HOD' && !empty($dl_ctx['dept'])): ?>
+                            <option value="<?= htmlspecialchars($dl_ctx['dept']) ?>" selected><?= htmlspecialchars($dl_ctx['dept']) ?></option>
+                        <?php else: ?>
                         <option value="" disabled <?= empty($branch_s) ? 'selected' : '' ?>>-- Select Branch --</option>
                         <option value="CSE" <?= $branch_s == 'CSE' ? 'selected' : '' ?>>CSE</option>
                         <option value="AIML" <?= $branch_s == 'AIML' ? 'selected' : '' ?>>AIML</option>
@@ -546,6 +575,7 @@ include_once "header_admin.php";
                         <option value="MECH" <?= $branch_s == 'MECH' ? 'selected' : '' ?>>MECH</option>
                         <option value="CIVIL" <?= $branch_s == 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
                         <option value="BSH" <?= $branch_s == 'BSH' ? 'selected' : '' ?>>BSH</option>
+                        <?php endif; ?>
                     </select>
                     <button type="submit" name="submit_branch">Submit</button>
                 <?php endif; ?>
@@ -568,11 +598,15 @@ include_once "header_admin.php";
                         // Fetch files based on selected branch
                         if ($criteria == '1' && !empty($branch_s)) {
 
+                            $branch_bind = $branch_s;
+                            if ($dl_ctx && ($dl_ctx['role'] ?? '') === 'HOD' && !empty($dl_ctx['dept'])) {
+                                $branch_bind = $dl_ctx['dept'];
+                            }
                             $sql = "SELECT id, faculty_name, academic_year, branch, description, file_name, file_path, criteria_no
                             FROM files
-                            WHERE criteria = ? AND criteria_no = ? AND branch = ?";
+                            WHERE criteria = ? AND criteria_no = ? AND branch = ?" . $sc_files;
                             $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("sss", $criteria, $subCriteria, $branch_s);
+                            $stmt->bind_param("sss", $criteria, $subCriteria, $branch_bind);
                             $stmt->execute();
                             $result = $stmt->get_result();
 
@@ -603,7 +637,7 @@ include_once "header_admin.php";
                             ($criteria == '6' && !in_array($subCriteria, [CRIT_6_1_1_A, CRIT_6_1_1_F, CRIT_6_1_1_I]))
                         ) {
 
-                            $sql = "SELECT id, faculty_name, academic_year, file_name, file_path, description,criteria_no FROM files where criteria = ? and criteria_no =?";
+                            $sql = "SELECT id, faculty_name, academic_year, file_name, file_path, description,criteria_no FROM files where criteria = ? and criteria_no =?" . $sc_files;
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("ss", $criteria, $subCriteria);
                             $stmt->execute();
@@ -628,7 +662,7 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && in_array($subCriteria, [CRIT_5_1_1, CRIT_5_1_2])) {
 
                             $sql = "SELECT id, faculty_name, academic_year, scheme_name, gov_students, gov_amount, inst_students, inst_amount, ngo_students, ngo_amount, ngo_name, file_name,file_path
-                                        FROM files5_1_1and2 WHERE criteria_no=?";
+                                        FROM files5_1_1and2 WHERE criteria_no=?" . $sc_f5112;
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("s", $subCriteria);
                             $stmt->execute();
@@ -664,7 +698,7 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_3) {
 
                             $sql = "SELECT id, faculty_name, academic_year, programme_name, year, students_enrolled, agency_details, file_name, file_path
-                                        FROM files5_1_3";
+                                        FROM files5_1_3 WHERE 1=1 " . $sc_f513;
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
                             $result = $stmt->get_result();
@@ -691,9 +725,8 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_1_4) {
 
                             $sql = "SELECT id, faculty_name, academic_year, activity_exam, students_exam, career_details, students_career, students_placed, file_name,file_path
-                                        FROM files5_1_4 WHERE username = ?";
+                                        FROM files5_1_4 WHERE 1=1 " . $sc_f514;
                             $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("s", $username);
                             $stmt->execute();
                             $result = $stmt->get_result();
                             ?>
@@ -721,7 +754,7 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_1) {
 
                             $sql = "SELECT id, faculty_name, academic_year, student_name, programme, employer, pay, file_name ,file_path
-                                        FROM files5_2_1 ";
+                                        FROM files5_2_1 WHERE 1=1 " . $sc_f521;
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
                             $result = $stmt->get_result();
@@ -748,7 +781,7 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_2) {
 
                             $sql = "SELECT id, faculty_name, academic_year, student_name, programme, institution, admitted_programme, file_name, file_path
-                                        FROM files5_2_2 ";
+                                        FROM files5_2_2 WHERE 1=1 " . $sc_f522;
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
                             $result = $stmt->get_result();
@@ -775,7 +808,7 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_2_3) {
 
                             $sql = "SELECT id, username, faculty_name, academic_year, reg_no, exam, exam_status, file_name, file_path
-                                        FROM files5_2_3";
+                                        FROM files5_2_3 WHERE 1=1 " . $sc_f523;
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
                             $result = $stmt->get_result();
@@ -800,7 +833,7 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_3_1) {
 
                             $sql = "SELECT id, username, faculty_name, academic_year, award_name, participation_type, student_name, competition_level, event_name, month_year, file_name, file_path
-                                        FROM files5_3_1";
+                                        FROM files5_3_1 WHERE 1=1 " . $sc_f531;
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
                             $result = $stmt->get_result();
@@ -831,7 +864,7 @@ include_once "header_admin.php";
                         } elseif ($criteria == '5' && $subCriteria == CRIT_5_3_3) {
 
                             $sql = "SELECT id, username, faculty_name, academic_year, event_name, event_date, file_name, file_path
-                                        FROM files5_3_3";
+                                        FROM files5_3_3 WHERE 1=1 " . $sc_f533;
                             $stmt = $conn->prepare($sql);
                             $stmt->execute();
                             $result = $stmt->get_result();
@@ -853,7 +886,7 @@ include_once "header_admin.php";
                             }
                         } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_A) {
 
-                            $sql = "SELECT id, faculty_name, academic_year,branch,description, sem, section, file_name, file_path FROM files where criteria = ? and criteria_no =?";
+                            $sql = "SELECT id, faculty_name, academic_year,branch,description, sem, section, file_name, file_path FROM files where criteria = ? and criteria_no =?" . $sc_files;
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("ss", $criteria, $subCriteria);
                             $stmt->execute();
@@ -881,7 +914,7 @@ include_once "header_admin.php";
                             }
                         } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_F) {
 
-                            $sql = "SELECT id, faculty_name, academic_year,branch,description, ext_or_int, file_name, file_path FROM files where criteria = ? and criteria_no =?";
+                            $sql = "SELECT id, faculty_name, academic_year,branch,description, ext_or_int, file_name, file_path FROM files where criteria = ? and criteria_no =?" . $sc_files;
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("ss", $criteria, $subCriteria);
                             $stmt->execute();
@@ -907,7 +940,7 @@ include_once "header_admin.php";
                             }
                         } elseif ($criteria == '6' && $subCriteria == CRIT_6_1_1_I) {
 
-                            $sql = "SELECT id, faculty_name, academic_year,branch,description, file_name, file_path,criteria_no FROM files where criteria = ? and criteria_no =?";
+                            $sql = "SELECT id, faculty_name, academic_year,branch,description, file_name, file_path,criteria_no FROM files where criteria = ? and criteria_no =?" . $sc_files;
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("ss", $criteria, $subCriteria);
                             $stmt->execute();
