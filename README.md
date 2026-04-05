@@ -11,6 +11,7 @@ Web application for **GMRIT** (and similar setups): faculty and department file 
 - **Central** flows (NAAC, NBA, NCC, Sports, clubs, etc.) use `modules/central/` and `c_login_n.php` / `c_login.php` with event-based navigation.
 - **Unified dashboard** (`dashboard.php`) lists pending work by role; the main header can open it in a modal iframe and polls `check_notifications.php` for a badge count.
 - **Admin** area under `admin/` handles criteria uploads, bulk download/delete, and department entry via `admins.php`.
+- **Access control helpers** in `includes/dept_scope.php` scope listings and file actions by **faculty ownership** or **uploader department** (`reg_tab.dept`), and gate **path-based file views** so users cannot open arbitrary `uploads/` URLs.
 
 ---
 
@@ -56,6 +57,8 @@ FMS/
 │   ├── connection.php        # DB + base_url + session bootstrap + CSRF token seed
 │   ├── session.php           # Cookie parameters
 │   ├── csrf.php              # CSRF helpers
+│   ├── dept_scope.php        # Table→owner column, dept/faculty SQL fragments, row scope, file_path checks
+│   ├── constants.php         # Criteria labels and shared defines
 │   ├── header.php            # Shared navigation (Central / Department / Dashboard modal)
 │   └── send_email.php        # Mail helper
 ├── modules/
@@ -104,8 +107,11 @@ Notable concepts:
 ## Security notes (operator awareness)
 
 - **CSRF** is enforced on several POST flows (e.g. dashboard actions, some admin forms, central login form).
-- **Sensitive download/upload endpoints** require a logged-in session (e.g. some `admin/download.php`, `save_merged_pdf.php`, `view_file.php` patterns).
-- **File serving** for uploads should go through the app’s view scripts that restrict paths under `uploads/` where implemented.
+- **Dashboard** (`dashboard.php`) unions pending rows with **department-aware** filters for HOD / department coordinator / junior assistant (via `dept_scope.php`); approve/reject/re-upload checks the same row scope.
+- **Bulk download / delete** on `admin/download.php` and **`HOD/hod_fac_download.php`** resolve the correct upload table per criteria, filter lists and Excel exports by role (**faculty** = own uploads; **HOD / DC / Jr** = uploaders in `reg_tab` for that department; **admin** and **central coordinator** sessions = unfiltered on those pages), and allow delete/download only for rows the user is allowed to see.
+- **File viewing:** `admin/view_file.php` (with `file_path`), `HOD/view_file_hod.php`, `HOD/view_file.php` (faculty), and `modules/common/view_file1.php` resolve the path against the database and enforce the same ownership/dept rules (admin bypass where implemented). `a_files` lookups by `id` in `admin/view_file.php` are limited to the owning faculty unless `admin`.
+- **Merged PDF POST target:** from `admin/download.php` use **`admin/save_merged_pdf.php`** (same directory). From **`HOD/hod_fac_download.php`** the client posts to **`../admin/save_merged_pdf.php`**.
+- **Other download UIs** (`admin/download_cri.php`, `admin/download_cent.php`) use **`a_files` / `a_c_files`** — they are separate from the main `files` / `files5_*` flows; review those if you need the same dept/owner guarantees.
 - Passwords are handled **as stored in the database** (plain text in typical legacy flows). Treat the DB as sensitive and restrict access; prefer HTTPS in production.
 
 ---
@@ -121,8 +127,8 @@ Notable concepts:
 
 ## Utilities
 
-- **PDF merge:** `modules/common/pdf_merger.php` and related merge flows in admin.
-- **Merged PDF upload handlers:** `admin/save_merged_pdf.php`, `modules/common/save_merged_pdf.php` (session-protected).
+- **PDF merge:** `modules/common/pdf_merger.php` and merge actions in `admin/download.php` / `HOD/hod_fac_download.php` (browser-side PDF-lib + POST to `save_merged_pdf.php`).
+- **Merged PDF upload handlers:** `admin/save_merged_pdf.php`, `modules/common/save_merged_pdf.php` (session-protected; call the handler that matches your page directory).
 
 ---
 
