@@ -120,6 +120,7 @@ include_once "header_admin.php";
                 <th>Faculty Name</th>
                 <th>Academic Year</th>
                 <th>File Name</th>
+                        <th>Action</th>
                 <th>Criteria No</th>
             </tr>
         </thead>
@@ -146,7 +147,11 @@ include_once "header_admin.php";
 <?php endif; ?>
 
 <!-- JS for PDF merging -->
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous">
+        function viewSingleFile(filePath) {
+            window.open(filePath, '_blank');
+        }
+</script>
 <script>
     let selectedOrder = [];
 

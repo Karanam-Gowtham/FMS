@@ -117,7 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                 $stmt->execute();
             }
         }
-        echo "<script> alert('Records deleted successfully.'); window.location.href = '?dept=" . urlencode($dept) . "&catg=" . urlencode($catg) . "';</script>";
+        echo "<script> alert('Records deleted successfully.'); window.location.href = '?dept=" . urlencode($dept) . "&catg=" . urlencode($catg) . "';
+        function viewSingleFile(filePath) {
+            window.open('../common/view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
+        }
+</script>";
         exit;
     }
 

@@ -94,7 +94,11 @@ if (
                 unlink($safePath);
             }
         }
-        echo "<script>alert('Selected files deleted.'); </script>";
+        echo "<script>alert('Selected files deleted.'); 
+        function viewSingleFile(filePath) {
+            window.open(filePath, '_blank');
+        }
+</script>";
     }
 }
 
@@ -435,6 +439,7 @@ include_once "../../includes/header.php";
                         <th>File Type</th>
                         <th>Sub File Type </th>
                         <th>File Name</th>
+                        <th>Action</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -461,6 +466,7 @@ include_once "../../includes/header.php";
                         <td>" . htmlspecialchars($row['file_type']) . "</td>
                         <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
                         <td>" . htmlspecialchars($row['file_name']) . "</td>
+                        <td><button type='button' class='btn view-btn btn-sm' style='padding: 5px 10px; font-size: 12px; margin-right: 0;' onclick='viewSingleFile(\"" . htmlspecialchars(isset($fixed_path) ? $fixed_path : $file_path, ENT_QUOTES) . "\")\'>View</button></td>
                         <td style='color: $statusColor; font-weight: bold;'>" . htmlspecialchars($status) . "</td>
                     </tr>";
                     $id++;

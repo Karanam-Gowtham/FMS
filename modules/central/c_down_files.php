@@ -94,7 +94,11 @@ if (
         echo "<script>
                 alert('Selected files deleted.');
                 window.location.href = 'c_down_files.php?event=" . urlencode($event) . "';
-            </script>";
+            
+        function viewSingleFile(filePath) {
+            window.open(filePath, '_blank');
+        }
+</script>";
     }
 }
 
@@ -330,6 +334,7 @@ if (!empty($event)) {
 
             echo "<td>" . htmlspecialchars($row['event_name']) . "</td>
                   <td>" . htmlspecialchars($row['file_name']) . "</td>
+                        <td><button type='button' class='btn view-btn btn-sm' style='padding: 5px 10px; font-size: 12px; margin-right: 0;' onclick='viewSingleFile(\"" . htmlspecialchars(isset($fixed_path) ? $fixed_path : $file_path, ENT_QUOTES) . "\")\'>View</button></td>
                   <td class='center-cell'>
                         <select class='file-select' onchange='handleFileTypeChange(this, " . $row["id"] . ")' data-id='" . $row["id"] . "'>
                             <option value=''>Select File</option>

@@ -81,7 +81,11 @@ function handleBulkDelete($conn, $selectedFiles, $tableName, $fileColumn, $usern
             $stmt->execute();
         }
     }
-    echo "<script>alert('Records deleted successfully.'); window.location.href = window.location.href;</script>";
+    echo "<script>alert('Records deleted successfully.'); window.location.href = window.location.href;
+        function viewSingleFile(filePath) {
+            window.open('view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
+        }
+</script>";
     exit;
 }
 

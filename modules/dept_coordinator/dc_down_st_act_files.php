@@ -67,7 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $stmt->execute();
         }
 
-        echo "<script>alert('Records deleted successfully.'); window.location.href = window.location.href;</script>";
+        echo "<script>alert('Records deleted successfully.'); window.location.href = window.location.href;
+        function viewSingleFile(filePath) {
+            window.open('../common/view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
+        }
+</script>";
         exit;
     } elseif ($action === 'download') {
         if (ob_get_length()) {

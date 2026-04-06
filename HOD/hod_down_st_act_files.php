@@ -91,7 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     readfile($filePath);
                     exit;
                 } else {
-                    echo "<script>alert('File not found.'); window.location.href = window.location.href;</script>";
+                    echo "<script>alert('File not found.'); window.location.href = window.location.href;
+        function viewSingleFile(filePath) {
+            window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
+        }
+</script>";
                     exit;
                 }
             }
