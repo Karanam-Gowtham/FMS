@@ -174,9 +174,14 @@ function fms_verify_file_path_access(mysqli $conn, string $rawPath, string $role
     $rel = fms_normalize_uploads_relative_path($rawPath);
     $variants = [$rel];
     if (strpos($rel, 'uploads/') === 0) {
-        $variants[] = substr($rel, strlen('uploads/'));
+        $tail = substr($rel, strlen('uploads/'));
+        $variants[] = $tail;
+        $variants[] = '../uploads/' . $tail;
+        $variants[] = '../../uploads/' . $tail;
     } else {
         $variants[] = 'uploads/' . $rel;
+        $variants[] = '../uploads/' . $rel;
+        $variants[] = '../../uploads/' . $rel;
     }
     $variants = array_values(array_unique($variants));
 

@@ -460,6 +460,14 @@ include_once "../../includes/header.php";
     </div>
 
     <script>
+        function viewSingleFile(filePath) {
+            if (!filePath) {
+                alert('File path not available.');
+                return;
+            }
+            window.open(filePath, '_blank');
+        }
+
         let selectedOrder = [];
 
         function trackOrder(event) {
@@ -492,7 +500,9 @@ include_once "../../includes/header.php";
 
             checkboxes.forEach(cb => {
                 const filePath = cb.dataset.filepath;
-                window.open(filePath, '_blank');
+                if (filePath) {
+                    viewSingleFile(filePath);
+                }
             });
         }
 

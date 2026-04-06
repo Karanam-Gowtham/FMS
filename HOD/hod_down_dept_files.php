@@ -109,11 +109,16 @@ include_once "header_hod.php";
 <head>
     <meta charset="UTF-8">
     <title>Retrieve Files</title>
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
+    <script>
         function viewSingleFile(filePath) {
+            if (!filePath) {
+                alert('File path not available.');
+                return;
+            }
             window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
         }
-</script>
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
@@ -361,7 +366,6 @@ include_once "header_hod.php";
                         <th>Branch</th>
                         <th>File Type</th>
                         <th>File Name</th>
-                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>";
@@ -374,7 +378,6 @@ include_once "header_hod.php";
                     <td>" . htmlspecialchars((string)$selected_branch) . "</td>
                     <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
                     <td>" . htmlspecialchars($row['file_name']) . "</td>
-                        <td><button type='button' class='btn view-btn btn-sm' style='padding: 5px 10px; font-size: 12px; margin-right: 0;' onclick='viewSingleFile(\"" . htmlspecialchars(isset($fixed_path) ? $fixed_path : $file_path, ENT_QUOTES) . "\")\'>View</button></td>
                 </tr>";
                 }
 
@@ -404,7 +407,9 @@ include_once "header_hod.php";
             }
             for (const cb of checkboxes) {
                 const filePath = cb.dataset.filepath;
-                window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
+                if (filePath) {
+                    viewSingleFile(filePath);
+                }
                 await new Promise(r => setTimeout(r, 100));
             }
         }

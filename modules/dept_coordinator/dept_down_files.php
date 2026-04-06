@@ -491,6 +491,14 @@ include_once "../../includes/header.php";
     </div>
 
     <script>
+        function viewSingleFile(filePath) {
+            if (!filePath) {
+                alert('File path not available.');
+                return;
+            }
+            window.open(filePath, '_blank');
+        }
+
         function viewSelectedFiles() {
             const checkboxes = document.querySelectorAll("input[name='selected_files[]']:checked");
             if (checkboxes.length === 0) {
@@ -500,7 +508,9 @@ include_once "../../includes/header.php";
 
             checkboxes.forEach(cb => {
                 const filePath = cb.dataset.filepath;
-                window.open(filePath, '_blank');
+                if (filePath) {
+                    viewSingleFile(filePath);
+                }
             });
         }
 

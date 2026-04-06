@@ -1,4 +1,5 @@
-﻿include_once 'includes/session.php';
+<?php
+include_once 'includes/session.php';
 // Fallback: If session is empty but cookie exists, try to re-attach (though session_start does this usually)
 // The issue might be that iframe considers it a separate context if cookies are strict.
 // For now, let's assume standard session behavior.
@@ -714,6 +715,7 @@ if ($result) {
                                 </td>
                                 <td>
                                     <?php
+                                    $can_act = false;
                                     if (($role == 'Dept_Coordinator' || $role == 'Jr_Assistant') && $file['status'] == STATUS_PENDING_DEPT_COORD) {
                                         $can_act = true;
                                     }
@@ -767,7 +769,7 @@ if ($result) {
             <button type="button" class="close" onclick="closeRejectModal()" aria-label="Close" style="background:none;border:none;cursor:pointer;">&times;</button>
             <h3>Reject File</h3>
             <form method="POST">
-                <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                 <input type="hidden" name="file_id" id="reject_file_id">
                 <input type="hidden" name="table_name" id="reject_table_name">
                 <input type="hidden" name="action" value="reject">
@@ -786,7 +788,7 @@ if ($result) {
             <button type="button" class="close" onclick="closeReuploadModal()" aria-label="Close" style="background:none;border:none;cursor:pointer;">&times;</button>
             <h3>Re-upload File</h3>
             <form method="POST" enctype="multipart/form-data">
-                <?php echo csrf_field(); ?>
+                <?php echo csrfField(); ?>
                 <input type="hidden" name="file_id" id="reupload_file_id">
                 <input type="hidden" name="table_name" id="reupload_table_name">
                 <input type="hidden" name="action" value="reupload">

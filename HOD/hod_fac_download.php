@@ -6,6 +6,14 @@ if (session_status() === PHP_SESSION_NONE) {
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+ob_start(function ($buffer) {
+    return preg_replace(
+        "/value='([^']*) data-filepath='([^']*)'/",
+        "value='$1' data-filepath='$2'",
+        $buffer
+    );
+});
+
 require_once "../includes/constants.php";
 require_once __DIR__ . "/../includes/dept_scope.php";
 
@@ -349,8 +357,24 @@ if (isset($_POST['download_excel'])) {
     <script>
         let selectedOrder = [];
 
+        function normalizeFilePath(filePath) {
+            if (!filePath) {
+                return '';
+            }
+            return String(filePath).replace(/\\/g, '/');
+        }
+
+        function viewSingleFile(filePath) {
+            const normalizedPath = normalizeFilePath(filePath);
+            if (!normalizedPath) {
+                alert('Please select a file to view.');
+                return;
+            }
+            window.open('view_file_hod.php?file_path=' + encodeURIComponent(normalizedPath), '_blank');
+        }
+
         function trackOrder(event) {
-            const filePath = event.target.dataset.filepath;
+            const filePath = normalizeFilePath(event.target.dataset.filepath);
             if (event.target.checked) {
                 selectedOrder.push(filePath);
             } else {
@@ -365,12 +389,12 @@ if (isset($_POST['download_excel'])) {
         }
 
         function openFile() {
-            let filePath = selectedOrder[0];
+            const filePath = normalizeFilePath(selectedOrder[0]);
             if (!filePath) {
                 alert("Please select a file to view.");
                 return;
             }
-            window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
+            viewSingleFile(filePath);
         }
 
         function toggleSelectAll(source) {
@@ -394,7 +418,7 @@ if (isset($_POST['download_excel'])) {
             for (const fileUrl of selectedOrder) {
                 try {
                     // Add ../ to the file path
-                    const fixedFileUrl = `../${fileUrl}`;
+                    const fixedFileUrl = `../${normalizeFilePath(fileUrl)}`;
                     console.log("Fetching file:", fixedFileUrl);
                     const response = await fetch(fixedFileUrl);
                     if (!response.ok) {

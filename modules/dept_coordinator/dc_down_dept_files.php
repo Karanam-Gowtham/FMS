@@ -25,6 +25,14 @@ if (isset($_GET['dept'])) {
 
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
+        function viewSingleFile(filePath) {
+            if (!filePath) {
+                alert('File path not available.');
+                return;
+            }
+            window.open(filePath, '_blank');
+        }
+
     isset($_POST['selected_files']) &&
     is_array($_POST['selected_files']) &&
     isset($_POST['action'])
@@ -33,7 +41,9 @@ if (
     $files = $_POST['selected_files'];
 
     function getSafePathDcDown($fileStr) {
-        $filename = basename(htmlspecialchars_decode(urldecode($fileStr), ENT_QUOTES));
+                if (filePath) {
+                    viewSingleFile(filePath);
+                }
         $dirs = ['../../uploads/', '../../uploads1/', '../uploads/', '../uploads1/', 'uploads/', 'uploads1/'];
         foreach ($dirs as $dir) {
             if (file_exists($dir . $filename) && is_file($dir . $filename)) {

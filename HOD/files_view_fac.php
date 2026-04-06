@@ -297,8 +297,10 @@ function displayFiles($result, $show_section, $show_semester, $show_branch, $sho
             $uploadedAt = new DateTime($row['uploaded_at']);
             echo "<td>" . $uploadedAt->format(DATE_FORMAT_DMY . ' & H:i:s') . "</td>";
             $fp = rawurlencode(str_replace('\\', '/', (string) ($row['file_path'] ?? '')));
-            echo "<td><a href='view_file_hod.php?file_path=" . $fp . "' target='_blank' rel='noopener'><button type='button' id='view' class='btn1'>View</button></a></td>";
-            echo "<td><a href='" . htmlspecialchars('../' . $row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
+            $viewHref = 'view_file_hod.php?file_path=' . $fp;
+            $downloadHref = '../' . ltrim((string) ($row['file_path'] ?? ''), '/');
+            echo "<td><a href='" . htmlspecialchars($viewHref, ENT_QUOTES, 'UTF-8') . "' target='_blank' rel='noopener' class='btn1' id='view'>View</a></td>";
+            echo "<td><a href='" . htmlspecialchars($downloadHref, ENT_QUOTES, 'UTF-8') . "' download class='btn1' id='down'>Download</a></td>";
             echo "</tr>";
         }
     } else {

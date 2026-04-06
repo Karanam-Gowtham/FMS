@@ -222,8 +222,10 @@ if (isset($_GET['download_excel'])) {
                     echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
                     echo "<td>" . $formattedDateTime . "</td>";
                     echo "<td>" . htmlspecialchars($row['criteria']) . "</td>"; // Display criteria_no
-                    echo "<td><a href='../admin/view_file.php?id=" . htmlspecialchars($row['id']) . "'><button class='btn1' id='view'>View</button></a></td>";
-                    echo "<td><a href='" . htmlspecialchars('../admin/' . $row['file_path']) . "' download><button class='btn1' id='down'>Download</button></a></td>";
+                    $viewHref = '../admin/view_file.php?id=' . urlencode((string) $row['id']);
+                    $downloadHref = '../admin/' . ltrim((string) $row['file_path'], '/');
+                    echo "<td><a href='" . htmlspecialchars($viewHref, ENT_QUOTES, 'UTF-8') . "' class='btn1' id='view'>View</a></td>";
+                    echo "<td><a href='" . htmlspecialchars($downloadHref, ENT_QUOTES, 'UTF-8') . "' download class='btn1' id='down'>Download</a></td>";
                     echo "</tr>";
                 }
             } else {
