@@ -308,8 +308,7 @@ include_once "header_hod.php";
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
                         class="home-icon">HOD</a></span>
-                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Dept_Files(Student
-                        activities) </a></span>
+                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Dept_Files(Student activities)</span></span>
             </div>
         </div>
     </nav>
@@ -430,4 +429,4 @@ include_once "header_hod.php";
 </body>
 
 </html>
-
+

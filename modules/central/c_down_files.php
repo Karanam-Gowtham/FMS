@@ -272,7 +272,7 @@ include_once "../../includes/header.php";
             </a>
             <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../../index.php" class="home-icon">Central</a></span>
             <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_upload.php?event=<?php echo urlencode($event) ?>" class="home-icon"><?php echo htmlspecialchars($event) ?></a></span>
-            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($selected_file_type) ?><?php echo htmlspecialchars($event) ?> Files</a></span>
+            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a"><?php echo htmlspecialchars($selected_file_type) ?><?php echo htmlspecialchars($event) ?> Files</span></span>
             <span class="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>

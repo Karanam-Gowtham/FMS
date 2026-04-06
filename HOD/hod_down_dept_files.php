@@ -176,21 +176,6 @@ include_once "header_hod.php";
             color: #333;
         }
 
-        .filter-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s ease-in-out;
-        }
-
-        .filter-button:hover {
-            background-color: #0056b3;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -329,11 +314,9 @@ include_once "header_hod.php";
 
     <div class="container11">
         <h1>Retrieve <?php echo htmlspecialchars($action1); ?> Files</h1>
-        <div class="filter-section">
-            <form method="POST" class="filter-form">
-                <?php if ($selected_branch): ?>
-                    <input type="hidden" name="selected_branch" value="<?php echo htmlspecialchars($selected_branch); ?>">
-                <?php else: ?>
+        <?php if (!$selected_branch): ?>
+            <div class="filter-section">
+                <form method="POST" class="filter-form">
                     <label for="selected_branch">Select Department:</label>
                     <select name="selected_branch" id="selected_branch" required onchange="this.form.submit()">
                         <option value="" disabled selected>-- Select Branch --</option>
@@ -347,10 +330,10 @@ include_once "header_hod.php";
                         <option value="CIVIL">CIVIL</option>
                         <option value="BSH">BSH</option>
                     </select>
-                <?php endif; ?>
-                <input type="hidden" name="file_type1" value="<?= htmlspecialchars($action1) ?>">
-            </form>
-        </div>
+                    <input type="hidden" name="file_type1" value="<?= htmlspecialchars($action1) ?>">
+                </form>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="container111">

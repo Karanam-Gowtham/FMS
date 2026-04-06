@@ -496,8 +496,7 @@ include_once "../../includes/header.php";
                     class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
             <span>&nbsp; >> &nbsp; </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
                     class="home-icon"> Faculty </a></span>
-            <span>&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> My Achievements
-                </a></span>
+            <span>&nbsp; >> &nbsp; </span><span class="main"><span class="main-a">My Achievements</span></span>
             <span>&nbsp; >> &nbsp; </span>
         </div>
     </div>

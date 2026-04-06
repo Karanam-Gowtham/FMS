@@ -137,7 +137,7 @@ include_once 'header_hod.php';
                     </svg>
                 </a>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year_aa.php" class="home-icon">Admin</a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Criteria Select</a></span>
+                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Criteria Select</span></span>
             </div>
         </div>
     </nav>

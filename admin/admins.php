@@ -349,7 +349,7 @@ include_once 'header_admin.php';
                 </svg>
             </a>
             <span class="sp">&nbsp; >> &nbsp;</span>
-            <span class="main"> <a href="#" class="main-a">Department(<?php echo htmlspecialchars((string)$dept); ?>)</a></span>
+            <span class="main"><span class="main-a">Department(<?php echo htmlspecialchars((string)$dept); ?>)</span></span>
         </div>
     </div>
 </nav>

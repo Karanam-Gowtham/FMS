@@ -302,8 +302,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span class="sp">&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Faculty </a></span>
-                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
-                        <?php echo htmlspecialchars($event); ?> </a></span>
+                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"><span class="main-a"><?php echo htmlspecialchars($event); ?></span></span>
                 <span class="sp">&nbsp; >> &nbsp; </span>
             </div>
         </div>
@@ -387,4 +386,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </html>
 
-$conn->close();
+$conn->close();

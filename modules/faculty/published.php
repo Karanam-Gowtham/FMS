@@ -178,8 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                         href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Published
-                        Papers</a></span>
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Published Papers</span></span>
             </div>
         </div>
     </nav>
@@ -242,4 +241,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </html>
 <?php $conn->close(); ?>
-
+

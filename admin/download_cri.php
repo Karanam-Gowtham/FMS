@@ -379,7 +379,7 @@ include_once "header_admin.php";
                 <span class="sid">&nbsp; >> &nbsp;</span>
                 <span class="sid"><a href="criteria_cri_a.php?year=<?php echo urlencode($academic_year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?></a></span>
                 <span class="sid">&nbsp; >> &nbsp;</span>
-                <span class="main"><a href="#" class="main-a">Uploaded Files</a></span>
+                <span class="main"><span class="main-a">Uploaded Files</span></span>
             </div>
         </div>
     </nav>

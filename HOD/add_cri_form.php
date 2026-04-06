@@ -123,7 +123,7 @@ include_once "./header_hod.php";
                 </a>
                 <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="sid"> <a href="admin_criteria.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>&criteria=<?php echo urlencode($criteria); ?>&year=<?php echo urlencode($year); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?>  </a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Add Criteria</a></span>
+                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Add Criteria</span></span>
             </div>
         </div>
     </nav>

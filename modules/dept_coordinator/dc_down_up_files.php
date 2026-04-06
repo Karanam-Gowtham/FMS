@@ -218,21 +218,6 @@ include_once "../../includes/header.php";
             color: #333;
         }
 
-        .filter-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s ease-in-out;
-        }
-
-        .filter-button:hover {
-            background-color: #0056b3;
-        }
-
         #mergeBtn.active {
             color: white;
             font-weight: bold;

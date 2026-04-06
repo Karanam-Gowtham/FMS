@@ -333,8 +333,7 @@ include_once "../../includes/header.php";
                     <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                             href="dc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon">dept_coordinator</a></span>
                 <?php endif; ?>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a">Dept_Files(Student
-                        activities) </a></span>
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Dept_Files(Student activities)</span></span>
                 <span class="sp">&nbsp; >> &nbsp;</span>
             </div>
         </div>

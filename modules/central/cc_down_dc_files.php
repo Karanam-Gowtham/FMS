@@ -260,7 +260,7 @@ include_once "../../includes/header.php";
             </a>
             <span class="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
             <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="cc_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>&designation=<?php echo urlencode($desg); ?>" class="home-icon"><?php echo htmlspecialchars($desg); ?></a></span>
-            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"><?php echo htmlspecialchars($selected_file_type) ?>_Files</a></span>
+            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a"><?php echo htmlspecialchars($selected_file_type) ?>_Files</span></span>
             <span class="sp">&nbsp; >> &nbsp;</span>
         </div>
     </div>

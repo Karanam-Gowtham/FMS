@@ -206,7 +206,7 @@ foreach ($years as $y) {
                     </svg>
                 </a>
                 <span>&nbsp; >> &nbsp;  </span><span class="sid"><a href="../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"> <a href="#" class="main-a"> HOD </a></span>
+                <span id="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">HOD</span></span>
             </div>
         </div>
     </nav>

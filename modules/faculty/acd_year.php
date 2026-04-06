@@ -193,7 +193,7 @@ include_once '../../includes/header.php';
                 <span>&nbsp; >> &nbsp; </span><span class="sid"><a
                         href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Faculty </a></span>
+                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"><span class="main-a">Faculty</span></span>
             </div>
         </div>
     </nav>
@@ -304,4 +304,4 @@ include_once '../../includes/header.php';
     <script src="script.js"></script>
 </body>
 
-</html>
+</html>

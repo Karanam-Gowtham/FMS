@@ -218,21 +218,6 @@ include_once "../../includes/header.php";
             color: #333;
         }
 
-        .filter-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s ease-in-out;
-        }
-
-        .filter-button:hover {
-            background-color: #0056b3;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -337,7 +322,7 @@ include_once "../../includes/header.php";
                             href="../faculty/acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon"> Faculty
                         </a></span>
                 <?php endif; ?>
-                <span>&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> My Dept Files </a></span>
+                <span>&nbsp; >> &nbsp; </span><span class="main"><span class="main-a">My Dept Files</span></span>
                 <span>&nbsp; >> &nbsp; </span>
             </div>
         </div>

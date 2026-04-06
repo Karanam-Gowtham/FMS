@@ -444,8 +444,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $display_event = ucfirst($event) . ' Files';
                 }
                 ?>
-                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"> <a href="#" class="main-a">
-                        <?php echo htmlspecialchars($display_event); ?> </a></span>
+                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"><span class="main-a"><?php echo htmlspecialchars($display_event); ?></span></span>
                 <span class="sp">&nbsp; >> &nbsp; </span>
             </div>
         </div>
@@ -540,4 +539,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php
 $conn->close();
 ?>
-
+

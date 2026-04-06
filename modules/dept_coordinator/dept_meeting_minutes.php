@@ -282,7 +282,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </a>
                 <span class="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span class="sp">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../jr_assistant/jr_acd_year.php?dept=<?php echo urlencode((string)$dept); ?>" class="home-icon"> Jr Assistant </a></span>
-                <span class="sp">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a"> <?php echo htmlspecialchars($event); ?> </a></span>
+                <span class="sp">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a"><?php echo htmlspecialchars($event); ?></span></span>
                 <span class="sp">&nbsp;  >> &nbsp; </span>
             </div>
         </div>

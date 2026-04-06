@@ -201,7 +201,7 @@ $conn->close();
                     </svg>
                 </a>
                 <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="#" class="main-a">Add Academic Year</a></span>
+                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Add Academic Year</span></span>
                 <span class="sid">&nbsp;  >> &nbsp; </span>
             </div>
         </div>
