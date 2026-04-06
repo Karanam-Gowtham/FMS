@@ -335,7 +335,7 @@ include_once "header_hod.php";
                     <input type="hidden" name="selected_branch" value="<?php echo htmlspecialchars($selected_branch); ?>">
                 <?php else: ?>
                     <label for="selected_branch">Select Department:</label>
-                    <select name="selected_branch" id="selected_branch" required>
+                    <select name="selected_branch" id="selected_branch" required onchange="this.form.submit()">
                         <option value="" disabled selected>-- Select Branch --</option>
                         <option value="CSE">CSE</option>
                         <option value="AIML">AIML</option>
@@ -349,7 +349,6 @@ include_once "header_hod.php";
                     </select>
                 <?php endif; ?>
                 <input type="hidden" name="file_type1" value="<?= htmlspecialchars($action1) ?>">
-                <button type="submit" class="filter-button">Show Files</button>
             </form>
         </div>
     </div>
@@ -429,4 +428,4 @@ include_once "header_hod.php";
     </script>
 </body>
 
-</html>
+</html>

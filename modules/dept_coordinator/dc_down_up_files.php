@@ -396,7 +396,7 @@ include_once "../../includes/header.php";
         <div class="filter-section">
             <form method="POST" class="filter-form">
                 <label for="selected_file_type">Select File Type:</label>
-                <select name="selected_file_type" id="selected_file_type" required>
+                <select name="selected_file_type" id="selected_file_type" required onchange="this.form.submit()">
                     <option value="" disabled selected>-- Select File Type --</option>
                     <?php
                     foreach ($file_options as $option) {
@@ -405,7 +405,6 @@ include_once "../../includes/header.php";
                     }
                     ?>
                 </select>
-                <button type="submit" class="filter-button">Show Files</button>
             </form>
         </div>
     </div>
@@ -556,4 +555,4 @@ include_once "../../includes/header.php";
 
 </body>
 
-</html>
+</html>
