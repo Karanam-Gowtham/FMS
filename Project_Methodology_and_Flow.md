@@ -12,7 +12,7 @@ The **Faculty Management System (FMS)** is built using a **Modular Development M
 *   **Modular Architecture:** The system is divided into independent modules for different user roles (Faculty, Dept Coordinator, HOD, Admin, Central Coordinator) to ensure scalability and ease of maintenance.
 *   **User-Centric Design:** Workflows are designed to mirror the actual administrative processes of an educational institution, moving from individual faculty contributions to institutional-level oversight.
 *   **Data Integrity:** A multi-tier verification process ensures that all uploaded documents are reviewed and approved before becoming part of official records.
-*   **Security-First:** Implementation of CSRF protection, secure session management, and department-level data isolation to prevent unauthorized access.
+*   **Security-First:** Secure session management and department-level data isolation are used to reduce unauthorized access risk.
 
 ### 1.2 Core Components & Logic
 1.  **Centralized Data Repository:** All academic and administrative files are stored in a structured directory (`uploads/`) with metadata indexed in a MySQL database.

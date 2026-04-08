@@ -24,7 +24,7 @@ Web application for **GMRIT** (and similar setups): faculty and department file 
 | Database | MySQL / MariaDB, database name `project-fms` |
 | DB API | `mysqli` with prepared statements in many paths |
 | Sessions | PHP sessions; `includes/session.php` sets secure cookie flags when used |
-| CSRF | `includes/csrf.php` — tokens on protected POST forms |
+| CSRF | Not used; legacy helper retained as a no-op compatibility shim |
 | Email | Optional notifications via `includes/send_email.php` (e.g. faculty CSE throttle in `check_notifications.php`) |
 
 **Configuration:** edit `includes/connection.php` for DB host, user, password, database name, and `$base_url` (must match your deployed URL path, e.g. `http://localhost/mini/FMS/`).
@@ -54,9 +54,9 @@ FMS/
 ├── dashboard.php             # Role-based pending files, approve/reject/re-upload
 ├── check_notifications.php   # JSON count for header badge (+ optional email)
 ├── includes/
-│   ├── connection.php        # DB + base_url + session bootstrap + CSRF token seed
+│   ├── connection.php        # DB + base_url + session bootstrap
 │   ├── session.php           # Cookie parameters
-│   ├── csrf.php              # CSRF helpers
+│   ├── csrf.php              # Legacy no-op helper compatibility shim
 │   ├── dept_scope.php        # Table→owner column, dept/faculty SQL fragments, row scope, file_path checks
 │   ├── constants.php         # Criteria labels and shared defines
 │   ├── header.php            # Shared navigation (Central / Department / Dashboard modal)
@@ -106,7 +106,7 @@ Notable concepts:
 
 ## Security notes (operator awareness)
 
-- **CSRF** is enforced on several POST flows (e.g. dashboard actions, some admin forms, central login form).
+- **CSRF** protection is not currently enforced; legacy helper calls are inert.
 - **Dashboard** (`dashboard.php`) unions pending rows with **department-aware** filters for HOD / department coordinator / junior assistant (via `dept_scope.php`); approve/reject/re-upload checks the same row scope.
 - **Bulk download / delete** on `admin/download.php` and **`HOD/hod_fac_download.php`** resolve the correct upload table per criteria, filter lists and Excel exports by role (**faculty** = own uploads; **HOD / DC / Jr** = uploaders in `reg_tab` for that department; **admin** and **central coordinator** sessions = unfiltered on those pages), and allow delete/download only for rows the user is allowed to see.
 - **File viewing:** `admin/view_file.php` (with `file_path`), `HOD/view_file_hod.php`, `HOD/view_file.php` (faculty), and `modules/common/view_file1.php` resolve the path against the database and enforce the same ownership/dept rules (admin bypass where implemented). `a_files` lookups by `id` in `admin/view_file.php` are limited to the owning faculty unless `admin`.

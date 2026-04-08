@@ -207,9 +207,6 @@ function serveZip($zipFilePath, $zipFileName) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die("CSRF token validation failed.");
-    }
     $action = $_POST['action'];
     $selectedFiles = $_POST['selected_files'];
     $category = preg_replace('/\W/', '', $_POST['category']);
@@ -409,7 +406,7 @@ function renderFdpsOrganized($conn, $username) {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
-        echo "<form method='POST' action=''><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='fdps_org'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Title</th><th>Date From</th><th>Date To</th><th>Organised By</th><th>Location</th></tr>";
+        echo "<form method='POST' action=''><input type='hidden' name='category' value='fdps_org'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Title</th><th>Date From</th><th>Date To</th><th>Organised By</th><th>Location</th></tr>";
         while ($row = $result->fetch_assoc()) {
             $files_to_merge = array_filter([fixPath($row['brochure']), fixPath($row['fdp_schedule_invitation']), fixPath($row['attendance_forms']), fixPath($row['feedback_forms']), fixPath($row['fdp_report']), fixPath($row['photo1']), fixPath($row['photo2']), fixPath($row['photo3']), fixPath($row['certificate'])], fn($f) => strlen($f) > 3);
             $files_json = str_replace('"', HTM_QUOT, json_encode(array_values($files_to_merge), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -431,7 +428,7 @@ function renderPublishedPapers($conn, $username) {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
-        echo "<form method='POST' action=''><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='published'><input type='hidden' name='table' value='published_tab'><input type='hidden' name='file_column' value='paper_file'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Paper Title</th><th>Journal Name</th><th>Indexing</th><th>Date of Submission</th><th>Quality Factor</th><th>Impact Factor</th><th>Payment</th></tr>";
+        echo "<form method='POST' action=''><input type='hidden' name='category' value='published'><input type='hidden' name='table' value='published_tab'><input type='hidden' name='file_column' value='paper_file'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Paper Title</th><th>Journal Name</th><th>Indexing</th><th>Date of Submission</th><th>Quality Factor</th><th>Impact Factor</th><th>Payment</th></tr>";
         while ($row = $result->fetch_assoc()) {
             $paperFilePath = fixPath($row["paper_file"]);
             $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$paperFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
@@ -451,7 +448,7 @@ function renderConferencePapers($conn, $username) {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
-        echo "<form method='POST' action=''><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='conference'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Paper Title</th><th>From Date</th><th>To Date</th><th>Organised By</th><th>Location</th><th>Paper Type</th></tr>";
+        echo "<form method='POST' action=''><input type='hidden' name='category' value='conference'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Paper Title</th><th>From Date</th><th>To Date</th><th>Organised By</th><th>Location</th><th>Paper Type</th></tr>";
         while ($row = $result->fetch_assoc()) {
             $certificatePath = fixPath($row["certificate_path"]);
             $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$certificatePath, fixPath($row["paper_file_path"])], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
@@ -471,7 +468,7 @@ function renderPatents($conn, $username) {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
-        echo "<form method='POST' action='' enctype='multipart/form-data'><input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'><input type='hidden' name='category' value='patents'><input type='hidden' name='table_name' value='patents_table'><input type='hidden' name='file_column' value='patent_file'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Patent Title</th><th>Date of Issue</th></tr>";
+        echo "<form method='POST' action='' enctype='multipart/form-data'><input type='hidden' name='category' value='patents'><input type='hidden' name='table_name' value='patents_table'><input type='hidden' name='file_column' value='patent_file'><table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Academic Year</th><th>Patent Title</th><th>Date of Issue</th></tr>";
         while ($row = $result->fetch_assoc()) {
             $patentFilePath = fixPath($row["patent_file"]);
             $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$patentFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));

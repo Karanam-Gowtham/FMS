@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
         'domain' => '',
         'secure' => (bool)$isSecure, // SECURE_ONLY: Allow HTTP for localhost development, enforce Secure on HTTPS connections
         'httponly' => true,        // Prevent JavaScript access to session cookie
-        'samesite' => 'Lax',       // CSRF mitigation
+        'samesite' => 'Lax',       // Cross-site cookie restriction
     ]);
     
     session_start();

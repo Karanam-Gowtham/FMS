@@ -8,7 +8,6 @@ if (!$conn) {
 
 $base_url = "http://localhost/mini/FMS/";
 
-// CSRF Protection
 // Centralized Session Initialization
 $session_file = __DIR__ . '/session.php';
 if (file_exists($session_file)) {
@@ -17,7 +16,4 @@ if (file_exists($session_file)) {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-}
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
