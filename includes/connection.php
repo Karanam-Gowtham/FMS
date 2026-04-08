@@ -15,7 +15,9 @@ if (!$conn) {
 }
 
 // Set base_url dynamically (Local vs Cloud)
-if (getenv('RAILWAY_STATIC_URL')) {
+if (getenv('RENDER_EXTERNAL_URL')) {
+    $base_url = getenv('RENDER_EXTERNAL_URL') . "/";
+} elseif (getenv('RAILWAY_STATIC_URL')) {
     $base_url = "https://" . getenv('RAILWAY_STATIC_URL') . "/";
 } else {
     $base_url = "http://localhost/mini/FMS/";
