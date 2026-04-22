@@ -69,10 +69,6 @@ $action = '';
 ob_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
-    // CSRF Check
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die("CSRF token validation failed.");
-    }
     $action = $_POST['action'];
     $selectedFiles = $_POST['selected_files'];
     $category = $_POST['category'];
@@ -348,7 +344,6 @@ include_once "header_hod.php";
                     $result = $stmt->get_result();
                     if ($result->num_rows > 0) {
                         echo "<form method='POST' action=''>
-                            <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                             <input type='hidden' name='category' value='fdps'>
                             <table border='1'>
                                 <tr>
@@ -390,8 +385,7 @@ include_once "header_hod.php";
 
                 case 'fdps_org':
                     echo "<div class='container11'><h2>FDPs Organised</h2>";
-                    echo "<form method='POST' class='ex_b'>
-                            <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
+                        echo "<form method='POST' class='ex_b'>
                             <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                             <button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button>
                           </form>";
@@ -402,7 +396,6 @@ include_once "header_hod.php";
                     $result = $stmt->get_result();
                     if ($result->num_rows > 0) {
                         echo "<form method='POST' action=''>
-                            <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                             <input type='hidden' name='category' value='fdps_org'>
                             <table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Title</th><th>Date From</th><th>Date To</th><th>Organised By</th><th>Location</th></tr>";
                         while ($row = $result->fetch_assoc()) {
@@ -456,7 +449,6 @@ include_once "header_hod.php";
                     $result = $stmt->get_result();
                     if ($result->num_rows > 0) {
                         echo "<form method='POST' action=''>
-                            <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                             <input type='hidden' name='category' value='published'>
                             <table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Paper Title</th><th>Journal</th><th>Indexing</th><th>Submission</th><th>Quality</th><th>Impact</th><th>Payment</th></tr>";
                         while ($row = $result->fetch_assoc()) {
@@ -482,7 +474,6 @@ include_once "header_hod.php";
                     $result = $stmt->get_result();
                     if ($result->num_rows > 0) {
                         echo "<form method='POST' action=''>
-                            <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                             <input type='hidden' name='category' value='conference'>
                             <table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Paper Title</th><th>From</th><th>To</th><th>Organised By</th><th>Location</th><th>Type</th></tr>";
                         while ($row = $result->fetch_assoc()) {
@@ -510,7 +501,6 @@ include_once "header_hod.php";
                     $result = $stmt->get_result();
                     if ($result->num_rows > 0) {
                         echo "<form method='POST' action=''>
-                            <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                             <input type='hidden' name='category' value='patents'>
                             <table border='1'><tr><th><input type='checkbox' onclick='toggleSelectAll(this)'></th><th>Username</th><th>Branch</th><th>Title</th><th>Date Issue</th></tr>";
                         while ($row = $result->fetch_assoc()) {

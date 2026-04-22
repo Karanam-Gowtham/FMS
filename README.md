@@ -4,14 +4,30 @@ A premium, role-based document management solution designed for **GMRIT** and hi
 
 ---
 
-## ✨ Key Features
+## What it does
 
-- **🎯 Intelligent Dashboard**: A unified, role-aware dashboard that dynamically lists pending tasks. It features real-time badge counts and asynchronous notification polling.
-- **📄 Instant File Previews**: Integrated "View" buttons across all file management tables allow instant PDF and image previews without forced downloads.
-- **🔗 Smart PDF Merging**: Client-side PDF merging capabilities using `pdf-lib` allow users to consolidate multiple proofs into a single document on-the-fly.
-- **🛡️ Secure Scoping (RBAC)**: Robust **Role-Based Access Control** enforced via a centralized scoping engine (`dept_scope.php`), ensuring data isolation between departments and users.
-- **📊 Accreditation-Ready Excel Exports**: Direct export of metadata and file lists to Excel, filtered by criteria and academic year.
-- **🔒 Security by Design**: Comprehensive protection against CSRF, SQL injection (prepared statements), and unauthorized path traversal.
+- **Faculty** upload proofs (publications, FDPs, conferences, patents, student activities, placement/higher-education files, etc.) and track status.
+- **Head of Department (HOD)** reviews items first (`Pending HOD`), then **Department Coordinator** or **Junior Assistant** (`Pending Dept Coordinator`).
+- **Central** flows (NAAC, NBA, NCC, Sports, clubs, etc.) use `modules/central/` and `c_login_n.php` / `c_login.php` with event-based navigation.
+- **Unified dashboard** (`dashboard.php`) lists pending work by role; the main header can open it in a modal iframe and polls `check_notifications.php` for a badge count.
+- **Admin** area under `admin/` handles criteria uploads, bulk download/delete, and department entry via `admins.php`.
+- **Access control helpers** in `includes/dept_scope.php` scope listings and file actions by **faculty ownership** or **uploader department** (`reg_tab.dept`), and gate **path-based file views** so users cannot open arbitrary `uploads/` URLs.
+
+---
+
+## Tech stack
+
+| Layer | Details |
+|--------|---------|
+| Server | Apache (typical: XAMPP on Windows) |
+| Language | PHP (7.4+ recommended; 8.x supported) |
+| Database | MySQL / MariaDB, database name `project-fms` |
+| DB API | `mysqli` with prepared statements in many paths |
+| Sessions | PHP sessions; `includes/session.php` sets secure cookie flags when used |
+| CSRF | `includes/csrf.php` — tokens on protected POST forms |
+| Email | Optional notifications via `includes/send_email.php` (e.g. faculty CSE throttle in `check_notifications.php`) |
+
+**Configuration:** edit `includes/connection.php` for DB host, user, password, database name, and `$base_url` (must match your deployed URL path, e.g. `http://localhost/mini/FMS/`).
 
 ---
 
@@ -33,48 +49,65 @@ A premium, role-based document management solution designed for **GMRIT** and hi
 FMS/
 ├── dashboard.php             # Centralized Task Management (Role-aware)
 ├── includes/
-│   ├── dept_scope.php        # The Core Security Engine (RBAC & Query Scoping)
-│   ├── connection.php        # Database Configuration & CSRF Seeding
-│   ├── header.php            # Dynamic Navigation & Dashboard Modal
-│   └── csrf.php              # Anti-CSRF Token Management
+│   ├── connection.php        # DB + base_url + session bootstrap + CSRF token seed
+│   ├── session.php           # Cookie parameters
+│   ├── csrf.php              # CSRF helpers
+│   ├── dept_scope.php        # Table→owner column, dept/faculty SQL fragments, row scope, file_path checks
+│   ├── constants.php         # Criteria labels and shared defines
+│   ├── header.php            # Shared navigation (Central / Department / Dashboard modal)
+│   └── send_email.php        # Mail helper
 ├── modules/
-│   ├── faculty/              # Submission center (Publications, FDPs, Students)
-│   ├── dept_coordinator/     # Review & Verification Workflows
-│   ├── central/              # Institutional Reporting (NAAC/AQAR)
-│   └── common/               # Shared Utilities (merger, viewing)
-├── admin/                    # System Configuration & Bulk Management
-└── uploads/                  # Secure Document Storage
+│   ├── auth/                 # login.php, logout.php, reg.php
+│   ├── faculty/              # Academic year, criteria uploads, profiles, FDPS, etc.
+│   ├── dept_coordinator/     # DC workflows, minutes, downloads
+│   ├── central/              # Central logins and file flows (AQAR, events, uploads)
+│   ├── jr_assistant/         # Junior assistant entry (e.g. jr_acd_year.php)
+│   └── common/               # pdf_merger.php, view_file1.php, save_merged_pdf.php
+├── HOD/                      # HOD pages, downloads, academic year tools, view_file*.php
+├── admin/                    # admins.php, criteria_*.php, upload*.php, download.php, etc.
+├── database/
+│   └── project-fms.sql       # Schema dump (import for fresh install)
+├── assets/                   # CSS, JS, images
+└── _deprecated/              # Old copies; do not use for production paths
 ```
 
----
-
-## 🔐 Security & Data Isolation
-
-The system employs a sophisticated isolation strategy:
-- **Departmental Silos**: Users can only see and interact with files belonging to their assigned department.
-- **Ownership Validation**: Faculty members are restricted to their own uploads unless granted higher privileges.
-- **Safe Viewers**: Files are resolved through database-backed handlers (`view_file.php`) which validate permissions before serving content from the `uploads/` directory, preventing direct URL access.
-- **CSRF Protection**: All state-changing operations (approvals, deletes, uploads) are guarded by unique session-bound tokens.
+Root also contains **maintenance/debug scripts** (`migrate_*.php`, `debug_*.php`, `verify_schema.php`, etc.) — use only in development.
 
 ---
 
-## 🚀 Getting Started
+## Database
 
-### Prerequisites
-- PHP 7.4 or higher
-- MySQL 5.7+ / MariaDB 10.4+
-- Apache Server
+1. Create database **`project-fms`** in phpMyAdmin (or CLI).
+2. Import **`database/project-fms.sql`**.
+3. Adjust credentials in **`includes/connection.php`** if not using `root` with empty password.
 
-### Quick Setup
-1. **Clone & Drop**: Place the project in your web servant root (e.g., `htdocs/mini/FMS`).
-2. **Database Initialization**:
-   - Create a database named `project-fms`.
-   - Import `database/project-fms.sql` to seed the schema.
-3. **Configuration**:
-   - Edit `includes/connection.php`.
-   - Update `$base_url` to match your local environment (e.g., `http://localhost/mini/FMS/`).
-   - Configure your DB credentials (`$host`, `$user`, `$pass`, `$db`).
-4. **Access**: Navigate to the base URL and log in with your credentials.
+Notable concepts:
+
+- Multiple **file tables** (`files`, `files5_*`, `fdps_tab`, `conference_tab`, `published_tab`, `patents_table`, `dept_files`, student activity tables, etc.) with **`status`** and **`rejection_reason`** where applicable.
+- **`rejection_history`** stores rejection audit rows (used from `dashboard.php`).
+- **`academic_year`** and related tables drive year pickers across modules.
+
+---
+
+## Installation (quick)
+
+1. Install **XAMPP** (or similar): Apache + MySQL + PHP.
+2. Copy the project folder under `htdocs` (e.g. `htdocs/mini/FMS`).
+3. Import **`database/project-fms.sql`** into **`project-fms`**.
+4. Set **`includes/connection.php`** database settings and **`$base_url`** to match your URL.
+5. Open **`http://localhost/mini/FMS/`** (adjust host and path).
+
+---
+
+## Security notes (operator awareness)
+
+- **CSRF** is enforced on several POST flows (e.g. dashboard actions, some admin forms, central login form).
+- **Dashboard** (`dashboard.php`) unions pending rows with **department-aware** filters for HOD / department coordinator / junior assistant (via `dept_scope.php`); approve/reject/re-upload checks the same row scope.
+- **Bulk download / delete** on `admin/download.php` and **`HOD/hod_fac_download.php`** resolve the correct upload table per criteria, filter lists and Excel exports by role (**faculty** = own uploads; **HOD / DC / Jr** = uploaders in `reg_tab` for that department; **admin** and **central coordinator** sessions = unfiltered on those pages), and allow delete/download only for rows the user is allowed to see.
+- **File viewing:** `admin/view_file.php` (with `file_path`), `HOD/view_file_hod.php`, `HOD/view_file.php` (faculty), and `modules/common/view_file1.php` resolve the path against the database and enforce the same ownership/dept rules (admin bypass where implemented). `a_files` lookups by `id` in `admin/view_file.php` are limited to the owning faculty unless `admin`.
+- **Merged PDF POST target:** from `admin/download.php` use **`admin/save_merged_pdf.php`** (same directory). From **`HOD/hod_fac_download.php`** the client posts to **`../admin/save_merged_pdf.php`**.
+- **Other download UIs** (`admin/download_cri.php`, `admin/download_cent.php`) use **`a_files` / `a_c_files`** — they are separate from the main `files` / `files5_*` flows; review those if you need the same dept/owner guarantees.
+- Passwords are handled **as stored in the database** (plain text in typical legacy flows). Treat the DB as sensitive and restrict access; prefer HTTPS in production.
 
 ---
 

@@ -63,10 +63,6 @@ ob_start();
 
 // Handle bulk actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
-    // CSRF Check
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die("CSRF token validation failed.");
-    }
     $action = $_POST['action'];
     $selectedFiles = $_POST['selected_files'];
     $category = $_POST['category'];
@@ -512,8 +508,7 @@ include_once "../../includes/header.php";
 
                     if ($result_fdps_org->num_rows > 0) {
                         echo "<form method='POST' action=''>
-                                <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
-                                <input type='hidden' name='category' value='fdps_org'>
+                            <input type='hidden' name='category' value='fdps_org'>
                                 <table border='1'>
                                     <tr>
                                         <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
@@ -604,7 +599,6 @@ include_once "../../includes/header.php";
 
                     if ($result_published->num_rows > 0) {
                         echo "<form method='POST' action='../common/download_papers1.php'>
-                                    <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                                     <input type='hidden' name='category' value='published'>
                                     <input type='hidden' name='table' value='published_tab'>
                                     <input type='hidden' name='file_column' value='paper_file'>
@@ -679,7 +673,6 @@ include_once "../../includes/header.php";
 
                     if ($result_conference->num_rows > 0) {
                         echo "<form method='POST' action=''>
-                                        <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                                         <input type='hidden' name='category' value='conference'>
                                         <table border='1'>
                                             <tr>
@@ -750,7 +743,6 @@ include_once "../../includes/header.php";
 
                     if ($result_patents->num_rows > 0) {
                         echo "<form method='POST' action='' enctype='multipart/form-data'>
-                                    <input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>
                                     <input type='hidden' name='category' value='patents'>
                                     <input type='hidden' name='table_name' value='patents_table'>
                                     <input type='hidden' name='file_column' value='patent_file'>
