@@ -1,12 +1,11 @@
 <?php
 
-// Database configuration using Environment Variables for Cloud (Railway/Render)
-// Local fallback for XAMPP
-$db_host = getenv('MYSQLHOST') ?: "localhost";
-$db_user = getenv('MYSQLUSER') ?: "root";
-$db_pass = getenv('MYSQLPASSWORD') ?: "";
-$db_name = getenv('MYSQLDATABASE') ?: "project-fms";
-$db_port = getenv('MYSQLPORT') ?: "3306";
+// Database configuration for Local XAMPP Environment
+$db_host = "localhost";
+$db_user = "root";
+$db_pass = "";
+$db_name = "project-fms";
+$db_port = "3306";
 
 $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name, $db_port);
 
@@ -14,14 +13,8 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// Set base_url dynamically (Local vs Cloud)
-if (getenv('RENDER_EXTERNAL_URL')) {
-    $base_url = getenv('RENDER_EXTERNAL_URL') . "/";
-} elseif (getenv('RAILWAY_STATIC_URL')) {
-    $base_url = "https://" . getenv('RAILWAY_STATIC_URL') . "/";
-} else {
-    $base_url = "http://localhost/mini/FMS/";
-}
+// Set base_url for local environment
+$base_url = "http://localhost/mini/FMS/";
 
 // Centralized Session Initialization
 $session_file = __DIR__ . '/session.php';
