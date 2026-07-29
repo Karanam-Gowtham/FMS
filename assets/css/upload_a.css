@@ -43,7 +43,7 @@ body::before {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     
-    margin-top: 100px;
+    margin-top: 0;
 }
 h1{
     text-align: center;

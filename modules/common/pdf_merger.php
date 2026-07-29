@@ -46,7 +46,7 @@
         }
 
         .container11 {
-            margin-top: 100px;
+            margin-top: 0;
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem 1rem;
@@ -66,7 +66,7 @@
         }
 
         .upload-container {
-            margin-top: 100px;
+            margin-top: 0;
             background: white;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

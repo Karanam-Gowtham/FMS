@@ -12,7 +12,7 @@ body {
 
 /* Container Styles */
 .container11 {
-    margin-top:100px;
+    margin-top: 0;
     width: 80vw;
     background: rgba(0, 0, 0, 0.8);
     padding: 30px;

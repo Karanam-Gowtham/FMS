@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 ob_start(); // Start output buffering
 include_once '../../includes/connection.php';
 
@@ -84,7 +84,7 @@ include_once '../../includes/header.php';
             }
 
             .container {
-                margin-top:100px;
+                margin-top: 0;
                 margin-bottom:150px;
                 left:200px;
                 background: rgba(0, 0, 0, 0.7);
@@ -206,7 +206,7 @@ include_once '../../includes/header.php';
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 80px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
 
         font-size: larger;

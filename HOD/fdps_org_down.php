@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once "../includes/connection.php";
 session_start();
 
@@ -88,7 +88,7 @@ $conn->close();
         }
 
         h1 {
-            margin-top: 100px;
+            margin-top: 0;
             color: #fff;
         }
 

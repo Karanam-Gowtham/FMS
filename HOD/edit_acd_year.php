@@ -138,7 +138,7 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 80px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
  
         font-size: larger;

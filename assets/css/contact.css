@@ -31,7 +31,7 @@ body::before {
     backdrop-filter: blur(6px);
     padding: 10px 2rem 2rem 2rem;
     border-radius: 1rem;
-    margin-top: 100px;
+    margin-top: 0;
 }
 
 .contact-info,
@@ -54,7 +54,7 @@ h3 {
 
 .info-section {
     margin-bottom: 2rem;
-    margin-top:80px;
+    margin-top: 0;
 }
 
 .info-item {
@@ -71,7 +71,7 @@ h3 {
 }
 
 .social-links {
-    margin-top: 100px;
+    margin-top: 0;
 }
 
 .social-icons {

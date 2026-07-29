@@ -1,32 +1,314 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Feb 11, 2026 at 04:44 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- ==========================================
+-- NORMALIZED SCHEMA (NEW)
+-- ==========================================
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+create database if not exists master;
+
+-- Department table--
+    create table if not exists Dept(
+        dept_id int auto_increment primary key,
+        dept_name varchar(50) not null unique
+    );
+
+-- Roles--
+    create table if not exists Roles(
+       role_id int auto_increment primary key,
+       role_name varchar(50) not null unique,
+       role_description varchar(255)
+    );
+
+-- Users--
+    create table if not exists Users(
+        user_id int primary key auto_increment ,
+        full_name varchar(50) not null,
+        email varchar(100)not null unique,
+        phone varchar(15) unique,
+        password varchar(255) not null,
+        profile_photo varchar(255),
+        status enum('active','inactive') default 'active',
+        created_at timestamp default current_timestamp,
+        updated_at timestamp default current_timestamp
+        on update current_timestamp,
+        last_login timestamp null
+    );
+
+-- User_Roles (Mapping table for multiple roles)
+    create table if not exists User_Roles(
+        user_role_id int primary key auto_increment,
+        user_id int not null,
+        role_id int not null,
+        dept_id int not null,
+        foreign key(user_id) references Users(user_id),
+        foreign key(role_id) references Roles(role_id),
+        foreign key(dept_id) references Dept(dept_id),
+        unique(user_id, role_id, dept_id)
+    );
+
+-- Documents Categories
+    create table if not exists Document_Categories(
+        category_id int auto_increment primary key,
+        category_name varchar(100) not null unique
+    );
+
+-- Document_Types
+    create table if not exists Document_Types(
+        type_id int auto_increment primary key,
+        type_name varchar(100) not null unique,
+        category_id int not null,
+        is_public boolean default false,
+        foreign key(category_id) references Document_Categories(category_id)
+    );
+
+-- Academic Years
+
+create table if not exists Academic_Years(
+    academic_year_id int primary key auto_increment,
+    year_name varchar(20) not null unique,
+    is_active boolean default false
+);
+
+-- Documents table 
+    create table if not exists Documents(
+        document_id int auto_increment primary key,
+
+        type_id int not null,
+        dept_id int not null,
+        uploaded_by int not null,
+
+        academic_year_id int not null,
+        
+        original_file_name varchar(255) not null,
+        stored_file_name varchar(255) not null unique,
+        file_path varchar(255) not null,
+
+        status enum('Pending','Approved','Rejected') default 'Pending',
+        current_role_id int not null,
+        created_at timestamp default current_timestamp,
+        updated_at timestamp default current_timestamp on update current_timestamp,
+
+        foreign key(academic_year_id) references Academic_Years(academic_year_id),
+        foreign key(current_role_id) references Roles(role_id),
+        foreign key(type_id) references Document_Types(type_id),
+        foreign key(dept_id) references Dept(dept_id),
+        foreign key(uploaded_by) references Users(user_id)
+    );
+
+-- Approval Flow
+create table if not exists Approval_Flow(
+    flow_id int primary key auto_increment,
+
+    type_id int not null,
+    current_role_id int not null,
+    next_role_id int not null,
+    sequence_no int not null,
+
+    unique(type_id, sequence_no),
+
+    foreign key(type_id) references Document_Types(type_id),
+    foreign key(current_role_id) references Roles(role_id),
+    foreign key(next_role_id) references Roles(role_id)
+);
+
+-- Document Actions
+create table if not exists Document_Actions(
+    action_id int primary key auto_increment,
+
+    document_id int not null,
+    user_id int not null,
+    role_id int not null,
+
+    action_type enum(
+        'Submitted',
+        'Approved',
+        'Returned',
+        'Resubmitted',
+        'Rejected'
+    ) not null,
+
+    remarks text,
+
+    created_at timestamp default current_timestamp,
+
+    foreign key(document_id) references Documents(document_id),
+    foreign key(user_id) references Users(user_id),
+    foreign key(role_id) references Roles(role_id)
+);
 
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- Inserting Default Departments
+insert into Dept (dept_name) values
+('CSE'),
+('AI_DS'),
+('AI_ML'),
+('IT'),
+('ECE'),
+('EEE'),
+('MECH'),
+('CIVIL'),
+('BSH'),
+('NAAC'),
+('NBA'),
+('NCC'),
+('Sports'),
+('Clubs'),
+('NSS'),
+('IIC'),
+('Women_Empowerment'),
+('PASH'),
+('Anti_Ragging'),
+('SAC');
 
---
--- Database: `project-fms`
---
 
--- --------------------------------------------------------
+-- Inserting Default Roles
+insert into Roles(role_name, role_description) values
+('Admin','System administrator'),
+('IQAC','IQAC coordinator'),
+('HOD','Head of Department'),
+('Faculty','Faculty member'),
+('Coordinator','Department/Cell coordinator'),
+('Central_Coordinator','Central repository coordinator'),
+('Junior_Assistant','Administrative assistant');
 
---
--- Table structure for table `academic_year`
---
 
+-- Inserting Default Academic years 
+insert into Academic_Years (year_name, is_active) values
+('2022-2023', false),
+('2023-2024', false),
+('2024-2025', false),
+('2025-2026', true);
+
+
+-- Inserting Default Document Categories
+insert into Document_Categories (category_name) values
+('Faculty Repository'),
+('Department Repository'),
+('Central Repository');
+
+
+-- Inserting Default Document Types
+insert into Document_Types(type_name, category_id, is_public) values
+
+-- Faculty Repository
+('FDPs Attended',1,true),
+('FDPs Organized',1,true),
+('Papers Published',1,true),
+('Conferences Published',1,true),
+('Patents',1,true),
+
+-- Department Repository
+('Admin Files',2,false),
+('Faculty Files',2,false),
+('Student Related Files',2,false),
+('Exam Section Files',2,false),
+('Academic Calendar',2,false),
+('Student Activity Files',2,false),
+('Department Meeting Minutes',2,false),
+('AMC Meeting Minutes',2,false),
+('Board Of Studies',2,false),
+
+-- Central Repository
+('NAAC Accreditation Docs',3,true),
+('NBA Accreditation Docs',3,true),
+('NCC Activity Reports',3,true),
+('Sports & Events Reports',3,true),
+('Clubs & Societies Reports',3,true),
+('NSS Activity Reports',3,true),
+('IIC Innovation Reports',3,true),
+('Women Empowerment Cell Docs',3,true),
+('Anti-Ragging Committee Reports',3,true),
+('Student Affairs Council (SAC) Docs',3,true);
+
+
+-- Admin
+insert into Users(
+    user_id,
+    full_name,
+    email,
+    phone,
+    password
+) values (
+    1,
+    'Admin', 
+    'admin@gmrit.edu',
+    '9876543210',  -- Need to change 
+    'admin123'     -- Need to change
+);
+
+insert into User_Roles(user_id, role_id, dept_id) values (1, 1, 10);
+
+
+-- Inserting Default Approval Flow
+insert into Approval_Flow(type_id, current_role_id, next_role_id, sequence_no) values
+
+-- Faculty Repository
+
+-- FDPs Attended
+(1,4,3,1),
+(1,3,2,2),
+
+-- FDPs Organized
+(2,4,3,1),
+(2,3,2,2),
+
+-- Papers Published
+(3,4,3,1),
+(3,3,2,2),
+
+-- Conferences Published
+(4,4,3,1),
+(4,3,2,2),
+
+-- Patents
+(5,4,3,1),
+(5,3,2,2),
+
+-- Department Repository
+
+-- Admin Files
+(6,4,3,1),
+
+-- Faculty Files
+(7,4,3,1),
+
+-- Student Related Files
+(8,4,3,1),
+
+-- Exam Section Files
+(9,4,3,1),
+
+-- Academic Calendar
+(10,4,3,1),
+
+-- Student Activity Files
+(11,4,3,1),
+
+-- Department Meeting Minutes
+(12,7,3,1),
+
+-- AMC Meeting Minutes
+(13,7,3,1),
+
+-- Board Of Studies
+(14,7,3,1),
+
+-- Central Repository Flow (Central Coordinator -> IQAC -> Admin)
+(15,6,2,1), (15,2,1,2),
+(16,6,2,1), (16,2,1,2),
+(17,6,2,1), (17,2,1,2),
+(18,6,2,1), (18,2,1,2),
+(19,6,2,1), (19,2,1,2),
+(20,6,2,1), (20,2,1,2),
+(21,6,2,1), (21,2,1,2),
+(22,6,2,1), (22,2,1,2),
+(23,6,2,1), (23,2,1,2),
+(24,6,2,1), (24,2,1,2);
+
+
+
+
+-- ==========================================
+-- LEGACY SCHEMA
+-- ==========================================
 CREATE TABLE `academic_year` (
   `year` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1309,10 +1591,10 @@ CREATE TABLE `reg_jr_assistant` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `documents`
+-- Table structure for table `archive_documents`
 --
 
-CREATE TABLE `documents` (
+CREATE TABLE `archive_documents` (
   `document_id` int(11) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
   `created_by` int(11) DEFAULT NULL,
@@ -2085,9 +2367,9 @@ ALTER TABLE `reg_jr_assistant`
   ADD PRIMARY KEY (`userid`);
 
 --
--- Indexes for table `documents`
+-- Indexes for table `archive_documents`
 --
-ALTER TABLE `documents`
+ALTER TABLE `archive_documents`
   ADD PRIMARY KEY (`document_id`);
 
 --
@@ -2332,9 +2614,9 @@ ALTER TABLE `dept_files`
   MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
--- AUTO_INCREMENT for table `documents`
+-- AUTO_INCREMENT for table `archive_documents`
 --
-ALTER TABLE `documents`
+ALTER TABLE `archive_documents`
   MODIFY `document_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -2502,9 +2784,5 @@ ALTER TABLE `document_role_flow`
 -- Constraints for table `document_versions`
 --
 ALTER TABLE `document_versions`
-  ADD CONSTRAINT `document_versions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`);
+  ADD CONSTRAINT `document_versions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `archive_documents` (`document_id`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

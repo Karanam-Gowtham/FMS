@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/session.php';
+// User requested to remove CSRF.
+// These functions are kept as no-ops so we don't have to remove them from all files.
 
 function csrfToken(): string
 {
@@ -13,4 +14,6 @@ function csrfField(): string
 
 function csrfValidate(): void
 {
+    // No-op
 }
+?>

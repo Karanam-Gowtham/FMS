@@ -99,7 +99,7 @@ include_once 'header_hod.php';
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 80px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
 
             position: fixed;

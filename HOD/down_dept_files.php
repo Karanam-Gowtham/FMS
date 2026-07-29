@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once "../includes/connection.php";
 
 // Check connection
@@ -80,7 +80,7 @@ include_once "./header_hod.php";
         }
 
         .container11 {
-            margin-top: 100px;
+            margin-top: 0;
             margin-bottom: 70px;
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;

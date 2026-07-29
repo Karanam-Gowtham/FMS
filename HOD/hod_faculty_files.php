@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once "../includes/connection.php";
 
 
@@ -137,7 +137,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 80px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
 
         font-size: larger;

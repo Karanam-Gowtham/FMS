@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once "../includes/connection.php";
 
 session_start();
@@ -97,7 +97,7 @@ include_once "./header_hod.php";
         }
 
         .cont11 {
-            margin-top: 100px;
+            margin-top: 0;
             text-align: center;
         }
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../includes/session.php';
 ?>
 
@@ -27,7 +27,7 @@ require_once '../includes/session.php';
         /* Main content */
         .main-content {
             padding: 2rem 1rem;
-            margin-top: 80px;
+            margin-top: 0;
             /* Space for fixed header */
         }
 

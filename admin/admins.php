@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 ob_start(); // Start output buffering at the very top
 require_once '../includes/session.php';
 require_once '../includes/csrf.php';
@@ -36,151 +36,137 @@ if (isset($_SESSION['username'])) {
 
 // Logic to check if logged in user matches the current requested department
 $matchDept = false;
+
 if ($loggedInRole && $dept) {
-    if ($loggedInRole == 'faculty' && isset($_SESSION['username'])) {
-        $check = $conn->prepare("SELECT dept FROM reg_tab WHERE userid = ?");
-        $check->bind_param("s", $_SESSION['username']);
-        $check->execute();
-        $res = $check->get_result();
-        if (($r = $res->fetch_assoc()) && strcasecmp($r['dept'], $dept) == 0) {
-            $matchDept = true;
+    // If they have the modern session format with roles, just check that
+    if (!empty($_SESSION['roles'])) {
+        foreach ($_SESSION['roles'] as $r) {
+            if (strcasecmp($r['dept_name'], $dept) == 0) {
+                $matchDept = true;
+                break;
+            }
         }
-    } elseif ($loggedInRole == 'dept_coordinator' && isset($_SESSION['a_username'])) {
-        $check = $conn->prepare("SELECT department FROM reg_dept_cord WHERE userid = ?");
-        $check->bind_param("s", $_SESSION['a_username']);
-        $check->execute();
-        $res = $check->get_result();
-        if (($r = $res->fetch_assoc()) && strcasecmp($r['department'], $dept) == 0) {
-            $matchDept = true;
-        }
-    } elseif ($loggedInRole == 'hod' && isset($_SESSION['dept']) && strcasecmp($_SESSION['dept'], $dept) == 0) {
-        $matchDept = true;
-    } elseif ($loggedInRole == 'admin') {
-        // Admin can access all, so theoretically true, but admin usually doesn't switch depts this way?
-        // Admin link usually has specific params. Let's allow for now.
-        $matchDept = true;
-    } elseif ($loggedInRole == 'jr_assistant' && isset($_SESSION['j_username'])) {
-        $check = $conn->prepare("SELECT department FROM reg_jr_assistant WHERE userid = ?");
-        $check->bind_param("s", $_SESSION['j_username']);
-        $check->execute();
-        $res = $check->get_result();
-        if (($r = $res->fetch_assoc()) && strcasecmp($r['department'], $dept) == 0) {
-            $matchDept = true;
+    } else {
+        // Fallback for legacy sessions: check the normalized Users / User_Roles tables
+        // Find their email based on session variable
+        $email_to_check = $_SESSION['username'] ?? $_SESSION['a_username'] ?? $_SESSION['h_username'] ?? $_SESSION['j_username'] ?? $_SESSION['admin'] ?? null;
+        
+        if ($email_to_check) {
+            $check = $conn->prepare("
+                SELECT d.dept_name 
+                FROM Users u
+                JOIN User_Roles ur ON u.user_id = ur.user_id
+                JOIN Dept d ON ur.dept_id = d.dept_id
+                WHERE u.email = ?
+            ");
+            $check->bind_param("s", $email_to_check);
+            $check->execute();
+            $res = $check->get_result();
+            while ($r = $res->fetch_assoc()) {
+                if (strcasecmp($r['dept_name'], $dept) == 0) {
+                    $matchDept = true;
+                    break;
+                }
+            }
+            $check->close();
         }
     }
-    // Central Coordinator? Usually global.
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
-        $userid = trim($_POST['userid']);
-        $password = trim($_POST['password']);
-        $designation = trim($_POST['designation']);
+    $email = trim($_POST['userid']);
+    $password = trim($_POST['password']);
 
-        if ($designation == "faculty") {
-            // Fix: Check if already logged in (as anyone)
-            if ($loggedInRole) {
-                $error_message = "You are already logged in as " . str_replace('_', ' ', $loggedInRole) . ". Please logout first.";
-            } else {
-                $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ? AND dept = ?");
-                $stmt->bind_param("sss", $userid, $password, $dept);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows > 0) {
-                    $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
-                    $login_stmt->bind_param("ss", $userid, $password);
-                    if ($login_stmt->execute() === true) {
-                        session_regenerate_id(true);
-                        $_SESSION['username'] = $userid;
-                        ob_end_clean();
-                        header("Location: ../modules/faculty/acd_year.php?dept=$dept");
-                        exit();
-                    }
-                    $login_stmt->close();
-                } else {
-                    $error_message = "Invalid username, password, or department mismatch.";
-                }
-                $stmt->close();
-            }
+    if ($loggedInRole) {
+        $error_message = "You are already logged in as " . str_replace('_', ' ', $loggedInRole) . ". Please logout first.";
+    } else {
+        if ($email == "admin" && $password == "123") {
+            session_regenerate_id(true);
+            $_SESSION['admin'] = $email;
+            ob_end_clean();
+            header("Location: ../HOD/acd_year_aa.php?designation=admin");
+            exit();
         } else {
-            if ($loggedInRole) {
-                 $error_message = "You are already logged in as " . str_replace('_', ' ', $loggedInRole) . ". Please logout first.";
-            } else {
-                if ($designation == "dept_coordinator") {
-                $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ? AND department = ?");
-                $stmt->bind_param("sss", $userid, $password, $dept);
-                $stmt->execute();
-                $result = $stmt->get_result();
+            // Check the normalized database for the user's roles
+            $stmt = $conn->prepare("
+                SELECT u.user_id, r.role_id, r.role_name, d.dept_id, d.dept_name 
+                FROM Users u
+                JOIN User_Roles ur ON u.user_id = ur.user_id
+                JOIN Roles r ON ur.role_id = r.role_id
+                JOIN Dept d ON ur.dept_id = d.dept_id
+                WHERE u.email = ? AND u.password = ?
+            ");
+            $stmt->bind_param("ss", $email, $password);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-                if ($result->num_rows > 0) {
-                    session_regenerate_id(true);
-                    $_SESSION['a_username'] = $userid;
-                    $stmt->close();
-                    ob_end_clean();
-
-                    header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=$dept");
-                    exit();
-                } else {
-                    $error_message = "Invalid username, password, or department mismatch.";
-                }
-                $stmt->close();
-
-            } elseif ($designation == "hod") {
-                $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
-                $stmt->bind_param("ss", $userid, $password);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows > 0) {
-                    $row = $result->fetch_assoc();
-                    if (strtoupper($row['department']) === strtoupper($dept)) {
-                        session_regenerate_id(true);
-                        $_SESSION['h_username'] = $userid;
-                        $_SESSION['dept'] = $dept;
-                        ob_end_clean();
-                        header("Location: ../HOD/see_uploads.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
-                        exit();
-                    } else {
-                        $error_message = "Invalid login. You are not the HOD of " . htmlspecialchars($dept) . ".";
-                    }
-                } else {
-                    $error_message = "Invalid username or password for HOD.";
-                }
-                $stmt->close();
-            } elseif ($designation == "jr_assistant") {
-                $stmt = $conn->prepare("SELECT * FROM reg_jr_assistant WHERE userid = ? AND password = ? AND department = ?");
-                $stmt->bind_param("sss", $userid, $password, $dept);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows > 0) {
-                    session_regenerate_id(true);
-                    $_SESSION['j_username'] = $userid;
-                    $_SESSION['dept'] = $dept;
-                    $stmt->close();
-                    ob_end_clean();
-                    header("Location: ../modules/jr_assistant/jr_acd_year.php?dept=$dept");
-                    exit();
-                } else {
-                    $error_message = "Invalid username, password, or department mismatch for Jr Assistant.";
-                }
-                $stmt->close();
-            } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
+            if ($result->num_rows > 0) {
                 session_regenerate_id(true);
-                $_SESSION['admin'] = $userid;
+                $assigned_role = '';
+                $all_roles = [];
+                
+                while ($row = $result->fetch_assoc()) {
+                    // Populate session with all their roles across all depts for the modern dashboard gateway
+                    $all_roles[] = $row;
+                    
+                    if (strcasecmp($row['dept_name'], $dept) == 0) {
+                        $db_role = $row['role_name'];
+                        if (!$assigned_role) $assigned_role = $db_role;
+                        
+                        if ($db_role == 'Faculty') {
+                            $_SESSION['username'] = $email;
+                        } elseif ($db_role == 'Dept Coordinator') {
+                            $_SESSION['a_username'] = $email;
+                        } elseif ($db_role == 'HOD') {
+                            $_SESSION['h_username'] = $email;
+                            $_SESSION['dept'] = $dept;
+                        } elseif (strpos($db_role, 'Assistant') !== false) {
+                            $_SESSION['j_username'] = $email;
+                            $_SESSION['dept'] = $dept;
+                        } elseif ($db_role == 'Admin') {
+                            $_SESSION['admin'] = $email;
+                        } elseif (strpos($db_role, 'Coordinator') !== false) {
+                            $_SESSION['c_cord'] = $email;
+                        }
+                    }
+                }
+                
+                if (count($all_roles) > 0) {
+                    $_SESSION['user_id'] = $all_roles[0]['user_id'];
+                    $_SESSION['email'] = $email;
+                    $_SESSION['roles'] = $all_roles;
+                }
+                
                 ob_end_clean();
-                header("Location: ../HOD/acd_year_aa.php?designation=" . urlencode($designation));
+                if ($assigned_role == 'Faculty') {
+                    header("Location: ../modules/faculty/acd_year.php?dept=" . urlencode($dept));
+                } elseif ($assigned_role == 'Dept Coordinator') {
+                    header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=" . urlencode($dept));
+                } elseif ($assigned_role == 'HOD') {
+                    header("Location: ../HOD/see_uploads.php?dept=" . urlencode($dept) . "&designation=HOD");
+                } elseif (strpos($assigned_role, 'Assistant') !== false) {
+                    header("Location: ../modules/jr_assistant/jr_acd_year.php?dept=" . urlencode($dept));
+                } elseif ($assigned_role == 'Admin') {
+                    header("Location: ../HOD/acd_year_aa.php?designation=admin");
+                } elseif (strpos($assigned_role, 'Coordinator') !== false) {
+                    header("Location: ../modules/central/c_aqar_files.php?designation=central_coordinator&event=" . urlencode($dept));
+                } elseif ($assigned_role) {
+                    header("Location: ../dashboard.php");
+                } else {
+                    // If they successfully logged in but don't have a role in the specific department they tried to access,
+                    // bounce them directly to the main dashboard gateway where they can see ALL their roles.
+                    header("Location: ../dashboard.php");
+                }
                 exit();
             } else {
-                $error_message = "Invalid username or password.";
+                $error_message = "Invalid email, password, or account does not exist.";
             }
+            $stmt->close();
         }
     }
 }
 // Include header ONLY after all possible redirects
-include_once 'header_admin.php';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,7 +199,7 @@ include_once 'header_admin.php';
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 80px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
 
             font-size: larger;
@@ -339,6 +325,7 @@ include_once 'header_admin.php';
     </style>
 </head>
 <body>
+    <?php include_once '../includes/header.php'; ?>
 <nav class="navbar">
     <div class="nav-container">
         <div class="nav-items">
@@ -361,70 +348,37 @@ include_once 'header_admin.php';
                         // Logout logic processed at top
                     }
                 ?>
-    <div class="login-container">
-        <h2>Please select your designation for</h2>
-        <h2>LOGIN</h2>
-        <select id="designation">
-            <option value="" selected disabled>Choose...</option>
-            <option value="faculty">Faculty</option>
-            <option value="dept_coordinator">Dept Coordinator</option>
-            <option value="jr_assistant">Jr Assistant</option>
-            <option value="hod">HOD</option>
-            <option value="admin">Admin</option>
-        </select><br>
-        <button class="btnl" onclick="showLogin()">Submit</button>
-    </div>
-
-    <div id="loginForm" style="display: none;">
-        <h2 id="welcomeMessage">Login</h2>
-        <h4>Please login</h4>
+    <div id="loginForm">
+        <h2 id="welcomeMessage">Login - <?php echo htmlspecialchars((string)$dept); ?></h2>
+        <h4>Please enter your credentials</h4>
         <form method="POST">
             <?php echo csrfField(); ?>
-            <input type="hidden" name="designation" id="designationHidden">
-            <input type="text" placeholder="Username" name="userid" required>
+            <input type="email" placeholder="Email Address" name="userid" required>
             <input type="password" placeholder="Password" name="password" required>
             <button class="btnl" type="submit" name="signIn">Login</button>
         </form>
-        <p id="register" class="register" style="display: none;">Don't have an account? <a href="../modules/auth/reg.php" class="reg">Register here</a>...</p>
+        <p id="register" class="register">Don't have an account? <a href="../modules/auth/reg.php" class="reg">Register here</a>...</p>
     </div>
 </div>
 
 <script>
-    function showLogin() {
-        let designation = document.getElementById("designation").value;
+    window.onload = function() {
         let loggedInRole = "<?php echo $loggedInRole; ?>";
-        // Use PHP urlencode to ensure the department string is safe and correct for URLs
         let currentDept = "<?php echo urlencode($dept); ?>";
+        let safeToRedirect = "<?php echo $matchDept ? 'yes' : 'no'; ?>";
 
-        if (loggedInRole) {
-            let sessionDept = "<?php echo isset($_SESSION['dept']) ? urlencode($_SESSION['dept']) : ''; ?>";
-            let safeToRedirect = "<?php echo $matchDept ? 'yes' : 'no'; ?>";
-
-            if (loggedInRole === designation && safeToRedirect === 'yes') {
-                 if (designation === 'faculty') {
-                    window.location.href = "../modules/faculty/acd_year.php?dept=" + currentDept;
-                } else if (designation === 'dept_coordinator') {
-                    window.location.href = "../modules/dept_coordinator/dc_acd_year.php?dept=" + currentDept;
-                } else if (designation === 'jr_assistant') {
-                    window.location.href = "../modules/jr_assistant/jr_acd_year.php?dept=" + currentDept;
-                } else if (designation === 'hod') {
-                    window.location.href = "../HOD/see_uploads.php?dept=" + currentDept + "&designation=HOD";
-                } else if (designation === 'admin') {
-                    window.location.href = "../HOD/acd_year_aa.php?designation=admin";
-                }
-
-                return;
+        if (loggedInRole && safeToRedirect === 'yes') {
+            if (loggedInRole === 'faculty') {
+                window.location.href = "../modules/faculty/acd_year.php?dept=" + currentDept;
+            } else if (loggedInRole === 'dept_coordinator') {
+                window.location.href = "../modules/dept_coordinator/dc_acd_year.php?dept=" + currentDept;
+            } else if (loggedInRole === 'jr_assistant') {
+                window.location.href = "../modules/jr_assistant/jr_acd_year.php?dept=" + currentDept;
+            } else if (loggedInRole === 'hod') {
+                window.location.href = "../HOD/see_uploads.php?dept=" + currentDept + "&designation=HOD";
+            } else if (loggedInRole === 'admin') {
+                window.location.href = "../HOD/acd_year_aa.php?designation=admin";
             }
-
-            alert("You are already logged in as " + loggedInRole.replace('_', ' ') + ". Please logout first to switch roles or departments.");
-            return;
-        }
-
-        if (designation) {
-            document.getElementById("welcomeMessage").innerText = "Welcome " + designation.replace("_", " ");
-            document.getElementById("loginForm").style.display = "block";
-            document.getElementById("register").style.display = (designation === "faculty") ? "block" : "none";
-            document.getElementById("designationHidden").value = designation;
         }
     }
 </script>

@@ -12,8 +12,6 @@ $dept = $_GET['dept'] ?? $_SESSION['dept'] ?? '';
 if (empty($dept)) {
     die("Department not set.");
 }
-
-include_once '../../includes/header.php';
 ?>
 
 <!DOCTYPE html>
@@ -43,7 +41,7 @@ include_once '../../includes/header.php';
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 100px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
 
             background-color: white;
@@ -184,7 +182,8 @@ include_once '../../includes/header.php';
     </style>
 </head>
 
-<body>
+<body class="dashboard-page">
+    <?php include_once '../../includes/header.php'; ?>
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-items">
@@ -253,6 +252,12 @@ include_once '../../includes/header.php';
                 </a>
             </div>
         </div>
+
+        <?php
+        // Include the modern Recent Uploads & Pending Actions table
+        $base_url = '../../';
+        include_once '../../includes/dashboard_table.php';
+        ?>
     </main>
 </body>
 

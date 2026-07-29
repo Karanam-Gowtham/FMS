@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 include_once "../../includes/connection.php";
 include_once "../../includes/header.php";
@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 100px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
             background-color: white;
             font-size: larger;

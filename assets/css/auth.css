@@ -1,0 +1,213 @@
+/* ============================
+   Auth Pages (Login, Register) - Academic Light Theme
+   ============================ */
+
+body.auth-page {
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background-image: url('../img/Landing.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+}
+
+body.auth-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.65); /* Slate overlay for readability */
+    z-index: 0;
+}
+
+.auth-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 100px;
+    padding-bottom: 50px;
+    flex: 1;
+}
+
+.auth-card {
+    background: #ffffff;
+    padding: 45px 40px;
+    border-radius: 12px;
+    color: #334155;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+    animation: authFadeIn 0.5s ease-out;
+}
+
+.auth-card.wide {
+    max-width: 700px;
+    text-align: left;
+}
+
+@keyframes authFadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-card h1 {
+    font-size: 1.8em;
+    margin-bottom: 8px;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.auth-card h2 {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.auth-card label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #475569;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.auth-card input,
+.auth-card select,
+.auth-card textarea {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border: 1px solid #cbd5e1;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+    color: #1e293b;
+    transition: all 0.2s;
+}
+
+.auth-card input:focus,
+.auth-card select:focus,
+.auth-card textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.auth-card input::placeholder {
+    color: #94a3b8;
+}
+
+.auth-card input[type="file"] {
+    padding: 10px;
+    background: #f8fafc;
+}
+
+.auth-card input[type="file"]::file-selector-button {
+    background: #e2e8f0;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+.auth-card input[type="file"]::file-selector-button:hover {
+    background: #cbd5e1;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1e3a8a, #1e40af); /* Deep Navy */
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+}
+
+.auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(30, 58, 138, 0.3);
+}
+
+.auth-btn.success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.auth-btn.success:hover {
+    box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+}
+
+.auth-link {
+    display: block;
+    margin-top: 20px;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.auth-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    text-align: left;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Form Grid for Registration */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .auth-card {
+        margin: 15px;
+        padding: 30px 20px;
+    }
+}

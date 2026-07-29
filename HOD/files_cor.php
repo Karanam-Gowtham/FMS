@@ -80,7 +80,7 @@ if (isset($_GET['download_excel'])) {
             background-color: #f8f9fa;
         }
         .container11 {
-            margin-top: 100px;
+            margin-top: 0;
             margin: 0 auto;
             width: 90%;
             padding: 20px;
@@ -90,7 +90,7 @@ if (isset($_GET['download_excel'])) {
             margin-top: 40px;
         }
         h1 {
-            margin-top: 100px;
+            margin-top: 0;
             text-align: center;
             color: #333;
             margin-bottom: 20px;

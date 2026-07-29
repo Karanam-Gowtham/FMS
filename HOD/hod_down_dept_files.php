@@ -150,7 +150,7 @@ include_once "header_hod.php";
         }
 
         .container11 {
-            margin-top: 100px;
+            margin-top: 0;
         }
 
         .container111 {
@@ -250,7 +250,7 @@ include_once "header_hod.php";
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 100px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
 
             background-color: white;

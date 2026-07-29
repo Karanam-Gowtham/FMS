@@ -7,25 +7,25 @@ declare(strict_types=1);
 function fms_table_owner_column(string $table): ?string
 {
     static $map = [
-        'files' => 'UserName',
-        'files5_1_1and2' => 'UserName',
-        'files5_1_3' => 'username',
-        'files5_1_4' => 'username',
-        'files5_2_1' => 'username',
-        'files5_2_2' => 'username',
-        'fdps_tab' => 'username',
-        'fdps_org_tab' => 'username',
-        'conference_tab' => 'username',
-        'published_tab' => 'username',
-        'patents_table' => 'Username',
-        's_journal_tab' => 'Username',
-        's_conference_tab' => 'Username',
-        's_events' => 'Username',
-        's_bodies' => 'Username',
-        'dept_files' => 'username',
-        'files5_2_3' => 'username',
-        'files5_3_1' => 'username',
-        'files5_3_3' => 'username',
+    'files' => 'UserName',
+    'files5_1_1and2' => 'UserName',
+    'files5_1_3' => 'username',
+    'files5_1_4' => 'username',
+    'files5_2_1' => 'username',
+    'files5_2_2' => 'username',
+    'fdps_tab' => 'username',
+    'fdps_org_tab' => 'username',
+    'conference_tab' => 'username',
+    'published_tab' => 'username',
+    'patents_table' => 'Username',
+    's_journal_tab' => 'Username',
+    's_conference_tab' => 'Username',
+    's_events' => 'Username',
+    's_bodies' => 'Username',
+    'dept_files' => 'username',
+    'files5_2_3' => 'username',
+    'files5_3_1' => 'username',
+    'files5_3_3' => 'username',
     ];
     return $map[$table] ?? null;
 }
@@ -186,9 +186,25 @@ function fms_verify_file_path_access(mysqli $conn, string $rawPath, string $role
     $variants = array_values(array_unique($variants));
 
     $tables = [
-        'files', 'files5_1_1and2', 'files5_1_3', 'files5_1_4', 'files5_2_1', 'files5_2_2', 'files5_2_3',
-        'files5_3_1', 'files5_3_3', 'fdps_tab', 'fdps_org_tab', 'conference_tab', 'published_tab', 'patents_table',
-        's_journal_tab', 's_conference_tab', 's_events', 's_bodies', 'dept_files',
+        'files',
+        'files5_1_1and2',
+        'files5_1_3',
+        'files5_1_4',
+        'files5_2_1',
+        'files5_2_2',
+        'files5_2_3',
+        'files5_3_1',
+        'files5_3_3',
+        'fdps_tab',
+        'fdps_org_tab',
+        'conference_tab',
+        'published_tab',
+        'patents_table',
+        's_journal_tab',
+        's_conference_tab',
+        's_events',
+        's_bodies',
+        'dept_files',
     ];
 
     foreach ($tables as $table) {

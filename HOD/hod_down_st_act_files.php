@@ -165,7 +165,7 @@ include_once "header_hod.php";
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 100px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
 
             background-color: white;
@@ -211,7 +211,7 @@ include_once "header_hod.php";
             background: #ffffff;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            margin-top: 100px;
+            margin-top: 0;
         }
 
         .container111 {

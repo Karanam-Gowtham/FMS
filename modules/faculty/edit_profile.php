@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once '../../includes/session.php';
 require_once '../../includes/connection.php';
 
@@ -110,7 +110,7 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 } else {
-    echo "<p style='text-align:center; margin-top:100px;'>User data not found. Please <a href='../../modules/auth/logout.php'>log in again</a>.</p>";
+    echo "<p style='text-align:center; margin-top: 0;'>User data not found. Please <a href='../../modules/auth/logout.php'>log in again</a>.</p>";
     exit;
 }
 
@@ -125,7 +125,7 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 } else {
-    echo "<p style='text-align:center; margin-top:100px;'>User data not found. Please <a href='../../modules/auth/logout.php'>log in again</a>.</p>";
+    echo "<p style='text-align:center; margin-top: 0;'>User data not found. Please <a href='../../modules/auth/logout.php'>log in again</a>.</p>";
     exit;
 }
 

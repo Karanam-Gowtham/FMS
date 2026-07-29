@@ -64,7 +64,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
             background-color: #45a049;
         }
             .container {
-                margin-top:100px;
+                margin-top: 0;
                 margin-bottom:150px;
                 background: rgba(0, 0, 0, 0.7);
                 box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.7);
@@ -183,7 +183,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
             position: sticky;
             top: 70px;
             z-index: 99;
-            margin-top: 80px;
+            margin-top: 0;
             border-bottom: 1px solid #eee;
  
         font-size: larger;

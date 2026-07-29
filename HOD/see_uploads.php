@@ -64,7 +64,7 @@ foreach ($years as $y) {
         }
 
         .nav-container {
-            margin-top: 100px;
+            margin-top: 0;
             margin-left: 100px;
             max-width: 80rem;
             padding: 0 1rem;
@@ -194,7 +194,7 @@ foreach ($years as $y) {
         }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <?php include_once 'header_hod.php'; ?>
 
     <nav class="navbar">
@@ -400,6 +400,12 @@ foreach ($years as $y) {
                 </a>
             </div>
         </div>
+
+        <?php
+        // Include the modern Recent Uploads & Pending Actions table
+        $base_url = '../';
+        include_once '../includes/dashboard_table.php';
+        ?>
     </main>
 </body>
 </html>

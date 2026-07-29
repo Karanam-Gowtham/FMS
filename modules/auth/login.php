@@ -1,160 +1,129 @@
 <?php
-require_once '../../includes/session.php';
-require_once '../../includes/connection.php';
-require_once '../../includes/csrf.php';
+include_once '../../config.php';
+include_once CONNECTION_PATH;
+include_once INCLUDES_PATH . '/helpers.php';
 
-// Check if the user is already logged in
-if (isset($_SESSION['username'])) {
-    header("Location: ../faculty/acd_year.php");
+// Redirect if already logged in
+if (isLoggedIn()) {
+    header("Location: " . BASE_URL . "/dashboard.php");
     exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    csrfValidate();
-    // Handling Sign In
-    if (isset($_POST['signIn'])) {
-        $userid = $_POST['userid'];
-        $password = $_POST['password'];
-        $department = $_POST['department'];
+$message = '';
+$msg_type = '';
 
-        $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ? AND dept = ?");
-        $stmt->bind_param("sss", $userid, $password, $department);
-        $stmt->execute();
-        $result = $stmt->get_result();
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-        if ($result->num_rows > 0) {
-            $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
-            $login_stmt->bind_param("ss", $userid, $password);
+    $stmt = $conn->prepare("
+        SELECT * FROM Users
+        WHERE email = ? AND status = 'active'
+    ");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-            if ($login_stmt->execute() === true) {
-                session_regenerate_id(true);
-                $_SESSION['username'] = $userid;
-                header("Location: ../faculty/acd_year.php");
-                exit();
-            } else {
-                echo "Error: " . $login_stmt->error;
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+
+        // For now using plain text password comparison (as in FMS)
+        if ($password === $user['password']) {
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['full_name'] = $user['full_name'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['logged_in'] = true;
+
+            // Fetch all roles for this user
+            $role_stmt = $conn->prepare("
+                SELECT ur.role_id, ur.dept_id, r.role_name, d.dept_name
+                FROM User_Roles ur
+                JOIN Roles r ON ur.role_id = r.role_id
+                JOIN Dept d ON ur.dept_id = d.dept_id
+                WHERE ur.user_id = ?
+            ");
+            $role_stmt->bind_param("i", $user['user_id']);
+            $role_stmt->execute();
+            $roles_result = $role_stmt->get_result();
+
+            $roles = [];
+            while ($row = $roles_result->fetch_assoc()) {
+                $roles[] = [
+                    'role_id' => (int) $row['role_id'],
+                    'role_name' => $row['role_name'],
+                    'dept_id' => (int) $row['dept_id'],
+                    'dept_name' => $row['dept_name']
+                ];
             }
-            $login_stmt->close();
+            $role_stmt->close();
+
+            $_SESSION['roles'] = $roles;
+
+            // For backwards compatibility, set the first role as primary
+            if (!empty($roles)) {
+                $_SESSION['role_id'] = $roles[0]['role_id'];
+                $_SESSION['role_name'] = $roles[0]['role_name'];
+                $_SESSION['dept_id'] = $roles[0]['dept_id'];
+                $_SESSION['dept_name'] = $roles[0]['dept_name'];
+            }
+
+            // Update last login
+            $update = $conn->prepare("UPDATE Users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?");
+            $update->bind_param("i", $user['user_id']);
+            $update->execute();
+            $update->close();
+
+            header("Location: " . BASE_URL . "/dashboard.php");
+            exit();
         } else {
-            echo "<script>alert('Wrong User ID, Password or Department!');</script>";
+            $message = "Invalid password!";
+            $msg_type = "alert-danger";
         }
-        $stmt->close();
+    } else {
+        $message = "User does not exist!";
+        $msg_type = "alert-danger";
     }
+    $stmt->close();
 }
 
-include_once "../../includes/header.php";
+include_once HEADER;
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        body {
-            background-image: url('../../assets/img/gmr_landing_page.jpg');
-            background-size: cover;
-            background-position: center;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: -1;
-        }
-
-        .login-container {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 40px;
-            border-radius: 10px;
-            color: white;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            width: 300px;
-            margin-top: 200px;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: scale(0.9);
-                }
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-            }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        input {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            font-size: 1em;
-        }
-
-        .button1 {
-            padding: 10px;
-            background: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s;
-        }
-
-        .button1:hover {
-            background-color: #0056b3;
-        }
-
-    </style>
+    <title>Login - FMS</title>
+    <link rel="stylesheet" href="<?php echo CSS_PATH . '/auth.css'; ?>">
 </head>
-<body>
-    <div class="container11">
-        <div class="login-container">
+
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>Welcome Back</h1>
+            <h2>Sign in to FMS</h2>
+
+            <?php if (!empty($message)): ?>
+                <div class="alert <?php echo $msg_type; ?>">
+                    <?php echo htmlspecialchars($message); ?>
+                </div>
+            <?php endif; ?>
+
             <form action="" method="POST">
-                <?php echo csrfField(); ?>
-                <h1 id="hav">Faculty<br>Log In</h1>
-                <input type="text" name="userid" placeholder="User Id" id="id" required />
-                <input type="password" name="password" placeholder="Password" id="pass" required />
-                
-                <select name="department" id="dept" required style="margin-bottom: 15px; padding: 10px; border-radius: 5px; border: none; font-size: 1em;">
-                    <option value="" disabled selected>Select Department</option>
-                    <option value="CSE">CSE</option>
-                    <option value="ECE">ECE</option>
-                    <option value="EEE">EEE</option>
-                    <option value="MECH">MECH</option>
-                    <option value="CIVIL">CIVIL</option>
-                    <option value="AIML">AIML</option>
-                    <option value="AIDS">AIDS</option>
-                    <option value="IT">IT</option>
-                    <option value="BSH">BSH</option>
-                </select>
-                <button type="submit" name="signIn" class="button1">Log In</button>
+                <label for="email">Email Address</label>
+                <input type="email" name="email" id="email" placeholder="name@gmrit.edu.in" required
+                    value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" placeholder="Enter your password" required>
+
+                <button type="submit" name="signIn" class="auth-btn">Sign In</button>
             </form>
+
+            <a href="reg.php" class="auth-link">Don't have an account? Register here</a>
         </div>
     </div>
-    </body>
+</body>
+
 </html>
