@@ -259,7 +259,7 @@ E:.
 |               7.1.9(A).docx
 |               7.2.1.docx
 |               7.3.1.docx
-|               AlumniÆs financial contribution during the year 2022-23-Revised copy.xlsx
+|               Alumni's financial contribution during the year 2022-23-Revised copy.xlsx
 |               Geo-tagged photos.docx
 |               ~$6.2.2.docx
 |               
@@ -716,7 +716,7 @@ E:.
     \---student_act
             1772165577_cse - activity.pdf
             1772165611_cse - activity.pdf
-            1772525547_Fms Database û Interactive Documentation (1).pdf
+            1772525547_Fms Database ï¿½ Interactive Documentation (1).pdf
             
 
 
