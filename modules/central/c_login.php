@@ -30,17 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Redirect to the dashboard with the event value
         session_regenerate_id(true);
         $_SESSION['c_cord'] = $email;
-        echo "<script>
-            alert('Login successful! ');
-
-            window.location.href = 'c_upload.php?event=" . urlencode($event) . "';
-        </script>";
-        exit();
+        $success_message = 'Login successful!';
+        $redirect_url = 'c_upload.php?event=' . urlencode($event);
     } else {
-        $error = "Invalid email or password for the " . htmlspecialchars($event) . " event.";
-        echo "<script>
-            alert(" . json_encode($error) . ");
-        </script>";
+        $error_message = "Invalid email or password for the " . htmlspecialchars($event) . " event.";
     }
 }
 
@@ -107,6 +100,25 @@ $extra_head = '
             </form>
         </div>
     </div>
+
+    <?php if (isset($error_message)): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast(<?php echo json_encode($error_message); ?>, "error");
+        });
+    </script>
+    <?php endif; ?>
+    
+    <?php if (isset($success_message)): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast(<?php echo json_encode($success_message); ?>, "success");
+            setTimeout(() => {
+                window.location.href = <?php echo json_encode($redirect_url); ?>;
+            }, 1000);
+        });
+    </script>
+    <?php endif; ?>
 </body>
 </html>
 

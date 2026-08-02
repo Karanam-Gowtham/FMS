@@ -385,9 +385,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
 
 <?php if (!empty($error_message)): ?>
 <script>
-    window.onload = function () {
-        alert("<?php echo $error_message; ?>");
-    };
+    document.addEventListener('DOMContentLoaded', function () {
+        showToast("<?php echo addslashes($error_message); ?>", "error");
+    });
 </script>
 <?php endif; ?>
 

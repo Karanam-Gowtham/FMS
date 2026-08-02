@@ -259,7 +259,91 @@ if (isset($extra_head)) { echo $extra_head; }
                 overflow: visible;
             }
         }
+        /* --- Global Interaction Layer CSS --- */
+        
+        /* Page Load Transition */
+        body {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        body.fms-loaded {
+            opacity: 1;
+        }
+
+        /* Loading Button State */
+        button.is-loading, input.is-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .fms-toast {
+            display: flex;
+            align-items: center;
+            background: #1f2937;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-width: 250px;
+            border-left: 5px solid #3b82f6;
+        }
+        .fms-toast.show {
+            transform: translateX(0);
+        }
+        .toast-success { border-left-color: #10b981; }
+        .toast-error { border-left-color: #ef4444; }
+        .toast-info { border-left-color: #3b82f6; }
+        
+        .toast-icon {
+            margin-right: 12px;
+            display: flex;
+        }
+        .toast-message {
+            flex-grow: 1;
+            font-size: 0.95rem;
+        }
+        .toast-close {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 15px;
+            padding: 0;
+            line-height: 1;
+        }
+        .toast-close:hover {
+            color: white;
+        }
     </style>
+    <script src="<?php echo $base_url; ?>assets/js/main.js" defer></script>
     <header>
         <nav class="main-header-navbar">
             <div class="left-nav">
