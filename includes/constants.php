@@ -58,6 +58,8 @@ define('TABLE_LOGIN_PG', 'login_pg');
 define('TABLE_PUBLISHED', 'published_tab');
 define('TABLE_FDPS_ATTENDED', 'fdps_tab');
 define('TABLE_CONFERENCE', 'conference_tab');
+define('TABLE_FDPS_ORG', 'fdps_org_tab');
+define('TABLE_CONF_ORG', 'conf_org_tab');
 define('TABLE_PATENTS', 'patents_tab');
 define('TABLE_DEPT_FILES', 'dept_files');
 

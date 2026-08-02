@@ -117,7 +117,7 @@ foreach ($years as $y) {
         .header h1 {
             font-size: 1.5rem;
             font-weight: bold;
-            color: rgb(17, 24, 39);
+            color: #ffffff;
         }
 
         /* Feedback Grid */

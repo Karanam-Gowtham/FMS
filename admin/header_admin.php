@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 ob_start(); // Start output buffering
 ?>
 <!DOCTYPE html>
@@ -113,6 +113,25 @@ ob_start(); // Start output buffering
             border-radius: 8px;
             z-index: 1000;
             margin-top: 1px;
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        .dropdown-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .dropdown-content::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.9);
+            border-radius: 8px;
+        }
+        .dropdown-content::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 8px;
+        }
+        .dropdown-content::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
         }
 
         .dropdown:hover .dropdown-content {
@@ -200,6 +219,8 @@ ob_start(); // Start output buffering
                 opacity: 0;
                 transform: translateY(-10px);
                 transition: opacity 0.3s ease, transform 0.3s ease;
+                max-height: none; /* Disable max-height on mobile */
+                overflow: visible;
             }
 
             .dropdown:hover .dropdown-content {
@@ -266,27 +287,33 @@ ob_start(); // Start output buffering
                         <a class="a_" href="../modules/central/c_login_n.php?event=NBA">NBA</a>
                         <a class="a_" href="../modules/central/c_login.php?event=NCC">NCC</a>
                         <a class="a_" href="../modules/central/c_login.php?event=Sports">Sports</a>
-                        <a class="a_" href="../modules/central/c_login.php?event=Clubs">Clubs</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=Clubs">Clubs & Professional Bodies</a>
                         <a class="a_" href="../modules/central/c_login.php?event=NSS">NSS</a>
-                        <a class="a_" href="../modules/central/c_login.php?event=Women_Empowerment">Women
-                            Empowerment</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
                         <a class="a_" href="../modules/central/c_login.php?event=IIC">IIC</a>
                         <a class="a_" href="../modules/central/c_login.php?event=PASH">PASH</a>
                         <a class="a_" href="../modules/central/c_login.php?event=Antiragging">Antiragging</a>
                         <a class="a_" href="../modules/central/c_login.php?event=SAC">SAC</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=R&D">R&D</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=IQAC">IQAC</a>
+                        <a class="a_" href="../modules/central/c_login.php?event=Exam_Section">Exam Section</a>
                     </div>
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-outline dp">Department</button>
                     <div class="dropdown-content">
                         <a class="a_" href="admins.php?dept=CSE">CSE</a>
-                        <a class="a_" href="admins.php?dept=AIML">AIML</a>
-                        <a class="a_" href="admins.php?dept=AIDS">AIDS</a>
+                        <a class="a_" href="admins.php?dept=CSE-CS">CSE-CS</a>
+                        <a class="a_" href="admins.php?dept=CSE-AI&ML">CSE-AI&ML</a>
+                        <a class="a_" href="admins.php?dept=CSE-AI&DS">CSE-AI&DS</a>
                         <a class="a_" href="admins.php?dept=IT">IT</a>
                         <a class="a_" href="admins.php?dept=ECE">ECE</a>
                         <a class="a_" href="admins.php?dept=EEE">EEE</a>
                         <a class="a_" href="admins.php?dept=MECH">MECH</a>
                         <a class="a_" href="admins.php?dept=CIVIL">CIVIL</a>
+                        <a class="a_" href="admins.php?dept=MatheMatics">MatheMatics</a>
+                        <a class="a_" href="admins.php?dept=Physics">Physics</a>
+                        <a class="a_" href="admins.php?dept=Chemistry">Chemistry</a>
                         <a class="a_" href="admins.php?dept=BSH">BSH</a>
                     </div>
                 </div>

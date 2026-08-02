@@ -100,7 +100,7 @@ if (isset($_GET['dept'])) {
         .header h1 {
             font-size: 1.5rem;
             font-weight: bold;
-            color: rgb(17, 24, 39);
+            color: #ffffff;
         }
 
         .header h2 {
@@ -116,7 +116,7 @@ if (isset($_GET['dept'])) {
 
         .description p {
             margin-bottom: 1rem;
-            color: rgb(75, 85, 99);
+            color: #d1d5db;
         }
 
         /* Feedback Grid */
@@ -163,8 +163,20 @@ if (isset($_GET['dept'])) {
         }
 
         .my-achievements {
-            font-size: larger;
-            margin-left: -17px;
+            font-size: 1.1rem;
+            margin-left: 0;
+            color: #ffffff !important;
+            text-decoration: none;
+            background-color: #3b82f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .my-achievements:hover {
+            background-color: #2563eb;
         }
 
         .sp {
@@ -216,15 +228,21 @@ if (isset($_GET['dept'])) {
                     </div>
                 </a>
 
+                <a href="conf_org.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
+                    <div class="card-content">
+                        <h3>Conference Organised</h3>
+                    </div>
+                </a>
+
                 <a href="published.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
-                        <h3>Papers Published</h3>
+                        <h3>Research Papers Published</h3>
                     </div>
                 </a>
 
                 <a href="conference.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
-                        <h3>Conferences Published</h3>
+                        <h3>Conference Proceedings Published</h3>
                     </div>
                 </a>
                 <a href="patents.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">

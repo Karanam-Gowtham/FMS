@@ -119,9 +119,27 @@ if (isset($extra_head)) { echo $extra_head; }
             box-shadow: 0 12px 40px rgba(0,0,0,0.4);
             z-index: 1001;
             border-radius: 10px;
-            overflow: hidden;
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
             border: 1px solid #334155;
             margin-top: 2px;
+        }
+
+        /* Custom Scrollbar for Dropdown */
+        .main-header-navbar .dropdown-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .main-header-navbar .dropdown-content::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+        .main-header-navbar .dropdown-content::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+        .main-header-navbar .dropdown-content::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
         }
 
         .main-header-navbar .dropdown-content a {
@@ -237,6 +255,8 @@ if (isset($extra_head)) { echo $extra_head; }
                 margin-top: 0;
                 border-radius: 6px;
                 min-width: 100%;
+                max-height: none; /* Disable scroll on mobile since parent container handles it */
+                overflow: visible;
             }
         }
     </style>
@@ -263,13 +283,17 @@ if (isset($extra_head)) { echo $extra_head; }
                     <span>Departments &#9662;</span>
                     <div class="dropdown-content">
                         <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE">CSE</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=AIML">AIML</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=AIDS">AIDS</a>
+                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE-CS">CSE-CS</a>
+                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE-AI&ML">CSE-AI&ML</a>
+                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE-AI&DS">CSE-AI&DS</a>
                         <a href="<?php echo $base_url; ?>public/dept.php?dept=IT">IT</a>
                         <a href="<?php echo $base_url; ?>public/dept.php?dept=ECE">ECE</a>
                         <a href="<?php echo $base_url; ?>public/dept.php?dept=EEE">EEE</a>
                         <a href="<?php echo $base_url; ?>public/dept.php?dept=MECH">MECH</a>
                         <a href="<?php echo $base_url; ?>public/dept.php?dept=CIVIL">CIVIL</a>
+                        <a href="<?php echo $base_url; ?>public/dept.php?dept=MatheMatics">MatheMatics</a>
+                        <a href="<?php echo $base_url; ?>public/dept.php?dept=Physics">Physics</a>
+                        <a href="<?php echo $base_url; ?>public/dept.php?dept=Chemistry">Chemistry</a>
                         <a href="<?php echo $base_url; ?>public/dept.php?dept=BSH">BSH</a>
                     </div>
                 </div>
@@ -281,30 +305,39 @@ if (isset($extra_head)) { echo $extra_head; }
                         <a href="<?php echo $base_url; ?>modules/central/c_login_n.php?event=NBA">NBA</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=NCC">NCC</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Sports">Sports</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Clubs">Clubs</a>
+                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Clubs">Clubs & Professional Bodies</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=NSS">NSS</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IIC">IIC</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=PASH">PASH</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Antiragging">Antiragging</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=SAC">SAC</a>
+                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=R&D">R&D</a>
+                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IQAC">IQAC</a>
+                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Exam_Section">Exam Section</a>
                     </div>
                 </div>
 
+                <?php if (isset($_SESSION['admin'])): ?>
                 <div class="dropdown">
-                    <span>Dept Login &#9662;</span>
+                    <span>Switch Depts &#9662;</span>
                     <div class="dropdown-content">
                         <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE">CSE</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=AIML">AIML</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=AIDS">AIDS</a>
+                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE-CS">CSE-CS</a>
+                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE-AI&ML">CSE-AI&ML</a>
+                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE-AI&DS">CSE-AI&DS</a>
                         <a href="<?php echo $base_url; ?>admin/admins.php?dept=IT">IT</a>
                         <a href="<?php echo $base_url; ?>admin/admins.php?dept=ECE">ECE</a>
                         <a href="<?php echo $base_url; ?>admin/admins.php?dept=EEE">EEE</a>
                         <a href="<?php echo $base_url; ?>admin/admins.php?dept=MECH">MECH</a>
                         <a href="<?php echo $base_url; ?>admin/admins.php?dept=CIVIL">CIVIL</a>
+                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=MatheMatics">MatheMatics</a>
+                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=Physics">Physics</a>
+                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=Chemistry">Chemistry</a>
                         <a href="<?php echo $base_url; ?>admin/admins.php?dept=BSH">BSH</a>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <a href="<?php echo $base_url; ?>modules/common/pdf_merger.php">Pdf Merger</a>
 
@@ -313,6 +346,9 @@ if (isset($extra_head)) { echo $extra_head; }
                         Dashboard <span id="dashboard-badge" class="notif-badge">0</span>
                     </a>
                     <a href="<?php echo $base_url; ?>modules/auth/logout.php" class="nav-btn nav-btn-logout">Logout</a>
+                <?php else: ?>
+                    <a href="<?php echo $base_url; ?>modules/auth/login.php" class="nav-btn">Sign In</a>
+                    <a href="<?php echo $base_url; ?>modules/auth/reg.php" class="nav-btn" style="background-color: transparent; border: 1px solid white; margin-left: 10px;">Register</a>
                 <?php endif; ?>
             </div>
         </nav>

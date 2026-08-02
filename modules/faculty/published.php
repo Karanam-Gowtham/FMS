@@ -23,12 +23,32 @@ if (!$dept) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $paper_title = $_POST['paper_title'];
     $journal_name = $_POST['journal_name'];
-    $indexing = $_POST['indexing'];
-    $date_of_submission = $_POST['date_of_submission'];
-    $quality_factor = $_POST['quality_factor'];
-    $impact_factor = $_POST['impact_factor'];
-    $payment = $_POST['payment'];
+    $issn_no = $_POST['issn_no'];
+    $volume_no = $_POST['volume_no'];
+    $issue_no = $_POST['issue_no'];
+    $page_no = $_POST['page_no'];
+    $doi = $_POST['doi'];
     $year = $_POST['year'];
+    $indexing = $_POST['indexing'];
+    $impact_factor = $_POST['impact_factor'];
+    $jcr_quartile = $_POST['jcr_quartile'];
+    $scopus_quartile = $_POST['scopus_quartile'];
+    $publication_link = $_POST['publication_link'];
+
+    // Process Authors JSON
+    $authors_array = [];
+    if (isset($_POST['author_name']) && is_array($_POST['author_name'])) {
+        for ($i = 0; $i < count($_POST['author_name']); $i++) {
+            if (!empty(trim($_POST['author_name'][$i]))) {
+                $authors_array[] = [
+                    'name' => trim($_POST['author_name'][$i]),
+                    'affiliation' => trim($_POST['author_affiliation'][$i]),
+                    'position' => trim($_POST['author_position'][$i])
+                ];
+            }
+        }
+    }
+    $authors_json = json_encode($authors_array, JSON_UNESCAPED_UNICODE);
 
     $target_dir = "../../uploads/published/";
     if (!is_dir($target_dir)) {
@@ -40,11 +60,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (move_uploaded_file($_FILES["paper_file"]["tmp_name"], $target_file)) {
         $status = 'Pending HOD';
-        $sql = "INSERT INTO published_tab (username, branch, paper_title, journal_name, indexing, date_of_submission, quality_factor, impact_factor, payment, paper_file, submission_time, year, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
+        $sql = "INSERT INTO published_tab (username, branch, paper_title, authors, journal_name, issn_no, volume_no, issue_no, page_no, doi, indexing, impact_factor, jcr_quartile, scopus_quartile, publication_link, paper_file, submission_time, year, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssssssss", $username, $dept, $paper_title, $journal_name, $indexing, $date_of_submission, $quality_factor, $impact_factor, $payment, $target_file, $year, $status);
+        $stmt->bind_param("ssssssssssssssssss", $username, $dept, $paper_title, $authors_json, $journal_name, $issn_no, $volume_no, $issue_no, $page_no, $doi, $indexing, $impact_factor, $jcr_quartile, $scopus_quartile, $publication_link, $target_file, $year, $status);
 
         if ($stmt->execute()) {
             echo "<script>alert('Paper added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
@@ -84,7 +104,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .nav-container {
-            /* margin-top moved to .navbar */
             margin-left: 100px;
             max-width: 80rem;
             padding: 0 1rem;
@@ -115,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background: rgba(16, 15, 15, 0.8);
             padding: 40px;
             border-radius: 15px;
-            max-width: 600px;
+            max-width: 800px;
             width: 90%;
             box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
         }
@@ -125,8 +144,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 20px;
         }
 
-        input,
-        select {
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select,
+        input[type="file"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -134,30 +162,81 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border: none;
             background: rgba(255, 255, 255, 0.2);
             color: white;
+            box-sizing: border-box;
         }
 
-        button {
+        .author-table {
             width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .author-table th,
+        .author-table td {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px;
+            text-align: left;
+        }
+
+        .author-table input,
+        .author-table select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: white;
+            margin-bottom: 0;
+        }
+
+        .btn-add {
+            background-color: #007bff;
+            color: white;
+            border: none;
             padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .btn-add:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
             background: #ff6347;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
         }
 
-        button:hover {
+        button[type="submit"]:hover {
             background: #e55337;
         }
 
         option {
             background-color: #333;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -178,30 +257,67 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
                         href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Published Papers</span></span>
+                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Research Papers Published</span></span>
             </div>
         </div>
     </nav>
 
     <div class="container11">
-        <h2>Upload Published Paper</h2>
+        <h2>Research Papers Published Form</h2>
         <form method="POST" enctype="multipart/form-data">
             <label for="paper_title">Paper Title:</label>
             <input type="text" id="paper_title" name="paper_title" required>
 
+            <!-- Authors Table -->
+            <label>Name of Authors:</label>
+            <table class="author-table" id="authorTable">
+                <thead>
+                    <tr>
+                        <th>Name of the Author</th>
+                        <th>Name of Affiliation</th>
+                        <th>Position of the Author</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="author_name[]" required></td>
+                        <td><input type="text" name="author_affiliation[]" required></td>
+                        <td>
+                            <select name="author_position[]" required>
+                                <option value="First author">First author</option>
+                                <option value="First author with equal contribution">First author with equal contribution</option>
+                                <option value="Corresponding Author">Corresponding Author</option>
+                                <option value="Co-author">Co-author</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-remove" onclick="removeAuthorRow(this)">-</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn-add" onclick="addAuthorRow()">+ Add Author</button>
+
             <label for="journal_name">Journal Name:</label>
             <input type="text" id="journal_name" name="journal_name" required>
 
-            <label for="indexing">Indexing (SCI/SCOPUS/UGC):</label>
-            <select id="indexing" name="indexing" required>
-                <option value="">Select Indexing</option>
-                <option value="SCI">SCI</option>
-                <option value="SCOPUS">SCOPUS</option>
-                <option value="UGC">UGC</option>
-                <option value="Other">Other</option>
-            </select>
+            <label for="issn_no">ISSN No:</label>
+            <input type="text" id="issn_no" name="issn_no" required>
 
-            <label for="year">Academic Year:</label>
+            <label for="volume_no">Volume No:</label>
+            <input type="text" id="volume_no" name="volume_no" required>
+
+            <label for="issue_no">Issue No:</label>
+            <input type="text" id="issue_no" name="issue_no" required>
+
+            <label for="page_no">Page No:</label>
+            <input type="text" id="page_no" name="page_no" required>
+
+            <label for="doi">DOI:</label>
+            <input type="text" id="doi" name="doi" required>
+
+            <label for="year">Year of Publication:</label>
             <select id="year" name="year" required>
                 <option value="">Select Year</option>
                 <?php
@@ -215,30 +331,81 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ?>
             </select>
 
-            <label for="date_of_submission">Date of Submission:</label>
-            <input type="date" id="date_of_submission" name="date_of_submission" required>
-
-            <label for="quality_factor">Quality Factor:</label>
-            <input type="text" id="quality_factor" name="quality_factor" placeholder="e.g. 1.5">
-
-            <label for="impact_factor">Impact Factor:</label>
-            <input type="text" id="impact_factor" name="impact_factor" placeholder="e.g. 2.0">
-
-            <label for="payment">Payment:</label>
-            <select id="payment" name="payment">
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
+            <label for="indexing">Indexing:</label>
+            <select id="indexing" name="indexing" required>
+                <option value="SCI">SCI</option>
+                <option value="SCIE">SCIE</option>
+                <option value="ESCI">ESCI</option>
+                <option value="SCOPUS">SCOPUS</option>
+                <option value="WOS">WOS</option>
+                <option value="NON-INDEXED">NON-INDEXED</option>
             </select>
 
-            <label for="paper_file">Paper File:</label>
-            <input type="file" id="paper_file" name="paper_file" required>
+            <label for="impact_factor">Impact Factor:</label>
+            <input type="number" id="impact_factor" name="impact_factor" step="0.01" min="0" required>
+
+            <label for="jcr_quartile">JCR Quartile:</label>
+            <select id="jcr_quartile" name="jcr_quartile" required>
+                <option value="" disabled selected>Select</option>
+                <option value="Q1">Q1</option>
+                <option value="Q2">Q2</option>
+                <option value="Q3">Q3</option>
+                <option value="Q4">Q4</option>
+                <option value="None">None</option>
+            </select>
+
+            <label for="scopus_quartile">Scopus Quartile:</label>
+            <select id="scopus_quartile" name="scopus_quartile" required>
+                <option value="" disabled selected>Select</option>
+                <option value="Q1">Q1</option>
+                <option value="Q2">Q2</option>
+                <option value="Q3">Q3</option>
+                <option value="Q4">Q4</option>
+                <option value="None">None</option>
+            </select>
+
+            <label for="publication_link">Publication Link:</label>
+            <input type="url" id="publication_link" name="publication_link" required>
+
+            <label for="paper_file">Upload Full Paper (PDF):</label>
+            <input type="file" id="paper_file" name="paper_file" accept=".pdf" required>
 
             <button type="submit">Submit</button>
         </form>
     </div>
 
+    <script>
+    function addAuthorRow() {
+        var table = document.getElementById("authorTable").getElementsByTagName('tbody')[0];
+        var newRow = table.insertRow(table.rows.length);
+
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        var cell4 = newRow.insertCell(3);
+
+        cell1.innerHTML = '<input type="text" name="author_name[]" required>';
+        cell2.innerHTML = '<input type="text" name="author_affiliation[]" required>';
+        cell3.innerHTML = `<select name="author_position[]" required>
+                            <option value="First author">First author</option>
+                            <option value="First author with equal contribution">First author with equal contribution</option>
+                            <option value="Corresponding Author">Corresponding Author</option>
+                            <option value="Co-author">Co-author</option>
+                           </select>`;
+        cell4.innerHTML = '<button type="button" class="btn-remove" onclick="removeAuthorRow(this)">-</button>';
+    }
+
+    function removeAuthorRow(button) {
+        var row = button.parentNode.parentNode;
+        // Don't remove if it's the only row left to ensure at least one author is submitted
+        if(document.getElementById("authorTable").getElementsByTagName('tbody')[0].rows.length > 1) {
+            row.parentNode.removeChild(row);
+        } else {
+            alert("At least one author is required.");
+        }
+    }
+    </script>
 </body>
 
 </html>
 <?php $conn->close(); ?>
-

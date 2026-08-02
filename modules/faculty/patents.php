@@ -22,6 +22,7 @@ if (!$dept) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $patent_title = $_POST['patent_title'];
+    $type_input = $_POST['type'];
     $date_of_issue = $_POST['date_of_issue'];
     $year = $_POST['year'];
 
@@ -35,11 +36,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (move_uploaded_file($_FILES["patent_file"]["tmp_name"], $target_file)) {
         $status = 'Pending HOD';
-        $sql = "INSERT INTO patents_table (username, branch, patent_title, date_of_issue, patent_file, submission_time, year, status)
-                VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)";
+        $sql = "INSERT INTO patents_table (username, branch, patent_title, type, date_of_issue, patent_file, submission_time, year, status)
+                VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssss", $username, $dept, $patent_title, $date_of_issue, $target_file, $year, $status);
+        $stmt->bind_param("ssssssss", $username, $dept, $patent_title, $type_input, $date_of_issue, $target_file, $year, $status);
 
         if ($stmt->execute()) {
             echo "<script>alert('Patent record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
@@ -183,6 +184,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form method="POST" enctype="multipart/form-data">
             <label for="patent_title">Patent Title:</label>
             <input type="text" id="patent_title" name="patent_title" required>
+
+            <label for="type">Type:</label>
+            <select id="type" name="type" required>
+                <option value="" disabled selected>Select Type</option>
+                <option value="published">Published</option>
+                <option value="granted">Granted</option>
+            </select>
 
             <label for="date_of_issue">Date of Issue:</label>
             <input type="date" id="date_of_issue" name="date_of_issue" required>

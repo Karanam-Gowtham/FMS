@@ -108,10 +108,9 @@ include_once 'header_hod.php';
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: rgb(17, 24, 39);
-            letter-spacing: -0.025em;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
         }
 
         .header p {

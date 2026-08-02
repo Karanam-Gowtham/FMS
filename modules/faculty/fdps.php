@@ -23,6 +23,7 @@ if (!$dept) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
+    $mode = $_POST['mode'];
     $date_from = $_POST['date_from'];
     $date_to = $_POST['date_to'];
     $organised_by = $_POST['organised_by'];
@@ -35,21 +36,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mkdir($target_dir, 0777, true);
     }
 
-    $file_name = time() . '_' . basename($_FILES["certificate"]["name"]);
-    $target_file = $target_dir . $file_name;
-    $db_path = "uploads/fdps/" . $file_name; // Relative path for DB if that's the convention
-    // Actually look at dc_up_files.php: '../../uploads/' . $_FILES['file']['name'];
-    // It stores full path?
-    // Let's use the convention seen in download_papers1.php which uses file_exists($file[$fileColumn]).
-    // In dashboard.php reupload: $fs_path = __DIR__ . '/' . $relative;
-    // Let's store "../../uploads/fdps/..." to be safe or relative.
-    // dc_up_files stores '../../uploads/...'
+    function uploadFile($fileInputName, $target_dir) {
+        if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] == 0) {
+            $fileName = time() . '_' . $fileInputName . '_' . basename($_FILES[$fileInputName]["name"]);
+            $targetFile = $target_dir . $fileName;
+            if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
+                return $targetFile;
+            }
+        }
+        return "";
+    }
 
-    if (move_uploaded_file($_FILES["certificate"]["tmp_name"], $target_file)) {
+    $certificate = uploadFile('certificate', $target_dir);
+    $brochure = uploadFile('brochure', $target_dir);
+    $schedule = uploadFile('schedule', $target_dir);
+
+    // If certificate is required
+    if ($certificate != "") {
         $status = 'Pending HOD';
-        $sql = "INSERT INTO fdps_tab (username, branch, title, date_from, date_to, organised_by, location, certificate, submission_time, year, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
+        $sql = "INSERT INTO fdps_tab (username, branch, title, mode, date_from, date_to, organised_by, location, brochure, schedule, certificate, submission_time, year, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssssss", $username, $dept, $title, $date_from, $date_to, $organised_by, $location, $target_file, $year, $status);
+        $stmt->bind_param("sssssssssssss", $username, $dept, $title, $mode, $date_from, $date_to, $organised_by, $location, $brochure, $schedule, $certificate, $year, $status);
 
         if ($stmt->execute()) {
             echo "<script>alert('Record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
@@ -57,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<script>alert('Error: " . $stmt->error . "');</script>";
         }
     } else {
-        echo "<script>alert('Sorry, there was an error uploading your file.');</script>";
+        echo "<script>alert('Sorry, there was an error uploading your certificate.');</script>";
     }
 }
 ?>
@@ -196,11 +203,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="title">Title of FDP:</label>
             <input type="text" id="title" name="title" required>
 
+            <label for="mode">Mode:</label>
+            <select id="mode" name="mode" required>
+                <option value="online">Online</option>
+                <option value="offline">Offline</option>
+            </select>
+
             <label for="organised_by">Organised By:</label>
             <input type="text" id="organised_by" name="organised_by" required>
 
             <label for="location">Location:</label>
             <input type="text" id="location" name="location" required>
+
+            <label for="brochure">FDP Brochure:</label>
+            <input type="file" id="brochure" name="brochure">
+
+            <label for="schedule">FDP Schedule:</label>
+            <input type="file" id="schedule" name="schedule">
 
             <label for="year">Academic Year:</label>
             <select id="year" name="year" required>

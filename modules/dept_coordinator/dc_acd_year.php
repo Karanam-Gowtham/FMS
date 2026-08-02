@@ -118,7 +118,7 @@ if (isset($_GET['desg'])) {
         .header h1 {
             font-size: 1.5rem;
             font-weight: bold;
-            color: rgb(17, 24, 39);
+            color: #ffffff;
         }
 
         .header h2 {
@@ -134,7 +134,7 @@ if (isset($_GET['desg'])) {
 
         .description p {
             margin-bottom: 1rem;
-            color: rgb(75, 85, 99);
+            color: #d1d5db;
         }
 
         .up_ach {

@@ -23,6 +23,9 @@ if (!$dept) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
+    $mode = $_POST['mode'];
+    $funded_by = isset($_POST['funded_by']) ? $_POST['funded_by'] : '';
+    $external_funder_name = isset($_POST['external_funder_name']) ? $_POST['external_funder_name'] : '';
     $organised_by = $_POST['organised_by'];
     $location = $_POST['location'];
     $year = $_POST['year'];
@@ -61,9 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $attendance = uploadFile('attendance', $target_dir);
     $feedback = uploadFile('feedback', $target_dir);
     $report = uploadFile('report', $target_dir);
-    $photo1 = uploadFile('photo1', $target_dir);
-    $photo2 = uploadFile('photo2', $target_dir);
-    $photo3 = uploadFile('photo3', $target_dir);
+    $photos_pdf = uploadFile('photos_pdf', $target_dir);
 
     // Handle Merged PDF from Frontend
     $merged_file_path = "";
@@ -80,11 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $status = 'Pending HOD';
 
-    $sql = "INSERT INTO fdps_org_tab (username, branch, title, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photo1, photo2, photo3, merged_file, submission_time, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+    $sql = "INSERT INTO fdps_org_tab (username, branch, title, mode, funded_by, external_funder_name, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photos_pdf, merged_file, submission_time, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssssssssssss", $username, $dept, $title, $date_from, $date_to, $organised_by, $location, $year, $certificate, $brochure, $schedule, $attendance, $feedback, $report, $photo1, $photo2, $photo3, $merged_file_path, $status);
+    $stmt->bind_param("ssssssssssssssssssss", $username, $dept, $title, $mode, $funded_by, $external_funder_name, $date_from, $date_to, $organised_by, $location, $year, $certificate, $brochure, $schedule, $attendance, $feedback, $report, $photos_pdf, $merged_file_path, $status);
 
     if ($stmt->execute()) {
         echo "<script>alert('FDP Organized Record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
@@ -268,6 +269,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="form-group full-width">
+                    <label for="mode">Mode:</label>
+                    <select id="mode" name="mode" required>
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="funded_by">Funded By:</label>
+                    <select id="funded_by" name="funded_by" onchange="toggleFunderName()" required>
+                        <option value="" disabled selected>Select</option>
+                        <option value="Institute">Institute</option>
+                        <option value="External">External</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width" id="external_funder_container" style="display: none;">
+                    <label for="external_funder_name">Name of Funder:</label>
+                    <input type="text" id="external_funder_name" name="external_funder_name" placeholder="Enter External Funder Name">
+                </div>
+
+                <div class="form-group full-width">
                     <label for="organised_by">Organised By:</label>
                     <input type="text" id="organised_by" name="organised_by" required placeholder="Instituion/Organization Name">
                 </div>
@@ -333,22 +356,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="file" id="report" name="report" accept=".pdf,.doc,.docx">
                 </div>
 
-                <div class="form-group">
-                    <label for="photo1">Photo 1:</label>
-                    <input type="file" id="photo1" name="photo1" accept=".png,.jpg,.jpeg">
-                </div>
-
-                <div class="form-group">
-                    <label for="photo2">Photo 2:</label>
-                    <input type="file" id="photo2" name="photo2" accept=".png,.jpg,.jpeg">
-                </div>
-
                 <div class="form-group full-width">
-                    <label for="photo3">Photo 3 (Optional):</label>
-                    <input type="file" id="photo3" name="photo3" accept=".png,.jpg,.jpeg">
+                    <label for="photos_pdf">Photos of FDP: 
+                        <a href="../../assets/templates/fdp_photos_template.pdf" target="_blank" style="font-size: 0.9em; color: #4ca1af; text-decoration: underline; margin-left: 10px;">(Download Template)</a>
+                    </label>
+                    <input type="file" id="photos_pdf" name="photos_pdf" accept=".pdf">
                 </div>
-
-                <div class="full-width">
+            </div>      <div class="full-width">
                     <button type="submit">Submit Details</button>
                 </div>
             </div>
@@ -372,7 +386,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 let addedAny = false;
 
                 // Ordered inputs
-                const inputNames = ['brochure', 'schedule', 'attendance', 'feedback', 'report', 'photo1', 'photo2', 'photo3', 'certificate'];
+                const inputNames = ['brochure', 'schedule', 'attendance', 'feedback', 'report', 'photos_pdf', 'certificate'];
 
                 for (const name of inputNames) {
                     const input = this.querySelector(`input[name="${name}"]`);
@@ -414,6 +428,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             this.submit();
         });
+
+        function toggleFunderName() {
+            var fundedBy = document.getElementById('funded_by').value;
+            var container = document.getElementById('external_funder_container');
+            var input = document.getElementById('external_funder_name');
+            if (fundedBy === 'External') {
+                container.style.display = 'block';
+                input.required = true;
+            } else {
+                container.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            }
+        }
     </script>
 </body>
 
