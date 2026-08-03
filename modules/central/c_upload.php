@@ -264,105 +264,112 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php include "../../includes/header.php"; ?>
 
 
-    <div class="container11">
-        
-    <a href="c_down_files.php?event=<?php echo"$event" ?>"><button class="btn_12">view <?php echo htmlspecialchars($event); ?> details</button></a>
-    <div class="container111">
-        <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
-            <h1><?php echo htmlspecialchars($event); ?> Events</h1>
+    <?php if ($event === 'R&D'): ?>
+        <div style="text-align: center; margin-top: 200px; color: white;">
+            <h1 style="font-size: 3rem; color: #ffeb3b;">Need to be modified</h1>
+            <p style="font-size: 1.2rem;">The R&amp;D module is currently under construction.</p>
+        </div>
+    <?php else: ?>
+        <div class="container11">
+            
+        <a href="c_down_files.php?event=<?php echo"$event" ?>"><button class="btn_12">view <?php echo htmlspecialchars($event); ?> details</button></a>
+        <div class="container111">
+            <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
+                <h1><?php echo htmlspecialchars($event); ?> Events</h1>
 
-            <h2>Upload details</h2>
-            <?php if (strtolower($event) === 'clubs'): ?>
+                <h2>Upload details</h2>
+                <?php if (strtolower($event) === 'clubs'): ?>
+                    <div class="form-group">
+                        <label for="club_name">Choose Club:</label>
+                        <select id="club_name" name="club_name" required>
+                            <option value="" selected disabled>-- Select a Club --</option>
+                            <option value="Amateur Radio Club">Amateur Radio Club</option>
+                            <option value="Protect and Innovation Club">Protect and Innovation Club</option>
+                            <option value="Green Eco Club">Green Eco Club</option>
+                            <option value="Robotics Club">Robotics Club</option>
+                            <option value="Women Empowerment Cell">Women Empowerment Cell</option>
+                            <option value="Coding club (CodeChef Chapter)">Coding club (CodeChef Chapter)</option>
+                            <option value="Civil Services Aspirants Club">Civil Services Aspirants Club</option>
+                            <option value="Music Club">Music Club</option>
+                            <option value="Dance Club">Dance Club</option>
+                            <option value="Sector Club (Indian Green Building Council)">Sector Club (Indian Green Building Council)</option>
+                            <option value="Swami Vivekananda Centre for Human Excellence (Meditation)">Swami Vivekananda Centre for Human Excellence (Meditation)</option>
+                            <option value="Students' Counselling">Students' Counselling</option>
+                            <option value="Maths Club">Maths Club</option>
+                            <option value="Quiz Club">Quiz Club</option>
+                            <option value="Literary Club">Literary Club</option>
+                            <option value="FM Radio">FM Radio</option>
+                            <option value="Unnat Bharat Abhiyan">Unnat Bharat Abhiyan</option>
+                        </select>
+                    </div>
+                <?php endif; ?>
+
                 <div class="form-group">
-                    <label for="club_name">Choose Club:</label>
-                    <select id="club_name" name="club_name" required>
-                        <option value="" selected disabled>-- Select a Club --</option>
-                        <option value="Amateur Radio Club">Amateur Radio Club</option>
-                        <option value="Protect and Innovation Club">Protect and Innovation Club</option>
-                        <option value="Green Eco Club">Green Eco Club</option>
-                        <option value="Robotics Club">Robotics Club</option>
-                        <option value="Women Empowerment Cell">Women Empowerment Cell</option>
-                        <option value="Coding club (CodeChef Chapter)">Coding club (CodeChef Chapter)</option>
-                        <option value="Civil Services Aspirants Club">Civil Services Aspirants Club</option>
-                        <option value="Music Club">Music Club</option>
-                        <option value="Dance Club">Dance Club</option>
-                        <option value="Sector Club (Indian Green Building Council)">Sector Club (Indian Green Building Council)</option>
-                        <option value="Swami Vivekananda Centre for Human Excellence (Meditation)">Swami Vivekananda Centre for Human Excellence (Meditation)</option>
-                        <option value="Students' Counselling">Students' Counselling</option>
-                        <option value="Maths Club">Maths Club</option>
-                        <option value="Quiz Club">Quiz Club</option>
-                        <option value="Literary Club">Literary Club</option>
-                        <option value="FM Radio">FM Radio</option>
-                        <option value="Unnat Bharat Abhiyan">Unnat Bharat Abhiyan</option>
-                    </select>
+                    <label for="event_name">Event Name:</label>
+                    <input type="text" id="event_name" name="event_name" placeholder="Enter event name" required>
                 </div>
-            <?php endif; ?>
+                <div class="form-group">
+                        <label for="academic-year">Select Academic Year:</label>
+                        <select name="year" id="academic-year" required>
+                            <option value="" disabled selected>Select an academic year</option>
+                            <?php
+                            include("../../includes/connection.php"); // Must be before this code
 
-            <div class="form-group">
-                <label for="event_name">Event Name:</label>
-                <input type="text" id="event_name" name="event_name" placeholder="Enter event name" required>
-            </div>
-            <div class="form-group">
-                    <label for="academic-year">Select Academic Year:</label>
-                    <select name="year" id="academic-year" required>
-                        <option value="" disabled selected>Select an academic year</option>
-                        <?php
-                        include("../../includes/connection.php"); // Must be before this code
+                            $query = "SELECT year FROM academic_year ORDER BY year DESC";
+                            $result = mysqli_query($conn, $query);
 
-                        $query = "SELECT year FROM academic_year ORDER BY year DESC";
-                        $result = mysqli_query($conn, $query);
-
-                        if (!$result) {
-                            die("Query Failed: " . mysqli_error($conn)); // Debug error
-                        }
-
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                $year = htmlspecialchars($row['year']);
-                                echo "<option value=\"$year\">$year</option>";
+                            if (!$result) {
+                                die("Query Failed: " . mysqli_error($conn)); // Debug error
                             }
-                        } else {
-                            echo '<option value="" disabled>No years found</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
 
-            <div class="form-group">
-                <label for="file_name">Event Description:</label>
-                <textarea id="event_details" name="event_details" rows="4" cols="50" placeholder="Enter details about the event..." required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="file_upload">Choose File:</label>
-                <input type="file" id="file_upload" class="file" name="file_upload" required>
-            </div>
-            <div class="form-group">
-                <label for="uploaded_by">Uploaded By:</label>
-                <input type="text" id="uploaded_by" name="uploaded_by" placeholder="Your name" required>
-            </div>
-            <div class="form-group">
-                    <label for="file_upload">Photo 1:</label>
-                    <input type="file" id="file_upload" class="file" name="photo1" required>
+                            if (mysqli_num_rows($result) > 0) {
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    $year = htmlspecialchars($row['year']);
+                                    echo "<option value=\"$year\">$year</option>";
+                                }
+                            } else {
+                                echo '<option value="" disabled>No years found</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                <div class="form-group">
+                    <label for="file_name">Event Description:</label>
+                    <textarea id="event_details" name="event_details" rows="4" cols="50" placeholder="Enter details about the event..." required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="file_upload">Photo 2:</label>
-                    <input type="file" id="file_upload" class="file" name="photo2" required>
+                    <label for="file_upload">Choose File:</label>
+                    <input type="file" id="file_upload" class="file" name="file_upload" required>
                 </div>
                 <div class="form-group">
-                    <label for="file_upload">Photo 3:</label>
-                    <input type="file" id="file_upload" class="file" name="photo3" required>
+                    <label for="uploaded_by">Uploaded By:</label>
+                    <input type="text" id="uploaded_by" name="uploaded_by" placeholder="Your name" required>
                 </div>
                 <div class="form-group">
-                    <label for="file_upload">Photo 4:</label>
-                    <input type="file" id="file_upload" class="file" name="photo4" required>
-                </div>
+                        <label for="file_upload">Photo 1:</label>
+                        <input type="file" id="file_upload" class="file" name="photo1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="file_upload">Photo 2:</label>
+                        <input type="file" id="file_upload" class="file" name="photo2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="file_upload">Photo 3:</label>
+                        <input type="file" id="file_upload" class="file" name="photo3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="file_upload">Photo 4:</label>
+                        <input type="file" id="file_upload" class="file" name="photo4" required>
+                    </div>
 
-            <center><button type="submit" class="btn1">Upload</button></center>
-        </form>
-    </div>
-    
+                <center><button type="submit" class="btn1">Upload</button></center>
+            </form>
+        </div>
+        
 
-    </div>
+        </div>
+    <?php endif; ?>
     
 </body>
 </html>

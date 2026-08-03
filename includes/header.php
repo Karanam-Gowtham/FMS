@@ -396,7 +396,7 @@ if (isset($extra_head)) { echo $extra_head; }
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=PASH">PASH</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Antiragging">Antiragging</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=SAC">SAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=R&amp;D">R&amp;D</a>
+                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=R%26D">R&amp;D</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IQAC">IQAC</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Exam_Section">Exam Section</a>
                     </div>
@@ -591,7 +591,7 @@ if (isset($extra_head)) { echo $extra_head; }
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=PASH">PASH</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Antiragging">Antiragging</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=SAC">SAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=R&amp;D">R&amp;D</a>
+                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=R%26D">R&amp;D</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IQAC">IQAC</a>
                         <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Exam_Section">Exam Section</a>
                     </div>
