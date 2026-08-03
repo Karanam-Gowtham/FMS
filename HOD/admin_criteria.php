@@ -1,18 +1,18 @@
 <?php
-include_once "../includes/connection.php";
-include_once "./header_hod.php";
+include("../includes/connection.php");
+include "./header_hod.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : 'aa';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
 
-if (isset($_POST['criteria'])) {
+if(isset($_POST['criteria'])){
     $criteria = htmlspecialchars($_POST['criteria']);
-} else {
+}else{
     $criteria = htmlspecialchars($_GET['criteria']);
 }
-if (isset($_POST['year'])) {
+if(isset($_POST['year'])){
     $academicYear = htmlspecialchars($_POST['year']);
-} else {
+}else{
     $academicYear = htmlspecialchars($_GET['year']);
 }
 ?>
@@ -27,7 +27,7 @@ if (isset($_POST['year'])) {
         body {
             font-family: Arial, sans-serif;
             background-color: rgb(54, 180, 226);
-
+            
             justify-content: center;
             margin: 0;
         }
@@ -139,19 +139,14 @@ if (isset($_POST['year'])) {
             background-color: green;
         }
                                 /* Navigation */
-    .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
+    .navbar { 
         font-size: larger;
     }
 
     .nav-container {
         background-color: white;
         width:150vw;
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         padding: 0 1rem;
     }
 
@@ -186,25 +181,13 @@ if (isset($_POST['year'])) {
     </style>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Criteria <?php echo"$criteria" ?></span></span>
+    <?php include "../includes/header.php"; ?>
 
-            </div>
-        </div>
-    </nav>
     <div class="cont11">
 <div class="container">
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST" || $_SERVER["REQUEST_METHOD"] == "GET") {
-
+        
         echo "<h1>AQAR - $academicYear </h1>";
 
         if (isset($_POST['delete'])) {
@@ -212,7 +195,7 @@ if (isset($_POST['year'])) {
 
             if ($academicYear == '2020-21') {
                 $sql = "DELETE FROM criteria1 WHERE SI_no=? AND Sub_no=?";
-            } elseif ($academicYear == '2021-22') {
+            } else if ($academicYear == '2021-22') {
                 $sql = "DELETE FROM criteria2 WHERE SI_no=? AND Sub_no=?";
             } else {
                 $sql = "DELETE FROM criteria WHERE SI_no=? AND Sub_no=?";
@@ -236,17 +219,17 @@ if (isset($_POST['year'])) {
                 <th colspan="5" id="th1">Criteria <?php echo $criteria; ?></th>
             </tr>
             <tr id="tr2">
-                <th scope="col">Criteria No</th>
-                <th scope="col">Description</th>
-                <th scope="col">Action</th>
-                <th scope="col">Update</th>
+                <th>Criteria No</th>
+                <th>Description</th>
+                <th>Action</th>
+                <th>Update</th>
             </tr>
         </thead>
         <tbody>
             <?php
             if ($academicYear == '2020-21') {
                 $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' ORDER BY Sub_no";
-            } elseif ($academicYear == '2021-22') {
+            } else if ($academicYear == '2021-22') {
                 $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' ORDER BY Sub_no";
             } else {
                 $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' ORDER BY Sub_no";
@@ -255,7 +238,7 @@ if (isset($_POST['year'])) {
 
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $criteriaNo = $row['Sub_no'];
+                    $criteriaNo = $row['Sub_no'];  
                     $description = $row['Des'];
 
                     echo "<tr>";
@@ -295,4 +278,3 @@ if (isset($_POST['year'])) {
 
 </body>
 </html>
-

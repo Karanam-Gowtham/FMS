@@ -1,5 +1,5 @@
 <?php
-    include_once "../includes/connection.php";
+    include("../includes/connection.php");
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -33,11 +33,8 @@ if (isset($_GET['download_excel'])) {
     ], "\t");
 
     // Fetch the user's files
-    $query = "SELECT * FROM a_files WHERE academic_year=? AND criteria = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "ss", $academic_year, $criteria);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+    $query = "SELECT * FROM a_files WHERE academic_year='$academic_year' AND criteria = '$criteria'";
+    $result = mysqli_query($conn, $query);
 
     if ($result->num_rows > 0) {
         // Write the rows to the output
@@ -80,7 +77,7 @@ if (isset($_GET['download_excel'])) {
             background-color: #f8f9fa;
         }
         .container11 {
-            margin-top: 0;
+            margin-top: 100px;
             margin: 0 auto;
             width: 90%;
             padding: 20px;
@@ -90,7 +87,7 @@ if (isset($_GET['download_excel'])) {
             margin-top: 40px;
         }
         h1 {
-            margin-top: 0;
+            margin-top: 100px;
             text-align: center;
             color: #333;
             margin-bottom: 20px;
@@ -175,9 +172,10 @@ if (isset($_GET['download_excel'])) {
     </style>
 </head>
 <?php
-    include_once "header_hod.php";
+    include("header_hod.php");
 ?>
 <body>
+    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <h1>My Uploads</h1>
         <!-- Add the Download Excel button -->
@@ -202,11 +200,8 @@ if (isset($_GET['download_excel'])) {
             <?php
             
             // Fetch the user's files from the database, ordered by uploaded_at in descending order
-            $query = "SELECT * FROM a_files WHERE academic_year=? AND criteria = ?";
-            $stmt = mysqli_prepare($conn, $query);
-            mysqli_stmt_bind_param($stmt, "ss", $academic_year, $criteria);
-            mysqli_stmt_execute($stmt);
-            $result = mysqli_stmt_get_result($stmt);
+            $query = "SELECT * FROM a_files WHERE academic_year='$academic_year' AND criteria = '$criteria'";
+            $result = mysqli_query($conn, $query);
 
             $index = 1; // Initialize index for numbering
             if ($result->num_rows > 0) {
@@ -222,10 +217,8 @@ if (isset($_GET['download_excel'])) {
                     echo "<td>" . htmlspecialchars($row['file_name']) . "</td>";
                     echo "<td>" . $formattedDateTime . "</td>";
                     echo "<td>" . htmlspecialchars($row['criteria']) . "</td>"; // Display criteria_no
-                    $viewHref = '../admin/view_file.php?id=' . urlencode((string) $row['id']);
-                    $downloadHref = '../admin/' . ltrim((string) $row['file_path'], '/');
-                    echo "<td><a href='" . htmlspecialchars($viewHref, ENT_QUOTES, 'UTF-8') . "' class='btn1' id='view'>View</a></td>";
-                    echo "<td><a href='" . htmlspecialchars($downloadHref, ENT_QUOTES, 'UTF-8') . "' download class='btn1' id='down'>Download</a></td>";
+                    echo "<td><a href='../admin/view_file.php?id=" . htmlspecialchars($row['id']) . "'><button class='btn1' id='view'>View</button></a></td>";
+                    echo "<td><a href='" . htmlspecialchars('../admin/' . $row['file_path']) . "' download><button class='btn1' id='down'>Download</button></a></td>";
                     echo "</tr>";
                 }
             } else {
@@ -239,6 +232,5 @@ if (isset($_GET['download_excel'])) {
     </div>
 </body>
 </html>
-
 
 

@@ -1,52 +1,42 @@
 <?php
 ob_start(); // Start output buffering
-include_once '../../includes/connection.php';
+    include './connection.php';
+    
 
-// Retrieve designation from URL or POST
-$event = isset($_REQUEST['event']) ? htmlspecialchars($_REQUEST['event']) : '';
-$designation = isset($_REQUEST['designation']) ? htmlspecialchars($_REQUEST['designation']) : '';
+    // Retrieve designation from URL
+    $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
+    $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get form values
-    $year = isset($_POST['year']) ? $_POST['year'] : '';
-    $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Get form values
+        $year = isset($_POST['year']) ? $_POST['year'] : '';
+        $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
 
-    // Clean buffer before redirect
-    ob_end_clean();
-
-    // Redirect based on designation
-    switch ($designation) {
-        case 'faculty':
-            header("Location: ../faculty/criteria.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-            exit();
-        case 'dept_coordinator':
-            header("Location: ../../admin/criteria_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-            exit();
-
-        case 'central_coordinator':
-            header("Location: ../../admin/criteria_cent_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-            exit();
-        case 'criteria_coordinator':
-            header("Location: ../../admin/criteria_cri_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-            exit();
-        case 'hod':
-            header("Location: ../../HOD/hod_faculty_files.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-            exit();
-        case 'admin':
-            header("Location: ../../HOD/acd_year_aa.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
-            exit();
-        default:
-            // If designation is invalid, we might want to show an alert, but since we are before HTML,
-            // we can trigger a script via echo, but we cleaned the buffer.
-            // Be careful not to break HTML structure later.
-            // Better to handle default case by falling through to page render with an error message variable.
-            echo "<script>alert('Invalid Designation!');</script>";
-            // Re-start buffering since we continued
-            ob_start();
+        // Redirect based on designation
+        switch ($designation) {
+            case 'faculty':
+                header("Location: criteria.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                exit();
+            case 'dept_coordinator':
+                header("Location: ./admin/criteria_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                exit();
+            
+            case 'central_coordinator':
+                header("Location: ./admin/criteria_cent_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                exit();
+            case 'criteria_coordinator':
+                header("Location: ./admin/criteria_cri_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                exit();
+            case 'hod':
+                header("Location: ./HOD/hod_faculty_files.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                exit();
+            case 'admin':
+                header("Location: ./HOD/acd_year_aa.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                exit();
+            default:
+                echo "<script>alert('Invalid Designation!');</script>";
+        }
     }
-}
-
-include_once '../../includes/header.php';
 ?>
 
 
@@ -59,7 +49,7 @@ include_once '../../includes/header.php';
     <style>
             body {
                 font-family: 'Poppins', sans-serif;
-                background-image: url('../../assets/img/gmr_landing_page.jpg');
+                background-image: url('./stuff/gmr_landing_page.jpg');
                 background-size: cover;
                 background-position: center;
                 color: #ffffff;
@@ -68,7 +58,7 @@ include_once '../../includes/header.php';
                 padding: 0;
                 overflow: hidden;
             }
-
+            
             body::before {
                 content: '';
                 position: absolute;
@@ -84,9 +74,9 @@ include_once '../../includes/header.php';
             }
 
             .container {
-                margin-top: 0;
+                margin-top:100px;
                 margin-bottom:150px;
-                left:200px;
+                left:200px;    
                 background: rgba(0, 0, 0, 0.7);
                 box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.7);
                 backdrop-filter: blur(10px);
@@ -96,7 +86,7 @@ include_once '../../includes/header.php';
                 width: 400px;
                 animation: fadeIn 1s ease-in-out;
             }
-
+            
 
             h1 {
                 font-size: 1.8rem;
@@ -202,20 +192,14 @@ include_once '../../includes/header.php';
             }
 
                 /* Navigation */
-    .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-
+    .navbar { 
         font-size: larger;
     }
 
     .nav-container {
         background-color: white;
         width:150vw;
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         padding: 0 1rem;
     }
 
@@ -251,20 +235,8 @@ include_once '../../includes/header.php';
 </style>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a"><?php echo htmlspecialchars($designation); ?></span></span>
+    <?php include "../../includes/header.php"; ?>
 
-            </div>
-        </div>
-    </nav>
         <div class="container">
             <div class="contact-wrapper">
                 <!-- AQARs Supporting Documents Section -->
@@ -309,6 +281,16 @@ include_once '../../includes/header.php';
                     </form>
                 </div>
             </div>
-            </div>
+       
+    </main>
+    <!-- <?php  
+                        // Show button only for specific designations
+                        if (in_array($designation, ['dept_coordinator', 'hod', 'central_coordinator'])) {
+                            echo '
+                            <form action="c_down_files_by_cord.php" method="GET">
+                                <button type="submit" class="button12" style="margin-top: 1.8rem;">Central Activities Files</button>
+                            </form>';
+                        }
+                        ?>-->
 </body>
 </html>

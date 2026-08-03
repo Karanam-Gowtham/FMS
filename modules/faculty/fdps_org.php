@@ -1,450 +1,419 @@
 <?php
-
-include_once "../../includes/connection.php";
-include_once "../../includes/header.php";
+include("../../includes/connection.php");
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['username'])) {
-    die("You need to log in to view this page.");
+    die("You need to log in to view your uploads.");
 }
 
 $username = $_SESSION['username'];
-$dept = isset($_GET['dept']) ? $_GET['dept'] : '';
-
-// Fetch branch/dept if not set
-if (!$dept) {
-    $stmt = $conn->prepare("SELECT dept FROM reg_tab WHERE userid = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    if ($row = $res->fetch_assoc()) {
-        $dept = $row['dept'];
-    }
+if (isset($_GET['dept'])) {
+    $dept = $_GET['dept']; // Get the 'dept' value from the URL
+} else {
+    echo "Department not set.";
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $title = $_POST['title'];
-    $mode = $_POST['mode'];
-    $funded_by = isset($_POST['funded_by']) ? $_POST['funded_by'] : '';
-    $external_funder_name = isset($_POST['external_funder_name']) ? $_POST['external_funder_name'] : '';
-    $organised_by = $_POST['organised_by'];
-    $location = $_POST['location'];
-    $year = $_POST['year'];
-    $date_from = $_POST['date_from'];
-    $date_to = $_POST['date_to'];
+if (isset($_GET['type'])) {
+    $type = $_GET['type']; // Get the 'dept' value from the URL
+} else {
+    echo "desg not set.";
+}
 
-    // Upload Dir
-    $target_dir = "../../uploads/fdps_org/";
-    if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
 
-    // Helper to upload file
-    function uploadFile($fileInputName, $target_dir)
-    {
-        if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] == 0) {
-            $allowedExtensions = ['pdf', 'png', 'jpg', 'jpeg'];
-            $fileExtension = strtolower(pathinfo($_FILES[$fileInputName]["name"], PATHINFO_EXTENSION));
 
-            if (!in_array($fileExtension, $allowedExtensions)) {
-                return ""; // Skip invalid files
-            }
 
-            $fileName = time() . '_' . $fileInputName . '_' . preg_replace("/[^\w.]/", "_", basename($_FILES[$fileInputName]["name"]));
-            $targetFile = $target_dir . $fileName;
-            if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
-                return $targetFile;
-            }
-        }
-        return "";
-    }
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user = $_SESSION['username'];
 
-    $certificate = uploadFile('certificate', $target_dir);
-    $brochure = uploadFile('brochure', $target_dir);
-    $schedule = uploadFile('schedule', $target_dir);
-    $attendance = uploadFile('attendance', $target_dir);
-    $feedback = uploadFile('feedback', $target_dir);
-    $report = uploadFile('report', $target_dir);
-    $photos_pdf = uploadFile('photos_pdf', $target_dir);
+    // Fetch user's branch
+    $branch_query = "SELECT dept FROM reg_tab WHERE userid = '$user'";
+    $branch_result = $conn->query($branch_query);
 
-    // Handle Merged PDF from Frontend
-    $merged_file_path = "";
-    if (isset($_POST['merged_pdf_data']) && !empty($_POST['merged_pdf_data'])) {
-        $data = $_POST['merged_pdf_data'];
-        if (preg_match('/^data:application\/pdf;base64,/', $data)) {
-            $data = substr($data, strpos($data, ',') + 1);
-        }
-        $decoded_data = base64_decode($data);
-        $merged_file_name = time() . '_merged_fdp.pdf';
-        $merged_file_path = $target_dir . $merged_file_name;
-        file_put_contents($merged_file_path, $decoded_data);
-    }
-
-    $status = 'Pending HOD';
-
-    $sql = "INSERT INTO fdps_org_tab (username, branch, title, mode, funded_by, external_funder_name, date_from, date_to, organised_by, location, year, certificate, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photos_pdf, merged_file, submission_time, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssssssssssssssss", $username, $dept, $title, $mode, $funded_by, $external_funder_name, $date_from, $date_to, $organised_by, $location, $year, $certificate, $brochure, $schedule, $attendance, $feedback, $report, $photos_pdf, $merged_file_path, $status);
-
-    if ($stmt->execute()) {
-        echo "<script>alert('FDP Organized Record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
+    if ($branch_result && $branch_result->num_rows > 0) {
+        $branch_row = $branch_result->fetch_assoc();
+        $branch = $branch_row['dept'];
     } else {
-        echo "<script>alert('Error: " . $stmt->error . "');</script>";
+        die("Branch not found for the user.");
+    }
+
+    // Form data
+    $title = mysqli_real_escape_string($conn, $_POST['title']);
+    $mode = mysqli_real_escape_string($conn, $_POST['mode']);
+    $date_from = mysqli_real_escape_string($conn, $_POST['date_from']);
+    $date_to = mysqli_real_escape_string($conn, $_POST['date_to']);
+    $organised_by = mysqli_real_escape_string($conn, $_POST['organised_by']);
+    $location = mysqli_real_escape_string($conn, $_POST['location']);
+    $funded_by = mysqli_real_escape_string($conn, $_POST['funded_by']);
+    $external_funder_name = isset($_POST['external_funder_name']) ? mysqli_real_escape_string($conn, $_POST['external_funder_name']) : '';
+    $year = mysqli_real_escape_string($conn, $_POST['year']);
+
+    // File uploads
+    $uploads_dir = "uploads/certificates/";
+
+    function uploadFile($file_key, $uploads_dir) {
+        if (!empty($_FILES[$file_key]['name'])) {
+            $file_name = basename($_FILES[$file_key]['name']);
+            $target_file = $uploads_dir . $file_name;
+
+            // Handle special characters
+            $file_name = mysqli_real_escape_string($GLOBALS['conn'], $file_name);
+
+            if (move_uploaded_file($_FILES[$file_key]['tmp_name'], $target_file)) {
+                return $target_file;
+            } else {
+                die("Error uploading file: " . $file_key);
+            }
+        }
+        return null;
+    }
+
+    $brochure = uploadFile('Brochure', $uploads_dir);
+    $fdp_schedule_invitation = uploadFile('fdp_s_i', $uploads_dir);
+    $attendance_forms = uploadFile('attendence', $uploads_dir);
+    $feedback_forms = uploadFile('feedback', $uploads_dir);
+    $fdp_report = uploadFile('report', $uploads_dir);
+    $photo1 = uploadFile('Photo1', $uploads_dir);
+    $photo2 = uploadFile('Photo2', $uploads_dir);
+    $photo3 = uploadFile('Photo3', $uploads_dir);
+
+    // Submission time
+    date_default_timezone_set('Asia/Kolkata');
+    $submission_time = date('Y-m-d H:i:s');
+
+    // SQL Insert Query
+    $sql = "INSERT INTO fdps_org_tab (username, branch, title, mode, date_from, date_to, organised_by, location, funded_by, external_funder_name, brochure, fdp_schedule_invitation, attendance_forms, feedback_forms, fdp_report, photo1, photo2, photo3, submission_time,year)
+            VALUES ('$user', '$dept', '$title', '$mode', '$date_from', '$date_to', '$organised_by', '$location', '$funded_by', '$external_funder_name', '$brochure', '$fdp_schedule_invitation', '$attendance_forms', '$feedback_forms', '$fdp_report', '$photo1', '$photo2', '$photo3', '$submission_time','$year')";
+
+    if ($conn->query($sql) === TRUE) {
+        echo "<script>alert('Records uploaded successfully');</script>";
+        echo "<script>window.location.href = 'acd_year.php?dept=" . urlencode($dept) . "';</script>";
+
+
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
     }
 }
+
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Upload FDP Organized</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details Form</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0a192f 0%, #172a45 100%);
-            color: white;
             min-height: 100vh;
+            background: linear-gradient(135deg, #0a192f 0%, #172a45 100%);
+            background-size: cover;
+            background-position: center;
+            justify-content: center;
+            height: 100%;
             margin: 0;
-            padding-bottom: 50px;
         }
 
-        .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-            background-color: white;
-            font-size: larger;
-        }
+        
 
-        .nav-container {
-            margin-left: 100px;
-            max-width: 80rem;
-            padding: 0 1rem;
-        }
+        .container {
+            margin-top: 30px;
 
-        .nav-items {
-            display: flex;
-            align-items: center;
-            height: 4rem;
-        }
-
-        .sid {
-            color: rgb(48, 30, 138);
-            font-weight: 500;
-        }
-
-        .main-a {
-            color: rgb(138, 30, 113);
-            font-weight: 500;
-        }
-
-        .sp {
-            color: blue;
-        }
-
-        .container11 {
-            margin: 50px auto;
-            background: rgba(16, 15, 15, 0.8);
+            margin-bottom: 50px;
+            background-color: rgba(0, 0, 0, 0.7);
             padding: 40px;
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
-            max-width: 800px;
-            width: 90%;
+            width: 600px;
+            max-width: 100%;
+            color: white;
         }
 
-        h2 {
+        .cont1{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+          /* Navigation */
+    .navbar { 
+        font-size: larger;
+    }
+
+    .nav-container {
+        background-color: white;
+        width:150vw;
+        margin-top: 80px;
+        padding: 0 1rem;
+    }
+
+    .nav-items {
+        margin-left: 70px;
+        display: flex;
+        align-items: center;
+        height: 4rem;
+    }
+
+    .sid{
+        color: rgb(48, 30, 138);
+        font-weight: 500;
+    }
+
+    .main-a {
+        color: rgb(138, 30, 113);
+        font-weight: 500;
+    }
+    .main-a:hover{
+        color:rgb(182, 64, 211);
+    }
+
+    .home-icon {
+        color: rgb(30, 58, 138);
+        transition: color 0.2s;
+    }
+
+    .home-icon:hover {
+        color: rgb(29, 78, 216);
+    }
+
+        h1 {
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            color: #fff;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #84fab0;
+            letter-spacing: 1px;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
+            margin-bottom: 20px;
         }
 
-        label {
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #ccc;
+        .form-group label {
+            font-size: 16px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
         }
 
-        input[type="text"],
-        input[type="date"],
-        select,
-        input[type="file"] {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 12px;
+            font-size: 16px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.1);
+            border: 0.2px solid rgb(165, 225, 239);
+            background-color: #1c1c1c;
             color: white;
-            font-size: 1rem;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus,
-        input[type="date"]:focus,
-        select:focus,
-        input[type="file"]:focus {
-            background: rgba(255, 255, 255, 0.2);
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.5);
+            border-color: #84fab0;
         }
 
-        .full-width {
-            grid-column: span 2;
-        }
-
-        button {
-            width: 100%;
+        .btn1 {
             padding: 15px;
-            background: #ff6347;
+            font-size: 18px;
+            background-color: #84fab0;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn1:hover {
+            background-color: #4ca1af;
+        }
+
+        .btn1:active {
+            transform: scale(0.98);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 12px 20px;
+            background-color: #e74c3c;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            border-radius: 10px;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s, transform 0.1s;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background: #e55337;
-            transform: translateY(-2px);
+        .back-button:hover {
+            background-color: #c0392b;
         }
 
-        option {
-            background-color: #333;
-            color: white;
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                width: 90%;
+            }
+            h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
-
 <body>
+    <?php include "../../includes/header.php"; ?>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../../index.php" class="home-icon" style="color: rgb(30, 58, 138); text-decoration: none;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
-                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
-                        style="text-decoration: none; color: inherit;">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
-                        href="acd_year.php?dept=<?php echo urlencode($dept); ?>"
-                        style="text-decoration: none; color: inherit;">Faculty</a></span>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><a href="#" class="main-a"
-                        style="text-decoration: none;">FDPs Organized</a></span>
-            </div>
+<div class="cont1">
+<div class="container">
+    <h1>FDPS Organised Form</h1>
+    <form action="" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
         </div>
-    </nav>
 
-    <div class="container11">
-        <h2>Upload FDPs Organized Details</h2>
-        <form id="fdpForm" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="merged_pdf_data" id="merged_pdf_data">
-            <div class="form-grid">
-                <div class="form-group full-width">
-                    <label for="title">Title of FDP:</label>
-                    <input type="text" id="title" name="title" required placeholder="Enter FDP Title">
-                </div>
+        <div class="form-group">
+            <label for="mode">Mode:</label>
+            <select name="mode" id="mode" required>
+                <option value="online">Online</option>
+                <option value="offline">Offline</option>
+            </select>
+        </div>
 
-                <div class="form-group full-width">
-                    <label for="mode">Mode:</label>
-                    <select id="mode" name="mode" required>
-                        <option value="online">Online</option>
-                        <option value="offline">Offline</option>
-                    </select>
-                </div>
+        <div class="form-group">
+            <label for="funded_by">Funded by:</label>
+            <select name="funded_by" id="funded_by" required onchange="toggleExternalFunder()">
+                <option value="" disabled selected>Select funding source</option>
+                <option value="Institute">Institute</option>
+                <option value="External">External</option>
+            </select>
+        </div>
 
-                <div class="form-group full-width">
-                    <label for="funded_by">Funded By:</label>
-                    <select id="funded_by" name="funded_by" onchange="toggleFunderName()" required>
-                        <option value="" disabled selected>Select</option>
-                        <option value="Institute">Institute</option>
-                        <option value="External">External</option>
-                    </select>
-                </div>
+        <div class="form-group" id="external-funder-div" style="display: none;">
+            <label for="external_funder_name">Name of External Funder:</label>
+            <input type="text" id="external_funder_name" name="external_funder_name">
+        </div>
 
-                <div class="form-group full-width" id="external_funder_container" style="display: none;">
-                    <label for="external_funder_name">Name of Funder:</label>
-                    <input type="text" id="external_funder_name" name="external_funder_name" placeholder="Enter External Funder Name">
-                </div>
+        <div class="form-group">
+            <label for="academic-year">Select Academic Year:</label>
+            <select name="year" id="academic-year" required>
+                <option value="" disabled selected>Select an academic year</option>
+                <?php
+                include("../../includes/connection.php"); // Must be before this code
 
-                <div class="form-group full-width">
-                    <label for="organised_by">Organised By:</label>
-                    <input type="text" id="organised_by" name="organised_by" required placeholder="Instituion/Organization Name">
-                </div>
+                $query = "SELECT year FROM academic_year ORDER BY year DESC";
+                $result = mysqli_query($conn, $query);
 
-                <div class="form-group full-width">
-                    <label for="location">Location:</label>
-                    <input type="text" id="location" name="location" required placeholder="City, State">
-                </div>
+                if (!$result) {
+                    die("Query Failed: " . mysqli_error($conn)); // Debug error
+                }
 
-                <div class="form-group full-width">
-                    <label for="year">Academic Year:</label>
-                    <select id="year" name="year" required>
-                        <option value="">Select Year</option>
-                        <?php
-                        $y_sql = "SELECT year FROM academic_year ORDER BY year DESC";
-                        $y_res = $conn->query($y_sql);
-                        if ($y_res) {
-                            while ($y = $y_res->fetch_assoc()) {
-                                echo "<option value='" . $y['year'] . "'>" . $y['year'] . "</option>";
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="date_from">Date From:</label>
-                    <input type="date" id="date_from" name="date_from" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="date_to">Date To:</label>
-                    <input type="date" id="date_to" name="date_to" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="certificate">Certificate:</label>
-                    <input type="file" id="certificate" name="certificate" accept=".pdf,.png,.jpg,.jpeg">
-                </div>
-
-                <div class="form-group">
-                    <label for="brochure">Brochure:</label>
-                    <input type="file" id="brochure" name="brochure" accept=".pdf,.png,.jpg,.jpeg">
-                </div>
-
-                <div class="form-group">
-                    <label for="schedule">Schedule/Invitation:</label>
-                    <input type="file" id="schedule" name="schedule" accept=".pdf,.png,.jpg,.jpeg">
-                </div>
-
-                <div class="form-group">
-                    <label for="attendance">Attendance Forms:</label>
-                    <input type="file" id="attendance" name="attendance" accept=".pdf,.png,.jpg,.jpeg">
-                </div>
-
-                <div class="form-group">
-                    <label for="feedback">Feedback Forms:</label>
-                    <input type="file" id="feedback" name="feedback" accept=".pdf,.png,.jpg,.jpeg">
-                </div>
-
-                <div class="form-group">
-                    <label for="report">Report:</label>
-                    <input type="file" id="report" name="report" accept=".pdf,.doc,.docx">
-                </div>
-
-                <div class="form-group full-width">
-                    <label for="photos_pdf">Photos of FDP: 
-                        <a href="../../assets/templates/fdp_photos_template.pdf" target="_blank" style="font-size: 0.9em; color: #4ca1af; text-decoration: underline; margin-left: 10px;">(Download Template)</a>
-                    </label>
-                    <input type="file" id="photos_pdf" name="photos_pdf" accept=".pdf">
-                </div>
-            </div>      <div class="full-width">
-                    <button type="submit">Submit Details</button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"
-        integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8="
-        crossorigin="anonymous"></script>
-    <script>
-        document.getElementById('fdpForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Merging Files... Please Wait';
-
-            try {
-                const { PDFDocument } = PDFLib;
-                const mergedPdf = await PDFDocument.create();
-                let addedAny = false;
-
-                // Ordered inputs
-                const inputNames = ['brochure', 'schedule', 'attendance', 'feedback', 'report', 'photos_pdf', 'certificate'];
-
-                for (const name of inputNames) {
-                    const input = this.querySelector(`input[name="${name}"]`);
-                    if (input && input.files.length > 0) {
-                        const file = input.files[0];
-                        const arrayBuffer = await file.arrayBuffer();
-                        const extension = file.name.split('.').pop().toLowerCase();
-
-                        if (extension === 'pdf') {
-                            const pdf = await PDFDocument.load(arrayBuffer);
-                            const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-                            pages.forEach(p => mergedPdf.addPage(p));
-                            addedAny = true;
-                        } else if (['jpg', 'jpeg', 'png'].includes(extension)) {
-                            let image;
-                            if (extension === 'png') image = await mergedPdf.embedPng(arrayBuffer);
-                            else image = await mergedPdf.embedJpg(arrayBuffer);
-
-                            const { width, height } = image.scale(1);
-                            const page = mergedPdf.addPage([width, height]);
-                            page.drawImage(image, { x: 0, y: 0, width, height });
-                            addedAny = true;
-                        }
+                if (mysqli_num_rows($result) > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        $year = htmlspecialchars($row['year']);
+                        echo "<option value=\"$year\">$year</option>";
                     }
+                } else {
+                    echo '<option value="" disabled>No years found</option>';
                 }
+                ?>
+            </select>
+        </div>
 
-                if (addedAny) {
-                    const pdfBytes = await mergedPdf.save();
-                    const base64String = await new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.readAsDataURL(new Blob([pdfBytes]));
-                    });
-                    document.getElementById('merged_pdf_data').value = base64String;
-                }
-            } catch (err) {
-                console.error("Merging error:", err);
-            }
 
-            this.submit();
-        });
+        <div class="form-group">
+            <label for="date-from">Date (From):</label>
+            <input type="date" id="date-from" name="date_from" required>
+        </div>
 
-        function toggleFunderName() {
-            var fundedBy = document.getElementById('funded_by').value;
-            var container = document.getElementById('external_funder_container');
-            var input = document.getElementById('external_funder_name');
-            if (fundedBy === 'External') {
-                container.style.display = 'block';
-                input.required = true;
-            } else {
-                container.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
+        <div class="form-group">
+            <label for="date-to">Date (To):</label>
+            <input type="date" id="date-to" name="date_to" required>
+        </div>
+
+        <div class="form-group">
+            <label for="organised-by">Organized By:</label>
+            <input type="text" id="organised-by" name="organised_by" required>
+        </div>
+
+        <div class="form-group">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+        </div>
+
+        <!-- Certificate upload removed -->
+
+        <div class="form-group">
+            <label for="certificate">FDP Brochure:</label>
+            <input type="file" id="Brochure" name="Brochure" required>
+        </div>
+
+        <div class="form-group">
+            <label for="certificate">FDP Schedule and Invitation:</label>
+            <input type="file" id="fdp_s_i" name="fdp_s_i" required>
+        </div>
+
+        <div class="form-group">
+            <label for="certificate">Attendance Forms:</label>
+            <input type="file" id="attendence" name="attendence" required>
+        </div>
+
+        <div class="form-group">
+            <label for="certificate">Feedback Forms:</label>
+            <input type="file" id="feedback" name="feedback" required>
+        </div>
+
+        <div class="form-group">
+            <label for="certificate">FDP Report:</label>
+            <input type="file" id="report" name="report" required>
+        </div>
+
+        <div class="form-group">
+            <label for="certificate">Photo1:</label>
+            <input type="file" id="Photo1" name="Photo1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="certificate">Photo2:</label>
+            <input type="file" id="Photo2" name="Photo2" required>
+        </div>
+
+        <div class="form-group">
+            <label for="certificate">Photo3:</label>
+            <input type="file" id="Photo3" name="Photo3" required>
+        </div>
+
+        <button class="btn1" type="submit">Submit</button>
+    </form>
+</div>
+</div>
+
+<script>
+    function toggleExternalFunder() {
+        var fundedBy = document.getElementById("funded_by").value;
+        var externalDiv = document.getElementById("external-funder-div");
+        var externalInput = document.getElementById("external_funder_name");
+        
+        if (fundedBy === "External") {
+            externalDiv.style.display = "block";
+            externalInput.setAttribute("required", "required");
+        } else {
+            externalDiv.style.display = "none";
+            externalInput.removeAttribute("required");
+            externalInput.value = "";
         }
-    </script>
-</body>
+    }
+</script>
 
+</body>
 </html>
-<?php $conn->close(); ?>
-

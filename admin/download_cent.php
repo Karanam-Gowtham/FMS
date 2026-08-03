@@ -1,6 +1,6 @@
 <?php
-include_once "../includes/connection.php";
-
+include("../includes/connection.php");
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['c_username'])) {
     die("You need to log in to view your uploads.");
@@ -22,7 +22,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $subCriteria = $_POST['subCriteria'];
     $selectedFiles = $_POST['selected_files'];
     $action = $_POST['action'];
-
+    
     if ($action == 'delete') {
         foreach ($selectedFiles as $fileId) {
             $sql = "SELECT file_path FROM a_files WHERE id = ?";
@@ -40,88 +40,97 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             }
         }
         echo "<script>alert('Files deleted successfully.');</script>";
-    } elseif ($action == 'download' && count($selectedFiles) == 1) {
-        $fileId = $selectedFiles[0];
-        $sql = "SELECT file_path FROM a_files WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $fileId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if (($file = $result->fetch_assoc()) && file_exists($file['file_path'])) {
-            $filePath = $file['file_path'];
-            $fileName = basename($filePath);
-
-            if (ob_get_length()) {
-                ob_end_clean();
-            }
-
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="' . $fileName . '"');
-            header('Content-Length: ' . filesize($filePath));
-            header('Pragma: public');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Content-Transfer-Encoding: binary');
-
-            flush();
-            readfile($filePath);
-            exit;
-        } else {
-            echo "File not found.";
-        }
-    } elseif ($action == 'download' && count($selectedFiles) > 1) {
-        $zip = new ZipArchive();
-        $zipFileName = "downloads.zip";
-        $zipFilePath = "Uploads1/" . $zipFileName;
-
-        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-            $selectedFiles = array_reverse($selectedFiles);
-            $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
-            $sql = "SELECT file_path, file_name FROM a_files WHERE id IN ($placeholders)";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            $filesAdded = false;
-
-            while ($file = $result->fetch_assoc()) {
-                $filePath = '../' . $file['file_path'];
-                if (file_exists($filePath) && $zip->addFile($filePath, basename($filePath))) {
-                    $filesAdded = true;
+    } else if ($action == 'download') {
+        if (!empty($selectedFiles)) {
+            if (count($selectedFiles) == 1) {
+                $fileId = $selectedFiles[0];
+                $sql = "SELECT file_path FROM a_files WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $fileId);
+                $stmt->execute();
+                $result = $stmt->get_result();
+    
+                if ($file = $result->fetch_assoc()) {
+                    $filePath =$file['file_path'];
+                    $fileName = basename($filePath);
+    
+                    if (file_exists($filePath)) {
+                        if (ob_get_length()) {
+                            ob_end_clean();
+                        }
+    
+                        header('Content-Type: application/pdf');
+                        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+                        header('Content-Length: ' . filesize($filePath));
+                        header('Pragma: public');
+                        header('Expires: 0');
+                        header('Cache-Control: must-revalidate');
+                        header('Content-Transfer-Encoding: binary');
+    
+                        flush();
+                        readfile($filePath);
+                        exit;
+                    } else {
+                        echo "File not found.";
+                    }
                 }
-            }
-
-            $zip->close();
-
-            if ($filesAdded) {
-                if (ob_get_length()) {
-                    ob_clean();
-                }
-                ob_end_flush();
-
-                header('Content-Type: application/zip');
-                header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
-                header('Content-Length: ' . filesize($zipFilePath));
-                readfile($zipFilePath);
-
-                unlink($zipFilePath);
-                exit;
             } else {
-                echo "No files were added to the ZIP archive.";
+                $zip = new ZipArchive();
+                $zipFileName = "downloads.zip";
+                $zipFilePath = "Uploads1/" . $zipFileName;
+                
+                if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                    $selectedFiles = array_reverse($selectedFiles);
+                    $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
+                    $sql = "SELECT file_path, file_name FROM a_files WHERE id IN ($placeholders)";
+                
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                
+                    $filesAdded = false;
+                
+                    while ($file = $result->fetch_assoc()) {
+                        $filePath = '../' . $file['file_path'];
+                        if (file_exists($filePath)) {
+                            if ($zip->addFile($filePath, basename($filePath))) {
+                                $filesAdded = true;
+                            }
+                        }
+                    }
+                
+                    $zip->close();
+                
+                    if ($filesAdded) {
+                        if (ob_get_length()) {
+                            ob_clean();
+                        }
+                        ob_end_flush();
+                
+                        header('Content-Type: application/zip');
+                        header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
+                        header('Content-Length: ' . filesize($zipFilePath));
+                        readfile($zipFilePath);
+                
+                        unlink($zipFilePath);
+                        exit;
+                    } else {
+                        echo "No files were added to the ZIP archive.";
+                    }
+                } else {
+                    echo "Failed to create ZIP file.";
+                }
             }
-        } else {
-            echo "Failed to create ZIP file.";
-        }
+        }                
     }
 }
+
 if (isset($_POST['download_excel'])) {
     $criteria = $_POST['criteria'];
     $subCriteria = $_POST['subCriteria'];
     $branch_s = $_POST['branch_s'];
-
+    
     header("Content-Type: application/vnd.ms-excel");
     header("Content-Disposition: attachment; filename=my_Uploads.xls");
 
@@ -131,8 +140,8 @@ if (isset($_POST['download_excel'])) {
     $headers = ["Faculty Name", "Academic Year", "Dept", "Description", "File Name", "Criteria No"];
     fputcsv($output, $headers, "\t");
 
-    $sql = "SELECT faculty_name, academic_year, dept, Description, file_name, criteria_no
-            FROM a_files
+    $sql = "SELECT faculty_name, academic_year, dept, Description, file_name, criteria_no 
+            FROM a_files 
             WHERE criteria = ? AND criteria_no = ? AND Dept = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sss", $criteria, $subCriteria, $branch_s);
@@ -155,7 +164,7 @@ if (isset($_POST['download_excel'])) {
     exit;
 }
 
-include_once "header_admin.php";
+include "header_admin.php";
 
 ?>
 
@@ -166,7 +175,7 @@ include_once "header_admin.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Uploads</title>
     <link rel="stylesheet" href="../css/my_uploads_.css">
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
     <script>
         let selectedOrder = [];
 
@@ -268,20 +277,14 @@ include_once "header_admin.php";
         }
     </script>
     <style>
-        .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-
+        .navbar { 
             font-size: larger;
         }
 
         .nav-container {
             background-color: rgb(244, 237, 237);
             width: 150vw;
-             /* margin-top moved to .navbar */
+            margin-top: 80px;
             padding: 0 1rem;
         }
 
@@ -318,25 +321,8 @@ include_once "header_admin.php";
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;</span>
-                <span class="sid"><a href="../modules/central/c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
-                <span class="sid">&nbsp; >> &nbsp;</span>
-                <span class="sid"><a href="../modules/central/c_aqar_files.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp; >> &nbsp;</span>
-                <span class="sid"><a href="criteria_cent_a.php?year=<?php echo urlencode($academic_year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?></a></span>
-                <span class="sid">&nbsp; >> &nbsp;</span>
-                <span class="main"><span class="main-a">Uploaded Files</span></span>
-            </div>
-        </div>
-    </nav>
+    <?php include "../includes/header.php"; ?>
+    
     <div class="cont">
         <div class="container11">
             <div class="header-section">
@@ -357,13 +343,17 @@ include_once "header_admin.php";
                         <option value="" disabled <?= empty($branch_s) ? 'selected' : '' ?>>-- Select Branch --</option>
                         <option value="ALL" <?= $branch_s == 'ALL' ? 'selected' : '' ?>>ALL</option>
                         <option value="CSE" <?= $branch_s == 'CSE' ? 'selected' : '' ?>>CSE</option>
-                        <option value="AIML" <?= $branch_s == 'AIML' ? 'selected' : '' ?>>AIML</option>
-                        <option value="AIDS" <?= $branch_s == 'AIDS' ? 'selected' : '' ?>>AIDS</option>
+                        <option value="CSE-CS" <?= $branch_s == 'CSE-CS' ? 'selected' : '' ?>>CSE-CS</option>
+                        <option value="CSE-AI&ML" <?= $branch_s == 'CSE-AI&ML' ? 'selected' : '' ?>>CSE-AI&ML</option>
+                        <option value="CSE-AI&DS" <?= $branch_s == 'CSE-AI&DS' ? 'selected' : '' ?>>CSE-AI&DS</option>
                         <option value="IT" <?= $branch_s == 'IT' ? 'selected' : '' ?>>IT</option>
                         <option value="ECE" <?= $branch_s == 'ECE' ? 'selected' : '' ?>>ECE</option>
                         <option value="EEE" <?= $branch_s == 'EEE' ? 'selected' : '' ?>>EEE</option>
                         <option value="MECH" <?= $branch_s == 'MECH' ? 'selected' : '' ?>>MECH</option>
                         <option value="CIVIL" <?= $branch_s == 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
+                        <option value="MatheMatics" <?= $branch_s == 'MatheMatics' ? 'selected' : '' ?>>MatheMatics</option>
+                        <option value="Physics" <?= $branch_s == 'Physics' ? 'selected' : '' ?>>Physics</option>
+                        <option value="Chemistry" <?= $branch_s == 'Chemistry' ? 'selected' : '' ?>>Chemistry</option>
                         <option value="BSH" <?= $branch_s == 'BSH' ? 'selected' : '' ?>>BSH</option>
                     </select>
                     <button type="submit" name="submit_branch">Submit</button>
@@ -376,7 +366,7 @@ include_once "header_admin.php";
                 <input type="hidden" name="branch_s" value="<?= htmlspecialchars($branch_s) ?>">
                 <table>
                     <tr>
-                        <th><input type="checkbox" onclick="toggleSelectAll(this)" onkeydown="if(event.key==='Enter')this.click()"></th>
+                        <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
                         <th>SI NO</th>
                         <th>Faculty Name</th>
                         <th>Academic Year</th>
@@ -388,17 +378,17 @@ include_once "header_admin.php";
                     <?php
                     $id = 1;
                     if (!empty($criteria) && isset($_POST['submit_branch'])) {
-                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no
-                                FROM a_files
+                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no 
+                                FROM a_files 
                                 WHERE criteria = ? AND criteria_no = ?";
                         $params = ["ss", $criteria, $subCriteria];
-
+                        
                         if ($criteria == '1' && !empty($branch_s) && $branch_s != 'ALL') {
                             $sql .= " AND dept = ?";
                             $params[0] .= "s";
                             $params[] = $branch_s;
                         }
-
+                        
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param(...$params);
                         $stmt->execute();
@@ -406,9 +396,9 @@ include_once "header_admin.php";
 
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
-                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "'
-                                    onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
+                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
+                                    onchange='trackOrder(event)'></td>
                                 <td>" . $id++ . "</td>
                                 <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                 <td>" . htmlspecialchars($row['academic_year']) . "</td>
@@ -419,8 +409,8 @@ include_once "header_admin.php";
                             </tr>";
                         }
                     } else {
-                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no
-                                FROM a_files
+                        $sql = "SELECT id, faculty_name, academic_year, dept, description, file_name, file_path, criteria_no 
+                                FROM a_files 
                                 WHERE criteria = ? AND criteria_no = ?";
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param("ss", $criteria, $subCriteria);
@@ -429,9 +419,9 @@ include_once "header_admin.php";
 
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
-                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
-                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "'
-                                    onchange='trackOrder(event)' onkeydown=\"if(event.key==='Enter')this.click()\"></td>
+                                <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                                    data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
+                                    onchange='trackOrder(event)'></td>
                                 <td>" . $id++ . "</td>
                                 <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                                 <td>" . htmlspecialchars($row['academic_year']) . "</td>

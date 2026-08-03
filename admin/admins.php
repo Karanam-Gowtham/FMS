@@ -1,172 +1,81 @@
 <?php
 ob_start(); // Start output buffering at the very top
-require_once '../includes/session.php';
-require_once '../includes/csrf.php';
-include_once '../includes/connection.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+include 'header_admin.php';
+include "../includes/connection.php";
 
 $dept = isset($_GET['dept']) ? $_GET['dept'] : '';
 $error_message = ""; // Error message for popup
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrfValidate();
-}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['signIn'])) {
+        $userid = trim($_POST['userid']);
+        $password = trim($_POST['password']);
+        $designation = trim($_POST['designation']);
 
-if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header("Location: admins.php?dept=" . urlencode($dept));
-    exit();
-}
-
-// Determine logged in role
-$loggedInRole = '';
-if (isset($_SESSION['username'])) {
-    $loggedInRole = 'faculty';
-} elseif (isset($_SESSION['a_username'])) {
-    $loggedInRole = 'dept_coordinator';
-} elseif (isset($_SESSION['h_username'])) {
-    $loggedInRole = 'hod';
-} elseif (isset($_SESSION['admin'])) {
-    $loggedInRole = 'admin';
-} elseif (isset($_SESSION['j_username'])) {
-    $loggedInRole = 'jr_assistant';
-} elseif (isset($_SESSION['c_cord'])) {
-    $loggedInRole = 'central_coordinator';
-}
-
-// Logic to check if logged in user matches the current requested department
-$matchDept = false;
-
-if ($loggedInRole && $dept) {
-    // If they have the modern session format with roles, just check that
-    if (!empty($_SESSION['roles'])) {
-        foreach ($_SESSION['roles'] as $r) {
-            if (strcasecmp($r['dept_name'], $dept) == 0) {
-                $matchDept = true;
-                break;
-            }
-        }
-    } else {
-        // Fallback for legacy sessions: check the normalized Users / User_Roles tables
-        // Find their email based on session variable
-        $email_to_check = $_SESSION['username'] ?? $_SESSION['a_username'] ?? $_SESSION['h_username'] ?? $_SESSION['j_username'] ?? $_SESSION['admin'] ?? null;
-        
-        if ($email_to_check) {
-            $check = $conn->prepare("
-                SELECT d.dept_name 
-                FROM Users u
-                JOIN User_Roles ur ON u.user_id = ur.user_id
-                JOIN Dept d ON ur.dept_id = d.dept_id
-                WHERE u.email = ?
-            ");
-            $check->bind_param("s", $email_to_check);
-            $check->execute();
-            $res = $check->get_result();
-            while ($r = $res->fetch_assoc()) {
-                if (strcasecmp($r['dept_name'], $dept) == 0) {
-                    $matchDept = true;
-                    break;
-                }
-            }
-            $check->close();
-        }
-    }
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
-    $email = trim($_POST['userid']);
-    $password = trim($_POST['password']);
-
-    if ($loggedInRole) {
-        $error_message = "You are already logged in as " . str_replace('_', ' ', $loggedInRole) . ". Please logout first.";
-    } else {
-        if ($email == "admin" && $password == "123") {
-            session_regenerate_id(true);
-            $_SESSION['admin'] = $email;
-            ob_end_clean();
-            header("Location: ../HOD/acd_year_aa.php?designation=admin");
-            exit();
-        } else {
-            // Check the normalized database for the user's roles
-            $stmt = $conn->prepare("
-                SELECT u.user_id, r.role_id, r.role_name, d.dept_id, d.dept_name 
-                FROM Users u
-                JOIN User_Roles ur ON u.user_id = ur.user_id
-                JOIN Roles r ON ur.role_id = r.role_id
-                JOIN Dept d ON ur.dept_id = d.dept_id
-                WHERE u.email = ? AND u.password = ?
-            ");
-            $stmt->bind_param("ss", $email, $password);
+        if ($designation == "faculty") {
+            $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");
+            $stmt->bind_param("ss", $userid, $password);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
-                session_regenerate_id(true);
-                $assigned_role = '';
-                $all_roles = [];
-                
-                while ($row = $result->fetch_assoc()) {
-                    // Populate session with all their roles across all depts for the modern dashboard gateway
-                    $all_roles[] = $row;
-                    
-                    if (strcasecmp($row['dept_name'], $dept) == 0) {
-                        $db_role = $row['role_name'];
-                        if (!$assigned_role) $assigned_role = $db_role;
-                        
-                        if ($db_role == 'Faculty') {
-                            $_SESSION['username'] = $email;
-                        } elseif ($db_role == 'Dept Coordinator') {
-                            $_SESSION['a_username'] = $email;
-                        } elseif ($db_role == 'HOD') {
-                            $_SESSION['h_username'] = $email;
-                            $_SESSION['dept'] = $dept;
-                        } elseif (strpos($db_role, 'Assistant') !== false) {
-                            $_SESSION['j_username'] = $email;
-                            $_SESSION['dept'] = $dept;
-                        } elseif ($db_role == 'Admin') {
-                            $_SESSION['admin'] = $email;
-                        } elseif (strpos($db_role, 'Coordinator') !== false) {
-                            $_SESSION['c_cord'] = $email;
-                        }
-                    }
+                $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
+                $login_stmt->bind_param("ss", $userid, $password);
+                if ($login_stmt->execute() === TRUE) {
+                    $_SESSION['username'] = $userid;
+                    ob_end_clean(); // Clear buffer before redirect
+                    header("Location: ../acd_year.php?dept=$dept");
+                    exit();
                 }
-                
-                if (count($all_roles) > 0) {
-                    $_SESSION['user_id'] = $all_roles[0]['user_id'];
-                    $_SESSION['email'] = $email;
-                    $_SESSION['roles'] = $all_roles;
-                }
-                
-                ob_end_clean();
-                if ($assigned_role == 'Faculty') {
-                    header("Location: ../modules/faculty/acd_year.php?dept=" . urlencode($dept));
-                } elseif ($assigned_role == 'Dept Coordinator') {
-                    header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=" . urlencode($dept));
-                } elseif ($assigned_role == 'HOD') {
-                    header("Location: ../HOD/see_uploads.php?dept=" . urlencode($dept) . "&designation=HOD");
-                } elseif (strpos($assigned_role, 'Assistant') !== false) {
-                    header("Location: ../modules/jr_assistant/jr_acd_year.php?dept=" . urlencode($dept));
-                } elseif ($assigned_role == 'Admin') {
-                    header("Location: ../HOD/acd_year_aa.php?designation=admin");
-                } elseif (strpos($assigned_role, 'Coordinator') !== false) {
-                    header("Location: ../modules/central/c_aqar_files.php?designation=central_coordinator&event=" . urlencode($dept));
-                } elseif ($assigned_role) {
-                    header("Location: ../dashboard.php");
-                } else {
-                    // If they successfully logged in but don't have a role in the specific department they tried to access,
-                    // bounce them directly to the main dashboard gateway where they can see ALL their roles.
-                    header("Location: ../dashboard.php");
-                }
-                exit();
+                $login_stmt->close();
             } else {
-                $error_message = "Invalid email, password, or account does not exist.";
+                $error_message = "Invalid username or password.";
             }
             $stmt->close();
+        } else {
+            if ($designation == "dept_coordinator") {
+                $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                $result = $stmt->get_result();
+            
+                if ($result->num_rows > 0) {
+                    $_SESSION['a_username'] = $userid;
+                    $stmt->close();
+                    ob_end_clean();
+            
+                    // Redirect only after successful login
+                    header("Location: ../dc_acd_year.php?dept=$dept");
+                    exit();
+                } else {
+                    $login_error = true; // Incorrect login
+                }
+            
+            
+            } elseif ($designation == "hod" && $userid == "hod" && $password == "123") {
+                $_SESSION['h_username'] = $userid;
+                ob_end_clean();
+                header("Location: ../cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
+                exit();
+            } elseif ($designation == "central_coordinator" && $userid == "central" && $password == "123") {
+                $_SESSION['h_username'] = $userid;
+                ob_end_clean();
+                header("Location: ../cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
+                exit();
+            } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
+                $_SESSION['admin'] = $userid;
+                ob_end_clean();
+                header("Location: ../HOD/acd_year_aa.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
+                exit();
+            } else {
+                $error_message = "Invalid username or password.";
+            }
         }
     }
 }
-// Include header ONLY after all possible redirects
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -175,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
     <title>FMS</title>
     <style>
         body {
-            background-image: url('../assets/img/gmr_landing_page.jpg');
+            background-image: url('../stuff/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
@@ -196,19 +105,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
         }
 
         .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-
             font-size: larger;
         }
 
         .nav-container {
             background-color: white;
             width:150vw;
-             /* margin-top moved to .navbar */
+            margin-top: 80px;
             padding: 0 1rem;
         }
 
@@ -314,80 +217,69 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
         }
 
         .register {
+            
             margin-top: 10px;
         }
         .reg{
             color:aqua;
         }
-        .sp {
-            color: blue;
-        }
     </style>
 </head>
 <body>
-    <?php include_once '../includes/header.php'; ?>
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span class="sp">&nbsp; >> &nbsp;</span>
-            <span class="main"><span class="main-a">Department(<?php echo htmlspecialchars((string)$dept); ?>)</span></span>
-        </div>
-    </div>
-</nav>
+    <?php include "../includes/header.php"; ?>
+
 
 <div class="container11">
-                <?php
-                    // Check if any user is logged in
-                    if ($loggedInRole) {
-                        // Logout logic processed at top
-                    }
-                ?>
-    <div id="loginForm">
-        <h2 id="welcomeMessage">Login - <?php echo htmlspecialchars((string)$dept); ?></h2>
-        <h4>Please enter your credentials</h4>
+    <div class="login-container">
+        <h2>Please select your designation for</h2>
+        <h2>LOGIN</h2>
+        <select id="designation">
+            <option value="" selected disabled>Choose...</option>
+            <option value="faculty">Faculty</option>
+            <option value="dept_coordinator">Dept Coordinator</option>
+            <option value="hod">HOD</option>
+            <option value="central_coordinator">Central Coordinator</option>
+            <option value="admin">Admin</option>
+        </select><br>
+        <button class="btnl" onclick="showLogin()">Submit</button>
+    </div>
+
+    <div id="loginForm" style="display: none;">
+        <h2 id="welcomeMessage"></h2>
+        <h4>Please login</h4>
         <form method="POST">
-            <?php echo csrfField(); ?>
-            <input type="email" placeholder="Email Address" name="userid" required>
+            <input type="hidden" name="designation" id="designationHidden">
+            <input type="text" placeholder="Username" name="userid" required>
             <input type="password" placeholder="Password" name="password" required>
             <button class="btnl" type="submit" name="signIn">Login</button>
         </form>
-        <p id="register" class="register">Don't have an account? <a href="../modules/auth/reg.php" class="reg">Register here</a>...</p>
+        <p id="register" class="register" style="display: none;">Don't have an account? <a href="../reg.php" class="reg">Register here</a>...</p>
     </div>
 </div>
 
 <script>
-    window.onload = function() {
-        let loggedInRole = "<?php echo $loggedInRole; ?>";
-        let currentDept = "<?php echo urlencode($dept); ?>";
-        let safeToRedirect = "<?php echo $matchDept ? 'yes' : 'no'; ?>";
+    function showLogin() {
+        let designation = document.getElementById("designation").value;
 
-        if (loggedInRole && safeToRedirect === 'yes') {
-            if (loggedInRole === 'faculty') {
-                window.location.href = "../modules/faculty/acd_year.php?dept=" + currentDept;
-            } else if (loggedInRole === 'dept_coordinator') {
-                window.location.href = "../modules/dept_coordinator/dc_acd_year.php?dept=" + currentDept;
-            } else if (loggedInRole === 'jr_assistant') {
-                window.location.href = "../modules/jr_assistant/jr_acd_year.php?dept=" + currentDept;
-            } else if (loggedInRole === 'hod') {
-                window.location.href = "../HOD/see_uploads.php?dept=" + currentDept + "&designation=HOD";
-            } else if (loggedInRole === 'admin') {
-                window.location.href = "../HOD/acd_year_aa.php?designation=admin";
+        if (designation) {
+            if (designation === "faculty" && "<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>") {
+                window.location.href = "../acd_year.php?dept=<?php echo $dept; ?>";
+                return;
             }
+
+            document.getElementById("welcomeMessage").innerText = "Welcome " + designation.replace("_", " ");
+            document.getElementById("loginForm").style.display = "block";
+            document.getElementById("register").style.display = (designation === "faculty") ? "block" : "none";
+            document.getElementById("designationHidden").value = designation;
         }
     }
 </script>
 
 <?php if (!empty($error_message)): ?>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        showToast("<?php echo addslashes($error_message); ?>", "error");
-    });
+    window.onload = function () {
+        alert("<?php echo $error_message; ?>");
+    };
 </script>
 <?php endif; ?>
 

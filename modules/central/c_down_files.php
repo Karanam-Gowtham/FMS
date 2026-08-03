@@ -1,6 +1,6 @@
-﻿<?php
-include_once "../../includes/connection.php";
-session_start();
+<?php
+include "../../includes/connection.php";
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -29,29 +29,18 @@ if (
     $action = $_POST['action'];
     $files = $_POST['selected_files'];
 
-    function getSafePathCent($fileStr) {
-        $filename = basename(htmlspecialchars_decode(urldecode($fileStr), ENT_QUOTES));
-        $dirs = ['../../uploads/', '../../uploads1/', '../uploads/', '../uploads1/', 'uploads/', 'uploads1/'];
-        foreach ($dirs as $dir) {
-            if (file_exists($dir . $filename) && is_file($dir . $filename)) {
-                return $dir . $filename;
-            }
-        }
-        return false;
-    }
-
     if ($action === 'download') {
         if (count($files) === 1) {
-            $safePath = getSafePathCent($files[0]);
-            if ($safePath) {
+            $decoded = urldecode($files[0]);
+            if (file_exists($decoded)) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"" . basename($safePath) . "\"");
+                header("Content-Disposition: attachment; filename=\"" . basename($decoded) . "\"");
                 header('Expires: 0');
                 header('Cache-Control: must-revalidate');
                 header('Pragma: public');
-                header('Content-Length: ' . filesize($safePath));
-                readfile($safePath);
+                header('Content-Length: ' . filesize($decoded));
+                readfile($decoded);
                 exit();
             } else {
                 echo "File not found.";
@@ -63,9 +52,9 @@ if (
 
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
                 foreach ($files as $file) {
-                    $safePath = getSafePathCent($file);
-                    if ($safePath) {
-                        $zip->addFile($safePath, basename($safePath));
+                    $decoded = urldecode($file);
+                    if (file_exists($decoded)) {
+                        $zip->addFile($decoded, basename($decoded));
                     }
                 }
                 $zip->close();
@@ -81,30 +70,26 @@ if (
         }
     } elseif ($action === 'delete') {
         foreach ($files as $file) {
-            $decoded = htmlspecialchars_decode(urldecode($file), ENT_QUOTES);
-            $safePath = getSafePathCent($file);
+            $decoded = urldecode($file);
             $stmt = $conn->prepare("DELETE FROM central_files WHERE file_path = ?");
             $stmt->bind_param("s", $decoded);
 
             $stmt->execute();
-            if ($safePath) {
-                unlink($safePath);
+            if (file_exists($decoded)) {
+                unlink($decoded);
             }
         }
         echo "<script>
                 alert('Selected files deleted.');
                 window.location.href = 'c_down_files.php?event=" . urlencode($event) . "';
-            
-        function viewSingleFile(filePath) {
-            window.open(filePath, '_blank');
-        }
-</script>";
+            </script>";
+
     }
 }
 
 // Get the selected file type from POST
 
-include_once "../../includes/header.php";
+
 ?>
 
 <!DOCTYPE html>
@@ -112,7 +97,7 @@ include_once "../../includes/header.php";
 <head>
     <meta charset="UTF-8">
     <title>Retrieve Files</title>
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
@@ -131,7 +116,7 @@ include_once "../../includes/header.php";
             color: darkblue;
         }
         /* Navigation */
-        .navbar {
+        .navbar { 
             margin-top: -80px;
             font-size: larger;
         }
@@ -139,11 +124,11 @@ include_once "../../includes/header.php";
         #sp{
             color:blue;
         }
-
+        
         .nav-container {
             background-color: white;
             width:150vw;
-             /* margin-top moved to .navbar */
+            margin-top: 80px;
             padding: 0 1rem;
         }
 
@@ -186,7 +171,7 @@ include_once "../../includes/header.php";
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             color: #333;
         }
-
+        
         .container111{
             margin-bottom: 50px;
         }
@@ -246,8 +231,7 @@ include_once "../../includes/header.php";
             text-decoration: none;
             font-weight: bold;
             text-align: center;
-        }
-        select {
+        }select {
                 padding: 8px 12px;
                 border: 1px solid #ccc;
                 border-radius: 6px;
@@ -265,24 +249,10 @@ include_once "../../includes/header.php";
 </head>
 
 <body>
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="../../index.php" class="home-icon">Central</a></span>
-            <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_upload.php?event=<?php echo urlencode($event) ?>" class="home-icon"><?php echo htmlspecialchars($event) ?></a></span>
-            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a"><?php echo htmlspecialchars($selected_file_type) ?><?php echo htmlspecialchars($event) ?> Files</span></span>
-            <span class="sp">&nbsp; >> &nbsp;</span>
-        </div>
-    </div>
-</nav>
+    <?php include "../../includes/header.php"; ?>
+
 <div class="container11">
-    <h1>Retrieve <?php echo htmlspecialchars($event); ?> Files</h1>
+    <h1>Retrieve <?php echo"$event"; ?> Files</h1>
 </div>
 
 <div class="container111">
@@ -302,18 +272,18 @@ if (!empty($event)) {
                         <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
                         <th>Username</th>
                         <th>Academic Year</th>";
-
+                        
         if ($event === 'Clubs') {
             echo "<th>Club Name</th>";
         }
-
+    
         echo "      <th>Event Name</th>
                         <th>File Description</th>
                         <th>Photos</th> <!-- New column -->
                     </tr>
                 </thead>
                 <tbody>";
-
+    
         $id = 1;
         while ($row = $result->fetch_assoc()) {
             $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
@@ -321,20 +291,19 @@ if (!empty($event)) {
             $photo2Path = htmlspecialchars($row["photo2"]);
             $photo3Path = htmlspecialchars($row["photo3"]);
             $photo4Path = htmlspecialchars($row["photo4"]);
-
+        
             echo "<tr>
-                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "'
+                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' 
                         data-default='" . $file_path . "' data-id='" . $row["id"] . "' onclick='trackOrder(event)'></td>
                     <td>" . htmlspecialchars($row['uploaded_by']) . "</td>
                     <td>" . htmlspecialchars($row['acd_year']) . "</td>";
-
+        
             if ($event === 'Clubs') {
                 echo "<td>" . htmlspecialchars($row['club_name']) . "</td>";
             }
-
+        
             echo "<td>" . htmlspecialchars($row['event_name']) . "</td>
                   <td>" . htmlspecialchars($row['file_name']) . "</td>
-                        <td><button type='button' class='btn view-btn btn-sm' style='padding: 5px 10px; font-size: 12px; margin-right: 0;' onclick='viewSingleFile(\"" . htmlspecialchars(isset($fixed_path) ? $fixed_path : $file_path, ENT_QUOTES) . "\")\'>View</button></td>
                   <td class='center-cell'>
                         <select class='file-select' onchange='handleFileTypeChange(this, " . $row["id"] . ")' data-id='" . $row["id"] . "'>
                             <option value=''>Select File</option>
@@ -346,7 +315,7 @@ if (!empty($event)) {
                         </select>
                   </td>
                 </tr>";
-
+        
             $id++;
         }
 

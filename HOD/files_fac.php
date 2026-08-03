@@ -1,8 +1,6 @@
 <?php
-include_once "../includes/connection.php";
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+include("../includes/connection.php");
+include 'header_hod.php';   
 ?>
 
 
@@ -101,7 +99,7 @@ if (session_status() === PHP_SESSION_NONE) {
             top: 20px;
             left: 680px;
             padding: 10px 20px;
-            background-color: #1b5e20;
+            background-color: green;
             color: white;
             border: none;
             border-radius: 5px;
@@ -133,13 +131,14 @@ if (session_status() === PHP_SESSION_NONE) {
     </style>
 </head>
 <body>
-<?php include_once 'header_hod.php'; ?>
+    <?php include "../includes/header.php"; ?>
     <div class="container">
         <?php
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Get the academic year and criteria from the POST request
                 $academicYear = htmlspecialchars($_POST['year']);
                 $criteria = htmlspecialchars($_POST['criteria']);
+                
                 // Display the AQAR heading
                 echo "<h1>AQAR - " . $academicYear . "</h1>";
             } else {
@@ -155,19 +154,19 @@ if (session_status() === PHP_SESSION_NONE) {
                     <th colspan="4" id="th1">Criteria <?php echo $criteria; ?></th>
                 </tr>
                 <tr id="tr2">
-                    <th scope="col">Criteria No</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Action</th>
+                    <th>Criteria No</th>
+                    <th>Description</th>
+                    <th>Action</th>
                 </tr>
             </thead>
                 <tbody>
                 <?php
                     // Define the data
-                    if ($academicYear == '2020-21') {
+                    if($academicYear=='2020-21'){
                         $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    } elseif ($academicYear == '2021-22') {
+                    }else if($academicYear=='2021-22'){
                         $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' order by 'Sub_no'";
-                    } else {
+                    }else{
                         $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' order by 'Sub_no'";
                     }
 
@@ -177,7 +176,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             if ($result->num_rows > 0) {
                                 // Loop through the result set and display rows
                                 while ($row = $result->fetch_assoc()) {
-                                    $criteriaNo = $row['Sub_no'];
+                                    $criteriaNo = $row['Sub_no'];  
                                     $description = $row['Des'];
 
                                     // Display rows

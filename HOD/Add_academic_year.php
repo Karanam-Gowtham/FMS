@@ -1,7 +1,7 @@
-﻿<?php
+<?php
 // Include database connection
-include_once '../includes/connection.php';
-include_once "./header_hod.php";
+include "../includes/connection.php";
+include "./header_hod.php";
 
 $success = "";
 $error = "";
@@ -12,26 +12,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $year = trim($_POST["year"]);
 
     if (!empty($year)) {
-        $check = "SELECT * FROM academic_year WHERE year = ?";
-        $stmt_check = mysqli_prepare($conn, $check);
-        mysqli_stmt_bind_param($stmt_check, "s", $year);
-        mysqli_stmt_execute($stmt_check);
-        mysqli_stmt_store_result($stmt_check);
+        $check = "SELECT * FROM academic_year WHERE year = '$year'";
+        $check_result = mysqli_query($conn, $check);
 
-        if (mysqli_stmt_num_rows($stmt_check) > 0) {
-            $error = "Academic year '" . htmlspecialchars($year) . "' already exists.";
+        if (mysqli_num_rows($check_result) > 0) {
+            $error = "Academic year '$year' already exists.";
         } else {
-            $insert = "INSERT INTO academic_year (year) VALUES (?)";
-            $stmt_insert = mysqli_prepare($conn, $insert);
-            mysqli_stmt_bind_param($stmt_insert, "s", $year);
-            if (mysqli_stmt_execute($stmt_insert)) {
-                $success = "Academic year '" . htmlspecialchars($year) . "' added successfully!";
+            $insert = "INSERT INTO academic_year (year) VALUES ('$year')";
+            if (mysqli_query($conn, $insert)) {
+                $success = "Academic year '$year' added successfully!";
             } else {
                 $error = "Error: " . mysqli_error($conn);
             }
-            mysqli_stmt_close($stmt_insert);
         }
-        mysqli_stmt_close($stmt_check);
     } else {
         $error = "Please enter an academic year.";
     }
@@ -151,7 +144,7 @@ $conn->close();
             color: #721c24;
         }
         /* Navigation */
-    .navbar {
+  .navbar { 
         font-size: larger;
     }
 
@@ -192,20 +185,8 @@ $conn->close();
     </style>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Add Academic Year</span></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span>
-            </div>
-        </div>
-    </nav>
+    <?php include "../includes/header.php"; ?>
+
 
 <div class="main-content">
 <button class="btn11" onclick="location.href='edit_acd_year.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>'">
@@ -223,7 +204,7 @@ $conn->close();
             <div class="error"><?php echo $error; ?></div>
             <script>alert("<?php echo $error; ?>");</script>
         <?php endif; ?>
-
+        
         <form method="POST">
             <label for="year">Enter Academic Year (e.g., 2024-25):</label>
             <input type="text" id="year" name="year" placeholder="YYYY-YY" required>
@@ -234,4 +215,3 @@ $conn->close();
 
 </body>
 </html>
-

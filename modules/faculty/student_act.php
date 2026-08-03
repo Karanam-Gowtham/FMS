@@ -1,112 +1,101 @@
 <?php
-
-include_once "../../includes/connection.php";
-include_once "../../includes/header.php";
-
+include("../../includes/connection.php");
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($_SESSION['username'])) {
-    die("You need to log in to view this page.");
+    die("You need to log in to view your uploads.");
 }
 
 $username = $_SESSION['username'];
-$dept = isset($_GET['dept']) ? $_GET['dept'] : '';
-
-if (!$dept) {
-    $stmt = $conn->prepare("SELECT dept FROM reg_tab WHERE userid = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    if ($row = $res->fetch_assoc()) {
-        $dept = $row['dept'];
-    }
+if (isset($_GET['event'])) {
+    $event = $_GET['event'];
+} else {
+    $event = ''; // Default value if no event is provided
+}
+if (isset($_GET['dept'])) {
+    $dept = $_GET['dept']; // Get the 'dept' value from the URL
+} else {
+    echo "Department not set.";
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $event_name = $_POST['event_name'];
-    $acd_year = $_POST['year'];
+$pages = [
+    "J_Papers" => "s_journal.php",
+    "C_Papers" => "s_conference.php",
+    "Projects" => "s_act_files.php",
+    "Internships" => "s_act_files.php",
+    "SIH" => "s_act_files.php",
+    "GATE" => "s_act_files.php",
+    "Hackathons" => "s_act_files.php",
+    "Professional_Bodies" => "s_body_files.php"
+];
 
-    $target_dir = "../../uploads/student_act/";
-    if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
+if (isset($_POST['activity']) && isset($pages[$_POST['activity']])) {
+    header("Location: " . $pages[$_POST['activity']] . "?activity=" . $_POST['activity'] . "&dept=" . urlencode($dept) . "&event=" . urlencode($event));
 
-    $certificate_path = "";
-    if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] == 0) {
-        $fileName = time() . '_' . basename($_FILES["certificate"]["name"]);
-        $targetFile = $target_dir . $fileName;
-        if (move_uploaded_file($_FILES["certificate"]["tmp_name"], $targetFile)) {
-            $certificate_path = $targetFile;
-        }
-    }
-
-    $status = 'Pending HOD';
-
-    // Using s_events table as seen in dashboard.php
-    $sql = "INSERT INTO s_events (Username, event_name, acd_year, certificate_path, submission_time, status)
-            VALUES (?, ?, ?, ?, NOW(), ?)";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $username, $event_name, $acd_year, $certificate_path, $status);
-
-    if ($stmt->execute()) {
-        echo "<script>alert('Student activity record added successfully!'); window.location.href='acd_year.php?dept=" . urlencode($dept) . "';</script>";
-    } else {
-        echo "<script>alert('Error: " . $stmt->error . "');</script>";
-    }
+    exit(); // Stop execution to prevent errors
 }
+
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Upload Student Activity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Events</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
+       body {
+            background: linear-gradient(135deg, #0a192f 0%, #172a45 100%);
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0a192f 0%, #172a45 100%);
-            color: white;
-        }
-
-        .cont1 {
+            height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            color: #fff;
+            position: relative;
         }
 
-        /* Navigation */
-        .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-
-            font-size: larger;
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
         }
 
-        .sp {
-            color: blue;
-        }
-
+        /* Navbar */
         .nav-container {
+            margin-top: 80px;
+            margin-left: -800px;
             background-color: white;
-            width: 150vw;
-            /* margin-top moved to .navbar */
+            width: 100%;
             padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
         }
 
         .nav-items {
-            margin-left: 30px;
+            margin-left: -800px;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
             height: 4rem;
+            font-size: larger;
         }
 
+        #sp{
+            color:blue;
+        }
         .sid {
             color: rgb(48, 30, 138);
             font-weight: 500;
@@ -115,6 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .main-a {
             color: rgb(138, 30, 113);
             font-weight: 500;
+            text-decoration: none;
         }
 
         .main-a:hover {
@@ -124,158 +114,163 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .home-icon {
             color: rgb(30, 58, 138);
             transition: color 0.2s;
+            text-decoration: none;
         }
 
         .home-icon:hover {
             color: rgb(29, 78, 216);
         }
 
-        .container11 {
-            margin-top: 50px;
-            background: rgba(16, 15, 15, 0.8);
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
-            max-width: 600px;
-            width: 90%;
-            height: 100%;
-            margin-bottom: 50px;
-        }
-
-        h1 {
+        /* Main Content */
+        .container {
+            margin-top: 25vh;
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
+            min-height: 190px;
         }
 
-        .upload-form {
-            margin-left: 70px;
+        .cont1 {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
 
-        label {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
+        /* Heading */
+        h1 {
             color: #fff;
-            font-weight: bold;
-        }
-
-        input {
-            width: 80%;
-            color: white;
-        }
-
-        select {
-            width: 84%;
-        }
-
-        input[type="text"],
-        input[type="file"],
-        select {
-            padding: 10px;
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: bold;
-            font-size: 1rem;
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .button {
-            background: #ff6347;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 10px 20px;
-            border: none;
+        /* Select and Button Styling */
+        select {
+            width: 200px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 1em;
             border-radius: 5px;
+            border: none;
             cursor: pointer;
-            transition: background 0.3s;
-            width: 83%;
-            margin-bottom: 50px;
         }
 
-        .button:hover {
-            background: #e55337;
+        button {
+            left:300;
+            background: linear-gradient(to right, rgb(139, 10, 130), rgb(229, 129, 225));
+            color: white;
+            font-weight: bold;
+            padding: 10px 15px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            label {
-                font-size: 1rem;
-            }
-
-            input[type="text"],
-            input[type="file"],
-            .button {
-                width: 100%;
-            }
+        button:hover {
+            transform: translateY(-3px);
         }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Upload Button */
+        .button1 {
+            position: fixed;
+            top: 200px;
+            right: 300px;
+            background: linear-gradient(to right, rgb(2, 26, 48), rgb(129, 187, 229));
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            text-align: center;
+            width: 120px;
+            text-decoration: none;
+            font-size: 1em;
+        }
+
+        .button1:hover {
+            background: linear-gradient(to right, rgb(2, 40, 70), rgb(100, 160, 200));
+        }
+
     </style>
 </head>
-
 <body>
+    <?php include "../../includes/header.php"; ?>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
-                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
-                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a
-                        href="acd_year.php?dept=<?php echo urlencode($dept); ?>" class="home-icon">Faculty</a></span>
-                <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Student Activities Files</span></span>
+<div class="cont1">
+    <a href="s_down_files1.php?dept=<?php echo   $dept ?>" class="button1">Uploads</a>
+    <div class="container">
+        <h1>Student Activities</h1>
+        <form id="activityForm" action="" method="POST">
+            <select name="activity" id="activity" onchange="showProfessionalBodies()">
+                <option value="" disabled selected>Select an Activity</option>
+                <option value="J_Papers">Journal Papers</option>
+                <option value="C_Papers">Conference Papers</option>
+                <option value="Projects">Projects</option>
+                <option value="Internships">Internships</option>
+                <option value="SIH">SIH</option>
+                <option value="GATE">GATE</option>
+                <option value="Hackathons">Hackathons</option>
+                <option value="Professional_Bodies">Professional Bodies</option>
+            </select><br>
+
+            <!-- Second Dropdown for Professional Bodies (Initially Hidden) -->
+            <div id="professionalBodiesDiv" style="display: none;">
+                <select name="professional_body" id="professional_body">
+                    <option value="" selected disabled>Select ProfessionalBody</option>
+                    <option value="s_body_files.php?activity=ISTE">ISTE</option>
+                    <option value="s_body_files.php?activity=CSI">CSI</option>
+                    <option value="s_body_files.php?activity=ACM">ACM</option>
+                    <option value="s_body_files.php?activity=ACMW">ACMW</option>
+                    <option value="s_body_files.php?activity=Coding_Club">Coding Club</option>
+                    <option value="s_body_files.php?activity=IEEE">IEEE</option>
+                    <option value="s_body_files.php?activity=IEEE-WIE">IEEE-WIE</option>
+                </select><br>
             </div>
-        </div>
-    </nav>
 
-    <div class="cont1">
-        <div class="container11">
-            <h1>Upload Student Activities Files</h1>
-            <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
-                <label for="file_name">File Name:</label>
-                <input type="text" name="event_name" id="file_name" required>
-
-                <div class="form-group">
-                    <label for="academic-year">Select Academic Year:</label>
-                    <select name="year" id="academic-year" required>
-                        <option value="" disabled selected>Select an academic year</option>
-                        <?php
-                        include_once "../../includes/connection.php";
-                        $query = "SELECT year FROM academic_year ORDER BY year DESC";
-                        $result = mysqli_query($conn, $query);
-                        if ($result && mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                $year = htmlspecialchars($row['year']);
-                                echo "<option value=\"$year\">$year</option>";
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <label for="certificate">Choose File:</label>
-                <input type="file" name="certificate" id="certificate" required>
-
-                <button type="submit" class="button">Upload File</button>
-            </form>
-        </div>
+            <button type="submit">Submit</button>
+        </form>
     </div>
+</div>
+<script>
+    function showProfessionalBodies() {
+        var activity = document.getElementById("activity").value;
+        var professionalBodiesDiv = document.getElementById("professionalBodiesDiv");
+
+        if (activity === "Professional_Bodies") {
+            professionalBodiesDiv.style.display = "block";
+        } else {
+            professionalBodiesDiv.style.display = "none";
+        }
+    }
+
+    function validateForm(event) {
+        var activity = document.getElementById("activity").value;
+
+        if (activity === "Professional_Bodies") {
+            var professionalBody = document.getElementById("professional_body").value;
+            if (!professionalBody) {
+                alert("Please select a Professional Body.");
+                event.preventDefault();
+                return false;
+            }
+            // Redirect to selected professional body
+            window.location.href = professionalBody + "&dept=" + encodeURIComponent("<?php echo $dept; ?>")+ "&event=" + encodeURIComponent("<?php echo $event; ?>");
+            event.preventDefault(); // Prevent default form submission
+            return false;
+        }
+    }
+
+    document.getElementById("activityForm").addEventListener("submit", validateForm);
+</script>
+
 
 </body>
-
 </html>
-<?php $conn->close(); ?>
-

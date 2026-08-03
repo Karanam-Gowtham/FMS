@@ -1,32 +1,13 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
-include_once __DIR__ . '/../includes/connection.php';
-require_once __DIR__ . '/../includes/csrf.php';
-
-$logged = isset($_SESSION['username'])
-    || isset($_SESSION['a_username'])
-    || isset($_SESSION['j_username'])
-    || isset($_SESSION['h_username'])
-    || isset($_SESSION['admin'])
-    || isset($_SESSION['c_cord'])
-    || isset($_SESSION['c_username'])
-    || isset($_SESSION['cri_username']);
-if (!$logged) {
-    http_response_code(403);
-    exit('Access denied');
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrfValidate();
-}
+include("../includes/connection.php");
 
 $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
 $subCriteria = isset($_POST['subCriteria']) ? $_POST['subCriteria'] : '';
 $data = [];
 
 if ($criteria && in_array($criteria, ["1", "2", "3", "4", "7"])) {
-    $query = "SELECT id, faculty_name, academic_year, file_name, file_path, criteria_no
-              FROM files
+    $query = "SELECT id, faculty_name, academic_year, file_name, file_path, criteria_no 
+              FROM files 
               WHERE criteria = ?
               ORDER BY criteria_no ASC";
 
@@ -47,8 +28,10 @@ if ($criteria && in_array($criteria, ["1", "2", "3", "4", "7"])) {
         ];
     }
 }
+?>
 
-include_once "header_admin.php";
+<?php 
+include("header_admin.php");
 ?>
 
 <!DOCTYPE html>
@@ -60,12 +43,12 @@ include_once "header_admin.php";
     <link rel="stylesheet" href="../css/downloads_new.css">
 </head>
 <body>
+    <?php include "../includes/header.php"; ?>
 
 <div class="container">
     <h2>Select Criteria</h2>
     
     <form method="POST" action="">
-        <?php echo csrfField(); ?>
         <!-- Main Criteria Dropdown -->
         <select name="criteria" id="criteria" onchange="showSubCriteria()" required>
             <option value="">Select the Criteria</option>
@@ -115,12 +98,11 @@ include_once "header_admin.php";
     <table id="resultTable">
         <thead>
             <tr>
-                <th><input type="checkbox" onclick="toggleSelectAll(this)" onkeydown="if(event.key==='Enter')this.click()"></th>
+                <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
                 <th>ID</th>
                 <th>Faculty Name</th>
                 <th>Academic Year</th>
                 <th>File Name</th>
-                        <th>Action</th>
                 <th>Criteria No</th>
             </tr>
         </thead>
@@ -128,7 +110,7 @@ include_once "header_admin.php";
             <?php foreach ($data as $row): ?>
                 <tr>
                     <td>
-                        <input type="checkbox" name="selected_files[]" <?php echo ATTR_DATA_FILEPATH; ?>../<?php echo $row['file_path']; ?><?php echo QUOTE_SPACE; ?> onchange="trackOrder(event)" onkeydown="if(event.key==='Enter')this.click()">
+                        <input type="checkbox" name="selected_files[]" data-filepath="../<?= $row['file_path'] ?>" onchange="trackOrder(event)">
                     </td>
                     <td><?= $row['id'] ?></td>
                     <td><?= $row['faculty_name'] ?></td>
@@ -147,11 +129,7 @@ include_once "header_admin.php";
 <?php endif; ?>
 
 <!-- JS for PDF merging -->
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous">
-        function viewSingleFile(filePath) {
-            window.open(filePath, '_blank');
-        }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 <script>
     let selectedOrder = [];
 

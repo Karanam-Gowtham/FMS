@@ -1,5 +1,5 @@
 <?php
-require_once '../includes/session.php';
+include "header_hod.php";
 ?>
 
 <!DOCTYPE html>
@@ -10,7 +10,7 @@ require_once '../includes/session.php';
     <title>AQARs Supporting Documents</title>
     <style>
         body {
-            background-image: url('../assets/img/gmr_landing_page.jpg');
+            background-image: url('../stuff/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             background-color: white;
@@ -85,7 +85,7 @@ require_once '../includes/session.php';
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 16px;          
         }
         .home-button:hover {
             background-color: rgb(86, 5, 5);
@@ -100,7 +100,7 @@ require_once '../includes/session.php';
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 16px;          
         }
         .home-button1:hover {
             background-color: blueviolet;
@@ -112,7 +112,7 @@ require_once '../includes/session.php';
     </style>
 </head>
 <body>
-<?php include_once 'header_hod.php'; ?>
+    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <h1>AQARs Supporting Documents</h1>
         <form action="files_cor.php" method="POST">
@@ -142,4 +142,3 @@ require_once '../includes/session.php';
 
 </body>
 </html>
-

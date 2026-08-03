@@ -1,6 +1,6 @@
-﻿<?php
-include_once "../../includes/connection.php";
-session_start();
+<?php
+include "../../includes/connection.php";
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -16,7 +16,7 @@ $event = " ";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event'])) {
     $event = $_POST['event'];
-}
+} 
 
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
@@ -27,29 +27,18 @@ if (
     $action = $_POST['action'];
     $files = $_POST['selected_files'];
 
-    function getSafePathCentCord($fileStr) {
-        $filename = basename(htmlspecialchars_decode(urldecode($fileStr), ENT_QUOTES));
-        $dirs = ['../../uploads/', '../../uploads1/', '../uploads/', '../uploads1/', 'uploads/', 'uploads1/'];
-        foreach ($dirs as $dir) {
-            if (file_exists($dir . $filename) && is_file($dir . $filename)) {
-                return $dir . $filename;
-            }
-        }
-        return false;
-    }
-
     if ($action === 'download') {
         if (count($files) === 1) {
-            $safePath = getSafePathCentCord($files[0]);
-            if ($safePath) {
+            $decoded = urldecode($files[0]);
+            if (file_exists($decoded)) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"" . basename($safePath) . "\"");
+                header("Content-Disposition: attachment; filename=\"" . basename($decoded) . "\"");
                 header('Expires: 0');
                 header('Cache-Control: must-revalidate');
                 header('Pragma: public');
-                header('Content-Length: ' . filesize($safePath));
-                readfile($safePath);
+                header('Content-Length: ' . filesize($decoded));
+                readfile($decoded);
                 exit();
             } else {
                 echo "File not found.";
@@ -61,9 +50,9 @@ if (
 
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
                 foreach ($files as $file) {
-                    $safePath = getSafePathCentCord($file);
-                    if ($safePath) {
-                        $zip->addFile($safePath, basename($safePath));
+                    $decoded = urldecode($file);
+                    if (file_exists($decoded)) {
+                        $zip->addFile($decoded, basename($decoded));
                     }
                 }
                 $zip->close();
@@ -79,30 +68,26 @@ if (
         }
     } elseif ($action === 'delete') {
         foreach ($files as $file) {
-            $decoded = htmlspecialchars_decode(urldecode($file), ENT_QUOTES);
-            $safePath = getSafePathCentCord($file);
+            $decoded = urldecode($file);
             $stmt = $conn->prepare("DELETE FROM central_files WHERE file_path = ?");
             $stmt->bind_param("s", $decoded);
 
             $stmt->execute();
-            if ($safePath) {
-                unlink($safePath);
+            if (file_exists($decoded)) {
+                unlink($decoded);
             }
         }
         echo "<script>
                 alert('Selected files deleted.');
                 window.location.href = 'c_down_files.php?event=" . urlencode($event) . "';
-            
-        function viewSingleFile(filePath) {
-            window.open(filePath, '_blank');
-        }
-</script>";
+            </script>";
+
     }
 }
 
 // Get the selected file type from POST
 
-include_once "../../includes/header.php";
+
 ?>
 
 <!DOCTYPE html>
@@ -110,7 +95,7 @@ include_once "../../includes/header.php";
 <head>
     <meta charset="UTF-8">
     <title>Retrieve Files</title>
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" integrity="sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
@@ -129,19 +114,19 @@ include_once "../../includes/header.php";
             color: darkblue;
         }
         /* Navigation */
-        .navbar {
+        .navbar { 
             margin-top: -80px;
             font-size: larger;
         }
 
-        .sp{
+        #sp{
             color:blue;
         }
-
+        
         .nav-container {
             background-color: white;
             width:150vw;
-             /* margin-top moved to .navbar */
+            margin-top: 80px;
             padding: 0 1rem;
         }
 
@@ -184,7 +169,7 @@ include_once "../../includes/header.php";
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             color: #333;
         }
-
+        
         .container111{
             margin-bottom: 50px;
         }
@@ -300,6 +285,7 @@ include_once "../../includes/header.php";
 </head>
 
 <body>
+    <?php include "../../includes/header.php"; ?>
 
 <div class="container11">
     <h1>Retrieve Files</h1>
@@ -308,15 +294,18 @@ include_once "../../includes/header.php";
         <label for="event">Choose Event:</label>
         <select name="event" id="event" required>
             <option value="" disabled selected>Select an Event</option>
-            <option value="NCC" <?php if ($event === "NCC") { echo "selected"; } ?>>NCC</option>
-            <option value="Sports" <?php if ($event === "Sports") { echo "selected"; } ?>>Sports</option>
-            <option value="Clubs" <?php if ($event === "Clubs") { echo "selected"; } ?>>Clubs</option>
-            <option value="NSS" <?php if ($event === "NSS") { echo "selected"; } ?>>NSS</option>
-            <option value="Women Empowerment" <?php if ($event === "Women Empowerment") { echo "selected"; } ?>>Women Empowerment</option>
-            <option value="IIC" <?php if ($event === "IIC") { echo "selected"; } ?>>IIC</option>
-            <option value="PASH" <?php if ($event === "PASH") { echo "selected"; } ?>>PASH</option>
-            <option value="Antiragging" <?php if ($event === "Antiragging") { echo "selected"; } ?>>Antiragging</option>
-            <option value="SAC" <?php if ($event === "SAC") { echo "selected"; } ?>>SAC</option>
+            <option value="NCC" <?php if ($event === "NCC") echo "selected"; ?>>NCC</option>
+            <option value="Sports" <?php if ($event === "Sports") echo "selected"; ?>>Sports</option>
+            <option value="Clubs" <?php if ($event === "Clubs") echo "selected"; ?>>Clubs & Professional Bodies</option>
+            <option value="NSS" <?php if ($event === "NSS") echo "selected"; ?>>NSS</option>
+            <option value="Women Empowerment" <?php if ($event === "Women Empowerment") echo "selected"; ?>>Women Empowerment</option>
+            <option value="IIC" <?php if ($event === "IIC") echo "selected"; ?>>IIC</option>
+            <option value="PASH" <?php if ($event === "PASH") echo "selected"; ?>>PASH</option>
+            <option value="Antiragging" <?php if ($event === "Antiragging") echo "selected"; ?>>Antiragging</option>
+            <option value="SAC" <?php if ($event === "SAC") echo "selected"; ?>>SAC</option>
+            <option value="R&D" <?php if ($event === "R&D") echo "selected"; ?>>R&D</option>
+            <option value="IQAC" <?php if ($event === "IQAC") echo "selected"; ?>>IQAC</option>
+            <option value="Exam_Section" <?php if ($event === "Exam_Section") echo "selected"; ?>>Exam Section</option>
         </select>
         <button type="submit">Submit</button>
     </form>
@@ -341,18 +330,18 @@ if (!empty($event)) {
                         <th><input type='checkbox' onclick='toggleSelectAll(this)'></th>
                         <th>Username</th>
                         <th>Academic Year</th>";
-
+                        
         if ($event === 'Clubs') {
             echo "<th>Club Name</th>";
         }
-
+    
         echo "      <th>Event Name</th>
                         <th>File Description</th>
                         <th>Photos</th> <!-- New column -->
                     </tr>
                 </thead>
                 <tbody>";
-
+    
         $id = 1;
         while ($row = $result->fetch_assoc()) {
             $file_path = htmlspecialchars($row['file_path'], ENT_QUOTES);
@@ -360,20 +349,19 @@ if (!empty($event)) {
             $photo2Path = htmlspecialchars($row["photo2"]);
             $photo3Path = htmlspecialchars($row["photo3"]);
             $photo4Path = htmlspecialchars($row["photo4"]);
-
+        
             echo "<tr>
-                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "'
+                    <td><input type='checkbox' name='selected_files[]' value='" . urlencode($file_path) . "' 
                         data-default='" . $file_path . "' data-id='" . $row["id"] . "' onclick='trackOrder(event)'></td>
                     <td>" . htmlspecialchars($row['uploaded_by']) . "</td>
                     <td>" . htmlspecialchars($row['acd_year']) . "</td>";
-
+        
             if ($event === 'Clubs') {
                 echo "<td>" . htmlspecialchars($row['club_name']) . "</td>";
             }
-
+        
             echo "<td>" . htmlspecialchars($row['event_name']) . "</td>
                   <td>" . htmlspecialchars($row['file_name']) . "</td>
-                        <td><button type='button' class='btn view-btn btn-sm' style='padding: 5px 10px; font-size: 12px; margin-right: 0;' onclick='viewSingleFile(\"" . htmlspecialchars(isset($fixed_path) ? $fixed_path : $file_path, ENT_QUOTES) . "\")\'>View</button></td>
                   <td class='center-cell'>
                         <select class='file-select' onchange='handleFileTypeChange(this, " . $row["id"] . ")' data-id='" . $row["id"] . "'>
                             <option value=''>Select File</option>
@@ -385,7 +373,7 @@ if (!empty($event)) {
                         </select>
                   </td>
                 </tr>";
-
+        
             $id++;
         }
 

@@ -1,20 +1,6 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-$logged = isset($_SESSION['username'])
-    || isset($_SESSION['a_username'])
-    || isset($_SESSION['j_username'])
-    || isset($_SESSION['h_username'])
-    || isset($_SESSION['admin'])
-    || isset($_SESSION['c_cord'])
-    || isset($_SESSION['c_username'])
-    || isset($_SESSION['cri_username']);
-if (!$logged) {
-    http_response_code(403);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Access denied']);
-    exit;
-}
 
 $uploadDir = "uploads1/merged/";
 
@@ -58,3 +44,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["merged_pdf"])) {
 } else {
     echo json_encode(["error" => "Invalid request."]);
 }
+?>

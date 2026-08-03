@@ -1,5 +1,5 @@
 <?php
-    include_once "./header_hod.php";
+    include "./header_hod.php";
     ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +9,7 @@
     <title>Login</title>
     <style>
         body {
-            background-image: url('../assets/img/gmr_landing_page.jpg');
+            background-image: url('../stuff/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
@@ -88,19 +88,19 @@
     </style>
 </head>
 <body>
+    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
                 <h1 id="hav">Admin<br>Log In</h1>
-                <label for="id">User Id:</label>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
-                <label for="pass">Password:</label>
                 <input type="password" name="password" placeholder="Password" id="pass" required />
                 <button type="submit" name="signIn" class="button1">Log In</button>
             </form>
         </div>
     </div>
     </body>
+</html>
 <script type="text/javascript">
     document.querySelector("form").addEventListener("submit", function(event) {
         event.preventDefault(); // Prevent form from submitting
@@ -118,5 +118,5 @@
         }
     });
 </script>
-</html>
 
+</html>

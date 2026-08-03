@@ -1,6 +1,6 @@
 -- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
 --
--- Host: localhost    Database: master
+-- Host: localhost    Database: project-fms
 -- ------------------------------------------------------
 -- Server version	10.4.32-MariaDB
 
@@ -34,7 +34,7 @@ CREATE TABLE `a_c_files` (
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(500) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,7 +64,7 @@ CREATE TABLE `a_cri_files` (
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(500) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,7 +96,7 @@ CREATE TABLE `a_files` (
   `file_name` varchar(200) NOT NULL,
   `file_path` varchar(300) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,32 +129,6 @@ LOCK TABLES `academic_year` WRITE;
 /*!40000 ALTER TABLE `academic_year` DISABLE KEYS */;
 INSERT INTO `academic_year` VALUES ('2020-21'),('2021-22'),('2022-23'),('2023-24'),('2024-25');
 /*!40000 ALTER TABLE `academic_year` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `academic_years`
---
-
-DROP TABLE IF EXISTS `academic_years`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `academic_years` (
-  `academic_year_id` int(11) NOT NULL AUTO_INCREMENT,
-  `year_name` varchar(20) NOT NULL,
-  `is_active` tinyint(1) DEFAULT 0,
-  PRIMARY KEY (`academic_year_id`),
-  UNIQUE KEY `year_name` (`year_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `academic_years`
---
-
-LOCK TABLES `academic_years` WRITE;
-/*!40000 ALTER TABLE `academic_years` DISABLE KEYS */;
-INSERT INTO `academic_years` VALUES (1,'2022-2023',0),(2,'2023-2024',0),(3,'2024-2025',0),(4,'2025-2026',1);
-/*!40000 ALTER TABLE `academic_years` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -210,39 +184,6 @@ INSERT INTO `admin_reg` VALUES ('chandu','123',NULL,1);
 UNLOCK TABLES;
 
 --
--- Table structure for table `approval_flow`
---
-
-DROP TABLE IF EXISTS `approval_flow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `approval_flow` (
-  `flow_id` int(11) NOT NULL AUTO_INCREMENT,
-  `type_id` int(11) NOT NULL,
-  `current_role_id` int(11) NOT NULL,
-  `next_role_id` int(11) NOT NULL,
-  `sequence_no` int(11) NOT NULL,
-  PRIMARY KEY (`flow_id`),
-  UNIQUE KEY `type_id` (`type_id`,`sequence_no`),
-  KEY `current_role_id` (`current_role_id`),
-  KEY `next_role_id` (`next_role_id`),
-  CONSTRAINT `approval_flow_ibfk_1` FOREIGN KEY (`type_id`) REFERENCES `document_types` (`type_id`),
-  CONSTRAINT `approval_flow_ibfk_2` FOREIGN KEY (`current_role_id`) REFERENCES `roles` (`role_id`),
-  CONSTRAINT `approval_flow_ibfk_3` FOREIGN KEY (`next_role_id`) REFERENCES `roles` (`role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `approval_flow`
---
-
-LOCK TABLES `approval_flow` WRITE;
-/*!40000 ALTER TABLE `approval_flow` DISABLE KEYS */;
-INSERT INTO `approval_flow` VALUES (1,1,4,3,1),(2,1,3,2,2),(3,2,4,3,1),(4,2,3,2,2),(5,3,4,3,1),(6,3,3,2,2),(7,4,4,3,1),(8,4,3,2,2),(9,5,4,3,1),(10,5,3,2,2),(11,6,4,3,1),(12,7,4,3,1),(13,8,4,3,1),(14,9,4,3,1),(15,10,4,3,1),(16,11,4,3,1),(17,12,7,3,1),(18,13,7,3,1),(19,14,7,3,1),(20,15,6,2,1),(21,15,2,1,2),(22,16,6,2,1),(23,16,2,1,2),(24,17,6,2,1),(25,17,2,1,2),(26,18,6,2,1),(27,18,2,1,2),(28,19,6,2,1),(29,19,2,1,2),(30,20,6,2,1),(31,20,2,1,2),(32,21,6,2,1),(33,21,2,1,2),(34,22,6,2,1),(35,22,2,1,2),(36,23,6,2,1),(37,23,2,1,2),(38,24,6,2,1),(39,24,2,1,2);
-/*!40000 ALTER TABLE `approval_flow` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `approval_roles`
 --
 
@@ -268,32 +209,6 @@ INSERT INTO `approval_roles` VALUES (1,'FACULTY',1),(2,'DEPT_COORD',2),(3,'HOD',
 UNLOCK TABLES;
 
 --
--- Table structure for table `archive_documents`
---
-
-DROP TABLE IF EXISTS `archive_documents`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `archive_documents` (
-  `document_id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `is_active` tinyint(1) DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `archive_documents`
---
-
-LOCK TABLES `archive_documents` WRITE;
-/*!40000 ALTER TABLE `archive_documents` DISABLE KEYS */;
-/*!40000 ALTER TABLE `archive_documents` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `central_files`
 --
 
@@ -314,7 +229,7 @@ CREATE TABLE `central_files` (
   `photo3` varchar(500) DEFAULT NULL,
   `photo4` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -324,46 +239,6 @@ CREATE TABLE `central_files` (
 LOCK TABLES `central_files` WRITE;
 /*!40000 ALTER TABLE `central_files` DISABLE KEYS */;
 /*!40000 ALTER TABLE `central_files` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `conf_org_tab`
---
-
-DROP TABLE IF EXISTS `conf_org_tab`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `conf_org_tab` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(100) DEFAULT NULL,
-  `branch` varchar(100) DEFAULT NULL,
-  `title` varchar(500) DEFAULT NULL,
-  `mode` varchar(50) DEFAULT NULL,
-  `date_from` date DEFAULT NULL,
-  `date_to` date DEFAULT NULL,
-  `organised_by` varchar(500) DEFAULT NULL,
-  `location` varchar(500) DEFAULT NULL,
-  `year` varchar(50) DEFAULT NULL,
-  `brochure` varchar(500) DEFAULT NULL,
-  `fdp_schedule_invitation` varchar(500) DEFAULT NULL,
-  `attendance_forms` varchar(500) DEFAULT NULL,
-  `feedback_forms` varchar(500) DEFAULT NULL,
-  `fdp_report` varchar(500) DEFAULT NULL,
-  `photos_pdf` varchar(500) DEFAULT NULL,
-  `merged_file` varchar(500) DEFAULT NULL,
-  `submission_time` datetime DEFAULT NULL,
-  `status` varchar(100) DEFAULT 'Pending HOD',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `conf_org_tab`
---
-
-LOCK TABLES `conf_org_tab` WRITE;
-/*!40000 ALTER TABLE `conf_org_tab` DISABLE KEYS */;
-/*!40000 ALTER TABLE `conf_org_tab` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -377,17 +252,7 @@ CREATE TABLE `conference_tab` (
   `id` int(255) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
   `branch` varchar(100) NOT NULL,
-  `authors` text DEFAULT NULL,
   `paper_title` varchar(300) NOT NULL,
-  `conference_name` varchar(500) DEFAULT NULL,
-  `published_journal_name` varchar(500) DEFAULT NULL,
-  `issn_no` varchar(100) DEFAULT NULL,
-  `volume_no` varchar(50) DEFAULT NULL,
-  `issue_no` varchar(50) DEFAULT NULL,
-  `page_no` varchar(50) DEFAULT NULL,
-  `doi` varchar(255) DEFAULT NULL,
-  `indexing` varchar(50) DEFAULT NULL,
-  `publication_link` varchar(500) DEFAULT NULL,
   `from_date` varchar(200) NOT NULL,
   `to_date` varchar(200) NOT NULL,
   `organised_by` varchar(200) NOT NULL,
@@ -400,7 +265,7 @@ CREATE TABLE `conference_tab` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -534,7 +399,7 @@ CREATE TABLE `dc_up_files` (
   `file_type` varchar(200) DEFAULT NULL,
   `file_path` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -558,7 +423,7 @@ CREATE TABLE `dept` (
   `dept_name` varchar(50) NOT NULL,
   PRIMARY KEY (`dept_id`),
   UNIQUE KEY `dept_name` (`dept_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -567,7 +432,7 @@ CREATE TABLE `dept` (
 
 LOCK TABLES `dept` WRITE;
 /*!40000 ALTER TABLE `dept` DISABLE KEYS */;
-INSERT INTO `dept` VALUES (2,'AI_DS'),(3,'AI_ML'),(19,'Anti_Ragging'),(9,'BSH'),(8,'CIVIL'),(14,'Clubs'),(1,'CSE'),(5,'ECE'),(6,'EEE'),(16,'IIC'),(4,'IT'),(7,'MECH'),(10,'NAAC'),(11,'NBA'),(12,'NCC'),(15,'NSS'),(18,'PASH'),(20,'SAC'),(13,'Sports'),(17,'Women_Empowerment');
+INSERT INTO `dept` VALUES (2,'AI_DS'),(3,'AI_ML'),(19,'Anti_Ragging'),(9,'BSH'),(24,'Chemistry'),(8,'CIVIL'),(14,'Clubs'),(1,'CSE'),(21,'CSE-CS'),(5,'ECE'),(6,'EEE'),(16,'IIC'),(4,'IT'),(22,'MatheMatics'),(7,'MECH'),(10,'NAAC'),(11,'NBA'),(12,'NCC'),(15,'NSS'),(18,'PASH'),(23,'Physics'),(20,'SAC'),(13,'Sports'),(17,'Women_Empowerment');
 /*!40000 ALTER TABLE `dept` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -595,7 +460,7 @@ CREATE TABLE `dept_files` (
   `rejection_reason` text DEFAULT NULL,
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -605,65 +470,6 @@ CREATE TABLE `dept_files` (
 LOCK TABLES `dept_files` WRITE;
 /*!40000 ALTER TABLE `dept_files` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dept_files` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `document_actions`
---
-
-DROP TABLE IF EXISTS `document_actions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_actions` (
-  `action_id` int(11) NOT NULL AUTO_INCREMENT,
-  `document_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `role_id` int(11) NOT NULL,
-  `action_type` enum('Submitted','Approved','Returned','Resubmitted','Rejected') NOT NULL,
-  `remarks` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`action_id`),
-  KEY `document_id` (`document_id`),
-  KEY `user_id` (`user_id`),
-  KEY `role_id` (`role_id`),
-  CONSTRAINT `document_actions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`),
-  CONSTRAINT `document_actions_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `document_actions_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `document_actions`
---
-
-LOCK TABLES `document_actions` WRITE;
-/*!40000 ALTER TABLE `document_actions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `document_actions` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `document_categories`
---
-
-DROP TABLE IF EXISTS `document_categories`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_categories` (
-  `category_id` int(11) NOT NULL AUTO_INCREMENT,
-  `category_name` varchar(100) NOT NULL,
-  PRIMARY KEY (`category_id`),
-  UNIQUE KEY `category_name` (`category_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `document_categories`
---
-
-LOCK TABLES `document_categories` WRITE;
-/*!40000 ALTER TABLE `document_categories` DISABLE KEYS */;
-INSERT INTO `document_categories` VALUES (3,'Central Repository'),(2,'Department Repository'),(1,'Faculty Repository');
-/*!40000 ALTER TABLE `document_categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -697,35 +503,6 @@ LOCK TABLES `document_role_flow` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `document_types`
---
-
-DROP TABLE IF EXISTS `document_types`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_types` (
-  `type_id` int(11) NOT NULL AUTO_INCREMENT,
-  `type_name` varchar(100) NOT NULL,
-  `category_id` int(11) NOT NULL,
-  `is_public` tinyint(1) DEFAULT 0,
-  PRIMARY KEY (`type_id`),
-  UNIQUE KEY `type_name` (`type_name`),
-  KEY `category_id` (`category_id`),
-  CONSTRAINT `document_types_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `document_categories` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `document_types`
---
-
-LOCK TABLES `document_types` WRITE;
-/*!40000 ALTER TABLE `document_types` DISABLE KEYS */;
-INSERT INTO `document_types` VALUES (1,'FDPs Attended',1,1),(2,'FDPs Organized',1,1),(3,'Papers Published',1,1),(4,'Conferences Published',1,1),(5,'Patents',1,1),(6,'Admin Files',2,0),(7,'Faculty Files',2,0),(8,'Student Related Files',2,0),(9,'Exam Section Files',2,0),(10,'Academic Calendar',2,0),(11,'Student Activity Files',2,0),(12,'Department Meeting Minutes',2,0),(13,'AMC Meeting Minutes',2,0),(14,'Board Of Studies',2,0),(15,'NAAC Accreditation Docs',3,1),(16,'NBA Accreditation Docs',3,1),(17,'NCC Activity Reports',3,1),(18,'Sports & Events Reports',3,1),(19,'Clubs & Societies Reports',3,1),(20,'NSS Activity Reports',3,1),(21,'IIC Innovation Reports',3,1),(22,'Women Empowerment Cell Docs',3,1),(23,'Anti-Ragging Committee Reports',3,1),(24,'Student Affairs Council (SAC) Docs',3,1);
-/*!40000 ALTER TABLE `document_types` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `document_versions`
 --
 
@@ -742,7 +519,7 @@ CREATE TABLE `document_versions` (
   `is_current` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`version_id`),
   KEY `document_id` (`document_id`),
-  CONSTRAINT `document_versions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `archive_documents` (`document_id`)
+  CONSTRAINT `document_versions_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -764,29 +541,11 @@ DROP TABLE IF EXISTS `documents`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `documents` (
   `document_id` int(11) NOT NULL AUTO_INCREMENT,
-  `type_id` int(11) NOT NULL,
-  `dept_id` int(11) NOT NULL,
-  `uploaded_by` int(11) NOT NULL,
-  `academic_year_id` int(11) NOT NULL,
-  `original_file_name` varchar(255) NOT NULL,
-  `stored_file_name` varchar(255) NOT NULL,
-  `file_path` varchar(255) NOT NULL,
-  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
-  `current_role_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`document_id`),
-  UNIQUE KEY `stored_file_name` (`stored_file_name`),
-  KEY `academic_year_id` (`academic_year_id`),
-  KEY `current_role_id` (`current_role_id`),
-  KEY `type_id` (`type_id`),
-  KEY `dept_id` (`dept_id`),
-  KEY `uploaded_by` (`uploaded_by`),
-  CONSTRAINT `documents_ibfk_1` FOREIGN KEY (`academic_year_id`) REFERENCES `academic_years` (`academic_year_id`),
-  CONSTRAINT `documents_ibfk_2` FOREIGN KEY (`current_role_id`) REFERENCES `roles` (`role_id`),
-  CONSTRAINT `documents_ibfk_3` FOREIGN KEY (`type_id`) REFERENCES `document_types` (`type_id`),
-  CONSTRAINT `documents_ibfk_4` FOREIGN KEY (`dept_id`) REFERENCES `dept` (`dept_id`),
-  CONSTRAINT `documents_ibfk_5` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`user_id`)
+  `title` varchar(255) DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`document_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -811,9 +570,6 @@ CREATE TABLE `fdps_org_tab` (
   `username` varchar(255) NOT NULL,
   `branch` varchar(100) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `mode` varchar(50) DEFAULT NULL,
-  `funded_by` varchar(50) DEFAULT NULL,
-  `external_funder_name` varchar(500) DEFAULT NULL,
   `date_from` date NOT NULL,
   `date_to` date NOT NULL,
   `organised_by` varchar(255) NOT NULL,
@@ -824,13 +580,16 @@ CREATE TABLE `fdps_org_tab` (
   `attendance_forms` varchar(255) NOT NULL,
   `feedback_forms` varchar(255) NOT NULL,
   `fdp_report` varchar(255) NOT NULL,
-  `photos_pdf` varchar(500) DEFAULT NULL,
+  `photo1` varchar(255) NOT NULL,
+  `photo2` varchar(255) NOT NULL,
+  `photo3` varchar(255) NOT NULL,
+  `merged_file` varchar(255) DEFAULT NULL,
   `submission_time` datetime NOT NULL,
   `year` varchar(255) NOT NULL,
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -854,20 +613,17 @@ CREATE TABLE `fdps_tab` (
   `username` varchar(200) NOT NULL,
   `branch` varchar(100) NOT NULL,
   `title` varchar(200) NOT NULL,
-  `mode` varchar(50) DEFAULT NULL,
   `date_from` date NOT NULL,
   `date_to` date NOT NULL,
   `organised_by` varchar(200) NOT NULL,
   `location` varchar(200) NOT NULL,
-  `brochure` varchar(500) DEFAULT NULL,
-  `schedule` varchar(500) DEFAULT NULL,
   `certificate` varchar(200) NOT NULL,
   `submission_time` varchar(300) NOT NULL,
   `year` varchar(255) NOT NULL,
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -904,7 +660,7 @@ CREATE TABLE `files` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -944,7 +700,7 @@ CREATE TABLE `files5_1_1and2` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -978,7 +734,7 @@ CREATE TABLE `files5_1_3` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1014,7 +770,7 @@ CREATE TABLE `files5_1_4` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1045,10 +801,10 @@ CREATE TABLE `files5_2_1` (
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
-  `status` varchar(50) DEFAULT 'Pending HOD',
+  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1079,10 +835,10 @@ CREATE TABLE `files5_2_2` (
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
-  `status` varchar(50) DEFAULT 'Pending HOD',
+  `status` varchar(50) DEFAULT 'Pending Dept Coordinator',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1113,7 +869,7 @@ CREATE TABLE `files5_2_3` (
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1147,7 +903,7 @@ CREATE TABLE `files5_3_1` (
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1177,7 +933,7 @@ CREATE TABLE `files5_3_3` (
   `file_name` varchar(255) DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1201,7 +957,7 @@ CREATE TABLE `login_pg` (
   `password` varchar(20) NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=237 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=301 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1210,6 +966,7 @@ CREATE TABLE `login_pg` (
 
 LOCK TABLES `login_pg` WRITE;
 /*!40000 ALTER TABLE `login_pg` DISABLE KEYS */;
+INSERT INTO `login_pg` VALUES ('gowtham.lite@gmail.com','123',237),('gowtham.lite@gmail.com','123',238),('gowtham.lite@gmail.com','123',239),('gowtham.lite@gmail.com','123',240),('gowtham.lite@gmail.com','123',241),('gowtham.lite@gmail.com','123',242),('gowtham.lite@gmail.com','123',243),('gowtham.lite@gmail.com','123',244),('gowtham.lite@gmail.com','123',245),('gowtham.lite@gmail.com','123',246),('gowtham.lite@gmail.com','123',247),('gowtham.lite@gmail.com','123',248),('gowtham.lite@gmail.com','123',249),('gowtham.lite@gmail.com','123',250),('gowtham.lite@gmail.com','123',251),('gowtham.lite@gmail.com','123',252),('gowtham.lite@gmail.com','123',253),('23341A4535@gmrit.edu.in','123',254),('gowtham.lite@gmail.com','123',255),('gowtham.lite@gmail.com','123',256),('gowtham.lite@gmail.com','123',257),('gowtham.lite@gmail.com','123',258),('gowtham.lite@gmail.com','123',259),('gowtham.lite@gmail.com','123',260),('gowtham.lite@gmail.com','123',261),('gowtham.lite@gmail.com','123',262),('gowtham.lite@gmail.com','123',263),('gowtham.lite@gmail.com','123',264),('gowtham.lite@gmail.com','123',265),('gowtham.lite@gmail.com','123',266),('gowtham.lite@gmail.com','123',267),('gowtham.lite@gmail.com','123',268),('gowtham.lite@gmail.com','123',269),('gowtham.lite@gmail.com','123',270),('gowtham.lite@gmail.com','123',271),('gowtham.lite@gmail.com','123',272),('gowtham.lite@gmail.com','123',273),('gowtham.lite@gmail.com','123',274),('gowtham.lite@gmail.com','123',275),('gowtham.lite@gmail.com','123',276),('gowtham.lite@gmail.com','123',277),('gowtham.lite@gmail.com','123',278),('cseuser1@gmail.com','123',279),('aidsuser@gmail.com','123',280),('gowtham.lite@gmail.com','123',281),('gowtham.lite@gmail.com','123',282),('gowtham.lite@gmail.com','123',283),('gowtham.lite@gmail.com','123',284),('cseuser1@gmail.com','123',285),('gowtham.lite@gmail.com','123',286),('gowtham.lite@gmail.com','123',287),('gowtham.lite@gmail.com','123',288),('gowtham.lite@gmail.com','123',289),('gowtham.lite@gmail.com','123',290),('cseuser1@gmail.com','123',291),('gowtham.lite@gmail.com','123',292),('gowtham.lite@gmail.com','123',293),('gowtham.lite@gmail.com','123',294),('gowtham.lite@gmail.com','123',295),('gowtham.lite@gmail.com','123',296),('gowtham.lite@gmail.com','123',297),('gowtham.lite@gmail.com','123',298),('gowtham.lite@gmail.com','123',299),('gowtham.lite@gmail.com','123',300);
 /*!40000 ALTER TABLE `login_pg` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1225,7 +982,6 @@ CREATE TABLE `patents_table` (
   `Username` varchar(300) NOT NULL,
   `branch` varchar(100) NOT NULL,
   `patent_title` varchar(300) NOT NULL,
-  `type` varchar(50) DEFAULT NULL,
   `date_of_issue` varchar(100) NOT NULL,
   `patent_file` varchar(400) NOT NULL,
   `submission_time` varchar(300) NOT NULL,
@@ -1233,7 +989,7 @@ CREATE TABLE `patents_table` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1256,21 +1012,12 @@ CREATE TABLE `published_tab` (
   `id` int(255) NOT NULL AUTO_INCREMENT,
   `username` varchar(200) NOT NULL,
   `branch` varchar(100) NOT NULL,
-  `authors` text DEFAULT NULL,
   `paper_title` varchar(200) NOT NULL,
   `journal_name` varchar(200) NOT NULL,
-  `issn_no` varchar(100) DEFAULT NULL,
-  `volume_no` varchar(50) DEFAULT NULL,
-  `issue_no` varchar(50) DEFAULT NULL,
-  `page_no` varchar(50) DEFAULT NULL,
-  `doi` varchar(255) DEFAULT NULL,
   `indexing` varchar(100) NOT NULL,
   `date_of_submission` date NOT NULL,
   `quality_factor` decimal(10,0) NOT NULL,
   `impact_factor` decimal(10,0) NOT NULL,
-  `jcr_quartile` varchar(10) DEFAULT NULL,
-  `scopus_quartile` varchar(10) DEFAULT NULL,
-  `publication_link` varchar(500) DEFAULT NULL,
   `payment` varchar(200) NOT NULL,
   `submission_time` varchar(300) NOT NULL,
   `paper_file` varchar(400) NOT NULL,
@@ -1278,7 +1025,7 @@ CREATE TABLE `published_tab` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1363,7 +1110,7 @@ CREATE TABLE `reg_dept_cord` (
 
 LOCK TABLES `reg_dept_cord` WRITE;
 /*!40000 ALTER TABLE `reg_dept_cord` DISABLE KEYS */;
-INSERT INTO `reg_dept_cord` VALUES ('dept_cord1','123','CSE',NULL),('dept_cord2','123','CSE-AI&ML',NULL),('dept_cord3','123','CSE-AI&DS',NULL),('dept_cord4','123','IT',NULL),('dept_cord5','123','ECE',NULL),('dept_cord6','123','EEE',NULL),('dept_cord7','123','MECH',NULL),('dept_cord8','123','CIVIL',NULL),('dept_cord9','123','BSH',NULL);
+INSERT INTO `reg_dept_cord` VALUES ('dept_cord1','123','CSE',NULL),('dept_cord2','123','AIML',NULL),('dept_cord3','123','AIDS',NULL),('dept_cord4','123','IT',NULL),('dept_cord5','123','ECE',NULL),('dept_cord6','123','EEE',NULL),('dept_cord7','123','MECH',NULL),('dept_cord8','123','CIVIL',NULL),('dept_cord9','123','BSH',NULL);
 /*!40000 ALTER TABLE `reg_dept_cord` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1390,7 +1137,7 @@ CREATE TABLE `reg_hod` (
 
 LOCK TABLES `reg_hod` WRITE;
 /*!40000 ALTER TABLE `reg_hod` DISABLE KEYS */;
-INSERT INTO `reg_hod` VALUES (1,'cse-hod','123','CSE',NULL),(2,'aiml-hod','123','CSE-AI&ML',NULL),(3,'aids-hod','123','CSE-AI&DS',NULL),(4,'ece-hod','123','ECE',NULL),(5,'eee-hod','123','EEE',NULL),(6,'mech-hod','123','MECH',NULL),(7,'civil-hod','123','CIVIL',NULL),(8,'it-hod','123','IT',NULL);
+INSERT INTO `reg_hod` VALUES (1,'cse-hod','123','CSE',NULL),(2,'aiml-hod','123','AIML',NULL),(3,'aids-hod','123','AIDS',NULL),(4,'ece-hod','123','ECE',NULL),(5,'eee-hod','123','EEE',NULL),(6,'mech-hod','123','MECH',NULL),(7,'civil-hod','123','CIVIL',NULL),(8,'it-hod','123','IT',NULL);
 /*!40000 ALTER TABLE `reg_hod` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1417,6 +1164,7 @@ CREATE TABLE `reg_jr_assistant` (
 
 LOCK TABLES `reg_jr_assistant` WRITE;
 /*!40000 ALTER TABLE `reg_jr_assistant` DISABLE KEYS */;
+INSERT INTO `reg_jr_assistant` VALUES ('jr1','cse-jr','CSE','123','2026-02-26 05:15:52');
 /*!40000 ALTER TABLE `reg_jr_assistant` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1442,7 +1190,6 @@ CREATE TABLE `reg_pg` (
 
 LOCK TABLES `reg_pg` WRITE;
 /*!40000 ALTER TABLE `reg_pg` DISABLE KEYS */;
-INSERT INTO `reg_pg` VALUES ('kkm','1234','aa@gmail.com','123456'),('c','c','c1@gmail.com','123'),('chandu','chandu123','chandu@gmail.com','123'),('kalyan','k123','kalyan@gmail.com','123'),('keshav','keshav','keshav123@gmail.com','123'),('ram','r123','ram1@gmail.com','123'),('ram','ram1','ram@gmai.com','123'),('ram','ram12','ram12@gmail.com','123'),('sriram','ram123','sek@gmail.colm','123'),('ram','ram143','ram143@gmail.com','123'),('chandu','sekh123','sekhar@gmail.com','123'),('vinnu','vinnu123','v@gmail.com','123');
 /*!40000 ALTER TABLE `reg_pg` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1481,7 +1228,7 @@ CREATE TABLE `reg_tab` (
   UNIQUE KEY `aadhar` (`aadhar`),
   UNIQUE KEY `pan` (`pan`),
   UNIQUE KEY `userid` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1490,7 +1237,7 @@ CREATE TABLE `reg_tab` (
 
 LOCK TABLES `reg_tab` WRITE;
 /*!40000 ALTER TABLE `reg_tab` DISABLE KEYS */;
-INSERT INTO `reg_tab` VALUES (1,'chandu','professor','B.Tech','CSE','12345','2005-07-07','Male','2-72 first street gollagandi sompeta mandal srikakulam dist Andhra Pradesh','chandu@gmail.com','123456789781','ABCDE1234Z','chandu@gmail.com','123','6281865140','1.2years at Aitam as assistance professor','uploads/reg_tab/M.png','2022-07-07','uploads/reg_tab/m.pdf','uploads/reg_tab/8.pdf','2025-09-22 08:35:09'),(2,'Demo cse','Faculty','B.Tech','CSE','1234567891','2000-01-01','Male','Rajam','gowtham.lite@gmail.com','123123123123','ABCDE1234F','gowtham.lite@gmail.com','123','1234567890','0','uploads/reg_tab/e.png','2024-01-01','uploads/reg_tab/e.pdf','uploads/reg_tab/e.pdf','2026-02-10 05:13:49');
+INSERT INTO `reg_tab` VALUES (2,'Demo cse','Faculty','B.Tech','CSE','1234567891','2000-01-01','Male','Rajam','gowtham.lite@gmail.com','123123123123','ABCDE1234F','gowtham.lite@gmail.com','123','1234567890','0','uploads/reg_tab/e.png','2024-01-01','uploads/reg_tab/e.pdf','uploads/reg_tab/e.pdf','2026-02-10 10:43:49'),(4,'cse user -2','Faculty','B.Tech','CSE','1234567892','2005-01-01','Male','Rajam','23341A4535@gmrit.edu.in','123123123125','ABCDE1234G','23341A4535@gmrit.edu.in','123','6304779532','0','uploads/69a6bb64f04ae_photo_profile.png','2022-01-01','uploads/69a6bb64efdf2_exp_cse.pdf','uploads/69a6bb64f01a7_edu_cse.pdf','2026-03-03 10:43:48'),(6,'cse user -1','Faculty','B.Tech','CSE','1234567893','1995-01-01','Male','Rajam','cseuser1@gmail.com','123123123126','ABCDE1232A','cseuser1@gmail.com','123','1234567892','0','uploads/69d3e0256f4d8_photo_cse-user1.png','2020-01-01','uploads/69d3e0256d784_exp_teaching_experience_certificate_cse_user1.pdf','uploads/69d3e0256e777_edu_ssc_certificate_user1.pdf','2026-04-06 16:32:37'),(7,'aids user','Faculty','B.Tech','AIDS','1234567899','1995-01-01','Male','Rajam','aidsuser@gmail.com','123123124125','ABCDE1235A','aidsuser@gmail.com','123','1234567999','0','uploads/69d4725bd59b5_photo_aids-user1.png','2020-01-01','uploads/69d4725bd4b89_exp_teaching_experience_certificate_aidsuser11.pdf','uploads/69d4725bd57c5_edu_ssc_certificate_user1.pdf','2026-04-07 02:56:27');
 /*!40000 ALTER TABLE `reg_tab` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1600,7 +1347,7 @@ CREATE TABLE `s_bodies` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1609,7 +1356,6 @@ CREATE TABLE `s_bodies` (
 
 LOCK TABLES `s_bodies` WRITE;
 /*!40000 ALTER TABLE `s_bodies` DISABLE KEYS */;
-INSERT INTO `s_bodies` VALUES (1,'','','','CSI','event1','2025-01-14','2025-01-31','gmr','rajam','2nd','uploads/s_bodies/).jpg','chandru','05-01-2025 19:34:58','Pending HOD',NULL),(2,'chandu','2022-23','CSE','ISTE','radio auditions','2025-04-02','2025-04-30','gmr','rajam','Participated','uploads/s_bodies/6.pdf','kalyan','16-04-2025 20:04:41','Pending HOD',NULL),(3,'chandu','2022-23','AIML','ISTE','radio auditions','2025-04-02','2025-04-30','gmr','rajam','Participated','uploads/s_bodies/6.pdf','kalyan','16-04-2025 20:05:04','Pending HOD',NULL),(4,'chandu','2024-25','AIML','ISTE','radio auditions','2025-07-17','2025-07-02','gmr','rajam','Participated','uploads/s_bodies/k.pdf','chandu','27-07-2025 23:41:07','Pending HOD',NULL);
 /*!40000 ALTER TABLE `s_bodies` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1638,7 +1384,7 @@ CREATE TABLE `s_conference_tab` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1675,7 +1421,7 @@ CREATE TABLE `s_events` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1712,7 +1458,7 @@ CREATE TABLE `s_journal_tab` (
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1786,7 +1532,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Admin','admin@gmrit.edu','9876543210','admin123',NULL,'active','2026-07-29 14:55:39','2026-07-29 14:55:39',NULL),(2,'gowtham','gowtham.lite@gmail.com','6304779532','123','uploads/profiles/doc_6a6a171134c8d4.40223605.png','active','2026-07-29 15:06:57','2026-08-02 12:09:17','2026-08-02 12:09:17'),(999,'Test User','test@gmrit.edu.in',NULL,'password123',NULL,'active','2026-07-29 15:10:24','2026-07-29 15:10:24',NULL);
+INSERT INTO `users` VALUES (1,'Admin','admin@gmrit.edu','9876543210','admin123',NULL,'active','2026-07-29 09:25:39','2026-07-29 09:25:39',NULL),(2,'gowtham','gowtham.lite@gmail.com','6304779532','123','uploads/profiles/doc_6a6a171134c8d4.40223605.png','active','2026-07-29 09:36:57','2026-08-02 06:39:17','2026-08-02 06:39:17'),(999,'Test User','test@gmrit.edu.in',NULL,'password123',NULL,'active','2026-07-29 09:40:24','2026-07-29 09:40:24',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -1799,4 +1545,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-02 18:11:15
+-- Dump completed on 2026-08-02 21:02:27

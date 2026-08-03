@@ -1,6 +1,6 @@
 <?php
-include_once "../includes/connection.php";
-
+include("../includes/connection.php");
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 // Enable exception mode for mysqli
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -11,8 +11,8 @@ $year = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : 'Not Selected';
 
 try {
     // Get the academic year and criteria from the POST request
-    $academic_year = $_POST['academic_year'] ?? $_GET['year'] ?? '';
-    $criteria = $_POST['criteria'] ?? $_GET['criteria'] ?? '';
+    $academic_year = isset($_POST['academic_year']) ? $_POST['academic_year'] : '';
+    $criteria = isset($_POST['criteria']) ? $_POST['criteria'] : '';
 
     // Check if the upload form was submitted
     if (isset($_POST['upload'])) {
@@ -23,7 +23,7 @@ try {
         // Determine the correct table based on academic year
         if ($academic_year == '2020-21') {
             $stmt = $conn->prepare("INSERT INTO criteria1 ( SI_no , Sub_no, Des, year) VALUES (?, ?, ?, ?)");
-        } elseif ($academic_year == '2021-22') {
+        } else if ($academic_year == '2021-22') {
             $stmt = $conn->prepare("INSERT INTO criteria2 ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
         } else {
             $stmt = $conn->prepare("INSERT INTO criteria ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
@@ -54,8 +54,8 @@ $conn->close();
 
 
 <?php
-include_once "./header_hod.php";
-?>
+    include "./header_hod.php";
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,20 +65,14 @@ include_once "./header_hod.php";
     <link rel='stylesheet' href="../css/upload_a1.css">
     <style>
                                         /* Navigation */
-    .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
- 
+    .navbar { 
         font-size: larger;
     }
 
     .nav-container {
         background-color: white;
         width:100vw;
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         padding: 0 1rem;
     }
 
@@ -113,20 +107,8 @@ include_once "./header_hod.php";
     </style>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="sid"> <a href="admin_criteria.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>&criteria=<?php echo urlencode($criteria); ?>&year=<?php echo urlencode($year); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?>  </a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Add Criteria</span></span>
-            </div>
-        </div>
-    </nav>
+    <?php include "../includes/header.php"; ?>
+
     <!-- Logout Button -->
     
 
@@ -134,8 +116,8 @@ include_once "./header_hod.php";
         <h1>Upload Files</h1>
         <form action="add_cri_form.php" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
             <!-- Hidden fields for academic_year, criteria -->
-            <input type="hidden" name="academic_year" id="academic_year" value="<?php echo htmlspecialchars($academic_year); ?>">
-            <input type="hidden" name="criteria" id="criteria" value="<?php echo htmlspecialchars($criteria); ?>">
+            <input type="hidden" name="academic_year" id="academic_year" value="<?php echo $academic_year; ?>">
+            <input type="hidden" name="criteria" id="criteria" value="<?php echo $criteria; ?>">
 
             <label for="cri_no">Criteria No:</label>
             <input type="text" id="cri_no" name="cri_no" required>
@@ -162,4 +144,3 @@ include_once "./header_hod.php";
     }
 </script>
 </html>
-

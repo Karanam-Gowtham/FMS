@@ -1,157 +1,295 @@
 <?php
 ob_start(); // Start output buffering at the very top
-session_start();
-include_once '../../includes/connection.php';
-require_once '../../includes/csrf.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+
+include "../../includes/connection.php";
 
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
-$login_error = false;
+$login_error = false; // <-- Added
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
-    csrfValidate();
-    $email = trim($_POST['userid']);
-    $password = trim($_POST['password']);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['signIn'])) {
+        $userid = trim($_POST['userid']);
+        $password = trim($_POST['password']);
+        $designation = trim($_POST['designation']);
 
-    if ($email == "hod" && $password == "123") {
-        $_SESSION['h_username'] = $email;
-        ob_end_clean();
-        header(LOC_C_AQAR_FILES . urlencode("hod") . PARAM_EVENT . urlencode($dept));
-        exit();
-    } elseif ($email == "admin" && $password == "123") {
-        $_SESSION['admin'] = $email;
-        ob_end_clean();
-        header("Location: ../../HOD/acd_year_aa.php?designation=admin" . PARAM_EVENT . urlencode($dept));
-        exit();
-    } else {
-        $stmt = $conn->prepare("
-            SELECT u.user_id, r.role_name 
-            FROM Users u
-            JOIN User_Roles ur ON u.user_id = ur.user_id
-            JOIN Roles r ON ur.role_id = r.role_id
-            WHERE u.email = ? AND u.password = ? 
-        ");
-        if (!$stmt) {
-            die("Database Prepare Error: " . $conn->error);
-        }
-        $stmt->bind_param("ss", $email, $password);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        if ($designation == "faculty") {
+            if ($_SESSION['username']) {
+                header("Location: c_aqar_files.php?designation=" . urlencode($designation));
+            }
 
-        if ($result->num_rows > 0) {
-            $assigned_role = '';
-            $db_role_name = '';
+            $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");
+            $stmt->bind_param("ss", $userid, $password);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
+                $login_stmt->bind_param("ss", $userid, $password);
+                if ($login_stmt->execute() === TRUE) {
+                    $_SESSION['username'] = $userid;
+                    ob_end_clean();
+                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    exit();
+                }
+                $login_stmt->close();
+            } else {
+                $login_error = true; // <-- Added
+            }
+            $stmt->close();
+        } else {
+            if ($designation == "dept_coordinator") {
+                $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                $result = $stmt->get_result();
             
-            while ($row = $result->fetch_assoc()) {
-                $db_role_name = $row['role_name'];
-                
-                if ($db_role_name == 'Faculty') {
-                    $_SESSION['username'] = $email;
-                    if (!$assigned_role) $assigned_role = 'faculty';
-                } elseif ($db_role_name == 'Dept Coordinator') {
-                    $_SESSION['a_username'] = $email;
-                    if (!$assigned_role) $assigned_role = 'dept_coordinator';
-                } elseif ($db_role_name == 'Central Coordinator') {
-                    $_SESSION['c_username'] = $email;
-                    if (!$assigned_role) $assigned_role = 'central_coordinator';
-                } elseif ($db_role_name == 'Criteria Coordinator') {
-                    $_SESSION['cri_username'] = $email;
-                    if (!$assigned_role) $assigned_role = 'criteria_coordinator';
+                if ($result->num_rows > 0) {
+                    $_SESSION['a_username'] = $userid;
+                    $stmt->close();
+                    ob_end_clean();
+            
+                    // Redirect only after successful login
+                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    exit();
+                } else {
+                    $login_error = true; // Incorrect login
                 }
             }
+            elseif ($designation == "central_coordinator"){
+                $stmt = $conn->prepare("SELECT * FROM reg_central_cord WHERE userid = ? AND password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                $result = $stmt->get_result();
             
-            if (!$assigned_role) {
-                // If they have a role but it doesn't match the central system ones, default to faculty
-                $_SESSION['username'] = $email;
-                $assigned_role = 'faculty';
+                if ($result->num_rows > 0) {
+                    $_SESSION['c_username'] = $userid;
+                    $stmt->close();
+                    ob_end_clean();
+            
+                    // Redirect only after successful login
+                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    exit();
+                } else {
+                    $login_error = true; // Incorrect login
+                }
             }
+            elseif ($designation == "criteria_coordinator") {
+                $stmt = $conn->prepare("SELECT * FROM reg_cri_cord WHERE userid = ? AND password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                $result = $stmt->get_result();
             
-            $stmt->close();
-            ob_end_clean();
-            header(LOC_C_AQAR_FILES . urlencode($assigned_role) . PARAM_EVENT . urlencode($dept));
-            exit();
-        } else {
-            $login_error = true;
+                if ($result->num_rows > 0) {
+                    $_SESSION['cri_username'] = $userid;
+                    $stmt->close();
+                    ob_end_clean();
+            
+                    // Redirect only after successful login
+                    header("Location: c_aqar_files.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                    exit();
+                } else {
+                    $login_error = true; // Incorrect login
+                }
+            }
+            elseif ($designation == "hod" && $userid == "hod" && $password == "123") {
+                $_SESSION['h_username'] = $userid;
+                ob_end_clean();
+                header("Location: c_aqar_files.php?designation=" . urlencode("hod") . "&event=" . urlencode($dept));
+                exit();
+            } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
+                $_SESSION['admin'] = $userid;
+                ob_end_clean();
+                header("Location: ./HOD/acd_year_aa.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                exit();
+            } else {
+                $login_error = true; // <-- Added
+            }
         }
-        if(isset($stmt)) $stmt->close();
     }
 }
-
-
-$extra_head = '
-    <link rel="stylesheet" href="../../assets/css/auth.css">
-    <style>
-        .navbar-top {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-            color: #1e293b;
-            text-decoration: none;
-        }
-        .navbar-top:hover {
-            color: #2563eb;
-        }
-        .dept-title {
-            color: #2563eb;
-            font-weight: 700;
-        }
-    </style>
-';
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Central Login - <?php echo htmlspecialchars((string)$dept); ?></title>
-    <?php include_once '../../includes/header.php'; ?>
+    <title>FMS</title>
+    <style>
+        body {
+            background-image: url('./stuff/gmr_landing_page.jpg');
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 110vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        .container11 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70vh;
+        }
+        .login-container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 400px;
+        }
+        #loginForm {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 400px;
+            margin-left: 50px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input, select {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 1em;
+        }
+        select {
+            width: 80%;
+        }
+        button {
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            margin-bottom: 10px;
+        }
+        .register {
+            margin-top: 10px;
+        }
+        .navbar {
+            font-size: larger;
+        }
+        .nav-container {
+            background-color: white;
+            width: 150vw;
+            margin-top: 80px;
+            padding: 0 1rem;
+        }
+        .nav-items {
+            margin-left: 70px;
+            display: flex;
+            align-items: center;
+            height: 4rem;
+        }
+        .sid {
+            color: rgb(48, 30, 138);
+            font-weight: 500;
+        }
+        .main-a {
+            color: rgb(138, 30, 113);
+            font-weight: 500;
+        }
+        .main-a:hover {
+            color: rgb(182, 64, 211);
+        }
+        .home-icon {
+            color: rgb(30, 58, 138);
+            transition: color 0.2s;
+        }
+        .home-icon:hover {
+            color: rgb(29, 78, 216);
+        }
+    </style>
 </head>
-<body class="auth-page">
-    <a href="../../index.php" class="navbar-top">
-        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
-        Back to Home | <span class="dept-title">Central (<?php echo htmlspecialchars((string)$dept); ?>)</span>
-    </a>
+<body>
+    <?php include "../../includes/header.php"; ?>
+    
+    <br>
 
-    <div class="auth-container">
-        <!-- Login Form -->
-        <div class="auth-card" id="loginForm">
-            <h1 id="welcomeMessage">Login - Central (<?php echo htmlspecialchars((string)$dept); ?>)</h1>
-            <h2>Enter your credentials</h2>
-            
+    <div class="container11">
+        <div class="login-container">
+            <h2>Please select your designation for</h2>
+            <h2>LOGIN</h2>
+            <select id="designation">
+                <option value="" selected disabled>Choose...</option>
+                <option value="faculty">Faculty</option>
+                <option value="dept_coordinator">Dept Coordinator</option>
+                <option value="central_coordinator">Central Coordinator</option>
+                <option value="criteria_coordinator">Criteria Coordinator</option>
+                <option value="hod">HOD</option>
+                <option value="admin">Admin</option>
+            </select><br>
+            <button class="btnl" onclick="showLogin()">Submit</button>
+        </div>
+
+        <div id="loginForm" style="display: none;">
+            <h2 id="welcomeMessage"></h2>
+            <h4>Please login</h4>
             <form method="POST">
-                <?php echo csrfField(); ?>
-                
-                <label for="userid">Email Address *</label>
-                <input type="email" placeholder="name@gmrit.edu.in" name="userid" id="userid" required>
-                
-                <label for="password">Password *</label>
-                <input type="password" placeholder="Password" name="password" id="password" required>
-                
-                <button class="auth-btn" type="submit" name="signIn">Sign In</button>
+                <input type="hidden" name="designation" id="designationHidden">
+                <input type="text" placeholder="Username" name="userid" required>
+                <input type="password" placeholder="Password" name="password" required>
+                <button class="btnl" type="submit" name="signIn">Login</button>
             </form>
-            
-            <div id="register">
-                <a href="./reg.php" class="auth-link">Don't have an account? Register here</a>
-            </div>
+            <p id="register" class="register" style="display: none;">Don't have an account? <a href="./reg.php">Register here</a>...</p>
         </div>
     </div>
 
+    <script>
+        function showLogin() {
+            let designation = document.getElementById("designation").value;
+            let dept = "<?php echo "$dept" ?>";
+            if (designation) {
+                const username = "<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>";
+                if (designation === "faculty" && username) {
+                    window.location.href = "c_aqar_files.php?designation=" + encodeURIComponent(designation) + "&event=" + encodeURIComponent(dept);
+                    return;
+                }
+
+                document.getElementById("welcomeMessage").innerText = "Welcome " + designation.replace("_", " ");
+                document.getElementById("loginForm").style.display = "block";
+                document.getElementById("register").style.display = (designation === "faculty") ? "block" : "none";
+                document.getElementById("designationHidden").value = designation;
+            }
+        }
+    </script>
+
     <?php if ($login_error): ?>
     <script>
-        window.onload = function () {
-            alert("Invalid username, password, or you do not have permission for this central department.");
-        };
+        alert("Invalid username or password. Please try again.");
     </script>
     <?php endif; ?>
 

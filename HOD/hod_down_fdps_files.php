@@ -1,10 +1,8 @@
-﻿<?php
+<?php
 ob_start();
 ini_set('display_errors', 0);
 include_once "../includes/connection.php";
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 define('REGEX_UPLOADS', '/uploads\/.*/');
 define('PATH_UP_UP', '../../');
@@ -281,26 +279,9 @@ include_once "header_hod.php";
 </head>
 
 <body>
+    <?php include "../includes/header.php"; ?>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span>&nbsp; >> &nbsp; </span><span class="sid"><a
-                        href="../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
-                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
-                        class="home-icon">HOD</a></span>
-                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="main"><a href="#"
-                        class="main-a"><?php echo ($catg === 'fdps') ? 'fdps_attended' : htmlspecialchars($catg); ?>_Files</a></span>
-            </div>
-        </div>
-    </nav>
+    
 
     <div class="div1">
         <div class="filter-section">
@@ -335,7 +316,7 @@ include_once "header_hod.php";
 
             switch ($category) {
                 case 'fdps':
-                    echo "<div class='container11'><h2>FDPs Attended</h2>";
+                    echo "<div class='container11'><h2>FDPS Attended</h2>";
                     echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button></form>";
                     $sql = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
                     $stmt = $conn->prepare($sql);
@@ -378,13 +359,13 @@ include_once "header_hod.php";
                         </div>
                         </form>";
                     } else {
-                        echo "<p class='no-files'>No FDPs attended found.</p>";
+                        echo "<p class='no-files'>No FDPS attended found.</p>";
                     }
                     echo "</div>";
                     break;
 
                 case 'fdps_org':
-                    echo "<div class='container11'><h2>FDPs Organised</h2>";
+                    echo "<div class='container11'><h2>FDPS Organised</h2>";
                         echo "<form method='POST' class='ex_b'>
                             <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                             <button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button>
@@ -434,7 +415,7 @@ include_once "header_hod.php";
                         }
                         echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='btn download-btn' onclick='bulkDownload()'>Download Selected</button></div></form>";
                     } else {
-                        echo "<p class='no-files'>No FDPs organised found.</p>";
+                        echo "<p class='no-files'>No FDPS organised found.</p>";
                     }
                     echo "</div>";
                     break;
@@ -632,7 +613,7 @@ include_once "header_hod.php";
                 return;
             }
 
-            // Single item with no data-files → direct view
+            // Single item with no data-files ? direct view
             if (checkboxes.length === 1 && !checkboxes[0].getAttribute('data-files')) {
                 await mergeAndAct(checkboxes[0], 'view');
                 return;

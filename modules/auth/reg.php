@@ -24,12 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     if (empty($full_name) || empty($email) || empty($password)) {
         $message = "Please fill in all required fields.";
         $msg_type = "alert-danger";
-    } elseif ($password !== $conf_password) {
+    } elseif ($_POST['password'] !== $_POST['conf_password']) {
         $message = "Password and Confirm Password do not match!";
         $msg_type = "alert-danger";
     } else {
         // Check if email already exists
-        $check = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
+        $check = $conn->prepare("SELECT email FROM users WHERE email = ?");
         $check->bind_param("s", $email);
         $check->execute();
         if ($check->get_result()->num_rows > 0) {
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             }
 
             $stmt = $conn->prepare("
-                INSERT INTO Users (full_name, email, phone, password, profile_photo)
+                INSERT INTO users (full_name, email, phone, password, profile_photo)
                 VALUES (?, ?, ?, ?, ?)
             ");
             $stmt->bind_param("sssss", $full_name, $email, $phone, $password, $profile_photo);
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             if ($stmt->execute()) {
                 $new_user_id = $conn->insert_id;
                 
-                $role_stmt = $conn->prepare("INSERT INTO User_Roles (user_id, role_id, dept_id) VALUES (?, ?, ?)");
+                $role_stmt = $conn->prepare("INSERT INTO user_roles (user_id, role_id, dept_id) VALUES (?, ?, ?)");
                 $role_stmt->bind_param("iii", $new_user_id, $role_id, $dept_id);
                 $role_stmt->execute();
                 $role_stmt->close();

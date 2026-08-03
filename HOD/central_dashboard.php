@@ -1,8 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-include_once "../includes/connection.php";
+include "header_hod.php";
+include "../includes/connection.php";
 
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
@@ -21,7 +19,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
     <style>
             body {
                 font-family: 'Poppins', sans-serif;
-                background-image: url('../assets/img/gmr_landing_page.jpg');
+                background-image: url('../stuff/gmr_landing_page.jpg');
                 background-size: cover;
                 background-position: center;
                 color: #ffffff;
@@ -47,7 +45,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
                 justify-content: center;
             }
             .btn111 {
-            background-color: #2e7d32; /* Darker green for better contrast */
+            background-color: #4CAF50;
             border: none;
             color: white;
             padding: 12px 24px;
@@ -64,7 +62,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
             background-color: #45a049;
         }
             .container {
-                margin-top: 0;
+                margin-top:100px;
                 margin-bottom:150px;
                 background: rgba(0, 0, 0, 0.7);
                 box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.7);
@@ -179,20 +177,14 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
             }
 
   /* Navigation */
-  .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
- 
+  .navbar { 
         font-size: larger;
     }
 
     .nav-container {
         background-color: white;
         width:150vw;
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         padding: 0 1rem;
     }
 
@@ -227,20 +219,8 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
     </style>
 </head>
 <body>
-<?php include_once 'header_hod.php'; ?>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a"><?php echo htmlspecialchars($designation); ?></span></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span>
-            </div>
-        </div>
-    </nav>
+    <?php include "../includes/header.php"; ?>
+
     <div class="cont11">
     <div class="container">
     <button class="btn111" onclick="location.href='hod_faculty_files.php?year=<?php echo urlencode($year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>'">

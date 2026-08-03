@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 ob_start();
 ini_set('display_errors', 0);
 include_once "../../includes/connection.php";
@@ -224,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 // SQL query to fetch all records from the fdps_tab table
 
 /**
- * Exports FDPs Attended records to Excel.
+ * Exports FDPS Attended records to Excel.
  */
 function exportFdpsAttended($conn, $username) {
     ob_end_clean();
@@ -251,7 +251,7 @@ function exportFdpsAttended($conn, $username) {
 }
 
 /**
- * Exports FDPs Organized records to Excel.
+ * Exports FDPS Organized records to Excel.
  */
 function exportFdpsOrganized($conn, $username) {
     ob_end_clean();
@@ -378,7 +378,7 @@ if (isset($_POST['export_patent'])) {
 }
 // Functions to render category tables to reduce overall cognitive complexity
 function renderFdpsAttended($conn, $username) {
-    echo "<div class='container11'><h2>FDPs Attended</h2>";
+    echo "<div class='container11'><h2>FDPS Attended</h2>";
     echo "<form method='POST' class='ex_b'><button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button></form>";
     $sql = "SELECT * FROM fdps_tab WHERE username = ? AND status = '" . STATUS_ACCEPTED . "'";
     $stmt = $conn->prepare($sql);
@@ -393,12 +393,12 @@ function renderFdpsAttended($conn, $username) {
             echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["title"]) . "</td><td>" . htmlspecialchars($row["date_from"]) . "</td><td>" . htmlspecialchars($row["date_to"]) . "</td><td>" . htmlspecialchars($row["organised_by"]) . "</td><td>" . htmlspecialchars($row["location"]) . "</td></tr>";
         }
         echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='submit' class='download-btn' name='action' value='download'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
-    } else { echo "<p class='no-files'>No FDPs attended found.</p>"; }
+    } else { echo "<p class='no-files'>No FDPS attended found.</p>"; }
     echo "</div>";
 }
 
 function renderFdpsOrganized($conn, $username) {
-    echo "<div class='container11'><h2>FDPs Organised</h2>";
+    echo "<div class='container11'><h2>FDPS Organised</h2>";
     echo "<form method='POST' class='ex_b'><button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button></form>";
     $sql = "SELECT * FROM fdps_org_tab WHERE username = ? AND status = '" . STATUS_ACCEPTED . "'";
     $stmt = $conn->prepare($sql);
@@ -415,7 +415,7 @@ function renderFdpsOrganized($conn, $username) {
             echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $mergedPath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "' data-title='" . $record_title . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["title"]) . "</td><td>" . htmlspecialchars($row["date_from"]) . "</td><td>" . htmlspecialchars($row["date_to"]) . "</td><td>" . htmlspecialchars($row["organised_by"]) . "</td><td>" . htmlspecialchars($row["location"]) . "</td></tr>";
         }
         echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
-    } else { echo "<p class='no-files'>No FDPs organised found.</p>"; }
+    } else { echo "<p class='no-files'>No FDPS organised found.</p>"; }
     echo "</div>";
 }
 
@@ -483,25 +483,6 @@ function renderPatents($conn, $username) {
 $extra_head = '<link rel="stylesheet" href="../../assets/css/download_pap.css">';
 include_once "../../includes/header.php";
 ?>
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-            </a>
-            <span>&nbsp; >> &nbsp; </span><span class="sid"><a
-                    href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
-                    class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-            <span>&nbsp; >> &nbsp; </span><span class="sid"><a href="../faculty/acd_year.php?dept=<?php echo urlencode((string)$dept); ?>"
-                    class="home-icon"> Faculty </a></span>
-            <span>&nbsp; >> &nbsp; </span><span class="main"><span class="main-a">My Achievements</span></span>
-            <span>&nbsp; >> &nbsp; </span>
-        </div>
-    </div>
-</nav>
 <div class="div1">
     <div class="filter-section">
         <h1>My Achievements</h1>
@@ -509,8 +490,8 @@ include_once "../../includes/header.php";
             <select name="category" id="category">
                 <option value="">Select Category</option>
                 <option value="fdps" <?= isset($_POST['category']) && $_POST['category'] == 'fdps' ? 'selected' : '' ?>>
-                    FDPs Attended</option>
-                <option value="fdps_org" <?= isset($_POST['category']) && $_POST['category'] == 'fdps_org' ? 'selected' : '' ?>>FDPs Organised</option>
+                    FDPS Attended</option>
+                <option value="fdps_org" <?= isset($_POST['category']) && $_POST['category'] == 'fdps_org' ? 'selected' : '' ?>>FDPS Organised</option>
                 <option value="published" <?= isset($_POST['category']) && $_POST['category'] == 'published' ? 'selected' : '' ?>>Published Papers</option>
                 <option value="conference" <?= isset($_POST['category']) && $_POST['category'] == 'conference' ? 'selected' : '' ?>>Conference Papers</option>
                 <option value="patents" <?= isset($_POST['category']) && $_POST['category'] == 'patents' ? 'selected' : '' ?>>Patents</option>
@@ -653,7 +634,7 @@ include_once "../../includes/header.php";
             return;
         }
 
-        // Single selection with no data-files → direct view
+        // Single selection with no data-files ? direct view
         if (checkboxes.length === 1 && !checkboxes[0].getAttribute('data-files')) {
             await mergeAndAct(checkboxes[0], 'view');
             return;

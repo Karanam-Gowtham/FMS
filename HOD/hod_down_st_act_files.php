@@ -1,9 +1,7 @@
 <?php
 include_once "../includes/connection.php";
 include_once "../includes/constants.php";
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 define('REGEX_UPLOADS', '/uploads\/.*/');
 
@@ -297,25 +295,9 @@ include_once "header_hod.php";
 </head>
 
 <body>
+    <?php include "../includes/header.php"; ?>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span>&nbsp; >> &nbsp; </span><span class="sid"><a
-                        href="../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
-                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="sid"><a href="see_uploads.php"
-                        class="home-icon">HOD</a></span>
-                <span class="sp-divider">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Dept_Files(Student activities)</span></span>
-            </div>
-        </div>
-    </nav>
+    
 
     <div class="container11">
         <h1>Retrieve Student Activity files</h1>

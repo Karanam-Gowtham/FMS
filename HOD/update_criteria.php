@@ -1,6 +1,6 @@
 <?php
-include_once "../includes/connection.php";
-include_once "./header_hod.php";
+include("../includes/connection.php");
+include "./header_hod.php";
 ?>
 <?php
 
@@ -120,6 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php include "../includes/header.php"; ?>
     <div class="container">
     <h2>Update Criteria</h2>
     <form method="POST">
@@ -132,4 +133,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form></div>
 </body>
 </html>
-

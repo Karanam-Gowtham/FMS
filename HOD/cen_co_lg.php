@@ -1,5 +1,5 @@
 <?php
-    include_once "./header_hod.php";
+    include "./header_hod.php";
     ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +9,7 @@
     <title>Login</title>
     <style>
         body {
-            background-image: url('../assets/img/gmr_landing_page.jpg');
+            background-image: url('../stuff/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
@@ -89,6 +89,7 @@
     </style>
 </head>
 <body>
+    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">

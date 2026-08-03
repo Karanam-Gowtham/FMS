@@ -88,7 +88,7 @@ include_once '../../includes/header.php';
     <h1>Welcome to the Activities Page</h1>
     <div class="button-container">
         <a href="../../admin/admins.php"><button>Faculty Activities</button></a>
-        <a href="student_act.php"><button>Student Activities</button></a>
+        <a href="../faculty/student_act.php"><button>Student Activities</button></a>
     </div>
     </div>
 </body>

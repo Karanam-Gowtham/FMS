@@ -324,7 +324,6 @@
             display: flex;
         }
 
-        span {
-            color: #ffffff;
-            font-weight: 500;
+        .nav-items > span {
+            color: #1a237e;
         }

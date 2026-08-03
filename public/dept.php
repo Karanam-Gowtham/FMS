@@ -8,19 +8,21 @@ $dept_param = isset($_GET['dept']) ? trim($_GET['dept']) : '';
 // Lookup department in database
 $dept_info = null;
 if ($dept_param !== '') {
-    $stmt = $conn->prepare("SELECT * FROM Dept WHERE dept_name = ?");
+    $stmt = $conn->prepare("SELECT * FROM dept WHERE dept_name = ?");
     $stmt->bind_param("s", $dept_param);
     $stmt->execute();
     $dept_info = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
 
-// If dept not found, get the first department as default
+// If dept not found, handle it properly rather than falling back to random department
 if (!$dept_info) {
-    $res = $conn->query("SELECT * FROM Dept LIMIT 1");
-    if ($res && $res->num_rows > 0) {
-        $dept_info = $res->fetch_assoc();
-    }
+    echo "<div style='text-align:center; padding: 50px; font-family:sans-serif;'>";
+    echo "<h2>Department Not Found</h2>";
+    echo "<p>The department '" . htmlspecialchars($dept_param) . "' does not exist in our records.</p>";
+    echo "<a href='../index.php' style='color:#3b82f6;'>Return to Home</a>";
+    echo "</div>";
+    exit;
 }
 
 $dept_id = $dept_info ? (int) $dept_info['dept_id'] : 0;
@@ -31,9 +33,9 @@ $faculty = [];
 if ($dept_id > 0) {
     $stmt = $conn->prepare("
         SELECT u.*, r.role_name
-        FROM Users u
-        JOIN User_Roles ur ON u.user_id = ur.user_id
-        JOIN Roles r ON ur.role_id = r.role_id
+        FROM users u
+        JOIN user_roles ur ON u.user_id = ur.user_id
+        JOIN roles r ON ur.role_id = r.role_id
         WHERE ur.dept_id = ? AND u.status = 'active'
         GROUP BY u.user_id
         ORDER BY u.full_name
@@ -47,30 +49,55 @@ if ($dept_id > 0) {
     $stmt->close();
 }
 
-// Fetch publicly approved research documents (Papers, Patents, Conferences, FDPs where is_public = 1)
+// Fetch publicly approved research documents (Papers, Patents, Conferences, FDPS where is_public = 1)
+// Fetch publicly approved research documents from legacy tables
 $public_docs = [];
 if ($dept_id > 0) {
-    $stmt = $conn->prepare("
-        SELECT d.*, dt.type_name, dc.category_name, ay.year_name, 
-               u.full_name as uploader_name, r.role_name
-        FROM Documents d
-        JOIN Document_Types dt ON d.type_id = dt.type_id
-        JOIN Document_Categories dc ON dt.category_id = dc.category_id
-        JOIN Academic_Years ay ON d.academic_year_id = ay.academic_year_id
-        JOIN Users u ON d.uploaded_by = u.user_id
-        LEFT JOIN User_Roles ur ON u.user_id = ur.user_id AND ur.dept_id = d.dept_id
-        LEFT JOIN Roles r ON ur.role_id = r.role_id
-        WHERE d.dept_id = ? AND d.status = 'Approved' AND dt.is_public = 1
-        GROUP BY d.document_id
-        ORDER BY d.created_at DESC
-    ");
-    $stmt->bind_param("i", $dept_id);
-    $stmt->execute();
-    $dres = $stmt->get_result();
-    while ($row = $dres->fetch_assoc()) {
-        $public_docs[] = $row;
+    // We check against the exact dept name, and also without underscores for legacy branches
+    $branch_legacy = str_replace('_', '', $dept_name);
+    
+    // 1. Papers Published
+    $res1 = $conn->prepare("SELECT p.paper_title as original_file_name, 'Paper Published' as type_name, u.full_name as uploader_name, p.year as year_name, p.submission_time as created_at, p.paper_file as file_path FROM published_tab p LEFT JOIN users u ON p.username = u.email WHERE (p.branch = ? OR p.branch = ?) AND p.status = 'Accepted'");
+    $res1->bind_param("ss", $dept_name, $branch_legacy);
+    $res1->execute();
+    $dres1 = $res1->get_result();
+    while ($row = $dres1->fetch_assoc()) { $public_docs[] = $row; }
+    
+    // 2. Patents
+    $res2 = $conn->prepare("SELECT p.patent_title as original_file_name, 'Patent' as type_name, u.full_name as uploader_name, p.year as year_name, p.submission_time as created_at, p.patent_file as file_path FROM patents_table p LEFT JOIN users u ON p.Username = u.email WHERE (p.branch = ? OR p.branch = ?) AND p.status = 'Accepted'");
+    $res2->bind_param("ss", $dept_name, $branch_legacy);
+    $res2->execute();
+    $dres2 = $res2->get_result();
+    while ($row = $dres2->fetch_assoc()) { $public_docs[] = $row; }
+    
+    // 3. Conferences
+    $res3 = $conn->prepare("SELECT c.paper_title as original_file_name, 'Conference' as type_name, u.full_name as uploader_name, c.year as year_name, c.submission_time as created_at, c.paper_file_path as file_path FROM conference_tab c LEFT JOIN users u ON c.username = u.email WHERE (c.branch = ? OR c.branch = ?) AND c.status = 'Accepted'");
+    $res3->bind_param("ss", $dept_name, $branch_legacy);
+    $res3->execute();
+    $dres3 = $res3->get_result();
+    while ($row = $dres3->fetch_assoc()) { $public_docs[] = $row; }
+    
+    // 4. FDPS Attended
+    $res4 = $conn->prepare("SELECT f.title as original_file_name, 'FDP Attended' as type_name, u.full_name as uploader_name, f.year as year_name, f.submission_time as created_at, f.certificate as file_path FROM fdps_tab f LEFT JOIN users u ON f.username = u.email WHERE (f.branch = ? OR f.branch = ?) AND f.status = 'Accepted'");
+    $res4->bind_param("ss", $dept_name, $branch_legacy);
+    $res4->execute();
+    $dres4 = $res4->get_result();
+    while ($row = $dres4->fetch_assoc()) { $public_docs[] = $row; }
+    
+    // 5. FDPS Organized
+    $res5 = $conn->prepare("SELECT f.title as original_file_name, 'FDP Organized' as type_name, u.full_name as uploader_name, f.year as year_name, f.submission_time as created_at, f.merged_file as file_path FROM fdps_org_tab f LEFT JOIN users u ON f.username = u.email WHERE (f.branch = ? OR f.branch = ?) AND f.status = 'Accepted'");
+    $res5->bind_param("ss", $dept_name, $branch_legacy);
+    $res5->execute();
+    $dres5 = $res5->get_result();
+    while ($row = $dres5->fetch_assoc()) { 
+        if(empty($row['file_path'])) $row['file_path'] = '#';
+        $public_docs[] = $row; 
     }
-    $stmt->close();
+    
+    // Sort by created_at DESC
+    usort($public_docs, function($a, $b) {
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+    });
 }
 
 // Calculate research stats
@@ -187,7 +214,7 @@ include_once HEADER;
             </div>
             <div class="stat-card pending">
                 <div class="stat-number"><?php echo $fdps_count; ?></div>
-                <div class="stat-label">FDPs Attended / Org</div>
+                <div class="stat-label">FDPS Attended / Org</div>
             </div>
         </div>
 

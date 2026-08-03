@@ -1,7 +1,6 @@
 <?php
-include_once "../includes/connection.php";
-require_once "../includes/constants.php";
-
+include("../includes/connection.php");
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['cri_username'])) {
     die("You need to log in to view your uploads.");
@@ -19,7 +18,7 @@ $a_username = $_SESSION['cri_username'];
 if (isset($_POST['action']) && isset($_POST['selected_files'])) {
     $selectedFiles = $_POST['selected_files'];
     $action = $_POST['action'];
-
+    
     if ($action == 'delete') {
         foreach ($selectedFiles as $fileId) {
             $sql = "SELECT file_path FROM a_cri_files WHERE id = ?";
@@ -37,9 +36,9 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             }
         }
         echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
-
-
-    } elseif ($action == 'download') {
+    
+    
+    }else if ($action == 'download') {
         if (!empty($selectedFiles)) {
             if (count($selectedFiles) == 1) {
                 $fileId = $selectedFiles[0];
@@ -48,26 +47,26 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                 $stmt->bind_param("i", $fileId);
                 $stmt->execute();
                 $result = $stmt->get_result();
-
+    
                 if ($file = $result->fetch_assoc()) {
                     $filePath = $file['file_path'];
                     $fileName = basename($filePath); // Extract file name from file path
-
+    
                     if (file_exists($filePath)) {
                         // Clean the output buffer to avoid corrupt file downloads
                         if (ob_get_length()) {
                             ob_end_clean();
                         }
-
+    
                         // Set headers specifically for PDF files
-                        header(TYPE_OCTET_STREAM);
-                        header(HEADER_CONTENT_DISPOSITION . $fileName . '"');
-                        header(HEADER_CONTENT_LENGTH . filesize($filePath));
+                        header('Content-Type: application/pdf');
+                        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+                        header('Content-Length: ' . filesize($filePath));
                         header('Pragma: public');
                         header('Expires: 0');
                         header('Cache-Control: must-revalidate');
                         header('Content-Transfer-Encoding: binary');
-
+    
                         // Stream the PDF to the browser
                         flush(); // Ensure headers are sent
                         readfile($filePath);
@@ -77,30 +76,30 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     }
                 }
             } else {
-
+            
             $zip = new ZipArchive();
             $zipFileName = "downloads.zip";
             $zipFilePath = "uploads1/" . $zipFileName;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+    
+            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
                 // Reverse the order of selected file IDs
                 $selectedFiles = array_reverse($selectedFiles);
-
+    
                 // Convert selected file IDs to placeholders for SQL
                 $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
                 $sql = "SELECT file_path, file_name FROM a_cri_files WHERE id IN ($placeholders)";
-
+    
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param(str_repeat("i", count($selectedFiles)), ...$selectedFiles);
                 $stmt->execute();
                 $result = $stmt->get_result();
-
+    
                 // Store files in an array
                 $files = [];
                 while ($file = $result->fetch_assoc()) {
                     $files[] = $file;
                 }
-
+    
                 // Maintain the reversed order while adding files to the zip
                 foreach ($files as $file) {
                     $filePath = $file['file_path'];
@@ -109,13 +108,13 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     }
                 }
                 $zip->close();
-
+    
                 // Set headers for ZIP download
                 header('Content-Type: application/zip');
-                header(HEADER_CONTENT_DISPOSITION . $zipFileName . '"');
-                header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
+                header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
+                header('Content-Length: ' . filesize($zipFilePath));
                 readfile($zipFilePath);
-
+    
                 // Clean up
                 unlink($zipFilePath);
                 exit;
@@ -124,7 +123,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
             }
         }
     }
-
+    
 }
 }
 
@@ -132,48 +131,46 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
 
 // Handle Excel Download
 if (isset($_POST['download_excel'])) {
-    header(TYPE_EXCEL);
+    header('Content-Type: application/vnd.ms-excel');
     header('Content-Disposition: attachment;filename="my_uploads.xls"');
     header('Cache-Control: max-age=0');
-
+    
     // Output Excel Headers
     echo "ID\tUsername\tFaculty Name\tAcademic Year\tFilename\tCriteria\tCriteria No\n";
-
+    
     $sql = "SELECT * FROM a_cri_files WHERE username = ? ORDER BY uploaded_at DESC";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $a_username);
     $stmt->execute();
     $result = $stmt->get_result();
-
+    
     $id = 1;
     while ($row = $result->fetch_assoc()) {
         $uploadedAt = new DateTime($row['uploaded_at']);
         $formattedDateTime = $uploadedAt->format('Y/m/d H:i:s');
-
+        
         echo $id . "\t";
         echo $row['username'] . "\t";
         echo $row['Faculty_name'] . "\t";
         echo $row['academic_year'] . "\t";
-        echo $row['file_name'] . "\t";
+        echo $row['file_name'] . "\t";  
         echo $row['criteria'] . "\t";
         echo $row['criteria_no'] . "\t";
-
+        
         $id++;
     }
     exit();
 }
 
-include_once 'header_admin.php';
+include 'header_admin.php';
 
 
 $mergedFolder = "uploads/merged/";
 
 // Function to delete folder and its contents
 function deleteFolder($folder) {
-    if (!is_dir($folder)) {
-        return;
-    }
-
+    if (!is_dir($folder)) return;
+    
     $files = array_diff(scandir($folder), ['.', '..']);
     foreach ($files as $file) {
         $filePath = $folder . DIRECTORY_SEPARATOR . $file;
@@ -381,20 +378,14 @@ if (is_dir($mergedFolder)) {
             }
         }
                                  /* Navigation */
-                                 .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-
+                                 .navbar { 
         font-size: larger;
     }
 
     .nav-container {
         background-color: rgb(244, 237, 237);
         width:150vw;
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         padding: 0 1rem;
     }
 
@@ -430,22 +421,8 @@ if (is_dir($mergedFolder)) {
     </style>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_aqar_files.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="criteria_cri_a.php?year=<?php echo urlencode($academic_year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">My Uploads</span></span>
+    <?php include "../includes/header.php"; ?>
 
-            </div>
-        </div>
-    </nav>
     <div class="container11">
 
         <div class="header-section">
@@ -464,7 +441,7 @@ if (is_dir($mergedFolder)) {
         <form method="POST" action="">
         <table>
             <tr>
-                <th><input type="checkbox" onclick="toggleSelectAll(this)" onKeyDown="if(event.key === 'Enter') toggleSelectAll(this)"></th>
+                <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
                 <th>ID</th>
                 <th>Faculty Name</th>
                 <th>Academic Year</th>
@@ -491,9 +468,9 @@ if (is_dir($mergedFolder)) {
                     $formattedDateTime = $uploadedAt->format('Y/m/d') . ' & ' . $uploadedAt->format('H:i:s');
 
                     echo "<tr>";
-                    echo "<td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
-                    data-filepath='" . htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8') . "'
-                    onchange='trackOrder(event)' onKeyDown=\"if(event.key === 'Enter') this.click()\"></td>";
+                    echo "<td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                    data-filepath='" . htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8') . "' 
+                    onchange='trackOrder(event)'></td>";
                     echo "<td>" . $id . "</td>";
                     echo "<td>" . htmlspecialchars($row['Faculty_name']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['academic_year']) . "</td>";
@@ -514,7 +491,7 @@ if (is_dir($mergedFolder)) {
                 <button type="button" id="mergeBtn" class="merg" onclick="mergePDFs()" disabled>Merge PDFs</button>
                 <button type="submit" id="del"  name="action" value="delete">Delete</button><br><br>
                 <button type="button" class="merge" id="mergedFileButton" onclick="viewMergedFile()" style="display:none;">View Merged File</button>
-
+                
             </div>
             </form>
             <?php
@@ -523,7 +500,7 @@ if (is_dir($mergedFolder)) {
         </table>
     </div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
     <script>
         let selectedOrder = [];
 
@@ -627,7 +604,6 @@ if (is_dir($mergedFolder)) {
             }
         }
 
-
+        
     </script>
 </html>
-

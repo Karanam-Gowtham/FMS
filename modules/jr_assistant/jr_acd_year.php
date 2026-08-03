@@ -194,7 +194,7 @@ if (empty($dept)) {
                     </svg>
                 </a>
                 <span>&nbsp; >> &nbsp;</span><span class="sid"><a
-                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
+                        href="../../public/dept.php?dept=<?php echo urlencode($dept); ?>"
                         class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
                 <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a">Jr Assistant</span></span>
             </div>

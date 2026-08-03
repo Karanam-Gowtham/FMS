@@ -2,9 +2,7 @@
 include_once 'config.php';
 include_once CONNECTION_PATH;
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 include_once HEADER;
 ?>

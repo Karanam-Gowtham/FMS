@@ -1,251 +1,237 @@
 <?php
-include_once "../../includes/connection.php";
-if (!isset($_SESSION['username']) && !isset($_SESSION['h_username'])) {
+    include "../../includes/connection.php";
+
+
+    
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+
+if (!isset($_SESSION['username'])) {
     die("You need to log in to view your uploads.");
 }
 
-$username = isset($_SESSION['username']) ? $_SESSION['username'] : $_SESSION['h_username'];
+$username = $_SESSION['username'];
 if (isset($_GET['dept'])) {
     $dept = $_GET['dept']; // Get the 'dept' value from the URL
 } else {
-    echo "Department not set.";
+    // Fallback: get dept from reg_tab
+    $dept_query = "SELECT dept FROM reg_tab WHERE userid = '$username'";
+    $dept_result = mysqli_query($conn, $dept_query);
+    if ($dept_result && mysqli_num_rows($dept_result) > 0) {
+        $dept_row = mysqli_fetch_assoc($dept_result);
+        $dept = $dept_row['dept'];
+    } else {
+        echo "Department not set.";
+        $dept = "";
+    }
 }
 ?>
 
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GMRIT Feedback Center</title>
     <style>
         /* Reset and base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: rgb(249, 250, 251);
-            color: rgb(55, 65, 81);
-            line-height: 1.5;
-        }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: rgb(249, 250, 251);
+    color: rgb(55, 65, 81);
+    line-height: 1.5;
+}
 
-        /* Navigation */
-        .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
+/* Navigation */
+.navbar {
+    background-color: white;
+    font-size: larger;
+}
 
-            background-color: white;
-            font-size: larger;
-        }
+.nav-container {
+    margin-top: 100px;
+    margin-left:100px;
+    max-width: 80rem;
+    padding: 0 1rem;
+}
 
-        .nav-container {
-            /* margin-top moved to .navbar */
-            margin-left: 100px;
-            max-width: 80rem;
-            padding: 0 1rem;
-        }
+.nav-items {
+    display: flex;
+    align-items: center;
+    height: 4rem;
+}
 
-        .nav-items {
-            display: flex;
-            align-items: center;
-            height: 4rem;
-        }
+.sid{
+    color: rgb(48, 30, 138);
+    font-weight: 500;
+}
 
-        .sid {
-            color: rgb(48, 30, 138);
-            font-weight: 500;
-        }
+.main-a {
+    color: rgb(138, 30, 113);
+    font-weight: 500;
+}
+.main-a:hover{
+    color:rgb(182, 64, 211);
+}
 
-        .main-a {
-            color: rgb(138, 30, 113);
-            font-weight: 500;
-        }
+.home-icon {
+    color: rgb(30, 58, 138);
+    transition: color 0.2s;
+}
 
-        .main-a:hover {
-            color: rgb(182, 64, 211);
-        }
+.home-icon:hover {
+    color: rgb(29, 78, 216);
+}
 
-        .home-icon {
-            color: rgb(30, 58, 138);
-            transition: color 0.2s;
-        }
+/* Main content */
+.main-content {
+    padding: 2rem 1rem;
+}
 
-        .home-icon:hover {
-            color: rgb(29, 78, 216);
-        }
+.container {
+    max-width: 80rem;
+    margin: 0px auto 100px auto;
+}
 
-        /* Main content */
-        .main-content {
-            padding: 2rem 1rem;
-        }
+.header {
+    margin-bottom: 1.5rem;
+}
 
-        .container {
-            max-width: 80rem;
-            margin: 0px auto 100px auto;
-        }
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: rgb(17, 24, 39);
+}
 
-        .header {
-            margin-bottom: 1.5rem;
-        }
+.header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: rgb(234, 179, 8);
+    margin-top: 0.5rem;
+}
 
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
+.description {
+    margin-bottom: 2rem;
+}
 
-        .header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: rgb(234, 179, 8);
-            margin-top: 0.5rem;
-        }
+.description p {
+    margin-bottom: 1rem;
+    color: rgb(75, 85, 99);
+}
 
-        .description {
-            margin-bottom: 2rem;
-        }
+/* Feedback Grid */
+.feedback-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-top: 2rem;
+}
 
-        .description p {
-            margin-bottom: 1rem;
-            color: #d1d5db;
-        }
+@media (min-width: 768px) {
+    .feedback-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 
-        /* Feedback Grid */
-        .feedback-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2.5rem;
-            margin-top: 2rem;
-        }
+.feedback-card {
+    text-decoration: none;
+    display: block;
+    transition: transform 0.2s;
+}
 
-        @media (min-width: 768px) {
-            .feedback-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+.feedback-card:hover {
+    transform: scale(1.05);
+}
 
-        .feedback-card {
-            text-decoration: none;
-            display: block;
-            transition: transform 0.2s;
-        }
+.card-content {
+    background: linear-gradient(to right, rgb(30, 64, 175), rgb(37, 99, 235));
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
 
-        .feedback-card:hover {
-            transform: scale(1.05);
-        }
+.icon {
+    color: white;
+}
 
-        .card-content {
-            background: linear-gradient(to right, rgb(30, 64, 175), rgb(37, 99, 235));
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+.card-content h3 {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+.my-achievements {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2563eb;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-        .icon {
-            color: white;
-        }
-
-        .card-content h3 {
-            color: white;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .my-achievements {
-            font-size: 1.1rem;
-            margin-left: 0;
-            color: #ffffff !important;
-            text-decoration: none;
-            background-color: #3b82f6;
-            padding: 8px 16px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-        }
-
-        .my-achievements:hover {
-            background-color: #2563eb;
-        }
-
-        .sp {
-            color: blue;
-        }
-    </style>
+.my-achievements:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+}
+        </style>
 
 </head>
-
-<body class="dashboard-page">
-    <?php include_once '../../includes/header.php'; ?>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span>&nbsp; >> &nbsp; </span><span class="sid"><a
-                        href="../../admin/admins.php?dept=<?php echo urlencode($dept); ?>"
-                        class="home-icon">Department(<?php echo htmlspecialchars($dept); ?>)</a></span>
-                <span class="sp">&nbsp; >> &nbsp; </span><span class="main"><span class="main-a">Faculty</span></span>
-            </div>
-        </div>
-    </nav>
+<body>
+    <?php include "../../includes/header.php"; ?>
+    
 
     <main class="main-content">
         <div class="container">
             <div class="header">
                 <h1>Achievements</h1>
-                <a href="../common/download_papers1.php?dept=<?php echo urlencode((string)$dept); ?>" class="btn my-achievements">My
-                    Achievements</a>
+                <a href="../common/download_papers1.php?dept=<?php echo"$dept" ?>" class="btn my-achievements">My Achievements</a>
             </div>
 
             <div class="feedback-grid">
+                
 
-
-                <a href="fdps.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
+            <a href="fdps.php?dept=<?php echo"$dept" ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>FDPS Attended</h3>
                     </div>
                 </a>
 
-                <a href="fdps_org.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
+                <a href="fdps_org.php?dept=<?php echo"$dept" ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>FDPS Organized</h3>
                     </div>
                 </a>
 
-                <a href="conf_org.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
+                <a href="conf_org.php?dept=<?php echo"$dept" ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Conference Organised</h3>
                     </div>
                 </a>
 
-                <a href="published.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
+                <a href="published.php?dept=<?php echo"$dept" ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Research Papers Published</h3>
                     </div>
                 </a>
 
-                <a href="conference.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
+                <a href="conference.php?dept=<?php echo"$dept" ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Conference Proceedings Published</h3>
                     </div>
                 </a>
-                <a href="patents.php?dept=<?php echo urlencode((string)$dept); ?>&type=faculty" class="feedback-card">
+                <a href="patents.php?dept=<?php echo"$dept" ?>&type=faculty" class="feedback-card">
                     <div class="card-content">
                         <h3>Patents</h3>
                     </div>
@@ -255,72 +241,46 @@ if (isset($_GET['dept'])) {
         <div class="container">
             <div class="header">
                 <h1>Department Files</h1>
-                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo urlencode((string)$dept); ?>"
-                    class="btn my-achievements">My Dept Files</a>
+                <a href="../dept_coordinator/dept_down_files.php?dept=<?php echo"$dept" ?>" class="btn my-achievements">My Dept Files</a>
             </div>
 
             <div class="feedback-grid">
+                
 
-
-                <a href="../dept_coordinator/dept_files.php?event=admin&dept=<?php echo urlencode((string)$dept); ?>"
-                    class="feedback-card">
+                <a href="dept_files.php?event=admin&dept=<?php echo"$dept" ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Admin Files</h3>
                     </div>
                 </a>
 
-                <a href="../dept_coordinator/dept_files.php?event=faculty&dept=<?php echo urlencode((string)$dept); ?>"
-                    class="feedback-card">
+                <a href="dept_files.php?event=faculty&dept=<?php echo"$dept" ?>"class="feedback-card">
                     <div class="card-content">
                         <h3>Faculty Files</h3>
                     </div>
                 </a>
 
-                <a href="../dept_coordinator/dept_files.php?event=student&dept=<?php echo urlencode((string)$dept); ?>"
-                    class="feedback-card">
+                <a href="dept_files.php?event=student&dept=<?php echo"$dept" ?>"  class="feedback-card">
                     <div class="card-content">
                         <h3>Student Related Files</h3>
                     </div>
                 </a>
 
-                <a href="../dept_coordinator/dept_files.php?event=exam&dept=<?php echo urlencode((string)$dept); ?>"
-                    class="feedback-card">
+                <a href="dept_files.php?event=exam&dept=<?php echo"$dept" ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Exam Section Files</h3>
                     </div>
                 </a>
 
-                <a href="student_act.php?event=student_act&dept=<?php echo urlencode((string)$dept); ?>" class="feedback-card">
+                <a href="student_act.php?event=student_act&dept=<?php echo"$dept" ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>student Activities Files</h3>
                     </div>
                 </a>
-
-                <a href="../dept_coordinator/amc_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>"
-                    class="feedback-card">
-                    <div class="card-content">
-                        <h3>AMC Meeting Minutes</h3>
-                    </div>
-                </a>
-
-                <a href="../dept_coordinator/bos_meeting_minutes.php?dept=<?php echo urlencode($dept); ?>"
-                    class="feedback-card">
-                    <div class="card-content">
-                        <h3>Board Of Studies (BOS)</h3>
-                    </div>
-                </a>
-
+               
             </div>
         </div>
-
-        <?php
-        // Include the modern Recent Uploads & Pending Actions table
-        $base_url = '../../';
-        include_once '../../includes/dashboard_table.php';
-        ?>
     </main>
 
     <script src="script.js"></script>
 </body>
-
 </html>

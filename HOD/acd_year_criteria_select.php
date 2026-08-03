@@ -128,19 +128,8 @@ include_once 'header_hod.php';
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="acd_year_aa.php" class="home-icon">Admin</a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Criteria Select</span></span>
-            </div>
-        </div>
-    </nav>
+    <?php include "../includes/header.php"; ?>
+    
 
     <div class="container11">
         <h1>AQAR Criteria Selection</h1>

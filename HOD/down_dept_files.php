@@ -1,5 +1,5 @@
 <?php
-include_once "../includes/connection.php";
+include "../includes/connection.php";
 
 // Check connection
 if ($conn->connect_error) {
@@ -17,18 +17,19 @@ if (!$event) {
 
 
 if (isset($_POST['download_excel'])) {
+    if(isset($file_type)){
+
+    }
     $department = $_POST['branch'] ?? '';
 
     // Set headers for Excel file download
     header("Content-Type: application/vnd.ms-excel");
-    $safe_event = str_replace(["\r", "\n", '"'], '', (string)$event);
-    $safe_department = str_replace(["\r", "\n", '"'], '', (string)$department);
-    header("Content-Disposition: attachment; filename=\"dept_files_{$safe_event}_{$safe_department}.xls\"");
+    header("Content-Disposition: attachment; filename=dept_files_{$event}_{$department}.xls");
     header("Pragma: no-cache");
     header("Expires: 0");
 
     // Query to fetch filtered records
-    $stmt = $conn->prepare("SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE file_type = ? AND dept = ? AND status = 'Accepted'");
+    $stmt = $conn->prepare("SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE file_type = ? AND dept = ?");
     $stmt->bind_param("ss", $event, $department);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -40,28 +41,27 @@ if (isset($_POST['download_excel'])) {
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             echo "{$row['username']}\t"
-                . "{$row['file_type']}\t"
-                . "{$row['sub_file_type']}\t"
-                . "{$row['file_name']}\n";
+               . "{$row['file_type']}\t"
+               . "{$row['sub_file_type']}\t"
+               . "{$row['file_name']}\n";
         }
     } else {
         // In case of no records
         echo "No records found for the selected filters.\n";
     }
 
-
+    
     $stmt->close();
     $conn->close();
     exit;
 }
 
-include_once "./header_hod.php";
+include "./header_hod.php";
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,7 +80,7 @@ include_once "./header_hod.php";
         }
 
         .container11 {
-            margin-top: 0;
+            margin-top: 100px;
             margin-bottom: 70px;
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
@@ -180,13 +180,13 @@ include_once "./header_hod.php";
 
         .form-container {
             margin-top: 20px;
-            background: linear-gradient(135deg, rgb(56, 173, 209), rgb(16, 78, 125));
+            background: linear-gradient(135deg,rgb(56, 173, 209),rgb(16, 78, 125));
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 500px;
-            margin-left: 350px;
+            width:500px;
+            margin-left:350px;
         }
 
         .form-container select,
@@ -201,15 +201,14 @@ include_once "./header_hod.php";
         }
 
         .form-container button {
-            background-color: rgb(67, 188, 103);
+            background-color:rgb(67, 188, 103);
             color: white;
         }
 
         .form-container button:hover {
-            background-color: rgb(40, 156, 98);
+            background-color:rgb(40, 156, 98);
         }
-
-        .btn-download {
+        .btn-download{
             width: 300px;
             margin-top: 10px;
             margin-left: 28vw;
@@ -219,59 +218,62 @@ include_once "./header_hod.php";
             border: 1px solid #ccc;
             border-radius: 5px;
             cursor: pointer;
-            background-color: rgb(88, 7, 74);
+            background-color:rgb(88, 7, 74);
             color: white;
-
+        
         }
-
-        .btn-download:hover {
-            background-color: rgb(204, 84, 200);
+        .btn-download:hover{
+            background-color:rgb(204, 84, 200);
         }
     </style>
 </head>
-
 <body>
+    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <h1>Retrieve Department Files</h1>
         <div class="form-container">
-            <form method="POST" action="">
-                <label for="department">Select Department:</label>
-                <select name="department" id="department">
-                    <option value="" disabled selected>--Select Department--</option>
-                    <option value="AIDS" <?php if ($department == 'AIDS') { echo 'selected'; } ?>>AIDS</option>
-                    <option value="AIML" <?php if ($department == 'AIML') { echo 'selected'; } ?>>AIML</option>
-                    <option value="CSE" <?php if ($department == 'CSE') { echo 'selected'; } ?>>CSE</option>
-                    <option value="CIVIL" <?php if ($department == 'CIVIL') { echo 'selected'; } ?>>CIVIL</option>
-                    <option value="MECH" <?php if ($department == 'MECH') { echo 'selected'; } ?>>MECH</option>
-                    <option value="EEE" <?php if ($department == 'EEE') { echo 'selected'; } ?>>EEE</option>
-                    <option value="ECE" <?php if ($department == 'ECE') { echo 'selected'; } ?>>ECE</option>
-                    <option value="IT" <?php if ($department == 'IT') { echo 'selected'; } ?>>IT</option>
-                    <option value="BSH" <?php if ($department == 'BSH') { echo 'selected'; } ?>>BSH</option>
-                </select><br>
-                <button type="submit">Filter</button>
-            </form>
+        <form method="POST" action="">
+            <label for="department" >Select Department:</label>
+            <select name="department" id="department" >
+                <option value="" disabled selected>--Select Department--</option>
+                <option value="CSE-AI&DS" <?php if($department == 'CSE-AI&DS') echo 'selected'; ?>>CSE-AI&DS</option>
+                <option value="CSE-AI&ML" <?php if($department == 'CSE-AI&ML') echo 'selected'; ?>>CSE-AI&ML</option>
+                <option value="CSE" <?php if($department == 'CSE') echo 'selected'; ?>>CSE</option>
+                <option value="CSE-CS" <?php if($department == 'CSE-CS') echo 'selected'; ?>>CSE-CS</option>
+                <option value="CIVIL" <?php if($department == 'CIVIL') echo 'selected'; ?>>CIVIL</option>
+                <option value="MatheMatics" <?php if($department == 'MatheMatics') echo 'selected'; ?>>MatheMatics</option>
+                <option value="Physics" <?php if($department == 'Physics') echo 'selected'; ?>>Physics</option>
+                <option value="Chemistry" <?php if($department == 'Chemistry') echo 'selected'; ?>>Chemistry</option>
+                <option value="BSH" <?php if($department == 'BSH') echo 'selected'; ?>>BSH</option>
+                <option value="MECH" <?php if($department == 'MECH') echo 'selected'; ?>>MECH</option>
+                <option value="EEE" <?php if($department == 'EEE') echo 'selected'; ?>>EEE</option>
+                <option value="ECE" <?php if($department == 'ECE') echo 'selected'; ?>>ECE</option>
+                <option value="IT" <?php if($department == 'IT') echo 'selected'; ?>>IT</option>
+            </select><br>
+            <button type="submit" >Filter</button>
+        </form>
         </div>
 
         <?php
-        if ($department) {
-            // Prepare the SQL query to fetch records filtered by event and department
-            $sql = "SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE file_type = ? AND dept = ? AND status = 'Accepted'";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ss", $event, $department);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            if ($department) {
+                // Prepare the SQL query to fetch records filtered by event and department
+                $sql = "SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE file_type = ? AND dept = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ss", $event, $department);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-            if ($result->num_rows > 0) {
-                // Start HTML output
-                ?>
-                <form action="" method="POST">
-                    <input type="hidden" name="branch" value="<?php echo htmlspecialchars($department); ?>">
-                    <button type="submit" name="download_excel" class="btn-download">Download Excel</button>
-                </form>
-                <?php
-                // Display records
-                echo "<h2>" . htmlspecialchars(ucfirst(str_replace("_", " ", (string)$event))) . " Files for " . htmlspecialchars(ucfirst((string)$department)) . "</h2>";
-                echo "<table class='styled-table'>
+                if ($result->num_rows > 0) {
+                    // Start HTML output
+                    ?>
+                    <form action="" method="POST">
+                        <input type="hidden" name="branch" value="<?php echo htmlspecialchars($department); ?>">
+                        <button type="submit" name="download_excel" class="btn-download">Download Excel</button>
+                    </form>
+                    <?php
+                    // Display records
+                    echo "<h2>" . ucfirst(str_replace("_", " ", $event)) . " Files for " . ucfirst($department) . "</h2>";
+                    echo "<table class='styled-table'>
                             <thead>
                                 <tr>
                                     <th>User Name</th>
@@ -282,10 +284,10 @@ include_once "./header_hod.php";
                             </thead>
                             <tbody>";
 
-                // Iterate through the results and display them in the table
-                while ($row = $result->fetch_assoc()) {
-                    $filePath = "../" . htmlspecialchars($row['file_path']);
-                    echo "<tr>
+                    // Iterate through the results and display them in the table
+                    while ($row = $result->fetch_assoc()) {
+                        $filePath = "../" . htmlspecialchars($row['file_path']);
+                        echo "<tr>
                                 <td>" . htmlspecialchars($row['username']) . "</td>
                                 <td>" . htmlspecialchars($row['file_type']) . " (" . htmlspecialchars($row['sub_file_type']) . ")</td>
                                 <td>" . htmlspecialchars($row['file_name']) . "</td>
@@ -294,6 +296,19 @@ include_once "./header_hod.php";
                                     <a href='$filePath' download class='btn download-btn'>Download</a>
                                 </td>
                             </tr>";
+                    }
+
+                    echo "</tbody>"?><?php
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['username']) . "</td>
+                            <td>" . htmlspecialchars($row['sub_file_type']) . "</td>
+                            <td>" . htmlspecialchars($row['file_name']) . "</td>
+                            <td>
+                                <a href='../" . htmlspecialchars($row['file_path']) . "' target='_blank' class='btn view-btn'>View</a>
+                                <a href='../" . htmlspecialchars($row['file_path']) . "' download class='btn download-btn'>Download</a>
+                            </td>
+                        </tr>";
                 }
 
                 echo "</tbody></table>";
@@ -303,11 +318,10 @@ include_once "./header_hod.php";
 
             $stmt->close();
         }
-        ?>
+?>
 
     </div>
 </body>
-
 </html>
 
 <?php

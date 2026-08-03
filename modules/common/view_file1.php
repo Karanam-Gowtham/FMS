@@ -5,9 +5,7 @@ ini_set('display_errors', 0);
 ini_set('zlib.output_compression', 'Off');
 
 // Start session without including connection.php (avoids output corruption)
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 // Ensure the user is logged in (check all possible session roles)
 if (

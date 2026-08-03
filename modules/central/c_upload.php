@@ -1,17 +1,17 @@
 <?php
 // Database configuration
-include_once '../../includes/connection.php';
+include "../../includes/connection.php";
 
 
     
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['c_cord'])) {
     die("You need to log in .");
 }
 
 $username = $_SESSION['c_cord'];
-include_once '../../includes/header.php';
+
 $event = htmlspecialchars($_GET['event'] ?? 'Unknown');
 
 // Check connection
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $uploadedBy = $_POST['uploaded_by'];
     $fileTmpPath = $_FILES['file_upload']['tmp_name'];
     $fileNameStored = basename($_FILES['file_upload']['name']);
-    $uploadDir = '../../uploads/';
+    $uploadDir = 'uploads/';
     $filePath = $uploadDir . $fileNameStored;
 
     // Handle photos
@@ -44,8 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Create uploads directory if it doesn't exist
-    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
-        die("Failed to create upload directory.");
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
+            die("Failed to create upload directory.");
+        }
     }
 
     // Move the main file to the uploads directory
@@ -126,7 +128,7 @@ $conn->close();
             display: flex;
         justify-content: center;
         align-items: center;
-            margin-top: 0;
+            margin-top: 80px;
             align-items: center;
             margin-bottom:100px;
             margin-right: 200px;
@@ -174,24 +176,18 @@ $conn->close();
         .file{
             color: white;
         }/* Navigation */
-        .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
- 
+        .navbar { 
             font-size: larger;
         }
 
-        .sp{
+        #sp{
             color:blue;
         }
         
         .nav-container {
             background-color: white;
             width:150vw;
-             /* margin-top moved to .navbar */
+            margin-top: 80px;
             padding: 0 1rem;
         }
 
@@ -266,25 +262,12 @@ $conn->close();
             
 </head>
 <body>
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-items">
-            <a href="../../index.php" class="home-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-            </a>
-            <span class="sp">&nbsp; >> &nbsp;</span><span class="sid"><a href="c_login.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central</a></span>
-            <span class="sp">&nbsp; >> &nbsp;</span><span class="main"><span class="main-a"><?php echo htmlspecialchars($event); ?> Files</span></span>
-            <span class="sp">&nbsp; >> &nbsp;</span>
-        </div>
-    </div>
-</nav>
+    <?php include "../../includes/header.php"; ?>
+
 
     <div class="container11">
         
-    <a href="c_down_files.php?event=<?php echo urlencode($event); ?>"><button class="btn_12">view <?php echo htmlspecialchars($event); ?> details</button></a>
+    <a href="c_down_files.php?event=<?php echo"$event" ?>"><button class="btn_12">view <?php echo htmlspecialchars($event); ?> details</button></a>
     <div class="container111">
         <form action="" method="POST" enctype="multipart/form-data" class="upload-form">
             <h1><?php echo htmlspecialchars($event); ?> Events</h1>
@@ -325,7 +308,7 @@ $conn->close();
                     <select name="year" id="academic-year" required>
                         <option value="" disabled selected>Select an academic year</option>
                         <?php
-                        include_once "../../includes/connection.php"; // Must be before this code
+                        include("../../includes/connection.php"); // Must be before this code
 
                         $query = "SELECT year FROM academic_year ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);
@@ -359,23 +342,23 @@ $conn->close();
                 <input type="text" id="uploaded_by" name="uploaded_by" placeholder="Your name" required>
             </div>
             <div class="form-group">
-                    <label for="photo1">Photo 1:</label>
-                    <input type="file" id="photo1" class="file" name="photo1" required>
+                    <label for="file_upload">Photo 1:</label>
+                    <input type="file" id="file_upload" class="file" name="photo1" required>
                 </div>
                 <div class="form-group">
-                    <label for="photo2">Photo 2:</label>
-                    <input type="file" id="photo2" class="file" name="photo2" required>
+                    <label for="file_upload">Photo 2:</label>
+                    <input type="file" id="file_upload" class="file" name="photo2" required>
                 </div>
                 <div class="form-group">
-                    <label for="photo3">Photo 3:</label>
-                    <input type="file" id="photo3" class="file" name="photo3" required>
+                    <label for="file_upload">Photo 3:</label>
+                    <input type="file" id="file_upload" class="file" name="photo3" required>
                 </div>
                 <div class="form-group">
-                    <label for="photo4">Photo 4:</label>
-                    <input type="file" id="photo4" class="file" name="photo4" required>
+                    <label for="file_upload">Photo 4:</label>
+                    <input type="file" id="file_upload" class="file" name="photo4" required>
                 </div>
 
-            <div style="text-align: center;"><button type="submit" class="btn1">Upload</button></div>
+            <center><button type="submit" class="btn1">Upload</button></center>
         </form>
     </div>
     

@@ -1,46 +1,52 @@
-﻿<?php
-require_once __DIR__ . '/../includes/session.php';
-include_once __DIR__ . '/../includes/connection.php';
-require_once __DIR__ . '/../includes/csrf.php';
+<?php
+include("../includes/connection.php"); // Include your database connection file
+
+if (session_status() === PHP_SESSION_NONE) { session_start(); } // Start session for user authentication
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    csrfValidate();
+
     if (isset($_POST['signIn'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        $stmt = $conn->prepare("SELECT department FROM reg_dept_cord WHERE userid = ? AND password = ?");
+        $stmt = $conn->prepare("SELECT * FROM Admin_reg WHERE Username = ? AND Password = ?");
         $stmt->bind_param("ss", $username, $password);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $department = $row['department'];
-            $_SESSION['a_username'] = $username;
-            header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=" . urlencode($department));
-            exit();
+            $login_stmt = $conn->prepare("INSERT INTO Admin_login (Username, Password) VALUES (?, ?)");
+            $login_stmt->bind_param("ss", $username, $password);
+
+            if ($login_stmt->execute() === TRUE) {
+                $_SESSION['username'] = $username;
+                
+                header("Location: acd_year_a.php");
+                exit();
+            } else {
+                echo "Error: " . $login_stmt->error;
+            }
+            $login_stmt->close();
         } else {
             echo "<script>alert('Wrong User Name or password!');</script>";
         }
         $stmt->close();
     }
 }
-include_once "header_admin.php";
+include "header_admin.php";
 ?>
 
 
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <style>
         body {
-            background-image: url('../assets/img/gmr_landing_page.jpg');
+            background-image: url('../stuff/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
@@ -72,18 +78,16 @@ include_once "header_admin.php";
             margin-top: 200px;
             animation: fadeIn 1s ease-in-out;
         }
-
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
+                from {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
             }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
 
         h1 {
             margin-bottom: 20px;
@@ -117,14 +121,14 @@ include_once "header_admin.php";
         .button1:hover {
             background-color: #0056b3;
         }
+
     </style>
 </head>
-
 <body>
+    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
-                <?php echo csrfField(); ?>
                 <h1 id="hav">Dept Co-odinator<br>Log In</h1>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />
@@ -132,6 +136,6 @@ include_once "header_admin.php";
             </form>
         </div>
     </div>
-</body>
-
+    </body>
 </html>
+

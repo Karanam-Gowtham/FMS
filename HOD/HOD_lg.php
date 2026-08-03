@@ -1,79 +1,5 @@
 <?php
-require_once '../includes/session.php';
-require_once '../includes/csrf.php';
-include_once '../includes/connection.php';
-
-
-$dept = isset($_GET['dept']) ? htmlspecialchars($_GET['dept']) : '';
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrfValidate();
-}
-
-if (isset($_POST['signIn'])) {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-
-    // Prefer reg_hod table if it exists; otherwise fall back to reg_dept_cord
-    $tableName = 'reg_dept_cord';
-    $chk = $conn->query("SHOW TABLES LIKE 'reg_hod'");
-    if ($chk && $chk->num_rows > 0) {
-        $tableName = 'reg_hod';
-    }
-
-    $hasDeptCol = false;
-    $colChk = $conn->query("SHOW COLUMNS FROM {$tableName} LIKE 'department'");
-    if ($colChk && $colChk->num_rows > 0) {
-        $hasDeptCol = true;
-    }
-
-    if ($hasDeptCol) {
-        $stmt = $conn->prepare("SELECT userid, department, password FROM {$tableName} WHERE userid = ? AND password = ?");
-    } else {
-        $stmt = $conn->prepare("SELECT userid, password FROM {$tableName} WHERE userid = ? AND password = ?");
-    }
-
-    if ($stmt) {
-        $stmt->bind_param("ss", $username, $password);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result && $result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $db_dept = $hasDeptCol ? strtoupper($row['department']) : '';
-
-            if (!empty($dept) && !empty($db_dept)) {
-                if ($db_dept === strtoupper($dept)) {
-                    session_regenerate_id(true);
-                    $_SESSION['h_username'] = $username;
-                    $_SESSION['dept'] = $dept;
-                    if (ob_get_level()) {
-                        ob_end_clean();
-                    }
-                    header("Location: see_uploads.php");
-                    exit();
-                } else {
-                    $error = "Invalid login for $dept department. This user belongs to $db_dept.";
-                }
-            } else {
-                session_regenerate_id(true);
-                $_SESSION['h_username'] = $username;
-                $_SESSION['dept'] = !empty($dept) ? $dept : $db_dept;
-                if (ob_get_level()) {
-                    ob_end_clean();
-                }
-                header("Location: see_uploads.php");
-                exit();
-            }
-        } else {
-            $error = "Invalid User ID or Password.";
-        }
-        $stmt->close();
-    } else {
-        $error = "Login unavailable (DB prepare failed). Please ensure 'reg_hod' table exists.";
-    }
-}
+    include 'header_hod.php';
 ?>
 
 <!DOCTYPE html>
@@ -84,7 +10,7 @@ if (isset($_POST['signIn'])) {
     <title>Login</title>
     <style>
         body {
-            background-image: url('../assets/img/gmr_landing_page.jpg');
+            background-image: url('../stuff/gmr_landing_page.jpg');
             background-size: cover;
             background-position: center;
             font-family: Arial, sans-serif;
@@ -164,15 +90,11 @@ if (isset($_POST['signIn'])) {
     </style>
 </head>
 <body>
-<?php include_once 'header_hod.php'; ?>
+    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">
-                <?php echo csrfField(); ?>
-                <h1 id="hav">HOD<br>Log In <?php if($dept) { echo "($dept)"; } ?></h1>
-                <?php if (!empty($error)): ?>
-                    <div style="color:#ffb4b4; margin-bottom:10px;"><?php echo htmlspecialchars($error); ?></div>
-                <?php endif; ?>
+                <h1 id="hav">HOD<br>Log In</h1>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
                 <input type="password" name="password" placeholder="Password" id="pass" required />
                 <button type="submit" name="signIn" class="button1">Log In</button>
@@ -181,4 +103,21 @@ if (isset($_POST['signIn'])) {
     </div>
     </body>
 </html>
+<script type="text/javascript">
+    document.querySelector("form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent form from submitting
 
+        // Get username and password values
+        var username = document.querySelector("input[name='username']").value;
+        var password = document.querySelector("input[name='password']").value;
+
+        // Validate username and password
+        if (username === "hod" && password === "123") {
+            // Redirect to the desired page (e.g., admin dashboard)
+            window.location.href = "see_uploads.php"; // Change to your dashboard URL
+        } else {
+            alert("Invalid login. Please try again.");
+        }
+    });
+</script>
+</html>

@@ -1,6 +1,6 @@
 <?php
 // db connection
-include_once "../../includes/connection.php";
+include("../../includes/connection.php");
 
 // Get filter/search values
 $branch = isset($_GET['branch']) ? $_GET['branch'] : '';
@@ -27,7 +27,7 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Dashboard</title>
-    <script src="https://cdn.tailwindcss.com/3.4.15" integrity="sha384-9J/eie52OVscsZkst4qvkkOvH3804cvot2wKJLuZ6Hc3C77tNxZeqj3oRcpchvwN" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         th { position: sticky; top: 0; z-index: 0; }
         .scroll-box::-webkit-scrollbar { height: 8px; }
@@ -58,7 +58,7 @@ $result = $conn->query($sql);
                 content.appendChild(div);
             }
 
-            document.getElementById("modalPhoto").src = details.photo_path || "../../uploads/default_pic.png";
+            document.getElementById("modalPhoto").src = details.photo_path || "Uploads/default_pic.png";
             modal.classList.remove("hidden");
         }
 
@@ -68,40 +68,43 @@ $result = $conn->query($sql);
     </script>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
+    <?php include "../../includes/header.php"; ?>
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Faculty Dashboard</h2>
 
         <!-- Filters -->
         <div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-8 bg-white p-6 rounded-lg shadow-md">
             <div class="flex-1">
-                <label for="branchFilter" class="block text-sm font-medium text-gray-700 mb-2">Filter by Department</label>
-                <select
-                    id="branchFilter"
-                    name="branch"
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Department</label>
+                <select 
+                    name="branch" 
                     onchange="applyFilters()"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 >
                     <option value="">All Departments</option>
-                    <option value="CSE" <?= $branch == 'CSE' ? 'selected' : '' ?>>CSE</option>
-                    <option value="ECE" <?= $branch == 'ECE' ? 'selected' : '' ?>>ECE</option>
-                    <option value="EEE" <?= $branch == 'EEE' ? 'selected' : '' ?>>EEE</option>
-                    <option value="MECH" <?= $branch == 'MECH' ? 'selected' : '' ?>>MECH</option>
-                    <option value="CIVIL" <?= $branch == 'CIVIL' ? 'selected' : '' ?>>CIVIL</option>
-                    <option value="IT" <?= $branch == 'IT' ? 'selected' : '' ?>>IT</option>
-                    <option value="AIDS" <?= $branch == 'AIDS' ? 'selected' : '' ?>>AIDS</option>
-                    <option value="AIML" <?= $branch == 'AIML' ? 'selected' : '' ?>>AIML</option>
-                    <option value="BSH" <?= $branch == 'BSH' ? 'selected' : '' ?>>BSH</option>
+                    <option value="CSE" <?= $branch=='CSE'?'selected':'' ?>>CSE</option>
+                    <option value="CSE-CS" <?= $branch=='CSE-CS'?'selected':'' ?>>CSE-CS</option>
+                    <option value="ECE" <?= $branch=='ECE'?'selected':'' ?>>ECE</option>
+                    <option value="EEE" <?= $branch=='EEE'?'selected':'' ?>>EEE</option>
+                    <option value="MECH" <?= $branch=='MECH'?'selected':'' ?>>MECH</option>
+                    <option value="CIVIL" <?= $branch=='CIVIL'?'selected':'' ?>>CIVIL</option>
+                    <option value="MatheMatics" <?= $branch=='MatheMatics'?'selected':'' ?>>MatheMatics</option>
+                    <option value="Physics" <?= $branch=='Physics'?'selected':'' ?>>Physics</option>
+                    <option value="Chemistry" <?= $branch=='Chemistry'?'selected':'' ?>>Chemistry</option>
+                    <option value="BSH" <?= $branch=='BSH'?'selected':'' ?>>BSH</option>
+                    <option value="IT" <?= $branch=='IT'?'selected':'' ?>>IT</option>
+                    <option value="CSE-AI&DS" <?= $branch=='CSE-AI&DS'?'selected':'' ?>>CSE-AI&DS</option>
+                    <option value="CSE-AI&ML" <?= $branch=='CSE-AI&ML'?'selected':'' ?>>CSE-AI&ML</option>
                 </select>
             </div>
 
             <div class="flex-1">
-                <label for="nameSearch" class="block text-sm font-medium text-gray-700 mb-2">Search by Name</label>
-                <input
-                    id="nameSearch"
-                    type="text"
-                    name="search"
-                    placeholder="Search by Name"
-                    value="<?= htmlspecialchars($search) ?>"
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search by Name</label>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search by Name" 
+                    value="<?= htmlspecialchars($search) ?>" 
                     onkeyup="applyFilters()"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 >
@@ -123,33 +126,33 @@ $result = $conn->query($sql);
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <?php if ($result && $result->num_rows > 0): ?>
-                            <?php while ($row = $result->fetch_assoc()): ?>
-                                    <tr class="hover:bg-blue-50 transition duration-150">
-                                        <td class="px-4 py-3">
-                                            <img
-                                                src="<?= $row['photo_path'] ?: '../../uploads/default_pic.png' ?>"
-                                                class="w-12 h-12 rounded-full object-cover border border-gray-200"
-                                                alt="Faculty"
-                                            >
-                                        </td>
-                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['faculty_name']) ?></td>
-                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['designation']) ?></td>
-                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['qualification']) ?></td>
-                                        <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['dept']) ?></td>
-                                        <td class="px-4 py-3">
-                                            <button
-                                                onclick='openModal(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
-                                                class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition"
-                                            >
-                                                View Details
-                                            </button>
-                                        </td>
-                                    </tr>
-                            <?php endwhile; ?>
-                    <?php else: ?>
-                            <tr>
-                                <td colspan="6" class="px-4 py-3 text-center text-gray-500">No records found</td>
+                        <?php while($row = $result->fetch_assoc()): ?>
+                            <tr class="hover:bg-blue-50 transition duration-150">
+                                <td class="px-4 py-3">
+                                    <img 
+                                        src="<?= $row['photo_path'] ?: 'Uploads/default_pic.png' ?>" 
+                                        class="w-12 h-12 rounded-full object-cover border border-gray-200"
+                                        alt="Faculty Photo"
+                                    >
+                                </td>
+                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['faculty_name']) ?></td>
+                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['designation']) ?></td>
+                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['qualification']) ?></td>
+                                <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($row['dept']) ?></td>
+                                <td class="px-4 py-3">
+                                    <button 
+                                        onclick='openModal(<?= json_encode($row, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)' 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition"
+                                    >
+                                        View Details
+                                    </button>
+                                </td>
                             </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="6" class="px-4 py-3 text-center text-gray-500">No records found</td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -161,7 +164,7 @@ $result = $conn->query($sql);
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
             <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl">&times;</button>
             <div class="flex items-center gap-4 mb-6">
-                <img id="modalPhoto" src="../../uploads/default_pic.png" class="w-20 h-20 rounded-full border object-cover" alt="Faculty">
+                <img id="modalPhoto" src="Uploads/default_pic.png" class="w-20 h-20 rounded-full border object-cover">
                 <h3 class="text-xl font-bold text-gray-800">Faculty Details</h3>
             </div>
             <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 text-sm"></div>

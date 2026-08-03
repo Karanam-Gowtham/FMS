@@ -4,9 +4,7 @@ ob_start(); // Capture any accidental output early
 ini_set('display_errors', 0);
 ini_set('zlib.output_compression', 'Off');
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 require_once __DIR__ . '/../includes/connection.php';
 require_once __DIR__ . '/../includes/dept_scope.php';

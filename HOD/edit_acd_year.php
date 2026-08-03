@@ -1,7 +1,7 @@
 <?php
 // Include database connection
-include_once '../includes/connection.php';
-include_once "./header_hod.php";
+include "../includes/connection.php";
+include "./header_hod.php";
 
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
@@ -13,8 +13,7 @@ if (isset($_GET['delete'])) {
     $stmt->bind_param("s", $yearToDelete);
     $stmt->execute();
     $stmt->close();
-    $safe_url = htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8');
-    header("Location: " . $safe_url);
+    header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
 
@@ -26,8 +25,7 @@ if (isset($_POST['edit_submit'])) {
     $stmt->bind_param("ss", $newYear, $oldYear);
     $stmt->execute();
     $stmt->close();
-    $safe_url = htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8');
-    header("Location: " . $safe_url);
+    header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
 
@@ -36,7 +34,7 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <title>Academic Years</title>
     <style>
@@ -73,8 +71,8 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
             cursor: pointer;
             color: white;
         }
-        .edit-btn11 { background-color: #2e7d32; }
-        .delete-btn11 { background-color: #c62828; }
+        .edit-btn11 { background-color: #4CAF50; }
+        .delete-btn11 { background-color: #f44336; }
 
         .popup {
         display: none;
@@ -134,18 +132,12 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
         z-index: 999;
     }
               /* Navigation */
-  .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
- 
+  .navbar { 
         font-size: larger;
     }
 
     .nav-container {
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         background-color: white;
         width:150vw;
         padding: 0 1rem;
@@ -196,39 +188,24 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
 
         function confirmDelete(year) {
             if (confirm("Are you sure you want to delete the academic year: " + year + "?")) {
-                window.location.href = "<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>?delete=" + encodeURIComponent(year);
+                window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>?delete=" + encodeURIComponent(year);
             }
         }
     </script>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="acd_year_aa.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?>  </a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"> <a href="Add_academic_year.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Add Academic Year</a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Edit Academic Year</span></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span>
-            </div>
-        </div>
-    </nav>
+    <?php include "../includes/header.php"; ?>
 
-<button class="overlay" id="overlay" onclick="hidePopup()" onKeyDown="if(event.key === 'Enter' || event.keyCode === 13 || event.key === ' ') hidePopup()" tabindex="0" aria-label="Close popup" style="border: none; width: 100%; height: 100%;"></button>
+
+<div class="overlay" id="overlay" onclick="hidePopup()"></div>
 
 <table>
-    <thead>
-        <tr>
-            <th scope="col">S.No</th>
-            <th scope="col">Academic Year</th>
-            <th scope="col">Edit</th>
-            <th scope="col">Delete</th>
-        </tr>
-    </thead>
+    <tr>
+        <th>S.No</th>
+        <th>Academic Year</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
 
     <?php
     $sno = 1;
@@ -250,7 +227,7 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
 <!-- Edit Popup -->
 <div class="popup" id="popup">
     <form method="POST">
-        <label for="editYearInput">Edit Academic Year:</label><br>
+        <label>Edit Academic Year:</label><br>
         <input type="text" name="new_year" id="editYearInput" required>
         <input type="hidden" name="old_year" id="oldYearInput">
         <br>

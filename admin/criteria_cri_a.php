@@ -1,10 +1,10 @@
-include_once "../includes/connection.php";
-include_once "../includes/constants.php";
-include_once "header_admin.php";
+<?php
+include("../includes/connection.php");
+include "header_admin.php";
 
 $event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
-$criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT_SELECTED;
+$criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
 ?>
 
 
@@ -14,9 +14,11 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AQAR Criteria Page</title>
-        body {
+    <style>
+         body {
             font-family: Arial, sans-serif;
             background-color: rgb(54, 180, 226);
+            
             justify-content: center;
             margin: 0;
         }
@@ -121,20 +123,14 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
     }
 
                          /* Navigation */
-                         .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
- 
+                         .navbar { 
         font-size: larger;
     }
 
     .nav-container {
         background-color: white;
         width:150vw;
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         padding: 0 1rem;
     }
 
@@ -170,38 +166,25 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
     </style>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_aqar_files.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">Criteria <?php echo"$criteria" ?></span></span>
-                
-            </div>
-        </div>
-    </nav>
+    <?php include "../includes/header.php"; ?>
+
     <div class="cont11">
     <div class="container11">
     <?php
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             // Get values from POST request
             $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : 'Unknown';
-            $academicYear = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : NOT_SELECTED;
-            $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT_SELECTED;
+            $academicYear = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : 'Not Selected';
+            $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
                 
 
             // Display the AQAR heading and selected details
             echo "<h1>AQAR - " . $academicYear . "</h1>";
-        } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
+        }else if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Get values from POST request
             $designation = isset($_POST['designation']) ? htmlspecialchars($_POST['designation']) : 'Unknown';
-            $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : NOT_SELECTED;
-            $criteria = isset($_POST['criteria']) ? htmlspecialchars($_POST['criteria']) : NOT_SELECTED;
+            $academicYear = isset($_POST['year']) ? htmlspecialchars($_POST['year']) : 'Not Selected';
+            $criteria = isset($_POST['criteria']) ? htmlspecialchars($_POST['criteria']) : 'Not Selected';
                 
 
             // Display the AQAR heading and selected details
@@ -220,10 +203,10 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
             <th colspan="4" id="th1">Criteria <?php echo $criteria; ?></th>
         </tr>
         <tr id="tr2">
-            <th scope="col">Criteria No</th>
-            <th scope="col">Description</th>
-            <th scope="col">Action 1</th>
-            <th scope="col">Action 2</th>
+            <th>Criteria No</th>
+            <th>Description</th>
+            <th>Action 1</th>
+            <th>Action 2</th>
         </tr>
     </thead>
     <tbody>
@@ -231,7 +214,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
         // Query data depending on year
         if ($academicYear == '2020-21') {
             $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' ORDER BY Sub_no";
-        } elseif ($academicYear == '2021-22') {
+        } else if ($academicYear == '2021-22') {
             $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' ORDER BY Sub_no";
         } else {
             $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' ORDER BY Sub_no";
@@ -250,7 +233,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
 
                 // ACTION 1: View Files
                 echo "<td>";
-                echo "<form action='download_cri.php?year=" . urlencode($academicYear) . PARAM_CRITERIA . urlencode($criteria) . PARAM_DESIGNATION . urlencode($designation) . PARAM_EVENT . urlencode($event) . "' method='POST'>";
+                echo "<form action='download_cri.php?year=" . urlencode($academicYear) . "&criteria=" . urlencode($criteria) . "&designation=" . urlencode($designation) . "&event=" . urlencode($event) . "' method='POST'>";
                 echo "<input type='hidden' name='academic_year' value='" . htmlspecialchars($academicYear) . "'>";
                 echo "<input type='hidden' name='criteria' value='" . htmlspecialchars($criteria) . "'>";
                 echo "<input type='hidden' name='criteria_no' value='" . htmlspecialchars($criteriaNo) . "'>";
@@ -262,7 +245,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                 echo "<td>";
                 
                 // Upload Button
-                echo "<form action='upload_cri.php?year=" . urlencode($academicYear) . PARAM_CRITERIA . urlencode($criteria) . PARAM_DESIGNATION . urlencode($designation) . PARAM_EVENT . urlencode($event) . "' method='POST' style='display:inline-block;'>";
+                echo "<form action='upload_cri.php?year=" . urlencode($academicYear) . "&criteria=" . urlencode($criteria) . "&designation=" . urlencode($designation) . "&event=" . urlencode($event) . "' method='POST' style='display:inline-block;'>";
                 echo "<input type='hidden' name='event' value='" . htmlspecialchars($event) . "'>";
                 echo "<input type='hidden' name='designation' value='" . htmlspecialchars($designation) . "'>";
                 echo "<input type='hidden' name='academic_year' value='$academicYear'>";
@@ -272,7 +255,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : NOT
                 echo "</form>";
 
                 // My Uploads Button
-                echo "<form action='my_uploads_cri.php?year=" . urlencode($academicYear) . PARAM_CRITERIA . urlencode($criteria) . PARAM_DESIGNATION . urlencode($designation) . PARAM_EVENT . urlencode($event) . "' method='POST' style='display:inline-block;'>";
+                echo "<form action='my_uploads_cri.php?year=" . urlencode($academicYear) . "&criteria=" . urlencode($criteria) . "&designation=" . urlencode($designation) . "&event=" . urlencode($event) . "' method='POST' style='display:inline-block;'>";
                 echo "<input type='hidden' name='academic_year' value='$academicYear'>";
                 echo "<input type='hidden' name='criteria' value='$criteria'>";
                 echo "<input type='hidden' name='criteria_no' value='$criteriaNo'>";

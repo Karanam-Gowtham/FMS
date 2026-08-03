@@ -1,7 +1,6 @@
 <?php
-include_once "../includes/connection.php";
-require_once "../includes/constants.php";
-
+include("../includes/connection.php");
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['c_username'])) {
     die("You need to log in to view your uploads.");
@@ -40,7 +39,8 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
         echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
     
     
-    } elseif ($action == 'download' && !empty($selectedFiles)) {
+    } else if ($action == 'download') {
+        if (!empty($selectedFiles)) {
             if (count($selectedFiles) == 1) {
                 $fileId = $selectedFiles[0];
                 $sql = "SELECT file_path FROM a_c_files WHERE id = ?";
@@ -57,9 +57,9 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                         if (ob_get_length()) {
                             ob_end_clean();
                         }
-                        header(TYPE_OCTET_STREAM);
-                        header(HEADER_CONTENT_DISPOSITION . $fileName . '"');
-                        header(HEADER_CONTENT_LENGTH . filesize($filePath));
+                        header('Content-Type: application/pdf');
+                        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+                        header('Content-Length: ' . filesize($filePath));
                         flush();
                         readfile($filePath);
                         exit;
@@ -72,7 +72,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                 $zipFileName = "downloads.zip";
                 $zipFilePath = "uploads1/" . $zipFileName;
     
-                if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+                if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
                     $selectedFiles = array_reverse($selectedFiles);
                     $placeholders = implode(',', array_fill(0, count($selectedFiles), '?'));
                     $sql = "SELECT file_path, file_name FROM a_c_files WHERE id IN ($placeholders)";
@@ -96,8 +96,8 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     $zip->close();
     
                     header('Content-Type: application/zip');
-                    header(HEADER_CONTENT_DISPOSITION . $zipFileName . '"');
-                    header(HEADER_CONTENT_LENGTH . filesize($zipFilePath));
+                    header('Content-Disposition: attachment; filename="' . $zipFileName . '"');
+                    header('Content-Length: ' . filesize($zipFilePath));
                     readfile($zipFilePath);
                     unlink($zipFilePath);
                     exit;
@@ -105,12 +105,13 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                     echo "Failed to create ZIP file.";
                 }
             }
+        }
     }
 }
 
 // Handle Excel Download
 if (isset($_POST['download_excel'])) {
-    header(TYPE_EXCEL);
+    header('Content-Type: application/vnd.ms-excel');
     header('Content-Disposition: attachment;filename="my_uploads.xls"');
     header('Cache-Control: max-age=0');
     
@@ -142,16 +143,14 @@ if (isset($_POST['download_excel'])) {
 }
 
 
-include_once 'header_admin.php';
+include 'header_admin.php';
 
 
 $mergedFolder = "uploads/merged/";
 
 // Function to delete folder and its contents
 function deleteFolder($folder) {
-    if (!is_dir($folder)) {
-        return;
-    }
+    if (!is_dir($folder)) return;
     
     $files = array_diff(scandir($folder), ['.', '..']);
     foreach ($files as $file) {
@@ -360,20 +359,14 @@ if (is_dir($mergedFolder)) {
             }
         }
                                  /* Navigation */
-                                 .navbar {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
- 
+                                 .navbar { 
         font-size: larger;
     }
 
     .nav-container {
         background-color: rgb(244, 237, 237);
         width:150vw;
-         /* margin-top moved to .navbar */
+        margin-top: 80px;
         padding: 0 1rem;
     }
 
@@ -409,22 +402,8 @@ if (is_dir($mergedFolder)) {
     </style>
 </head>
 <body>
-<nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-items">
-                <a href="../index.php" class="home-icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </a>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_login_n.php?event=<?php echo urlencode($event); ?>" class="home-icon">Central (<?php echo htmlspecialchars($event); ?>)</a></span>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="../modules/central/c_aqar_files.php?designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon"><?php echo htmlspecialchars($designation); ?></a></span>
-                <span class="sid">&nbsp; >> &nbsp;  </span><span class="sid"><a href="criteria_cent_a.php?year=<?php echo urlencode($academic_year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>" class="home-icon">Criteria <?php echo htmlspecialchars($criteria); ?></a></span>
-                <span class="sid">&nbsp;  >> &nbsp; </span><span class="main"><span class="main-a">My Uploads</span></span>
+    <?php include "../includes/header.php"; ?>
 
-            </div>
-        </div>
-    </nav>
     <div class="container11">
 
         <div class="header-section">
@@ -443,7 +422,7 @@ if (is_dir($mergedFolder)) {
         <form method="POST" action="">
         <table>
             <tr>
-                <th><input type="checkbox" onclick="toggleSelectAll(this)" onKeyDown="if(event.key === 'Enter') toggleSelectAll(this)"></th>
+                <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
                 <th>ID</th>
                 <th>Faculty Name</th>
                 <th>Academic Year</th>
@@ -463,9 +442,9 @@ if (is_dir($mergedFolder)) {
                 while ($row = $result->fetch_assoc()) {
                     $fileUrl = $row['file_path'];
                     echo "<tr>";
-                    echo "<td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "'
-                    data-filepath='" . htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8') . "'
-                    onchange='trackOrder(event)' onKeyDown=\"if(event.key === 'Enter') this.click()\"></td>";
+                    echo "<td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
+                    data-filepath='" . htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8') . "' 
+                    onchange='trackOrder(event)'></td>";
                     echo "<td>" . $id . "</td>";
                     echo "<td>" . htmlspecialchars($row['Faculty_name']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['academic_year']) . "</td>";
@@ -495,7 +474,7 @@ if (is_dir($mergedFolder)) {
         </table>
     </div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
     <script>
         let selectedOrder = [];
 
@@ -602,4 +581,3 @@ if (is_dir($mergedFolder)) {
         
     </script>
 </html>
-

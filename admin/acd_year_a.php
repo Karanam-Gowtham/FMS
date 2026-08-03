@@ -1,5 +1,5 @@
 <?php
-    include_once 'header_admin.php';
+    include 'header_admin.php';
 ?>
 
 <!DOCTYPE html>
@@ -11,7 +11,7 @@
     <style>
             body {
                 font-family: 'Poppins', sans-serif;
-                background-image: url('../assets/img/gmr_landing_page.jpg');
+                background-image: url('../stuff/gmr_landing_page.jpg');
                 background-size: cover;
                 background-position: center;
                 color: #ffffff;
@@ -132,6 +132,7 @@
 
 </head>
 <body>
+    <?php include "../includes/header.php"; ?>
     <?php
          $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : 'Unknown';
          ?>
