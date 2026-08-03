@@ -118,7 +118,7 @@
             <a href="c_login.php?event=PASH" class="button">PASH</a>
             <a href="c_login.php?event=Antiragging" class="button">Antiragging</a>
             <a href="c_login.php?event=SAC" class="button">SAC</a>
-            <a href="c_login.php?event=R&D" class="button">R&D</a>
+            <a href="c_login.php?event=R%26D" class="button">R&D</a>
             <a href="c_login.php?event=IQAC" class="button">IQAC</a>
             <a href="c_login.php?event=Exam_Section" class="button">Exam Section</a>
         </div>

@@ -259,7 +259,7 @@
                         <a class="a_" href="../c_login.php?event=PASH">PASH</a>
                         <a class="a_" href="../c_login.php?event=Antiragging">Antiragging</a>
                         <a class="a_" href="../c_login.php?event=SAC">SAC</a>
-                        <a class="a_" href="../c_login.php?event=R&D">R&D</a>
+                        <a class="a_" href="../c_login.php?event=R%26D">R&D</a>
                         <a class="a_" href="../c_login.php?event=IQAC">IQAC</a>
                         <a class="a_" href="../c_login.php?event=Exam_Section">Exam Section</a>
                     </div>

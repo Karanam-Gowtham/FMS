@@ -9,14 +9,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $criteriaNo = htmlspecialchars($_POST['criteria_no']);
     $academicYear = htmlspecialchars($_POST['year']);
     $criteria = htmlspecialchars($_POST['criteria']);
+    $event = isset($_POST['event']) ? htmlspecialchars($_POST['event']) : '';
+    
+    $tablePrefix = ($event === 'NBA') ? 'nba_criteria' : 'criteria';
 
     // Select correct table based on academic year
     if ($academicYear == '2020-21') {
-        $table = "criteria1";
+        $table = "{$tablePrefix}1";
     } elseif ($academicYear == '2021-22') {
-        $table = "criteria2";
+        $table = "{$tablePrefix}2";
     } else {
-        $table = "criteria";
+        $table = "{$tablePrefix}";
     }
 
     // Fetch the existing record
@@ -41,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <form id='redirectForm' action='admin_criteria.php' method='POST'>
                 <input type='hidden' name='year' value='$academicYear'>
                 <input type='hidden' name='criteria' value='$criteria'>
+                <input type='hidden' name='event' value='$event'>
             </form>
             <script>
                 document.getElementById('redirectForm').submit();
@@ -127,6 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="hidden" name="criteria_no" value="<?php echo $criteriaNo; ?>">
         <input type="hidden" name="year" value="<?php echo $academicYear; ?>">
         <input type="hidden" name="criteria" value="<?php echo $criteria; ?>">
+        <input type="hidden" name="event" value="<?php echo $event; ?>">
         <label for="description">Description:</label><br><br>
         <input type="text" name="description" value="<?php echo $description; ?>" required><br><br>
         <button type="submit" name="update">Update</button>

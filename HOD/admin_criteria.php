@@ -193,12 +193,14 @@ if(isset($_POST['year'])){
         if (isset($_POST['delete'])) {
             $criteriaNo = htmlspecialchars($_POST['criteria_no']);
 
+            $tablePrefix = ($event === 'NBA') ? 'nba_criteria' : 'criteria';
+            
             if ($academicYear == '2020-21') {
-                $sql = "DELETE FROM criteria1 WHERE SI_no=? AND Sub_no=?";
+                $sql = "DELETE FROM {$tablePrefix}1 WHERE SI_no=? AND Sub_no=?";
             } else if ($academicYear == '2021-22') {
-                $sql = "DELETE FROM criteria2 WHERE SI_no=? AND Sub_no=?";
+                $sql = "DELETE FROM {$tablePrefix}2 WHERE SI_no=? AND Sub_no=?";
             } else {
-                $sql = "DELETE FROM criteria WHERE SI_no=? AND Sub_no=?";
+                $sql = "DELETE FROM {$tablePrefix} WHERE SI_no=? AND Sub_no=?";
             }
 
             $stmt = $conn->prepare($sql);
@@ -227,12 +229,14 @@ if(isset($_POST['year'])){
         </thead>
         <tbody>
             <?php
+            $tablePrefix = ($event === 'NBA') ? 'nba_criteria' : 'criteria';
+            
             if ($academicYear == '2020-21') {
-                $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' ORDER BY Sub_no";
+                $sql = "SELECT * FROM {$tablePrefix}1 WHERE SI_no='$criteria' ORDER BY Sub_no";
             } else if ($academicYear == '2021-22') {
-                $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' ORDER BY Sub_no";
+                $sql = "SELECT * FROM {$tablePrefix}2 WHERE SI_no='$criteria' ORDER BY Sub_no";
             } else {
-                $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' ORDER BY Sub_no";
+                $sql = "SELECT * FROM {$tablePrefix} WHERE SI_no='$criteria' ORDER BY Sub_no";
             }
             $result = $conn->query($sql);
 
@@ -249,6 +253,7 @@ if(isset($_POST['year'])){
                     echo "<input type='hidden' name='criteria_no' value='$criteriaNo'>";
                     echo "<input type='hidden' name='year' value='$academicYear'>";
                     echo "<input type='hidden' name='criteria' value='$criteria'>";
+                    echo "<input type='hidden' name='event' value='$event'>";
                     echo "<button type='submit' class='btn1' name='delete'>DELETE</button>";
                     echo "</form>";
                     echo "</td>";
@@ -257,6 +262,7 @@ if(isset($_POST['year'])){
                     echo "<input type='hidden' name='criteria_no' value='$criteriaNo'>";
                     echo "<input type='hidden' name='year' value='$academicYear'>";
                     echo "<input type='hidden' name='criteria' value='$criteria'>";
+                    echo "<input type='hidden' name='event' value='$event'>";
                     echo "<button type='submit' class='btn2'>UPDATE</button>";
                     echo "</form>";
                     echo "</td>";

@@ -4,7 +4,7 @@ include "../../includes/connection.php";
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
-$event = $_GET['event'] ?? 'Unknown';
+$event = $_REQUEST['event'] ?? 'Unknown';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
@@ -213,6 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p class="error"><?php echo $error; ?></p>
             <?php endif; ?>
             <form method="POST" action="">
+                <input type="hidden" name="event" value="<?php echo htmlspecialchars($event); ?>">
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>

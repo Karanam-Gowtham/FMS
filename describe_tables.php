@@ -1,15 +1,12 @@
 <?php
 $c = mysqli_connect('localhost', 'root', '', 'project-fms');
-$tables = ['conference_tab', 'fdps_tab', 'fdps_org_tab'];
+$tables = ['criteria', 'criteria1', 'criteria2'];
 foreach ($tables as $t) {
     echo "--- $t ---\n";
-    $r = mysqli_query($c, "DESCRIBE $t");
+    $r = mysqli_query($c, "SHOW CREATE TABLE $t");
     if ($r) {
-        while ($row = mysqli_fetch_assoc($r)) {
-            echo $row['Field'] . "\n";
-        }
-    } else {
-        echo "Table does not exist.\n";
+        $row = mysqli_fetch_row($r);
+        echo $row[1] . "\n\n";
     }
 }
 ?>

@@ -12,7 +12,7 @@ if (!isset($_SESSION['c_cord'])) {
 
 $username = $_SESSION['c_cord'];
 
-$event = htmlspecialchars($_GET['event'] ?? 'Unknown');
+$event = $_GET['event'] ?? 'Unknown';
 
 // Check connection
 if ($conn->connect_error) {
@@ -88,9 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$conn->close();
-?>
 
+?>
 
 
 <!DOCTYPE html>

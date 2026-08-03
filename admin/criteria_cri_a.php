@@ -212,13 +212,15 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
     <tbody>
         <?php
         // Query data depending on year
-        if ($academicYear == '2020-21') {
-            $sql = "SELECT * FROM criteria1 WHERE SI_no='$criteria' ORDER BY Sub_no";
-        } else if ($academicYear == '2021-22') {
-            $sql = "SELECT * FROM criteria2 WHERE SI_no='$criteria' ORDER BY Sub_no";
-        } else {
-            $sql = "SELECT * FROM criteria WHERE SI_no='$criteria' ORDER BY Sub_no";
-        }
+            $tablePrefix = ($event === 'NBA') ? 'nba_criteria' : 'criteria';
+            
+            if ($academicYear == '2020-21') {
+                $sql = "SELECT * FROM {$tablePrefix}1 WHERE SI_no='$criteria' ORDER BY Sub_no";
+            } else if ($academicYear == '2021-22') {
+                $sql = "SELECT * FROM {$tablePrefix}2 WHERE SI_no='$criteria' ORDER BY Sub_no";
+            } else {
+                $sql = "SELECT * FROM {$tablePrefix} WHERE SI_no='$criteria' ORDER BY Sub_no";
+            }
 
         $result = $conn->query($sql);
 

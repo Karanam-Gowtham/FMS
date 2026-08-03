@@ -1,6 +1,6 @@
 <?php
 ob_start(); // Start output buffering
-    include './connection.php';
+    include '../../includes/connection.php';
     
 
     // Retrieve designation from URL
@@ -15,23 +15,23 @@ ob_start(); // Start output buffering
         // Redirect based on designation
         switch ($designation) {
             case 'faculty':
-                header("Location: criteria.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                header("Location: ../faculty/criteria.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
                 exit();
             case 'dept_coordinator':
-                header("Location: ./admin/criteria_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                header("Location: ../../admin/criteria_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
                 exit();
             
             case 'central_coordinator':
-                header("Location: ./admin/criteria_cent_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                header("Location: ../../admin/criteria_cent_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
                 exit();
             case 'criteria_coordinator':
-                header("Location: ./admin/criteria_cri_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                header("Location: ../../admin/criteria_cri_a.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
                 exit();
             case 'hod':
-                header("Location: ./HOD/hod_faculty_files.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                header("Location: ../../HOD/hod_faculty_files.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
                 exit();
             case 'admin':
-                header("Location: ./HOD/acd_year_aa.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
+                header("Location: ../../HOD/acd_year_aa.php?year=$year&criteria=$criteria&designation=$designation&event=$event");
                 exit();
             default:
                 echo "<script>alert('Invalid Designation!');</script>";

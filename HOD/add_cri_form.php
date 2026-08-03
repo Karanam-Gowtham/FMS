@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 // Enable exception mode for mysqli
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-$event = isset($_GET['event']) ? htmlspecialchars($_GET['event']) : '';
+$event = isset($_REQUEST['event']) ? htmlspecialchars($_REQUEST['event']) : '';
 $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation']) : '';
 $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'Not Selected';
 $year = isset($_GET['year']) ? htmlspecialchars($_GET['year']) : 'Not Selected';
@@ -21,12 +21,14 @@ try {
         $description = $_POST['des'];
 
         // Determine the correct table based on academic year
+        $tablePrefix = ($event === 'NBA') ? 'nba_criteria' : 'criteria';
+        
         if ($academic_year == '2020-21') {
-            $stmt = $conn->prepare("INSERT INTO criteria1 ( SI_no , Sub_no, Des, year) VALUES (?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO {$tablePrefix}1 ( SI_no , Sub_no, Des, year) VALUES (?, ?, ?, ?)");
         } else if ($academic_year == '2021-22') {
-            $stmt = $conn->prepare("INSERT INTO criteria2 ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO {$tablePrefix}2 ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
         } else {
-            $stmt = $conn->prepare("INSERT INTO criteria ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO {$tablePrefix} ( SI_no, Sub_no, Des, year) VALUES (?, ?, ?, ?)");
         }
 
         // Bind the parameters
@@ -118,6 +120,7 @@ $conn->close();
             <!-- Hidden fields for academic_year, criteria -->
             <input type="hidden" name="academic_year" id="academic_year" value="<?php echo $academic_year; ?>">
             <input type="hidden" name="criteria" id="criteria" value="<?php echo $criteria; ?>">
+            <input type="hidden" name="event" id="event" value="<?php echo $event; ?>">
 
             <label for="cri_no">Criteria No:</label>
             <input type="text" id="cri_no" name="cri_no" required>
