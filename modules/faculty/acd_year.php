@@ -247,25 +247,25 @@ body {
             <div class="feedback-grid">
                 
 
-                <a href="dept_files.php?event=admin&dept=<?php echo"$dept" ?>" class="feedback-card">
+                <a href="../dept_coordinator/dept_files.php?event=admin&dept=<?php echo"$dept" ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Admin Files</h3>
                     </div>
                 </a>
 
-                <a href="dept_files.php?event=faculty&dept=<?php echo"$dept" ?>"class="feedback-card">
+                <a href="../dept_coordinator/dept_files.php?event=faculty&dept=<?php echo"$dept" ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Faculty Files</h3>
                     </div>
                 </a>
 
-                <a href="dept_files.php?event=student&dept=<?php echo"$dept" ?>"  class="feedback-card">
+                <a href="../dept_coordinator/dept_files.php?event=student&dept=<?php echo"$dept" ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Student Related Files</h3>
                     </div>
                 </a>
 
-                <a href="dept_files.php?event=exam&dept=<?php echo"$dept" ?>" class="feedback-card">
+                <a href="../dept_coordinator/dept_files.php?event=exam&dept=<?php echo"$dept" ?>" class="feedback-card">
                     <div class="card-content">
                         <h3>Exam Section Files</h3>
                     </div>

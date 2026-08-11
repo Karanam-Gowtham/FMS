@@ -34,9 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $Branch = $_POST['Branch'];
 
     // Handle certificate upload
+    $upload_dir = 'uploads/';
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
     $certificate_path = '';
     if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] == 0) {
-        $certificate_path = 'uploads/' . basename($_FILES['certificate']['name']);
+        $certificate_path = $upload_dir . basename($_FILES['certificate']['name']);
         move_uploaded_file($_FILES['certificate']['tmp_name'], $certificate_path);
     }
     date_default_timezone_set('Asia/Kolkata');

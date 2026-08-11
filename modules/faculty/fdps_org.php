@@ -52,6 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     function uploadFile($file_key, $uploads_dir) {
         if (!empty($_FILES[$file_key]['name'])) {
+            if (!is_dir($uploads_dir)) {
+                mkdir($uploads_dir, 0777, true);
+            }
             $file_name = basename($_FILES[$file_key]['name']);
             $target_file = $uploads_dir . $file_name;
 

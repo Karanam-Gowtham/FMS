@@ -191,7 +191,7 @@ include_once HEADER;
 
             <?php if (isLoggedIn() && (int)$_SESSION['dept_id'] === $dept_id && in_array((int)$_SESSION['role_id'], [ROLE_COORDINATOR, ROLE_HOD])): ?>
                 <div style="margin-top:20px;">
-                    <a href="<?php echo PORTAL_PATH; ?>/dept_coordinator/dashboard.php" class="btn-primary" style="text-decoration:none; font-size:0.9em; padding:10px 22px; display:inline-block;">
+                    <a href="<?php echo PORTAL_PATH; ?>/dept_coordinator/dc_acd_year.php" class="btn-primary" style="text-decoration:none; font-size:0.9em; padding:10px 22px; display:inline-block;">
                         ⚙️ Manage Department Repository
                     </a>
                 </div>

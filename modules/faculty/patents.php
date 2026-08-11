@@ -40,6 +40,7 @@
         // Handle file upload
         $patent_file = $_FILES['patent_file']['name'];
         $target_dir = "uploads/patents/";
+        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
         $target_file = $target_dir . basename($patent_file);
 
         if (move_uploaded_file($_FILES['patent_file']['tmp_name'], $target_file)) {

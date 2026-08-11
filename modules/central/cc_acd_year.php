@@ -322,7 +322,7 @@ body {
                         </button>
                     </form>
 
-                    <form method="POST" action="dc_down_st_act_files_hod.php?&dept=<?php echo"$dept" ?>&designation=<?php echo urlencode($desg); ?>">
+                    <form method="POST" action="../dept_coordinator/dc_down_st_act_files_hod.php?&dept=<?php echo"$dept" ?>&designation=<?php echo urlencode($desg); ?>">
                         <input type="hidden" name="file_type1" value="Student Activities Files">
                         <button type="submit" class="feedback-card">
                             <div class="card-content">

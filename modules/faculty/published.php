@@ -71,8 +71,9 @@
             $allowed_extensions = ['pdf', 'doc', 'docx'];
 
             if (in_array(strtolower($file_extension), $allowed_extensions)) {
-                $file_new_name = uniqid('', true) . "." . $file_extension;
-                $file_destination = 'uploads/' . $file_new_name;
+                $upload_dir = 'uploads/';
+                if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+                $file_destination = $upload_dir . $file_new_name;
                 
                 if (move_uploaded_file($file_tmp_name, $file_destination)) {
                     date_default_timezone_set('Asia/Kolkata');

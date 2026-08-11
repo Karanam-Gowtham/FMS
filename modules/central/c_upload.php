@@ -6,11 +6,14 @@ include "../../includes/connection.php";
     
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-if (!isset($_SESSION['c_cord'])) {
-    die("You need to log in .");
+$activeSessionUser = $_SESSION['c_cord'] ?? $_SESSION['username'] ?? $_SESSION['admin'] ?? $_SESSION['a_username'] ?? $_SESSION['h_username'] ?? null;
+
+if (!$activeSessionUser) {
+    die("You need to log in.");
 }
 
-$username = $_SESSION['c_cord'];
+$_SESSION['c_cord'] = $_SESSION['c_cord'] ?? $activeSessionUser;
+$username = $activeSessionUser;
 
 $event = $_GET['event'] ?? 'Unknown';
 

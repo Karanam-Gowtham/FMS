@@ -3,7 +3,7 @@ include("../../includes/connection.php");
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['username'])) {
-    die("<script>alert('You need to log in to view this page.'); window.location.href='login.php';</script>");
+    die("<script>alert('You need to log in to view this page.'); window.location.href='../auth/login.php';</script>");
 }
 $event = isset($_POST['event']) ? $_POST['event'] : (isset($_GET['event']) ? $_GET['event'] : '');
 $designation = isset($_POST['desg']) ? $_POST['desg'] : (isset($_GET['desg']) ? $_GET['desg'] : '');

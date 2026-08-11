@@ -7,6 +7,33 @@ include "../../includes/connection.php";
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
 $login_error = false; // <-- Added
 
+// Session Auto-Pass: Check if user is already authenticated in any role
+$activeDesignation = null;
+if (isset($_SESSION['admin'])) {
+    $activeDesignation = 'admin';
+} elseif (isset($_SESSION['h_username'])) {
+    $activeDesignation = 'hod';
+} elseif (isset($_SESSION['c_username']) || isset($_SESSION['c_cord'])) {
+    $activeDesignation = 'central_coordinator';
+} elseif (isset($_SESSION['cri_username'])) {
+    $activeDesignation = 'criteria_coordinator';
+} elseif (isset($_SESSION['a_username'])) {
+    $activeDesignation = 'dept_coordinator';
+} elseif (isset($_SESSION['username'])) {
+    $activeDesignation = 'faculty';
+}
+
+if ($activeDesignation !== null) {
+    ob_end_clean();
+    if ($activeDesignation === 'admin') {
+        header("Location: ../../HOD/acd_year_aa.php?designation=" . urlencode($activeDesignation) . "&event=" . urlencode($dept));
+    } else {
+        header("Location: c_aqar_files.php?designation=" . urlencode($activeDesignation) . "&event=" . urlencode($dept));
+    }
+    exit();
+}
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['signIn'])) {
         $userid = trim($_POST['userid']);
@@ -100,7 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
                 $_SESSION['admin'] = $userid;
                 ob_end_clean();
-                header("Location: ./HOD/acd_year_aa.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
+                header("Location: ../../HOD/acd_year_aa.php?designation=" . urlencode($designation) . "&event=" . urlencode($dept));
                 exit();
             } else {
                 $login_error = true; // <-- Added
@@ -264,7 +291,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="password" placeholder="Password" name="password" required>
                 <button class="btnl" type="submit" name="signIn">Login</button>
             </form>
-            <p id="register" class="register" style="display: none;">Don't have an account? <a href="./reg.php">Register here</a>...</p>
+            <p id="register" class="register" style="display: none;">Don't have an account? <a href="../auth/reg.php">Register here</a>...</p>
         </div>
     </div>
 

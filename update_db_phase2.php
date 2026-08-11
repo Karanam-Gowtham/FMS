@@ -28,10 +28,12 @@ $queries = [
 ];
 
 foreach ($queries as $query) {
-    if (mysqli_query($conn, $query)) {
-        echo "Successfully executed: $query\n";
-    } else {
-        echo "Error or already exists ($query): " . mysqli_error($conn) . "\n";
+    try {
+        if (mysqli_query($conn, $query)) {
+            echo "Successfully executed: $query\n";
+        }
+    } catch (Exception $e) {
+        echo "Error or already exists ($query): " . $e->getMessage() . "\n";
     }
 }
 

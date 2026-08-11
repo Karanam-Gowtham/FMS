@@ -3,12 +3,13 @@
 // Include config.php first for paths
 require_once __DIR__ . '/../config.php';
 
-// Database configuration for Local XAMPP Environment
-$db_host = "localhost";
-$db_user = "root";
-$db_pass = "";
-$db_name = "project-fms";
-$db_port = "3306";
+// Database configuration 
+// For InfinityFree, replace these with credentials from your InfinityFree Control Panel -> MySQL Databases
+$db_host = defined('DB_HOST') ? DB_HOST : (getenv('DB_HOST') ?: "localhost");
+$db_user = defined('DB_USER') ? DB_USER : (getenv('DB_USER') ?: "root");
+$db_pass = defined('DB_PASS') ? DB_PASS : (getenv('DB_PASS') ?: "");
+$db_name = defined('DB_NAME') ? DB_NAME : (getenv('DB_NAME') ?: "project-fms");
+$db_port = defined('DB_PORT') ? DB_PORT : (getenv('DB_PORT') ?: "3306");
 
 $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name, $db_port);
 

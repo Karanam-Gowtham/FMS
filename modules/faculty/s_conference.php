@@ -36,16 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $paper_type = $_POST['paper_type'];
     $Branch = $_POST['Branch'];
 
-    // Handle file uploads
+    $upload_dir = 'uploads/';
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+
     $certificate_path = '';
     if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] == 0) {
-        $certificate_path = 'uploads/' . basename($_FILES['certificate']['name']);
+        $certificate_path = $upload_dir . basename($_FILES['certificate']['name']);
         move_uploaded_file($_FILES['certificate']['tmp_name'], $certificate_path);
     }
 
     $paper_file_path = '';
     if (isset($_FILES['paper_file']) && $_FILES['paper_file']['error'] == 0) {
-        $paper_file_path = 'uploads/' . basename($_FILES['paper_file']['name']);
+        $paper_file_path = $upload_dir . basename($_FILES['paper_file']['name']);
         move_uploaded_file($_FILES['paper_file']['tmp_name'], $paper_file_path);
     }
 

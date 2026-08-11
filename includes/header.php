@@ -1,6 +1,13 @@
 <?php
 ob_start(); // Start output buffering
-$base_url = (defined('BASE_URL') ? BASE_URL : '/mini/FMS') . '/';
+if (!defined('BASE_URL')) {
+    if (file_exists(__DIR__ . '/../config.php')) {
+        include_once __DIR__ . '/../config.php';
+    }
+}
+$sys_base_url = rtrim(defined('BASE_URL') ? BASE_URL : '/mini/FMS', '/') . '/';
+$base_url = $sys_base_url;
+$app_url = rtrim(defined('BASE_URL') ? BASE_URL : '/mini/FMS', '/');
 if (isset($extra_head)) { echo $extra_head; }
 ?>
 <style>
@@ -255,19 +262,15 @@ if (isset($extra_head)) { echo $extra_head; }
                 margin-top: 0;
                 border-radius: 6px;
                 min-width: 100%;
-                max-height: none; /* Disable scroll on mobile since parent container handles it */
+                max-height: none;
                 overflow: visible;
             }
         }
-        /* --- Global Interaction Layer CSS --- */
         
         /* Page Load Transition */
         body {
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        body.fms-loaded {
             opacity: 1;
+            transition: opacity 0.5s ease-in-out;
         }
 
         /* Loading Button State */
@@ -343,18 +346,14 @@ if (isset($extra_head)) { echo $extra_head; }
             color: white;
         }
     </style>
-    <script src="<?php echo $base_url; ?>assets/js/main.js" defer></script>
+    <script src="<?php echo $app_url; ?>/assets/js/main.js" defer></script>
     <header>
         <nav class="main-header-navbar">
             <div class="left-nav">
-                <a href="<?php echo $base_url; ?>index.php" class="logo">
-                    <img src="<?php echo $base_url; ?>assets/img/gmr_logo.png" alt="GMRIT Logo">
+                <a href="<?php echo $app_url; ?>/index.php" class="logo">
+                    <img src="<?php echo $app_url; ?>/assets/img/gmr_logo.png" alt="GMRIT Logo">
                 </a>
-                <a href="<?php echo $base_url; ?>index.php" class="home-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v11h14V10"/><path d="M9 21v-6h6v6"/>
-                    </svg>
-                </a>
+                <?php include __DIR__ . '/breadcrumb.php'; ?>
             </div>
 
             <button class="hamburger" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('active')">
@@ -366,39 +365,39 @@ if (isset($extra_head)) { echo $extra_head; }
                 <div class="dropdown">
                     <span>Departments &#9662;</span>
                     <div class="dropdown-content">
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE">CSE</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE-CS">CSE-CS</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=AI_ML">CSE-AI&ML</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=AI_DS">CSE-AI&DS</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=IT">IT</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=ECE">ECE</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=EEE">EEE</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=MECH">MECH</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CIVIL">CIVIL</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=MatheMatics">MatheMatics</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=Physics">Physics</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=Chemistry">Chemistry</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=BSH">BSH</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=CSE">CSE</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=CSE-CS">CSE-CS</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=AI_ML">CSE-AI&ML</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=AI_DS">CSE-AI&DS</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=IT">IT</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=ECE">ECE</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=EEE">EEE</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=MECH">MECH</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=CIVIL">CIVIL</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=MatheMatics">MatheMatics</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=Physics">Physics</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=Chemistry">Chemistry</a>
+                        <a href="<?php echo $app_url; ?>/public/dept.php?dept=BSH">BSH</a>
                     </div>
                 </div>
 
                 <div class="dropdown">
                     <span>Central Login &#9662;</span>
                     <div class="dropdown-content">
-                        <a href="<?php echo $base_url; ?>modules/central/c_login_n.php?event=NAAC">NAAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login_n.php?event=NBA">NBA</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=NCC">NCC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Sports">Sports</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Clubs">Clubs &amp; Professional Bodies</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=NSS">NSS</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IIC">IIC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=PASH">PASH</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Antiragging">Antiragging</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=SAC">SAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=R%26D">R&amp;D</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IQAC">IQAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Exam_Section">Exam Section</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login_n.php?event=NAAC">NAAC</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login_n.php?event=NBA">NBA</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NCC">NCC</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Sports">Sports</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Clubs">Clubs &amp; Professional Bodies</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NSS">NSS</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=IIC">IIC</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=PASH">PASH</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Antiragging">Antiragging</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=SAC">SAC</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=R%26D">R&amp;D</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=IQAC">IQAC</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Exam_Section">Exam Section</a>
                     </div>
                 </div>
 
@@ -406,33 +405,33 @@ if (isset($extra_head)) { echo $extra_head; }
                 <div class="dropdown">
                     <span>Switch Depts &#9662;</span>
                     <div class="dropdown-content">
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE">CSE</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE-CS">CSE-CS</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=AI_ML">CSE-AI&ML</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=AI_DS">CSE-AI&DS</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=IT">IT</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=ECE">ECE</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=EEE">EEE</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=MECH">MECH</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CIVIL">CIVIL</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=MatheMatics">MatheMatics</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=Physics">Physics</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=Chemistry">Chemistry</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=BSH">BSH</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=CSE">CSE</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=CSE-CS">CSE-CS</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=AI_ML">CSE-AI&ML</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=AI_DS">CSE-AI&DS</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=IT">IT</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=ECE">ECE</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=EEE">EEE</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=MECH">MECH</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=CIVIL">CIVIL</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=MatheMatics">MatheMatics</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=Physics">Physics</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=Chemistry">Chemistry</a>
+                        <a href="<?php echo $app_url; ?>/admin/admins.php?dept=BSH">BSH</a>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <a href="<?php echo $base_url; ?>pdf_merger.php">Pdf Merger</a>
+                <a href="<?php echo $app_url; ?>/pdf_merger.php">Pdf Merger</a>
 
                 <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['j_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
-                    <a href="<?php echo $base_url; ?>dashboard.php" class="nav-btn-link" style="display:inline-flex; align-items:center;">
+                    <a href="<?php echo $app_url; ?>/dashboard.php" class="nav-btn-link" style="display:inline-flex; align-items:center;">
                         Dashboard <span id="dashboard-badge" class="notif-badge">0</span>
                     </a>
-                    <a href="<?php echo $base_url; ?>modules/auth/logout.php" class="nav-btn nav-btn-logout">Logout</a>
+                    <a href="<?php echo $app_url; ?>/modules/auth/logout.php" class="nav-btn nav-btn-logout">Logout</a>
                 <?php else: ?>
-                    <a href="<?php echo $base_url; ?>modules/auth/login.php" class="nav-btn">Sign In</a>
-                    <a href="<?php echo $base_url; ?>modules/auth/reg.php" class="nav-btn" style="background-color: transparent; border: 1px solid white; margin-left: 10px;">Register</a>
+                    <a href="<?php echo $app_url; ?>/modules/auth/login.php" class="nav-btn">Sign In</a>
+                    <a href="<?php echo $app_url; ?>/modules/auth/reg.php" class="nav-btn" style="background-color: transparent; border: 1px solid white; margin-left: 10px;">Register</a>
                 <?php endif; ?>
             </div>
         </nav>
@@ -457,206 +456,9 @@ if (isset($extra_head)) { echo $extra_head; }
                 })
                 .catch(error => console.error('Error fetching notifications:', error));
         }
-
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        body.fms-loaded {
-            opacity: 1;
-        }
-
-        /* Loading Button State */
-        button.is-loading, input.is-loading {
-            position: relative;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        .spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Toast Notifications */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .fms-toast {
-            display: flex;
-            align-items: center;
-            background: #1f2937;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transform: translateX(120%);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            min-width: 250px;
-            border-left: 5px solid #3b82f6;
-        }
-        .fms-toast.show {
-            transform: translateX(0);
-        }
-        .toast-success { border-left-color: #10b981; }
-        .toast-error { border-left-color: #ef4444; }
-        .toast-info { border-left-color: #3b82f6; }
-        
-        .toast-icon {
-            margin-right: 12px;
-            display: flex;
-        }
-        .toast-message {
-            flex-grow: 1;
-            font-size: 0.95rem;
-        }
-        .toast-close {
-            background: transparent;
-            border: none;
-            color: #9ca3af;
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-left: 15px;
-            padding: 0;
-            line-height: 1;
-        }
-        .toast-close:hover {
-            color: white;
-        }
-    </style>
-    <script src="<?php echo $base_url; ?>assets/js/main.js" defer></script>
-    <header>
-        <nav class="main-header-navbar">
-            <div class="left-nav">
-                <a href="<?php echo $base_url; ?>index.php" class="logo">
-                    <img src="<?php echo $base_url; ?>assets/img/gmr_logo.png" alt="GMRIT Logo">
-                </a>
-                <a href="<?php echo $base_url; ?>index.php" class="home-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v11h14V10"/><path d="M9 21v-6h6v6"/>
-                    </svg>
-                </a>
-            </div>
-
-            <button class="hamburger" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('active')">
-                <span></span><span></span><span></span>
-            </button>
-
-            <div class="nav-links">
-                
-                <div class="dropdown">
-                    <span>Departments &#9662;</span>
-                    <div class="dropdown-content">
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE">CSE</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CSE-CS">CSE-CS</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=AI_ML">CSE-AI&ML</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=AI_DS">CSE-AI&DS</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=IT">IT</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=ECE">ECE</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=EEE">EEE</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=MECH">MECH</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=CIVIL">CIVIL</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=MatheMatics">MatheMatics</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=Physics">Physics</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=Chemistry">Chemistry</a>
-                        <a href="<?php echo $base_url; ?>public/dept.php?dept=BSH">BSH</a>
-                    </div>
-                </div>
-
-                <div class="dropdown">
-                    <span>Central Login &#9662;</span>
-                    <div class="dropdown-content">
-                        <a href="<?php echo $base_url; ?>modules/central/c_login_n.php?event=NAAC">NAAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login_n.php?event=NBA">NBA</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=NCC">NCC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Sports">Sports</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Clubs">Clubs &amp; Professional Bodies</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=NSS">NSS</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IIC">IIC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=PASH">PASH</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Antiragging">Antiragging</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=SAC">SAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=R%26D">R&amp;D</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=IQAC">IQAC</a>
-                        <a href="<?php echo $base_url; ?>modules/central/c_login.php?event=Exam_Section">Exam Section</a>
-                    </div>
-                </div>
-
-                <?php if (isset($_SESSION['admin'])): ?>
-                <div class="dropdown">
-                    <span>Switch Depts &#9662;</span>
-                    <div class="dropdown-content">
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE">CSE</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CSE-CS">CSE-CS</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=AI_ML">CSE-AI&ML</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=AI_DS">CSE-AI&DS</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=IT">IT</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=ECE">ECE</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=EEE">EEE</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=MECH">MECH</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=CIVIL">CIVIL</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=MatheMatics">MatheMatics</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=Physics">Physics</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=Chemistry">Chemistry</a>
-                        <a href="<?php echo $base_url; ?>admin/admins.php?dept=BSH">BSH</a>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <a href="<?php echo $base_url; ?>pdf_merger.php">Pdf Merger</a>
-
-                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['j_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
-                    <a href="<?php echo $base_url; ?>dashboard.php" class="nav-btn-link" style="display:inline-flex; align-items:center;">
-                        Dashboard <span id="dashboard-badge" class="notif-badge">0</span>
-                    </a>
-                    <a href="<?php echo $base_url; ?>modules/auth/logout.php" class="nav-btn nav-btn-logout">Logout</a>
-                <?php else: ?>
-                    <a href="<?php echo $base_url; ?>modules/auth/login.php" class="nav-btn">Sign In</a>
-                    <a href="<?php echo $base_url; ?>modules/auth/reg.php" class="nav-btn" style="background-color: transparent; border: 1px solid white; margin-left: 10px;">Register</a>
-                <?php endif; ?>
-            </div>
-        </nav>
-    </header>
-
-    <script>
-        function updateDashboardBadge() {
-            const baseUrl = "<?php echo $base_url; ?>";
-            fetch(baseUrl + 'check_notifications.php')
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    const badge = document.getElementById('dashboard-badge');
-                    if (data.count && data.count > 0) {
-                        badge.textContent = data.count;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                })
-                .catch(error => console.error('Error fetching notifications:', error));
-        }
-
         // Check notifications on load and every minute
         document.addEventListener('DOMContentLoaded', function() {
             updateDashboardBadge();
             setInterval(updateDashboardBadge, 60000);
         });
     </script>
-<?php include __DIR__ . '/breadcrumb.php'; ?>

@@ -74,7 +74,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $meeting_no = $_POST['meeting_no']; // Captured from input
     $file_type = $_POST['file_category']; // Capture the specific BOS category
     $file_name = $_POST['file_name'];
-    $file_path = '../../uploads/' . $_FILES['file']['name']; // Store file path
+    $upload_dir = '../../uploads/';
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+    $file_path = $upload_dir . $_FILES['file']['name']; // Store file path
 
     // Upload the file to the server
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {

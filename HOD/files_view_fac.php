@@ -240,7 +240,7 @@ if ($show_branch_dropdown ) {
                     $formattedDateTime = $uploadedAt->format('d/m/Y') . ' & ' . $uploadedAt->format('H:i:s');
                     echo "<td>" . $formattedDateTime . "</td>";
 
-                    echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
+                    echo "<td><a href='../modules/common/view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
                     echo "<td><a href='" . htmlspecialchars('../'.$row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
                     echo "</tr>";
                 }
@@ -274,7 +274,7 @@ if ($show_branch_dropdown ) {
                     $formattedDateTime = $uploadedAt->format('d/m/Y') . ' & ' . $uploadedAt->format('H:i:s');
                     echo "<td>" . $formattedDateTime . "</td>";
 
-                    echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
+                    echo "<td><a href='../modules/common/view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
                     echo "<td><a href='" . htmlspecialchars('../'.$row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
                     echo "</tr>";
                 }
@@ -343,7 +343,7 @@ function displayFiles($result, $show_section, $show_semester,$show_branch_dropdo
             $formattedDateTime = $uploadedAt->format('d/m/Y') . ' & ' . $uploadedAt->format('H:i:s');
             echo "<td>" . $formattedDateTime . "</td>";
 
-            echo "<td><a href='../view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
+            echo "<td><a href='../modules/common/view_file.php?id=" . htmlspecialchars($row['id']) . "'><button id='view' class='btn1'>View</button></a></td>";
             echo "<td><a href='" . htmlspecialchars('../'.$row['file_path']) . "' download><button id='down' class='btn1'>Download</button></a></td>";
             echo "</tr>";
         }

@@ -1,17 +1,16 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
-require_once 'connection.php';
+require_once '../../includes/connection.php';
 
 if (empty($_SESSION['username'])) {
     ?>
     <div class="contain11" style="max-width: 100%; height: 100vh;text-align: center; background-image: linear-gradient(to right, #4CAF50, #81C784); margin: 0px auto; padding: 20px; border-radius: 10px;">
-        <h2 class='login-message'>You are not Logged in. Please <a href='./admin/admins.php' class='register-link'>Login</a> to edit your profile.</h2>
-        <h2>If you're not registered, <a href='./reg.php' class='register-link'>register here</a>.</h2>
+        <h2 class='login-message'>You are not Logged in. Please <a href='../auth/login.php' class='register-link'>Login</a> to edit your profile.</h2>
+        <h2>If you're not registered, <a href='../auth/reg.php' class='register-link'>register here</a>.</h2>
     </div>
     <?php
     exit;
 }
-
 
 $username = $_SESSION['username'];
 
@@ -25,7 +24,7 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 } else {
-    echo "<p>User data not found. Please <a href='./logout.php'>log in again</a>.</p>";
+    echo "<p>User data not found. Please <a href='../auth/logout.php'>log in again</a>.</p>";
     exit;
 }
 
@@ -50,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $photo_path = $_FILES['photo_path']['name'];
     if ($photo_path) {
         $target_dir = "uploads/";
+        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
         $target_file = $target_dir . uniqid() . "_" . basename($_FILES["photo_path"]["name"]);
         move_uploaded_file($_FILES["photo_path"]["tmp_name"], $target_file);
     } else {

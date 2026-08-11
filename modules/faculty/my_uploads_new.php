@@ -37,7 +37,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                 $stmt->execute();
             }
         }
-        echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads.php';</script>";
+        echo "<script>alert('Files deleted successfully.'); window.location.href='my_uploads_new.php';</script>";
     } else if ($action == 'download') {
         if (!empty($selectedFiles)) {
             // If only one file is selected, download directly

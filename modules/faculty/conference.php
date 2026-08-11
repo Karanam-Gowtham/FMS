@@ -66,9 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $authors_json = json_encode($authors_array, JSON_UNESCAPED_UNICODE);
 
     // Handle file uploads
+    $upload_dir = 'uploads/';
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
     $paper_file_path = '';
     if (isset($_FILES['paper_file']) && $_FILES['paper_file']['error'] == 0) {
-        $paper_file_path = 'uploads/' . basename($_FILES['paper_file']['name']);
+        $paper_file_path = $upload_dir . basename($_FILES['paper_file']['name']);
         move_uploaded_file($_FILES['paper_file']['tmp_name'], $paper_file_path);
     }
 

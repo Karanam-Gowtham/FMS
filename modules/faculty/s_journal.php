@@ -1,6 +1,8 @@
 <?php
-    include "../../includes/connection.php"; // Include database connection
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+include "../../includes/connection.php"; // Include database connection
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['username'])) {
     die("You need to log in to view your uploads.");
 }
@@ -20,64 +22,68 @@ if (isset($_GET['activity'])) {
 
 
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        // Get session username
-        
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get session username
 
-        $uploaded_by = $_POST['uploaded_by'];
-        $year =  $_POST['year'];
-        $paper_title = $_POST['paper_title'];
-        $journal_name = $_POST['journal_name'];
-        $indexing = $_POST['indexing'];
-        $date_of_submission = $_POST['date_of_submission'];
-        $quality_factor = $_POST['quality_factor'];
-        $impact_factor = $_POST['impact_factor'];
-        $payment = $_POST['payment'];
-        $Branch = $_POST['Branch'];
 
-        // Handle file upload
-        $file_name = $_FILES['paper_file']['name'];
-        $file_tmp_name = $_FILES['paper_file']['tmp_name'];
-        $file_size = $_FILES['paper_file']['size'];
-        $file_error = $_FILES['paper_file']['error'];
+    $uploaded_by = $_POST['uploaded_by'];
+    $year = $_POST['year'];
+    $paper_title = $_POST['paper_title'];
+    $journal_name = $_POST['journal_name'];
+    $indexing = $_POST['indexing'];
+    $date_of_submission = $_POST['date_of_submission'];
+    $quality_factor = $_POST['quality_factor'];
+    $impact_factor = $_POST['impact_factor'];
+    $payment = $_POST['payment'];
+    $Branch = $_POST['Branch'];
 
-        if ($file_error === 0) {
-            $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-            $allowed_extensions = ['pdf', 'doc', 'docx'];
+    // Handle file upload
+    $file_name = $_FILES['paper_file']['name'];
+    $file_tmp_name = $_FILES['paper_file']['tmp_name'];
+    $file_size = $_FILES['paper_file']['size'];
+    $file_error = $_FILES['paper_file']['error'];
 
-            if (in_array(strtolower($file_extension), $allowed_extensions)) {
-                $file_new_name = uniqid('', true) . "." . $file_extension;
-                $file_destination = 'uploads/' . $file_new_name;
-                
-                if (move_uploaded_file($file_tmp_name, $file_destination)) {
-                    date_default_timezone_set('Asia/Kolkata');
+    if ($file_error === 0) {
+        $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
+        $allowed_extensions = ['pdf', 'doc', 'docx'];
 
-                    $submission_time = date('Y-m-d H:i:s');
-                    // SQL query to insert data into published_tab table
-                    $sql = "INSERT INTO s_journal_tab (Username,uploaded_by, branch, acd_year, paper_title, journal_name, indexing, date_of_submission, quality_factor, impact_factor, payment, submission_time, paper_file)
+        if (in_array(strtolower($file_extension), $allowed_extensions)) {
+            $file_new_name = uniqid('', true) . "." . $file_extension;
+            $upload_dir = 'uploads/';
+            if (!is_dir($upload_dir))
+                mkdir($upload_dir, 0777, true);
+            $file_destination = $upload_dir . $file_new_name;
+
+            if (move_uploaded_file($file_tmp_name, $file_destination)) {
+                date_default_timezone_set('Asia/Kolkata');
+
+                $submission_time = date('Y-m-d H:i:s');
+                // SQL query to insert data into published_tab table
+                $sql = "INSERT INTO s_journal_tab (Username,uploaded_by, branch, acd_year, paper_title, journal_name, indexing, date_of_submission, quality_factor, impact_factor, payment, submission_time, paper_file)
                             VALUES ('$username' ,'$uploaded_by','$Branch','$year', '$paper_title', '$journal_name', '$indexing', '$date_of_submission', '$quality_factor', '$impact_factor', '$payment', '$submission_time', '$file_destination')";
 
-                    if ($conn->query($sql) === TRUE) {
-                        echo "<script>alert('Details and paper uploaded successfully');</script>";
-                    } else {
-                        echo "Error: " . $sql . "<br>" . $conn->error;
-                    }
+                if ($conn->query($sql) === TRUE) {
+                    echo "<script>alert('Details and paper uploaded successfully');</script>";
                 } else {
-                    echo "<script>alert('There was an error uploading your file.');</script>";
+                    echo "Error: " . $sql . "<br>" . $conn->error;
                 }
             } else {
-                echo "<script>alert('Invalid file type. Only PDF, DOC, DOCX files are allowed.');</script>";
+                echo "<script>alert('There was an error uploading your file.');</script>";
             }
         } else {
-            echo "<script>alert('There was an error with the file upload.');</script>";
+            echo "<script>alert('Invalid file type. Only PDF, DOC, DOCX files are allowed.');</script>";
         }
+    } else {
+        echo "<script>alert('There was an error with the file upload.');</script>";
     }
-    
-    $conn->close();
+}
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -107,7 +113,8 @@ if (isset($_GET['activity'])) {
             left: 0;
             width: 100%;
             height: 178%;
-            background: rgba(0, 0, 0, 0.5); /* Adjust overlay opacity */
+            background: rgba(0, 0, 0, 0.5);
+            /* Adjust overlay opacity */
             z-index: -1;
         }
 
@@ -124,51 +131,53 @@ if (isset($_GET['activity'])) {
             color: white;
         }
 
-        .cont1{
+        .cont1 {
             display: flex;
             justify-content: center;
             align-items: center;
         }
-          /* Navigation */
-    .navbar { 
-        font-size: larger;
-    }
 
-    .nav-container {
-        background-color: white;
-        width:150vw;
-        margin-top: 80px;
-        padding: 0 1rem;
-    }
+        /* Navigation */
+        .navbar {
+            font-size: larger;
+        }
 
-    .nav-items {
-        margin-left: 70px;
-        display: flex;
-        align-items: center;
-        height: 4rem;
-    }
+        .nav-container {
+            background-color: white;
+            width: 150vw;
+            margin-top: 80px;
+            padding: 0 1rem;
+        }
 
-    .sid{
-        color: rgb(48, 30, 138);
-        font-weight: 500;
-    }
+        .nav-items {
+            margin-left: 70px;
+            display: flex;
+            align-items: center;
+            height: 4rem;
+        }
 
-    .main-a {
-        color: rgb(138, 30, 113);
-        font-weight: 500;
-    }
-    .main-a:hover{
-        color:rgb(182, 64, 211);
-    }
+        .sid {
+            color: rgb(48, 30, 138);
+            font-weight: 500;
+        }
 
-    .home-icon {
-        color: rgb(30, 58, 138);
-        transition: color 0.2s;
-    }
+        .main-a {
+            color: rgb(138, 30, 113);
+            font-weight: 500;
+        }
 
-    .home-icon:hover {
-        color: rgb(29, 78, 216);
-    }
+        .main-a:hover {
+            color: rgb(182, 64, 211);
+        }
+
+        .home-icon {
+            color: rgb(30, 58, 138);
+            transition: color 0.2s;
+        }
+
+        .home-icon:hover {
+            color: rgb(29, 78, 216);
+        }
 
         h1 {
             text-align: center;
@@ -251,113 +260,116 @@ if (isset($_GET['activity'])) {
                 padding: 20px;
                 width: 90%;
             }
+
             h1 {
                 font-size: 2rem;
             }
         }
     </style>
 </head>
+
 <body>
     <?php include "../../includes/header.php"; ?>
 
-<div class="cont1">
-    <div class="container">
-        <div class="contact-wrapper">
-        <div class="contact-form">
-            <h1>Enter Journal Paper Details</h1>
-            <form action="" method="POST" id="contactForm" enctype="multipart/form-data">
-            <div class="form-group">
-                    <label for="paper_title">Uploaded By</label>
-                    <input type="text" id="uploaded_by" name="uploaded_by" required>
-                </div>
-                <div class="form-group">
-                        <label for="academic-year">Select Academic Year:</label>
-                        <select name="year" id="academic-year" required>
-                            <option value="" disabled selected>Select an academic year</option>
-                            <?php
-                            include("../../includes/connection.php"); // Must be before this code
+    <div class="cont1">
+        <div class="container">
+            <div class="contact-wrapper">
+                <div class="contact-form">
+                    <h1>Enter Journal Paper Details</h1>
+                    <form action="" method="POST" id="contactForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="paper_title">Uploaded By</label>
+                            <input type="text" id="uploaded_by" name="uploaded_by" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="academic-year">Select Academic Year:</label>
+                            <select name="year" id="academic-year" required>
+                                <option value="" disabled selected>Select an academic year</option>
+                                <?php
+                                include("../../includes/connection.php"); // Must be before this code
+                                
+                                $query = "SELECT year FROM academic_year ORDER BY year DESC";
+                                $result = mysqli_query($conn, $query);
 
-                            $query = "SELECT year FROM academic_year ORDER BY year DESC";
-                            $result = mysqli_query($conn, $query);
-
-                            if (!$result) {
-                                die("Query Failed: " . mysqli_error($conn)); // Debug error
-                            }
-
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    $year = htmlspecialchars($row['year']);
-                                    echo "<option value=\"$year\">$year</option>";
+                                if (!$result) {
+                                    die("Query Failed: " . mysqli_error($conn)); // Debug error
                                 }
-                            } else {
-                                echo '<option value="" disabled>No years found</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                <div class="form-group">
-                    <label for="indexing">Branch:</label>
-                    <select id="indexing" name="Branch" required>
-                        <option value="" selected disabled>Choose one</option>
-                        <option value="CSE">CSE</option>
-                        <option value="CSE-CS">CSE-CS</option>
-                        <option value="CSE-AI&ML">CSE-AI&ML</option>
-                        <option value="CSE-AI&DS">CSE-AI&DS</option>
-                        <option value="IT">IT</option>
-                        <option value="ECE">ECE</option>
-                        <option value="EEE">EEE</option>
-                        <option value="MECH">MECH</option>
-                        <option value="CIVIL">CIVIL</option>
-                        <option value="MatheMatics">MatheMatics</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Chemistry">Chemistry</option>
-                        <option value="BSH">BSH</option>
-                    </select>
+
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        $year = htmlspecialchars($row['year']);
+                                        echo "<option value=\"$year\">$year</option>";
+                                    }
+                                } else {
+                                    echo '<option value="" disabled>No years found</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="indexing">Branch:</label>
+                            <select id="indexing" name="Branch" required>
+                                <option value="" selected disabled>Choose one</option>
+                                <option value="CSE">CSE</option>
+                                <option value="CSE-CS">CSE-CS</option>
+                                <option value="CSE-AI&ML">CSE-AI&ML</option>
+                                <option value="CSE-AI&DS">CSE-AI&DS</option>
+                                <option value="IT">IT</option>
+                                <option value="ECE">ECE</option>
+                                <option value="EEE">EEE</option>
+                                <option value="MECH">MECH</option>
+                                <option value="CIVIL">CIVIL</option>
+                                <option value="MatheMatics">MatheMatics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="BSH">BSH</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paper_title">Paper Title</label>
+                            <input type="text" id="paper_title" name="paper_title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="journal_name">Journal Name</label>
+                            <input type="text" id="journal_name" name="journal_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="indexing">Indexing</label>
+                            <select id="indexing" name="indexing" required>
+                                <option value="scopus">Scopus</option>
+                                <option value="sci">SCI</option>
+                                <option value="scie">SCIE</option>
+                                <option value="ugc_care">UGC Care</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date_of_submission">Date of Submission</label>
+                            <input type="date" id="date_of_submission" name="date_of_submission" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quality_factor">Quality Factor</label>
+                            <input type="number" id="quality_factor" name="quality_factor" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="impact_factor">Impact Factor</label>
+                            <input type="number" id="impact_factor" name="impact_factor" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment">Payment</label>
+                            <select id="payment" name="payment" required>
+                                <option value="free">Free</option>
+                                <option value="paid">Paid</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paper_file">Upload Paper</label>
+                            <input type="file" id="paper_file" name="paper_file" accept=".pdf, .doc, .docx" required>
+                        </div>
+                        <button type="submit" class="btn1 btn-outline">Submit</button>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="paper_title">Paper Title</label>
-                    <input type="text" id="paper_title" name="paper_title" required>
-                </div>
-                <div class="form-group">
-                    <label for="journal_name">Journal Name</label>
-                    <input type="text" id="journal_name" name="journal_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="indexing">Indexing</label>
-                    <select id="indexing" name="indexing" required>
-                        <option value="scopus">Scopus</option>
-                        <option value="sci">SCI</option>
-                        <option value="scie">SCIE</option>
-                        <option value="ugc_care">UGC Care</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="date_of_submission">Date of Submission</label>
-                    <input type="date" id="date_of_submission" name="date_of_submission" required>
-                </div>
-                <div class="form-group">
-                    <label for="quality_factor">Quality Factor</label>
-                    <input type="number" id="quality_factor" name="quality_factor" step="0.01" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="impact_factor">Impact Factor</label>
-                    <input type="number" id="impact_factor" name="impact_factor" step="0.01" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="payment">Payment</label>
-                    <select id="payment" name="payment" required>
-                        <option value="free">Free</option>
-                        <option value="paid">Paid</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="paper_file">Upload Paper</label>
-                    <input type="file" id="paper_file" name="paper_file" accept=".pdf, .doc, .docx" required>
-                </div>
-                <button type="submit" class="btn1 btn-outline">Submit</button>
-            </form>
+            </div>
         </div>
-        </div>
-    </div>
 </body>
+
 </html>

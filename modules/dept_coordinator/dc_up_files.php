@@ -55,7 +55,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file_type = $_POST['file_type'];
     $file_name = $_POST['file_name'];
     $acd_year = $_POST['year'];
-    $file_path = 'uploads/' . $_FILES['file']['name'];
+    $upload_dir = 'uploads/';
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+    $file_path = $upload_dir . $_FILES['file']['name'];
 
     if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
         $sql = "INSERT INTO dc_up_files (Username,file_name, acd_year,Main_file_type, file_type, file_path) VALUES (?, ?, ?, ?, ?,?)";

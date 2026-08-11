@@ -6,10 +6,13 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if (!isset($_SESSION['c_cord'])) {
+$activeSessionUser = $_SESSION['c_cord'] ?? $_SESSION['username'] ?? $_SESSION['admin'] ?? $_SESSION['a_username'] ?? $_SESSION['h_username'] ?? null;
+
+if (!$activeSessionUser) {
     die("Please login to access this page.");
 }
-$username = $_SESSION['c_cord'];
+$_SESSION['c_cord'] = $_SESSION['c_cord'] ?? $activeSessionUser;
+$username = $activeSessionUser;
 
 $selected_file_type = $_POST['file_type1'] ?? '';
 

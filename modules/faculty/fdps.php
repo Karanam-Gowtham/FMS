@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Handle file upload (Certificate)
     $certificate = $_FILES['certificate']['name'];
     $target_dir_cert = "uploads/certificates/";
+    if (!is_dir($target_dir_cert)) mkdir($target_dir_cert, 0777, true);
     $target_file_cert = $target_dir_cert . basename($certificate);
     $upload_cert_success = move_uploaded_file($_FILES['certificate']['tmp_name'], $target_file_cert);
 

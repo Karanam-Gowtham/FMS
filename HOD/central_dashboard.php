@@ -228,7 +228,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
     </button>
     <br><br><br>
 
-    <button class="btn111" onclick="location.href='hod_dept_coordinator_files.php?year=<?php echo urlencode($year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>'">
+    <button class="btn111" onclick="location.href='hod_down_dept_files.php?year=<?php echo urlencode($year); ?>&criteria=<?php echo urlencode($criteria); ?>&designation=<?php echo urlencode($designation); ?>&event=<?php echo urlencode($event); ?>'">
         Dept Coordinator Files
     </button>
     </div>

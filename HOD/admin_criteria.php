@@ -277,7 +277,7 @@ if(isset($_POST['year'])){
     <form action="add_cri_form.php?event=<?php echo urlencode($event); ?>&designation=<?php echo urlencode($designation); ?>&criteria=<?php echo urlencode($criteria); ?>&year=<?php echo urlencode($academicYear); ?>" method='POST'>
         <input type='hidden' name='academic_year' value='<?php echo $academicYear; ?>'>
         <input type='hidden' name='criteria' value='<?php echo $criteria; ?>'>
-        <button class='home-button1' onclick="window.location.href='upload.php'">+ <br>ADD Criteria</button>
+        <button type="submit" class='home-button1'>+ <br>ADD Criteria</button>
     </form>
 </div>
 </div>

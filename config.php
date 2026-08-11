@@ -4,7 +4,34 @@
  * Centralized path definitions for the entire application.
  */
 define('ROOT_PATH', __DIR__);
-define('BASE_URL', 'http://localhost/mini/FMS');
+// Dynamic Base URL detection (works locally and on live servers like InfinityFree)
+if (!defined('BASE_URL')) {
+    $isHttps = (
+        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+        ($_SERVER['SERVER_PORT'] ?? 80) == 443 ||
+        (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+        (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
+    );
+    $protocol = $isHttps ? "https" : "http";
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    
+    // Calculate subDir cleanly
+    $docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+    $currentDir = str_replace('\\', '/', __DIR__);
+    
+    $subDir = '';
+    if (!empty($docRoot) && strpos($currentDir, $docRoot) === 0) {
+        $subDir = substr($currentDir, strlen($docRoot));
+    }
+    $subDir = '/' . ltrim(str_replace('\\', '/', $subDir), '/');
+    if ($subDir === '/') {
+        $subDir = '';
+    }
+    
+    $baseUrl = $protocol . "://" . $host . $subDir;
+    define('BASE_URL', rtrim($baseUrl, '/'));
+}
+
 define('INCLUDES_PATH', ROOT_PATH . '/includes');
 define('ASSETS_URL', BASE_URL . '/assets');
 define('IMAGES_PATH', ASSETS_URL . '/img');

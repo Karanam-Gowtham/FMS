@@ -3,39 +3,53 @@ include "../../includes/connection.php";
 
 $dept = isset($_GET['event']) ? $_GET['event'] : '';
 
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $event = $_REQUEST['event'] ?? 'Unknown';
+
+// Event-specific login validation credentials
+$credentials = [
+    'NCC' => ['email' => ['ncc@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'Sports' => ['email' => ['sports@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'Clubs' => ['email' => ['clubs@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'NSS' => ['email' => ['nss@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'Women_Empowerment' => ['email' => ['women@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'IIC' => ['email' => ['iic@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'PASH' => ['email' => ['pash@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'Antiragging' => ['email' => ['antiragging@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'SAC' => ['email' => ['sac@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'R&D' => ['email' => ['rnd@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'IQAC' => ['email' => ['iqac@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'Exam_Section' => ['email' => ['exam@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']]
+];
+
+// Check if user is already logged in with valid session
+$activeUser = $_SESSION['c_cord'] ?? $_SESSION['username'] ?? $_SESSION['email'] ?? null;
+$isAdmin = isset($_SESSION['admin']) || isset($_SESSION['h_username']);
+
+if (!empty($activeUser) || $isAdmin) {
+    // If admin/HOD OR if activeUser email is permitted for this event, auto-bypass login
+    if ($isAdmin || (isset($credentials[$event]) && in_array($activeUser, $credentials[$event]['email']))) {
+        $_SESSION['c_cord'] = $activeUser ?? $_SESSION['admin'] ?? 'coordinator';
+        header("Location: c_upload.php?event=" . urlencode($event));
+        exit();
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Event-specific login validation
-    $credentials = [
-        'NCC' => ['email' => 'ncc@gmail.com', 'password' => '123'],
-        'Sports' => ['email' => 'sports@gmail.com', 'password' => '123'],
-        'Clubs' => ['email' => 'clubs@gmail.com', 'password' => '123'],
-        'NSS' => ['email' => 'nss@gmail.com', 'password' => '123'],
-        'Women_Empowerment' => ['email' => 'women@gmail.com', 'password' => '123'],
-        'IIC' => ['email' => 'iic@gmail.com', 'password' => '123'],
-        'PASH' => ['email' => 'pash@gmail.com', 'password' => '123'],
-        'Antiragging' => ['email' => 'antiragging@gmail.com', 'password' => '123'],
-        'SAC' => ['email' => 'sac@gmail.com', 'password' => '123'],
-        'R&D' => ['email' => 'rnd@gmail.com', 'password' => '123'],
-        'IQAC' => ['email' => 'iqac@gmail.com', 'password' => '123'],
-        'Exam_Section' => ['email' => 'exam@gmail.com', 'password' => '123']
-    ];
-
     if (
         isset($credentials[$event]) &&
-        $credentials[$event]['email'] === $email &&
-        $credentials[$event]['password'] === $password
+        in_array($email, $credentials[$event]['email']) &&
+        in_array($password, $credentials[$event]['password'])
     ) {
         // Redirect to the dashboard with the event value
         $_SESSION['c_cord'] = $email;
         echo "<script>
             alert('Login successful! ');
-           
             window.location.href = 'c_upload.php?event=" . urlencode($event) . "';
         </script>";
         exit();
@@ -201,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <?php include "../../includes/header.php"; ?>
-    
+
 
     <div class="container11">
 

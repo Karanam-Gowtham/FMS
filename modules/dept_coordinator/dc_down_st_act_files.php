@@ -836,7 +836,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Update View and Download buttons
                 if (filePath && filePath !== '') {
-                    viewCell.innerHTML = `<a href="view_file1.php?file_path=${encodeURIComponent(filePath)}" target="_blank"><button id="view">View</button></a>`;
+                    viewCell.innerHTML = `<a href="../common/view_file1.php?file_path=${encodeURIComponent(filePath)}" target="_blank"><button id="view">View</button></a>`;
                     downloadCell.innerHTML = `<a href="${filePath}" download><button id="down">Download</button></a>`;
                 } else {
                     viewCell.innerHTML = '';
@@ -854,7 +854,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 checkboxes.forEach(cb => {
                     const filePath = cb.getAttribute('data-filepath');
                     if (filePath) {
-                        window.open('view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
+                        window.open('../common/view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
                     }
                 });
             }

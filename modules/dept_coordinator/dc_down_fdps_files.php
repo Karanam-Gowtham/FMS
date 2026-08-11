@@ -545,7 +545,7 @@ include("../../includes/header.php");
                         $result_published = $stmt_published->get_result();
                     
                         if ($result_published->num_rows > 0) {
-                            echo "<form method='POST' action='download_papers1.php'>
+                            echo "<form method='POST' action='../common/download_papers1.php'>
                                     <input type='hidden' name='category' value='published'>
                                     <input type='hidden' name='table' value='published_tab'>
                                     <input type='hidden' name='file_column' value='paper_file'>
@@ -808,7 +808,7 @@ function bulkView() {
     checkboxes.forEach(cb => {
         const filePath = cb.getAttribute('data-filepath');
         if (filePath) {
-            window.open('view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
+            window.open('../common/view_file1.php?file_path=' + encodeURIComponent(filePath), '_blank');
         }
     });
 }
