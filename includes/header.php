@@ -424,7 +424,7 @@ if (isset($extra_head)) { echo $extra_head; }
 
                 <a href="<?php echo $app_url; ?>/pdf_merger.php">Pdf Merger</a>
 
-                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['j_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord'])): ?>
+                <?php if (isset($_SESSION['username']) || isset($_SESSION['a_username']) || isset($_SESSION['j_username']) || isset($_SESSION['h_username']) || isset($_SESSION['admin']) || isset($_SESSION['c_cord']) || isset($_SESSION['logged_in'])): ?>
                     <a href="<?php echo $app_url; ?>/dashboard.php" class="nav-btn-link" style="display:inline-flex; align-items:center;">
                         Dashboard <span id="dashboard-badge" class="notif-badge">0</span>
                     </a>

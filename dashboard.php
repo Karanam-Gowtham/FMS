@@ -20,41 +20,13 @@ if (isset($_GET['switch_role'])) {
     $sw_dept_id = (int) $_GET['dept_id'];
 
     foreach ($roles as $r) {
-        if ($r['role_id'] == $sw_role_id && $r['dept_id'] == $sw_dept_id) {
-            $role_name = $r['role_name'];
-            $dept_name = $r['dept_name'];
-            $email = $_SESSION['email'];
-
-            // Set legacy session variables and route
-            if ($role_name === 'Faculty') {
-                $_SESSION['username'] = $email;
-                header("Location: " . BASE_URL . "/modules/faculty/acd_year.php?dept=" . urlencode($dept_name));
-                exit();
-            } elseif ($role_name === 'Dept Coordinator') {
-                $_SESSION['a_username'] = $email;
-                header("Location: " . BASE_URL . "/modules/dept_coordinator/dc_acd_year.php?dept=" . urlencode($dept_name));
-                exit();
-            } elseif ($role_name === 'HOD') {
-                $_SESSION['h_username'] = $email;
-                header("Location: " . BASE_URL . "/HOD/see_uploads.php?dept=" . urlencode($dept_name) . "&designation=HOD");
-                exit();
-            } elseif ($role_name === 'Junior Assistant') {
-                $_SESSION['j_username'] = $email;
-                header("Location: " . BASE_URL . "/modules/jr_assistant/jr_acd_year.php?dept=" . urlencode($dept_name));
-                exit();
-            } elseif ($role_name === 'Admin') {
-                $_SESSION['admin'] = $email;
-                header("Location: " . BASE_URL . "/HOD/acd_year_aa.php?designation=admin");
-                exit();
-            } elseif ($role_name === 'Central Coordinator') {
-                $_SESSION['c_username'] = $email;
-                header("Location: " . BASE_URL . "/modules/central/c_aqar_files.php?designation=central_coordinator&event=" . urlencode($dept_name));
-                exit();
-            } elseif ($role_name === 'Criteria Coordinator') {
-                $_SESSION['cri_username'] = $email;
-                header("Location: " . BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event=" . urlencode($dept_name));
-                exit();
-            }
+        if ($r['role_id'] == $sw_role_id && ($r['dept_id'] == $sw_dept_id || $sw_dept_id == 0)) {
+            $identity = $_SESSION['username'] ?? $_SESSION['user_identifier'] ?? $_SESSION['email'] ?? $user['email'];
+            setActiveRoleContext($r, $identity);
+            $targetUrl = getRoleLandingUrl($r);
+            if (ob_get_length()) { ob_end_clean(); }
+            header("Location: " . $targetUrl);
+            exit();
         }
     }
 }

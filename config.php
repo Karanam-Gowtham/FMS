@@ -4,6 +4,20 @@
  * Centralized path definitions for the entire application.
  */
 define('ROOT_PATH', __DIR__);
+
+if (!defined('DB_NAME')) {
+    define('DB_NAME', getenv('DB_NAME') ?: 'gmritfms');
+}
+if (!defined('DB_HOST')) {
+    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+}
+if (!defined('DB_USER')) {
+    define('DB_USER', getenv('DB_USER') ?: 'root');
+}
+if (!defined('DB_PASS')) {
+    define('DB_PASS', getenv('DB_PASS') ?: '');
+}
+
 // Dynamic Base URL detection (works locally and on live servers like InfinityFree)
 if (!defined('BASE_URL')) {
     $isHttps = (

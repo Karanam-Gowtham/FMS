@@ -5,16 +5,16 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-$query1 = "DROP DATABASE IF EXISTS `project-fms`";
+$query1 = "DROP DATABASE IF EXISTS `gmritfms`";
 if (mysqli_query($conn, $query1)) {
-    echo "Dropped database successfully.\n";
+    echo "Dropped database 'gmritfms' successfully.\n";
 } else {
     echo "Error dropping database: " . mysqli_error($conn) . "\n";
 }
 
-$query2 = "CREATE DATABASE `project-fms`";
+$query2 = "CREATE DATABASE `gmritfms`";
 if (mysqli_query($conn, $query2)) {
-    echo "Created database successfully.\n";
+    echo "Created database 'gmritfms' successfully.\n";
 } else {
     echo "Error creating database: " . mysqli_error($conn) . "\n";
 }

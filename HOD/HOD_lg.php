@@ -1,5 +1,67 @@
 <?php
-    include 'header_hod.php';
+ob_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+include_once __DIR__ . "/../config.php";
+include_once __DIR__ . "/../includes/connection.php";
+include_once __DIR__ . "/../includes/helpers.php";
+
+$error_msg = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['signIn'])) {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    $email = (strpos($username, '@') !== false) ? $username : ($username . "@gmrit.edu.in");
+
+    // Check users and user_roles table for HOD role
+    $stmt = $conn->prepare("
+        SELECT u.*, d.dept_name 
+        FROM users u
+        JOIN user_roles ur ON u.user_id = ur.user_id
+        JOIN roles r ON ur.role_id = r.role_id
+        LEFT JOIN dept d ON ur.dept_id = d.dept_id
+        WHERE (u.email = ? OR u.full_name = ?) AND u.password = ? AND r.role_name = 'HOD' AND u.status = 'active'
+    ");
+    $stmt->bind_param("sss", $email, $username, $password);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if ($res->num_rows > 0) {
+        $user = $res->fetch_assoc();
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['full_name'] = $user['full_name'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['h_username'] = $username;
+        $_SESSION['dept'] = $user['dept_name'] ?? 'CSE';
+        $_SESSION['logged_in'] = true;
+
+        ob_end_clean();
+        header("Location: see_uploads.php?dept=" . urlencode($_SESSION['dept']) . "&designation=HOD");
+        exit();
+    } else {
+        // Fallback check in reg_hod table
+        $stmt2 = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
+        $stmt2->bind_param("ss", $username, $password);
+        $stmt2->execute();
+        $res2 = $stmt2->get_result();
+        if ($res2->num_rows > 0) {
+            $row2 = $res2->fetch_assoc();
+            $_SESSION['h_username'] = $username;
+            $_SESSION['dept'] = $row2['department'] ?? 'CSE';
+            $_SESSION['logged_in'] = true;
+
+            ob_end_clean();
+            header("Location: see_uploads.php?dept=" . urlencode($_SESSION['dept']) . "&designation=HOD");
+            exit();
+        } else {
+            $error_msg = "Invalid HOD User ID or password.";
+        }
+        $stmt2->close();
+    }
+    $stmt->close();
+}
+
+include 'header_hod.php';
 ?>
 
 <!DOCTYPE html>
@@ -7,7 +69,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>HOD Login</title>
     <style>
         body {
             background-image: url('../stuff/gmr_landing_page.jpg');
@@ -44,15 +106,15 @@
         }
 
         @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: scale(0.9);
-                }
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
+            from {
+                opacity: 0;
+                transform: scale(0.9);
             }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
 
         h1 {
             margin-bottom: 20px;
@@ -87,12 +149,19 @@
             background-color: #0056b3;
         }
 
+        .error {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+        }
+
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <div class="login-container">
+            <?php if (!empty($error_msg)): ?>
+                <div class="error"><?php echo htmlspecialchars($error_msg); ?></div>
+            <?php endif; ?>
             <form action="" method="POST">
                 <h1 id="hav">HOD<br>Log In</h1>
                 <input type="text" name="username" placeholder="User Id" id="id" required />
@@ -101,23 +170,6 @@
             </form>
         </div>
     </div>
-    </body>
+</body>
 </html>
-<script type="text/javascript">
-    document.querySelector("form").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent form from submitting
 
-        // Get username and password values
-        var username = document.querySelector("input[name='username']").value;
-        var password = document.querySelector("input[name='password']").value;
-
-        // Validate username and password
-        if (username === "hod" && password === "123") {
-            // Redirect to the desired page (e.g., admin dashboard)
-            window.location.href = "see_uploads.php"; // Change to your dashboard URL
-        } else {
-            alert("Invalid login. Please try again.");
-        }
-    });
-</script>
-</html>

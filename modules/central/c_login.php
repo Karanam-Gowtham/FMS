@@ -38,18 +38,37 @@ if (!empty($activeUser) || $isAdmin) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-    if (
-        isset($credentials[$event]) &&
-        in_array($email, $credentials[$event]['email']) &&
-        in_array($password, $credentials[$event]['password'])
-    ) {
-        // Redirect to the dashboard with the event value
+    $authenticated = false;
+
+    // Check Users & User_Roles table
+    $stmt = $conn->prepare("
+        SELECT u.* FROM users u
+        JOIN user_roles ur ON u.user_id = ur.user_id
+        JOIN roles r ON ur.role_id = r.role_id
+        WHERE (u.email = ? OR u.full_name = ?) AND u.password = ? AND u.status = 'active'
+    ");
+    $stmt->bind_param("sss", $email, $email, $password);
+    $stmt->execute();
+    if ($stmt->get_result()->num_rows > 0) {
+        $authenticated = true;
+    }
+    $stmt->close();
+
+    // Also check event credentials list or reg_central_cord
+    if (!$authenticated && isset($credentials[$event])) {
+        if (in_array($email, $credentials[$event]['email']) && in_array($password, $credentials[$event]['password'])) {
+            $authenticated = true;
+        }
+    }
+
+    if ($authenticated) {
         $_SESSION['c_cord'] = $email;
+        $_SESSION['logged_in'] = true;
         echo "<script>
-            alert('Login successful! ');
+            alert('Login successful!');
             window.location.href = 'c_upload.php?event=" . urlencode($event) . "';
         </script>";
         exit();

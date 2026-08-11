@@ -35,64 +35,102 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = trim($_POST['password']);
         $designation = trim($_POST['designation']);
 
-        if ($designation == "faculty") {
-            $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");
-            $stmt->bind_param("ss", $userid, $password);
-            $stmt->execute();
-            $result = $stmt->get_result();
+        $email = (strpos($userid, '@') !== false) ? $userid : ($userid . "@gmrit.edu.in");
 
-            if ($result->num_rows > 0) {
-                $login_stmt = $conn->prepare("INSERT INTO login_pg (userid, password) VALUES (?, ?)");
-                $login_stmt->bind_param("ss", $userid, $password);
-                if ($login_stmt->execute() === TRUE) {
-                    $_SESSION['username'] = $userid;
-                    ob_end_clean(); // Clear buffer before redirect
-                    header("Location: ../modules/faculty/acd_year.php?dept=$dept");
-                    exit();
-                }
-                $login_stmt->close();
-            } else {
-                $error_message = "Invalid username or password.";
+        // Map form designation to Role name
+        $role_map = [
+            'faculty' => 'Faculty',
+            'dept_coordinator' => 'Dept Coordinator',
+            'hod' => 'HOD',
+            'central_coordinator' => 'Central Coordinator',
+            'admin' => 'Admin'
+        ];
+
+        $target_role = $role_map[$designation] ?? '';
+
+        // Query users & user_roles table
+        $stmt = $conn->prepare("
+            SELECT u.*, d.dept_name, r.role_name
+            FROM users u
+            JOIN user_roles ur ON u.user_id = ur.user_id
+            JOIN roles r ON ur.role_id = r.role_id
+            LEFT JOIN dept d ON ur.dept_id = d.dept_id
+            WHERE (u.email = ? OR u.full_name = ?) AND u.password = ? AND r.role_name = ? AND u.status = 'active'
+        ");
+        $stmt->bind_param("ssss", $email, $userid, $password, $target_role);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        $authenticated = false;
+        if ($res->num_rows > 0) {
+            $u_data = $res->fetch_assoc();
+            $authenticated = true;
+            if (empty($dept) && !empty($u_data['dept_name'])) {
+                $dept = $u_data['dept_name'];
             }
-            $stmt->close();
-        } else {
-            if ($designation == "dept_coordinator") {
+        }
+        $stmt->close();
+
+        // If not found in users table, fallback to legacy tables
+        if (!$authenticated) {
+            if ($designation === "faculty") {
+                $stmt = $conn->prepare("SELECT * FROM reg_tab WHERE userid = ? AND password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                if ($stmt->get_result()->num_rows > 0) { $authenticated = true; }
+                $stmt->close();
+            } elseif ($designation === "dept_coordinator") {
                 $stmt = $conn->prepare("SELECT * FROM reg_dept_cord WHERE userid = ? AND password = ?");
                 $stmt->bind_param("ss", $userid, $password);
                 $stmt->execute();
-                $result = $stmt->get_result();
-            
-                if ($result->num_rows > 0) {
-                    $_SESSION['a_username'] = $userid;
-                    $stmt->close();
-                    ob_end_clean();
-            
-                    // Redirect only after successful login
-                    header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=$dept");
-                    exit();
-                } else {
-                    $login_error = true; // Incorrect login
-                }
-            
-            
-            } elseif ($designation == "hod" && $userid == "hod" && $password == "123") {
+                if ($stmt->get_result()->num_rows > 0) { $authenticated = true; }
+                $stmt->close();
+            } elseif ($designation === "hod") {
+                $stmt = $conn->prepare("SELECT * FROM reg_hod WHERE userid = ? AND password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                if ($stmt->get_result()->num_rows > 0) { $authenticated = true; }
+                $stmt->close();
+            } elseif ($designation === "admin") {
+                $stmt = $conn->prepare("SELECT * FROM admin_reg WHERE Username = ? AND Password = ?");
+                $stmt->bind_param("ss", $userid, $password);
+                $stmt->execute();
+                if ($stmt->get_result()->num_rows > 0) { $authenticated = true; }
+                $stmt->close();
+            }
+        }
+
+        if ($authenticated) {
+            $_SESSION['logged_in'] = true;
+            if ($designation === "faculty") {
+                $_SESSION['username'] = $userid;
+                ob_end_clean();
+                header("Location: ../modules/faculty/acd_year.php?dept=$dept");
+                exit();
+            } elseif ($designation === "dept_coordinator") {
+                $_SESSION['a_username'] = $userid;
+                ob_end_clean();
+                header("Location: ../modules/dept_coordinator/dc_acd_year.php?dept=$dept");
+                exit();
+            } elseif ($designation === "hod") {
                 $_SESSION['h_username'] = $userid;
                 ob_end_clean();
-                header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode("HOD"));
+                header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=HOD");
                 exit();
-            } elseif ($designation == "central_coordinator" && $userid == "central" && $password == "123") {
+            } elseif ($designation === "central_coordinator") {
                 $_SESSION['h_username'] = $userid;
+                $_SESSION['c_username'] = $userid;
                 ob_end_clean();
                 header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
                 exit();
-            } elseif ($designation == "admin" && $userid == "admin" && $password == "123") {
+            } elseif ($designation === "admin") {
                 $_SESSION['admin'] = $userid;
                 ob_end_clean();
                 header("Location: ../HOD/acd_year_aa.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
                 exit();
-            } else {
-                $error_message = "Invalid username or password.";
             }
+        } else {
+            $error_message = "Invalid username or password for $designation.";
         }
     }
 }

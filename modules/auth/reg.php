@@ -59,6 +59,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 $role_stmt->execute();
                 $role_stmt->close();
 
+                // Find dept_name for legacy reg_tab compatibility
+                $d_name = 'CSE';
+                foreach ($departments as $d) {
+                    if ($d['dept_id'] == $dept_id) { $d_name = $d['dept_name']; break; }
+                }
+
+                $reg_stmt = $conn->prepare("INSERT IGNORE INTO reg_tab (name, userid, email, password, dept) VALUES (?, ?, ?, ?, ?)");
+                $reg_stmt->bind_param("sssss", $full_name, $email, $email, $password, $d_name);
+                @$reg_stmt->execute();
+                @$reg_stmt->close();
+
                 $message = "Registration successful! You can now log in.";
                 $msg_type = "alert-success";
             } else {

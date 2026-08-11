@@ -4,6 +4,8 @@
  * Works with the normalized 'master' database schema.
  */
 
+include_once __DIR__ . '/session.php';
+
 // Role ID constants (match Roles table)
 define('ROLE_ADMIN', 1);
 define('ROLE_IQAC', 2);
@@ -19,32 +21,165 @@ define('DOC_APPROVED', 'Approved');
 define('DOC_REJECTED', 'Rejected');
 
 /**
+ * Normalize role labels coming from the database or legacy pages.
+ */
+function normalizeRoleName(string $role_name): string {
+    $normalized = strtolower(trim(str_replace(['-', ' '], '_', $role_name)));
+
+    $map = [
+        'admin' => 'Admin',
+        'iqac' => 'IQAC',
+        'hod' => 'HOD',
+        'faculty' => 'Faculty',
+        'coordinator' => 'Coordinator',
+        'dept_coordinator' => 'Coordinator',
+        'department_coordinator' => 'Coordinator',
+        'central_coordinator' => 'Central_Coordinator',
+        'criteria_coordinator' => 'IQAC',
+        'junior_assistant' => 'Junior_Assistant',
+    ];
+
+    return $map[$normalized] ?? $role_name;
+}
+
+/**
+ * Clear all legacy role-specific session keys before activating a role.
+ */
+function clearLegacyRoleSessions(): void {
+    unset(
+        $_SESSION['username'],
+        $_SESSION['a_username'],
+        $_SESSION['h_username'],
+        $_SESSION['j_username'],
+        $_SESSION['admin'],
+        $_SESSION['c_username'],
+        $_SESSION['c_cord'],
+        $_SESSION['cri_username'],
+        $_SESSION['dept']
+    );
+}
+
+/**
+ * Sync the active role into both modern and legacy session formats.
+ */
+function setActiveRoleContext(array $role, ?string $identity = null): void {
+    $role_id = (int) ($role['role_id'] ?? 0);
+    $role_name = normalizeRoleName((string) ($role['role_name'] ?? ''));
+    $dept_id = (int) ($role['dept_id'] ?? 0);
+    $dept_name = (string) ($role['dept_name'] ?? '');
+    $identity = trim((string) ($identity ?? ($_SESSION['email'] ?? '')));
+
+    $_SESSION['role_id'] = $role_id;
+    $_SESSION['role_name'] = $role_name;
+    $_SESSION['dept_id'] = $dept_id;
+    $_SESSION['dept_name'] = $dept_name;
+    $_SESSION['active_role'] = [
+        'role_id' => $role_id,
+        'role_name' => $role_name,
+        'dept_id' => $dept_id,
+        'dept_name' => $dept_name,
+    ];
+
+    clearLegacyRoleSessions();
+
+    switch ($role_id) {
+        case ROLE_FACULTY:
+            $_SESSION['username'] = $identity;
+            break;
+        case ROLE_COORDINATOR:
+            $_SESSION['a_username'] = $identity;
+            $_SESSION['dept'] = $dept_name;
+            break;
+        case ROLE_HOD:
+            $_SESSION['h_username'] = $identity;
+            $_SESSION['dept'] = $dept_name;
+            break;
+        case ROLE_JUNIOR_ASSISTANT:
+            $_SESSION['j_username'] = $identity;
+            $_SESSION['dept'] = $dept_name;
+            break;
+        case ROLE_ADMIN:
+            $_SESSION['admin'] = $identity;
+            break;
+        case ROLE_CENTRAL_COORDINATOR:
+            $_SESSION['c_username'] = $identity;
+            $_SESSION['c_cord'] = $identity;
+            break;
+        case ROLE_IQAC:
+            $_SESSION['cri_username'] = $identity;
+            break;
+    }
+}
+
+/**
+ * Resolve the landing URL for a selected role.
+ */
+function getRoleLandingUrl(array $role): string {
+    $role_id = (int) ($role['role_id'] ?? 0);
+    $dept_name = (string) ($role['dept_name'] ?? '');
+    $encoded_dept = urlencode($dept_name);
+
+    switch ($role_id) {
+        case ROLE_FACULTY:
+            return BASE_URL . "/modules/faculty/acd_year.php?dept={$encoded_dept}";
+        case ROLE_COORDINATOR:
+            return BASE_URL . "/modules/dept_coordinator/dc_acd_year.php?dept={$encoded_dept}";
+        case ROLE_HOD:
+            return BASE_URL . "/HOD/see_uploads.php?dept={$encoded_dept}&designation=HOD";
+        case ROLE_JUNIOR_ASSISTANT:
+            return BASE_URL . "/modules/jr_assistant/jr_acd_year.php?dept={$encoded_dept}";
+        case ROLE_ADMIN:
+            return BASE_URL . "/HOD/acd_year_aa.php?designation=admin";
+        case ROLE_CENTRAL_COORDINATOR:
+            return BASE_URL . "/modules/central/c_aqar_files.php?designation=central_coordinator&event={$encoded_dept}";
+        case ROLE_IQAC:
+            return BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event=IQAC";
+        default:
+            return BASE_URL . "/dashboard.php";
+    }
+}
+
+/**
  * Get current logged-in user info from session.
  * Returns associative array or null if not logged in.
  */
 function getCurrentUser($conn) {
-    if (!isset($_SESSION['user_id'])) {
-        return null;
+    if (isset($_SESSION['user_id'])) {
+        $user_id = (int) $_SESSION['user_id'];
+        $stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        if ($user) {
+            $user['roles'] = $_SESSION['roles'] ?? [];
+            return $user;
+        }
     }
-    $user_id = (int) $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT * FROM Users WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    $stmt->close();
     
-    if ($user) {
-        $user['roles'] = $_SESSION['roles'] ?? [];
-    }
-    return $user;
+    // Fallback: construct pseudo user object from session variables
+    $identifier = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['admin'] ?? $_SESSION['a_username'] ?? $_SESSION['c_username'] ?? $_SESSION['email'] ?? 'User';
+    return [
+        'user_id' => $_SESSION['user_id'] ?? 0,
+        'full_name' => $identifier,
+        'email' => $_SESSION['email'] ?? ($identifier . '@gmrit.edu.in'),
+        'roles' => $_SESSION['roles'] ?? []
+    ];
 }
 
 /**
  * Check if user is logged in.
  */
 function isLoggedIn() {
-    return isset($_SESSION['user_id']) && !empty($_SESSION['roles']);
+    return (!empty($_SESSION['logged_in']) && $_SESSION['logged_in'] === true)
+        || isset($_SESSION['user_id'])
+        || !empty($_SESSION['username'])
+        || !empty($_SESSION['h_username'])
+        || !empty($_SESSION['admin'])
+        || !empty($_SESSION['a_username'])
+        || !empty($_SESSION['c_username'])
+        || !empty($_SESSION['c_cord']);
 }
 
 /**

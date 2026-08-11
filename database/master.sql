@@ -1,6 +1,6 @@
 -- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
 --
--- Host: localhost    Database: project-fms
+-- Host: localhost    Database: gmritfms
 -- ------------------------------------------------------
 -- Server version	10.4.32-MariaDB
 
@@ -247,12 +247,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `conference_tab`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `conference_tab` (
   `id` int(255) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
   `branch` varchar(100) NOT NULL,
   `paper_title` varchar(300) NOT NULL,
+  `authors` text DEFAULT NULL,
+  `conference_name` varchar(255) DEFAULT NULL,
+  `published_paper_name` varchar(255) DEFAULT NULL,
   `from_date` varchar(200) NOT NULL,
   `to_date` varchar(200) NOT NULL,
   `organised_by` varchar(200) NOT NULL,
@@ -260,6 +262,13 @@ CREATE TABLE `conference_tab` (
   `certificate_path` varchar(400) NOT NULL,
   `paper_type` varchar(200) NOT NULL,
   `paper_file_path` varchar(300) NOT NULL,
+  `volume_no` varchar(255) DEFAULT NULL,
+  `issue_no` varchar(255) DEFAULT NULL,
+  `page_no` varchar(255) DEFAULT NULL,
+  `indexing` varchar(255) DEFAULT NULL,
+  `publication_link` varchar(255) DEFAULT NULL,
+  `issn_no` varchar(255) DEFAULT NULL,
+  `doi` varchar(255) DEFAULT NULL,
   `submission_time` varchar(300) NOT NULL,
   `year` varchar(255) NOT NULL,
   `status` varchar(50) DEFAULT 'Pending HOD',
@@ -275,6 +284,48 @@ CREATE TABLE `conference_tab` (
 LOCK TABLES `conference_tab` WRITE;
 /*!40000 ALTER TABLE `conference_tab` DISABLE KEYS */;
 /*!40000 ALTER TABLE `conference_tab` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `conf_org_tab`
+--
+
+DROP TABLE IF EXISTS `conf_org_tab`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `conf_org_tab` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) DEFAULT NULL,
+  `branch` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `mode` varchar(50) DEFAULT NULL,
+  `date_from` date DEFAULT NULL,
+  `date_to` date DEFAULT NULL,
+  `organised_by` varchar(255) DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `brochure` varchar(255) DEFAULT NULL,
+  `fdp_schedule_invitation` varchar(255) DEFAULT NULL,
+  `attendance_forms` varchar(255) DEFAULT NULL,
+  `feedback_forms` varchar(255) DEFAULT NULL,
+  `fdp_report` varchar(255) DEFAULT NULL,
+  `photo1` varchar(255) DEFAULT NULL,
+  `photo2` varchar(255) DEFAULT NULL,
+  `photo3` varchar(255) DEFAULT NULL,
+  `submission_time` datetime DEFAULT NULL,
+  `year` varchar(255) DEFAULT NULL,
+  `status` varchar(50) DEFAULT 'Pending HOD',
+  `rejection_reason` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `conf_org_tab`
+--
+
+LOCK TABLES `conf_org_tab` WRITE;
+/*!40000 ALTER TABLE `conf_org_tab` DISABLE KEYS */;
+/*!40000 ALTER TABLE `conf_org_tab` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -553,9 +604,34 @@ CREATE TABLE `documents` (
 -- Dumping data for table `documents`
 --
 
-LOCK TABLES `documents` WRITE;
-/*!40000 ALTER TABLE `documents` DISABLE KEYS */;
-/*!40000 ALTER TABLE `documents` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `document_actions`
+--
+
+DROP TABLE IF EXISTS `document_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `document_actions` (
+  `action_id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `role_id` int(11) NOT NULL,
+  `action_type` varchar(50) NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `action_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`action_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `document_actions`
+--
+
+LOCK TABLES `document_actions` WRITE;
+/*!40000 ALTER TABLE `document_actions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `document_actions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -613,11 +689,14 @@ CREATE TABLE `fdps_tab` (
   `username` varchar(200) NOT NULL,
   `branch` varchar(100) NOT NULL,
   `title` varchar(200) NOT NULL,
+  `mode` varchar(50) DEFAULT NULL,
   `date_from` date NOT NULL,
   `date_to` date NOT NULL,
   `organised_by` varchar(200) NOT NULL,
   `location` varchar(200) NOT NULL,
   `certificate` varchar(200) NOT NULL,
+  `brochure` varchar(255) DEFAULT NULL,
+  `fdp_schedule` varchar(255) DEFAULT NULL,
   `submission_time` varchar(300) NOT NULL,
   `year` varchar(255) NOT NULL,
   `status` varchar(50) DEFAULT 'Pending HOD',
@@ -982,6 +1061,7 @@ CREATE TABLE `patents_table` (
   `Username` varchar(300) NOT NULL,
   `branch` varchar(100) NOT NULL,
   `patent_title` varchar(300) NOT NULL,
+  `type` varchar(100) DEFAULT NULL,
   `date_of_issue` varchar(100) NOT NULL,
   `patent_file` varchar(400) NOT NULL,
   `submission_time` varchar(300) NOT NULL,
@@ -1014,6 +1094,15 @@ CREATE TABLE `published_tab` (
   `branch` varchar(100) NOT NULL,
   `paper_title` varchar(200) NOT NULL,
   `journal_name` varchar(200) NOT NULL,
+  `authors` text DEFAULT NULL,
+  `issn_no` varchar(255) DEFAULT NULL,
+  `volume_no` varchar(255) DEFAULT NULL,
+  `issue_no` varchar(255) DEFAULT NULL,
+  `page_no` varchar(255) DEFAULT NULL,
+  `doi` varchar(255) DEFAULT NULL,
+  `jcr_quartile` varchar(255) DEFAULT NULL,
+  `scopus_quartile` varchar(255) DEFAULT NULL,
+  `publication_link` varchar(255) DEFAULT NULL,
   `indexing` varchar(100) NOT NULL,
   `date_of_submission` date NOT NULL,
   `quality_factor` decimal(10,0) NOT NULL,
@@ -1024,7 +1113,6 @@ CREATE TABLE `published_tab` (
   `year` varchar(255) NOT NULL,
   `status` varchar(50) DEFAULT 'Pending HOD',
   `rejection_reason` text DEFAULT NULL,
-  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
