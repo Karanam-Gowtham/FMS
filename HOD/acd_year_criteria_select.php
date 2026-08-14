@@ -128,7 +128,6 @@ include_once 'header_hod.php';
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     
 
     <div class="container11">

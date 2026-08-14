@@ -21,13 +21,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Set loading state visually
                 submitBtn.classList.add('is-loading');
-                const originalText = submitBtn.innerText || submitBtn.value;
-                submitBtn.setAttribute('data-original-text', originalText);
                 
                 if (submitBtn.tagName.toLowerCase() === 'input') {
+                    const originalText = submitBtn.value;
+                    submitBtn.setAttribute('data-original-text', originalText);
                     submitBtn.value = 'Processing...';
+                    
+                    // Reset after 4 seconds (handles file downloads staying on page)
+                    setTimeout(() => {
+                        submitBtn.classList.remove('is-loading');
+                        submitBtn.value = originalText;
+                    }, 4000);
                 } else {
-                    submitBtn.innerHTML = 'Processing... <span class="spinner"></span>';
+                    const originalHTML = submitBtn.innerHTML;
+                    submitBtn.setAttribute('data-original-html', originalHTML);
+                    
+                    if (submitBtn.children.length === 0) {
+                        submitBtn.innerHTML = 'Processing... <span class="spinner"></span>';
+                    } else {
+                        // If button has complex HTML (like cards), just append spinner
+                        submitBtn.insertAdjacentHTML('beforeend', ' <span class="spinner" style="position:absolute; right:20px; top:50%; transform:translateY(-50%);"></span>');
+                        submitBtn.style.position = 'relative';
+                    }
+                    
+                    // Reset after 4 seconds (handles file downloads staying on page)
+                    setTimeout(() => {
+                        submitBtn.classList.remove('is-loading');
+                        submitBtn.innerHTML = originalHTML;
+                    }, 4000);
                 }
             }
         });

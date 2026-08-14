@@ -276,8 +276,16 @@ body {
                         <h3>student Activities Files</h3>
                     </div>
                 </a>
-               
             </div>
+        </div>
+
+        <!-- WORKFLOW DASHBOARD -->
+        <div class="container" style="margin-top: 60px;">
+            <?php 
+                $user_id = $_SESSION['user_id'] ?? 0;
+                $dept_id = 0; // Not strictly needed for faculty docs
+                include "../../includes/dashboard_table.php"; 
+            ?>
         </div>
     </main>
 

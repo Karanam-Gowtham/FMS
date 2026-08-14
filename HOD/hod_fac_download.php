@@ -462,7 +462,6 @@ async function mergePDFs() {
 </head>
 
 <body>
-    <?php include "../includes/header.php"; ?>
 
 <div class="cont">
     <div class="container11">

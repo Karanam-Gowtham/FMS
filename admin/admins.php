@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
         exit();
     } elseif (isset($_SESSION['h_username'])) {
         ob_end_clean();
-        header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=HOD");
+        header("Location: ../HOD/hod_acd_year.php?dept=" . urlencode($dept) . "&designation=HOD");
         exit();
     } elseif (isset($_SESSION['a_username'])) {
         ob_end_clean();
@@ -114,12 +114,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             } elseif ($designation === "hod") {
                 $_SESSION['h_username'] = $userid;
+                $_SESSION['dept'] = $dept;
                 ob_end_clean();
-                header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=HOD");
+                header("Location: ../HOD/hod_acd_year.php?dept=" . urlencode($dept) . "&designation=HOD");
                 exit();
             } elseif ($designation === "central_coordinator") {
-                $_SESSION['h_username'] = $userid;
                 $_SESSION['c_username'] = $userid;
+                $_SESSION['c_cord'] = $userid;
+                $_SESSION['dept'] = $dept;
                 ob_end_clean();
                 header("Location: ../modules/central/cc_acd_year.php?dept=" . urlencode($dept) . "&designation=" . urlencode($designation));
                 exit();

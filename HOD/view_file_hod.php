@@ -44,16 +44,31 @@ if (strpos($rawPath, 'uploads/') === false && strpos($rawPath, 'uploads\\') === 
 $tempPath = str_replace('\\', '/', $rawPath);
 
 $resolvedPath = null;
-if (preg_match('/uploads\/.*/', $tempPath, $matches)) {
+$foundPath = '';
+if (preg_match('/uploads\/.*/i', $tempPath, $matches)) {
     $foundPath = $matches[0];
+} else {
+    $foundPath = 'uploads/' . ltrim($tempPath, '/');
+}
 
-    // Try multiple depths relative to HOD/
-    if (file_exists("../" . $foundPath)) {
-        $resolvedPath = "../" . $foundPath;
-    } elseif (file_exists($foundPath)) {
-        $resolvedPath = $foundPath;
-    } elseif (file_exists("../../" . $foundPath)) {
-        $resolvedPath = "../../" . $foundPath;
+$candidatePaths = [
+    __DIR__ . "/../" . $foundPath,
+    __DIR__ . "/../modules/faculty/" . $foundPath,
+    __DIR__ . "/../modules/dept_coordinator/" . $foundPath,
+    __DIR__ . "/../admin/" . $foundPath,
+    __DIR__ . "/../../" . $foundPath,
+    __DIR__ . "/../../modules/faculty/" . $foundPath,
+    __DIR__ . "/../../modules/dept_coordinator/" . $foundPath,
+    __DIR__ . "/../../admin/" . $foundPath,
+    $foundPath,
+    "../" . $foundPath,
+    "../../" . $foundPath
+];
+
+foreach ($candidatePaths as $cp) {
+    if (file_exists($cp) && is_file($cp)) {
+        $resolvedPath = $cp;
+        break;
     }
 }
 

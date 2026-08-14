@@ -194,7 +194,6 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
     </script>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
 
 
 <div class="overlay" id="overlay" onclick="hidePopup()"></div>

@@ -18,9 +18,14 @@ function fixPath($p)
     $finalPath = $p;
     if (preg_match(REGEX_UPLOADS, $p, $matches)) {
         $foundPath = $matches[0];
-        // Relative to modules/common/
         if (file_exists(DIR_UP_TWO . $foundPath)) {
             $finalPath = DIR_UP_TWO . $foundPath;
+        } elseif (file_exists("../faculty/" . $foundPath)) {
+            $finalPath = "../faculty/" . $foundPath;
+        } elseif (file_exists("../dept_coordinator/" . $foundPath)) {
+            $finalPath = "../dept_coordinator/" . $foundPath;
+        } elseif (file_exists("../central/" . $foundPath)) {
+            $finalPath = "../central/" . $foundPath;
         } elseif (file_exists(DIR_UP . $foundPath)) {
             $finalPath = DIR_UP . $foundPath;
         } elseif (file_exists($foundPath)) {
@@ -392,7 +397,7 @@ function renderFdpsAttended($conn, $username) {
             $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$certificatePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
             echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $certificatePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["title"]) . "</td><td>" . htmlspecialchars($row["date_from"]) . "</td><td>" . htmlspecialchars($row["date_to"]) . "</td><td>" . htmlspecialchars($row["organised_by"]) . "</td><td>" . htmlspecialchars($row["location"]) . "</td></tr>";
         }
-        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='submit' class='download-btn' name='action' value='download'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
     } else { echo "<p class='no-files'>No FDPS attended found.</p>"; }
     echo "</div>";
 }
@@ -434,7 +439,7 @@ function renderPublishedPapers($conn, $username) {
             $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$paperFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
             echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $paperFilePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["paper_title"]) . "</td><td>" . htmlspecialchars($row["journal_name"]) . "</td><td>" . htmlspecialchars($row["indexing"]) . "</td><td>" . htmlspecialchars($row["date_of_submission"]) . "</td><td>" . htmlspecialchars($row["quality_factor"]) . "</td><td>" . htmlspecialchars($row["impact_factor"]) . "</td><td>" . htmlspecialchars($row["payment"]) . "</td></tr>";
         }
-        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='submit' class='download-btn' name='action' value='download'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button>&nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
     } else { echo "<p class='no-files'>No published papers found.</p>"; }
     echo "</div>";
 }
@@ -474,7 +479,7 @@ function renderPatents($conn, $username) {
             $files_json = str_replace('"', HTM_QUOT, json_encode(array_values(array_filter([$patentFilePath], fn($f) => strlen($f) > 3)), JSON_UNESCAPED_SLASHES));
             echo "<tr><td><input type='checkbox' name='selected_files[]' value='" . $row["id"] . QUOTE_SPACE . ATTR_DATA_FILEPATH . $patentFilePath . QUOTE_SPACE . DATA_FILES_PREFIX . $files_json . "'></td><td>" . htmlspecialchars($row["Username"]) . "</td><td>" . htmlspecialchars($row["branch"]) . "</td><td>" . htmlspecialchars($row["year"]) . "</td><td>" . htmlspecialchars($row["patent_title"]) . "</td><td>" . htmlspecialchars($row["date_of_issue"]) . "</td></tr>";
         }
-        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='submit' class='download-btn' name='action' value='download'>Download Selected</button> &nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
+        echo "</table><br><div class='bulk-actions'><button type='button' class='view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='download-btn' onclick='bulkDownload()'>Download Selected</button> &nbsp;<button type='submit' class='delete-btn' name='action' value='delete' onclick='return confirm(\"Delete selected records?\")'>Delete Selected</button></div></form>";
     } else { echo "<p class='no-files'>No patents found.</p>"; }
     echo "</div>";
 }
@@ -634,8 +639,8 @@ include_once "../../includes/header.php";
             return;
         }
 
-        // Single selection with no data-files ? direct view
-        if (checkboxes.length === 1 && !checkboxes[0].getAttribute('data-files')) {
+        // Single selection: use mergeAndAct which prioritizes direct view if a single file exists
+        if (checkboxes.length === 1) {
             await mergeAndAct(checkboxes[0], 'view');
             return;
         }

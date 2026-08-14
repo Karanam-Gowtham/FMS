@@ -121,7 +121,6 @@ function outputExcelRow($row, $show_section, $show_semester, $show_branch) {
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
 
     <h1>Download Files</h1>
 

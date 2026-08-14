@@ -181,7 +181,6 @@ if(isset($_POST['year'])){
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
 
     <div class="cont11">
 <div class="container">

@@ -29,22 +29,36 @@ function fixPath($p)
     if (empty($p)) {
         return "";
     }
-    $p = htmlspecialchars_decode($p);
+    $p = htmlspecialchars_decode((string)$p);
     $p = str_replace('\\', '/', $p);
-    $resultPath = $p;
-    if (preg_match(REGEX_UPLOADS, $p, $matches)) {
+    
+    $foundPath = '';
+    if (preg_match('/uploads\/.*/i', $p, $matches)) {
         $foundPath = $matches[0];
-        if (file_exists("../" . $foundPath)) {
-            $resultPath = "../" . $foundPath;
-        } elseif (file_exists($foundPath)) {
-            $resultPath = $foundPath;
-        } elseif (file_exists(PATH_UP_UP . $foundPath)) {
-            $resultPath = PATH_UP_UP . $foundPath;
-        } else {
-            $resultPath = "../" . $foundPath; // Default
+    } else {
+        $foundPath = 'uploads/' . ltrim($p, '/');
+    }
+
+    $candidatePaths = [
+        __DIR__ . "/../" . $foundPath,
+        __DIR__ . "/../modules/faculty/" . $foundPath,
+        __DIR__ . "/../modules/dept_coordinator/" . $foundPath,
+        __DIR__ . "/../admin/" . $foundPath,
+        __DIR__ . "/../../" . $foundPath,
+        __DIR__ . "/../../modules/faculty/" . $foundPath,
+        __DIR__ . "/../../modules/dept_coordinator/" . $foundPath,
+        __DIR__ . "/../../admin/" . $foundPath,
+        "../" . $foundPath,
+        "../modules/faculty/" . $foundPath,
+        $foundPath
+    ];
+
+    foreach ($candidatePaths as $cp) {
+        if (file_exists($cp) && is_file($cp)) {
+            return $cp;
         }
     }
-    return $resultPath;
+    return "../" . $foundPath;
 }
 
 $catg = '';
@@ -64,7 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $action = '';
-ob_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['selected_files'])) {
     $action = $_POST['action'];
@@ -95,15 +108,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             break;
     }
 
-    // HOD actions: mainly download. Delete is disabled for safety unless requested.
     if ($action == 'download') {
-        if (ob_get_length()) {
+        while (ob_get_level()) {
             ob_end_clean();
         }
 
         if (count($selectedFiles) == 1) {
             $fileId = $selectedFiles[0];
-            $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND branch = ? AND status = 'Accepted'";
+            $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND branch = ? AND (status IS NULL OR status != 'Rejected')";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("is", $fileId, $dept);
             $stmt->execute();
@@ -111,33 +123,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $file = $result->fetch_assoc();
 
             if ($file && !empty($file[$fileColumn])) {
-                $filePath = $file[$fileColumn];
-                $p = str_replace('\\', '/', $filePath);
-                if (preg_match(REGEX_UPLOADS, $p, $matches)) {
-                    $foundPath = $matches[0];
-                    if (file_exists("../" . $foundPath)) {
-                        $p = "../" . $foundPath;
-                    } elseif (file_exists($foundPath)) {
-                        $p = $foundPath;
-                    } elseif (file_exists(PATH_UP_UP . $foundPath)) {
-                        $p = PATH_UP_UP . $foundPath;
-                    }
-                }
+                $p = fixPath($file[$fileColumn]);
 
                 if (file_exists($p)) {
                     header('Content-Type: application/octet-stream');
                     header('Content-Disposition: attachment; filename="' . basename($p) . '"');
                     header('Content-Length: ' . filesize($p));
-                    ob_clean();
-                    flush();
                     readfile($p);
                     exit;
                 } else {
-                    echo "<script>alert('File not found. Path: " . htmlspecialchars($p, ENT_QUOTES) . "'); window.location.href = window.location.href;
-        function viewSingleFile(filePath) {
-            window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
-        }
-</script>";
+                    echo "<script>alert('File not found. Path: " . htmlspecialchars($file[$fileColumn], ENT_QUOTES) . "'); window.location.href = window.location.href;</script>";
                     exit;
                 }
             }
@@ -150,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                 $filesAdded = 0;
                 foreach ($selectedFiles as $fileId) {
-                    $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND branch = ? AND status = 'Accepted'";
+                    $sql = "SELECT $fileColumn FROM $tableName WHERE id = ? AND branch = ? AND (status IS NULL OR status != 'Rejected')";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("is", $fileId, $dept);
                     $stmt->execute();
@@ -158,18 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     $file = $result->fetch_assoc();
 
                     if ($file && !empty($file[$fileColumn])) {
-                        $f = $file[$fileColumn];
-                        $p = str_replace('\\', '/', $f);
-                        if (preg_match(REGEX_UPLOADS, $p, $matches)) {
-                            $foundPath = $matches[0];
-                            if (file_exists("../" . $foundPath)) {
-                                $p = "../" . $foundPath;
-                            } elseif (file_exists($foundPath)) {
-                                $p = $foundPath;
-                            } elseif (file_exists(PATH_UP_UP . $foundPath)) {
-                                $p = PATH_UP_UP . $foundPath;
-                            }
-                        }
+                        $p = fixPath($file[$fileColumn]);
                         if (file_exists($p)) {
                             $zip->addFile($p, basename($p));
                             $filesAdded++;
@@ -202,35 +186,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
 // Export logic (same as DC but path adapted if needed)
 if (isset($_POST['export_fdps']) || isset($_POST['export_fdps_org']) || isset($_POST['export_published']) || isset($_POST['export_conference']) || isset($_POST['export_patent'])) {
-    // ... Implement export logic if critical, but for brevity relying on generic export or View functionality
-    // Since the code is long, I'll include the export handling
-    ob_end_clean();
-    ob_start();
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
     header("Content-Type: application/vnd.ms-excel");
 
-    $export_dept = $_POST['dept'];
+    $export_dept = $_POST['dept'] ?? $_GET['dept'] ?? '';
 
     if (isset($_POST['export_fdps'])) {
         header("Content-Disposition: attachment; filename=fdps_records.xls");
         echo "Username\tBranch\tTitle\tDate From\tDate To\tOrganised By\tLocation\n";
-        $sql = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
-        $tableName = 'fdps_tab';
+        $sql = "SELECT * FROM fdps_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
     } elseif (isset($_POST['export_fdps_org'])) {
         header("Content-Disposition: attachment; filename=fdps_organized.xls");
         echo "Username\tBranch\tTitle\tDate From\tDate To\tOrganised By\tLocation\n";
-        $sql = "SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'";
+        $sql = "SELECT * FROM fdps_org_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
     } elseif (isset($_POST['export_published'])) {
         header("Content-Disposition: attachment; filename=published_papers.xls");
         echo "Username\tBranch\tPaper Title\tJournal Name\tIndexing\tDate of Submission\tQuality Factor\tImpact Factor\tPayment\n";
-        $sql = "SELECT * FROM published_tab WHERE branch = ? AND status = 'Accepted'";
+        $sql = "SELECT * FROM published_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
     } elseif (isset($_POST['export_conference'])) {
         header("Content-Disposition: attachment; filename=conference_papers.xls");
         echo "Username\tBranch\tPaper Title\tFrom Date\tTo Date\tOrganised By\tLocation\tPaper Type\n";
-        $sql = "SELECT * FROM conference_tab WHERE branch = ? AND status = 'Accepted'";
+        $sql = "SELECT * FROM conference_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
     } elseif (isset($_POST['export_patent'])) {
         header("Content-Disposition: attachment; filename=patents.xls");
         echo "Username\tBranch\tPatent Title\tDate of Issue\n";
-        $sql = "SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'";
+        $sql = "SELECT * FROM patents_table WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
     }
 
     $stmt = $conn->prepare($sql);
@@ -239,12 +221,7 @@ if (isset($_POST['export_fdps']) || isset($_POST['export_fdps_org']) || isset($_
     $result = $stmt->get_result();
 
     while ($row = $result->fetch_assoc()) {
-        // Output fields based on type
-        // Simplified for brevity, normally we'd separate this
-        // But since we know the table, we can output generic or specific
-        if (isset($_POST['export_fdps'])) {
-            echo "{$row['username']}\t{$row['branch']}\t{$row['title']}\t{$row['date_from']}\t{$row['date_to']}\t{$row['organised_by']}\t{$row['location']}\n";
-        } elseif (isset($_POST['export_fdps_org'])) {
+        if (isset($_POST['export_fdps']) || isset($_POST['export_fdps_org'])) {
             echo "{$row['username']}\t{$row['branch']}\t{$row['title']}\t{$row['date_from']}\t{$row['date_to']}\t{$row['organised_by']}\t{$row['location']}\n";
         } elseif (isset($_POST['export_published'])) {
             echo "{$row['username']}\t{$row['branch']}\t{$row['paper_title']}\t{$row['journal_name']}\t{$row['indexing']}\t{$row['date_of_submission']}\t{$row['quality_factor']}\t{$row['impact_factor']}\t{$row['payment']}\n";
@@ -254,7 +231,6 @@ if (isset($_POST['export_fdps']) || isset($_POST['export_fdps_org']) || isset($_
             echo "{$row['Username']}\t{$row['branch']}\t{$row['patent_title']}\t{$row['date_of_issue']}\n";
         }
     }
-    ob_end_flush();
     exit;
 }
 
@@ -279,11 +255,8 @@ include_once "header_hod.php";
 </head>
 
 <body>
-    <?php include "../includes/header.php"; ?>
-
-    
-
     <div class="div1">
+        <?php if (!$dept || !$catg): ?>
         <div class="filter-section">
             <h1><?php echo ($catg === 'fdps') ? 'fdps_attended' : htmlspecialchars($catg); ?> Files</h1>
             <form method="POST" class="filter-form">
@@ -309,6 +282,7 @@ include_once "header_hod.php";
                 <button type="submit" name="sel_btn" class="filter-button">Show Results</button>
             </form>
         </div>
+        <?php endif; ?>
 
         <?php
         if ($catg) {
@@ -318,7 +292,7 @@ include_once "header_hod.php";
                 case 'fdps':
                     echo "<div class='container11'><h2>FDPS Attended</h2>";
                     echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_fdps'>Export to Excel</button></form>";
-                    $sql = "SELECT * FROM fdps_tab WHERE branch = ? AND status = 'Accepted'";
+                    $sql = "SELECT * FROM fdps_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
                     $stmt->execute();
@@ -370,7 +344,7 @@ include_once "header_hod.php";
                             <input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'>
                             <button type='submit' class='ex_bt' name='export_fdps_org'>Export to Excel</button>
                           </form>";
-                    $sql = "SELECT * FROM fdps_org_tab WHERE branch = ? AND status = 'Accepted'";
+                    $sql = "SELECT * FROM fdps_org_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
                     $stmt->execute();
@@ -413,7 +387,7 @@ include_once "header_hod.php";
                                  <td>" . htmlspecialchars($row['username']) . "</td><td>" . htmlspecialchars($row['branch']) . "</td><td>" . htmlspecialchars($row['title']) . "</td><td>" . htmlspecialchars($row['date_from']) . "</td><td>" . htmlspecialchars($row['date_to']) . "</td><td>" . htmlspecialchars($row['organised_by']) . "</td><td>" . htmlspecialchars($row['location']) . "</td>
                              </tr>";
                         }
-                        echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='button' class='btn download-btn' onclick='bulkDownload()'>Download Selected</button></div></form>";
+                        echo "</table><div class='bulk-actions'><button type='button' class='btn view-btn' onclick='bulkView()'>View Selected</button><button type='submit' name='action' class='btn download-btn' value='download'>Download Selected</button></div></form>";
                     } else {
                         echo "<p class='no-files'>No FDPS organised found.</p>";
                     }
@@ -423,7 +397,7 @@ include_once "header_hod.php";
                 case 'published':
                     echo "<div class='container11'><h2>Published Papers</h2>";
                     echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_published'>Export to Excel</button></form>";
-                    $sql = "SELECT * FROM published_tab WHERE branch = ? AND status = 'Accepted'";
+                    $sql = "SELECT * FROM published_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
                     $stmt->execute();
@@ -448,7 +422,7 @@ include_once "header_hod.php";
                 case 'conference':
                     echo "<div class='container11'><h2>Conference Papers</h2>";
                     echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_conference'>Export to Excel</button></form>";
-                    $sql = "SELECT * FROM conference_tab WHERE branch = ? AND status = 'Accepted'";
+                    $sql = "SELECT * FROM conference_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
                     $stmt->execute();
@@ -475,7 +449,7 @@ include_once "header_hod.php";
                 case 'patents':
                     echo "<div class='container11'><h2>Patents</h2>";
                     echo "<form method='POST' class='ex_b'><input type='hidden' name='dept' value='" . htmlspecialchars($dept) . "'><button type='submit' class='ex_bt' name='export_patent'>Export to Excel</button></form>";
-                    $sql = "SELECT * FROM patents_table WHERE branch = ? AND status = 'Accepted'";
+                    $sql = "SELECT * FROM patents_table WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s", $dept);
                     $stmt->execute();
@@ -544,9 +518,9 @@ include_once "header_hod.php";
             }
 
             if (filesJson && filesJson !== '') {
-                const decodedJson = filesJson.replace(new RegExp(HTML_QUOT, 'g'), '"')
-                                             .replace(new RegExp(HTML_X2F, 'g'), '/')
-                                             .replace(new RegExp(HTML_AMP, 'g'), '&');
+                const decodedJson = filesJson.replace(/&quot;/g, '"')
+                                             .replace(/&#x2F;/g, '/')
+                                             .replace(/&amp;/g, '&');
                 const files = JSON.parse(decodedJson);
 
                 const { PDFDocument } = PDFLib;
@@ -613,61 +587,82 @@ include_once "header_hod.php";
                 return;
             }
 
-            // Single item with no data-files ? direct view
-            if (checkboxes.length === 1 && !checkboxes[0].getAttribute('data-files')) {
-                await mergeAndAct(checkboxes[0], 'view');
-                return;
-            }
-
-            // Merge ALL selected records' files into one PDF
-            const { PDFDocument } = PDFLib;
-            const mergedPdf = await PDFDocument.create();
-            let addedPages = 0;
-
-            for (const cb of checkboxes) {
+            if (checkboxes.length === 1) {
+                const cb = checkboxes[0];
                 const filesJson = cb.getAttribute('data-files');
                 const filePath = cb.getAttribute('data-filepath');
-
-                let filesToProcess = [];
-                if (filesJson && filesJson !== '') {
-                    const decodedJson = filesJson.replace(new RegExp(HTML_QUOT, 'g'), '"')
-                                                 .replace(new RegExp(HTML_X2F, 'g'), '/')
-                                                 .replace(new RegExp(HTML_AMP, 'g'), '&');
-                    filesToProcess = JSON.parse(decodedJson).filter(f => f && f.length > 0);
-                }
-                if (filesToProcess.length === 0 && filePath && filePath !== '') {
-                    filesToProcess = [filePath];
-                }
-
-                for (const fileUrl of filesToProcess) {
+                
+                let pathToOpen = filePath;
+                if ((!pathToOpen || pathToOpen === '') && filesJson) {
                     try {
-                        const response = await fetch(fileUrl);
-                        if (!response.ok) { console.warn('Cannot fetch:', fileUrl); continue; }
-                        const buf = await response.arrayBuffer();
-                        const ext = fileUrl.split('.').pop().toLowerCase().split('?')[0];
-
-                        if (ext === 'pdf') {
-                            const pdf = await PDFDocument.load(buf);
-                            const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-                            pages.forEach(p => mergedPdf.addPage(p));
-                            addedPages += pages.length;
-                        } else if (['jpg', 'jpeg', 'png'].includes(ext)) {
-                            const img = ext === 'png' ? await mergedPdf.embedPng(buf) : await mergedPdf.embedJpg(buf);
-                            const { width, height } = img.scale(1);
-                            const page = mergedPdf.addPage([width, height]);
-                            page.drawImage(img, { x: 0, y: 0, width, height });
-                            addedPages++;
-                        }
-                    } catch (e) { console.error('Error merging:', fileUrl, e); }
+                        const decodedJson = filesJson.replace(/&quot;/g, '"').replace(/&#x2F;/g, '/').replace(/&amp;/g, '&');
+                        const arr = JSON.parse(decodedJson);
+                        if (arr && arr.length > 0) pathToOpen = arr[0];
+                    } catch(e) {}
+                }
+                
+                if (pathToOpen) {
+                    window.open('view_file_hod.php?file_path=' + encodeURIComponent(pathToOpen), '_blank');
+                    return;
                 }
             }
 
-            if (addedPages > 0) {
-                const bytes = await mergedPdf.save();
-                const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
-                window.open(url, '_blank');
-            } else {
-                alert('Could not process any files. Ensure the selected files are valid PDFs or images.');
+            try {
+                const { PDFDocument } = PDFLib;
+                const mergedPdf = await PDFDocument.create();
+                let addedPages = 0;
+
+                for (const cb of checkboxes) {
+                    const filesJson = cb.getAttribute('data-files');
+                    const filePath = cb.getAttribute('data-filepath');
+
+                    let filesToProcess = [];
+                    if (filesJson && filesJson !== '') {
+                        try {
+                            const decodedJson = filesJson.replace(/&quot;/g, '"').replace(/&#x2F;/g, '/').replace(/&amp;/g, '&');
+                            filesToProcess = JSON.parse(decodedJson).filter(f => f && f.length > 0);
+                        } catch(e) {}
+                    }
+                    if (filesToProcess.length === 0 && filePath && filePath !== '') {
+                        filesToProcess = [filePath];
+                    }
+
+                    for (const fileUrl of filesToProcess) {
+                        try {
+                            const streamUrl = 'view_file_hod.php?file_path=' + encodeURIComponent(fileUrl);
+                            const response = await fetch(streamUrl);
+                            if (!response.ok) { console.warn('Cannot fetch:', streamUrl); continue; }
+                            const buf = await response.arrayBuffer();
+                            const ext = fileUrl.split('.').pop().toLowerCase().split('?')[0];
+
+                            if (ext === 'pdf' || (response.headers.get('content-type') && response.headers.get('content-type').includes('pdf'))) {
+                                const pdf = await PDFDocument.load(buf);
+                                const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                                pages.forEach(p => mergedPdf.addPage(p));
+                                addedPages += pages.length;
+                            } else {
+                                try {
+                                    const img = ext === 'png' ? await mergedPdf.embedPng(buf) : await mergedPdf.embedJpg(buf);
+                                    const { width, height } = img.scale(1);
+                                    const page = mergedPdf.addPage([width, height]);
+                                    page.drawImage(img, { x: 0, y: 0, width, height });
+                                    addedPages++;
+                                } catch(imgErr) {}
+                            }
+                        } catch (e) { console.error('Error merging:', fileUrl, e); }
+                    }
+                }
+
+                if (addedPages > 0) {
+                    const bytes = await mergedPdf.save();
+                    const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+                    window.open(url, '_blank');
+                } else {
+                    alert('Could not process any files. Ensure the selected files exist and are valid.');
+                }
+            } catch(err) {
+                console.error(err);
+                alert('An error occurred while viewing PDFs: ' + err.message);
             }
         }
 

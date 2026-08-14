@@ -1,0 +1,236 @@
+[
+    {
+        "user_id": "1",
+        "full_name": "Admin",
+        "email": "admin@gmrit.edu",
+        "roles": "Admin (CSE), Admin (NAAC)"
+    },
+    {
+        "user_id": "2",
+        "full_name": "gowtham",
+        "email": "gowtham.lite@gmail.com",
+        "roles": "Faculty (CSE), Faculty (AI_DS)"
+    },
+    {
+        "user_id": "999",
+        "full_name": "Test User",
+        "email": "test@gmrit.edu.in",
+        "roles": "Admin (CSE)"
+    },
+    {
+        "user_id": "1000",
+        "full_name": "chandu",
+        "email": "chandu@gmrit.edu.in",
+        "roles": "Admin (CSE)"
+    },
+    {
+        "user_id": "1001",
+        "full_name": "23341A4535@gmrit.edu.in",
+        "email": "23341A4535@gmrit.edu.in",
+        "roles": "Faculty (CSE)"
+    },
+    {
+        "user_id": "1002",
+        "full_name": "cseuser1@gmail.com",
+        "email": "cseuser1@gmail.com",
+        "roles": "Faculty (CSE)"
+    },
+    {
+        "user_id": "1003",
+        "full_name": "aidsuser@gmail.com",
+        "email": "aidsuser@gmail.com",
+        "roles": "Faculty (CSE)"
+    },
+    {
+        "user_id": "1004",
+        "full_name": "cse-hod",
+        "email": "cse-hod@gmrit.edu.in",
+        "roles": "HOD (CSE)"
+    },
+    {
+        "user_id": "1005",
+        "full_name": "aiml-hod",
+        "email": "aiml-hod@gmrit.edu.in",
+        "roles": "HOD (CSE)"
+    },
+    {
+        "user_id": "1006",
+        "full_name": "aids-hod",
+        "email": "aids-hod@gmrit.edu.in",
+        "roles": "HOD (CSE)"
+    },
+    {
+        "user_id": "1007",
+        "full_name": "ece-hod",
+        "email": "ece-hod@gmrit.edu.in",
+        "roles": "HOD (ECE)"
+    },
+    {
+        "user_id": "1008",
+        "full_name": "eee-hod",
+        "email": "eee-hod@gmrit.edu.in",
+        "roles": "HOD (EEE)"
+    },
+    {
+        "user_id": "1009",
+        "full_name": "mech-hod",
+        "email": "mech-hod@gmrit.edu.in",
+        "roles": "HOD (MECH)"
+    },
+    {
+        "user_id": "1010",
+        "full_name": "civil-hod",
+        "email": "civil-hod@gmrit.edu.in",
+        "roles": "HOD (CIVIL)"
+    },
+    {
+        "user_id": "1011",
+        "full_name": "it-hod",
+        "email": "it-hod@gmrit.edu.in",
+        "roles": "HOD (IT)"
+    },
+    {
+        "user_id": "1012",
+        "full_name": "hod",
+        "email": "hod@gmrit.edu.in",
+        "roles": "HOD (CSE)"
+    },
+    {
+        "user_id": "1013",
+        "full_name": "dept_cord1",
+        "email": "dept_cord1@gmrit.edu.in",
+        "roles": "Dept Coordinator (CSE)"
+    },
+    {
+        "user_id": "1014",
+        "full_name": "dept_cord2",
+        "email": "dept_cord2@gmrit.edu.in",
+        "roles": "Dept Coordinator (CSE)"
+    },
+    {
+        "user_id": "1015",
+        "full_name": "dept_cord3",
+        "email": "dept_cord3@gmrit.edu.in",
+        "roles": "Dept Coordinator (CSE)"
+    },
+    {
+        "user_id": "1016",
+        "full_name": "dept_cord4",
+        "email": "dept_cord4@gmrit.edu.in",
+        "roles": "Dept Coordinator (IT)"
+    },
+    {
+        "user_id": "1017",
+        "full_name": "dept_cord5",
+        "email": "dept_cord5@gmrit.edu.in",
+        "roles": "Dept Coordinator (ECE)"
+    },
+    {
+        "user_id": "1018",
+        "full_name": "dept_cord6",
+        "email": "dept_cord6@gmrit.edu.in",
+        "roles": "Dept Coordinator (EEE)"
+    },
+    {
+        "user_id": "1019",
+        "full_name": "dept_cord7",
+        "email": "dept_cord7@gmrit.edu.in",
+        "roles": "Dept Coordinator (MECH)"
+    },
+    {
+        "user_id": "1020",
+        "full_name": "dept_cord8",
+        "email": "dept_cord8@gmrit.edu.in",
+        "roles": "Dept Coordinator (CIVIL)"
+    },
+    {
+        "user_id": "1021",
+        "full_name": "dept_cord9",
+        "email": "dept_cord9@gmrit.edu.in",
+        "roles": "Dept Coordinator (BSH)"
+    },
+    {
+        "user_id": "1022",
+        "full_name": "central_cord",
+        "email": "central_cord@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1023",
+        "full_name": "central_cord1",
+        "email": "central_cord1@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1024",
+        "full_name": "central_cord2",
+        "email": "central_cord2@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1025",
+        "full_name": "central_cord3",
+        "email": "central_cord3@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1026",
+        "full_name": "central_cord4",
+        "email": "central_cord4@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1027",
+        "full_name": "central_cord5",
+        "email": "central_cord5@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1028",
+        "full_name": "central_cord6",
+        "email": "central_cord6@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1029",
+        "full_name": "central_cord7",
+        "email": "central_cord7@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1030",
+        "full_name": "central_cord8",
+        "email": "central_cord8@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1031",
+        "full_name": "central_cord9",
+        "email": "central_cord9@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1032",
+        "full_name": "central_cord10",
+        "email": "central_cord10@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1033",
+        "full_name": "central",
+        "email": "central@gmrit.edu.in",
+        "roles": "Central Coordinator (Clubs)"
+    },
+    {
+        "user_id": "1034",
+        "full_name": "jr1",
+        "email": "jr1@gmrit.edu.in",
+        "roles": "Junior Assistant (CSE)"
+    },
+    {
+        "user_id": "1035",
+        "full_name": "cseuser",
+        "email": "cse@gmail.com",
+        "roles": "Faculty (CSE)"
+    }
+]

@@ -109,7 +109,6 @@ $conn->close();
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
 
     <!-- Logout Button -->
     

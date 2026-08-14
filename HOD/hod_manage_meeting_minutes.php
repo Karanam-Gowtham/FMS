@@ -263,7 +263,6 @@ include_once 'header_hod.php';
 </head>
 
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="navbar">
         <div class="nav-container">
             <div class="breadcrumb">

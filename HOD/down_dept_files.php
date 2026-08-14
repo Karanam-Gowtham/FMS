@@ -228,7 +228,6 @@ include "./header_hod.php";
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <h1>Retrieve Department Files</h1>
         <div class="form-container">

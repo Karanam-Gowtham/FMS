@@ -36,7 +36,7 @@ if ($dept_id > 0) {
         FROM users u
         JOIN user_roles ur ON u.user_id = ur.user_id
         JOIN roles r ON ur.role_id = r.role_id
-        WHERE ur.dept_id = ? AND u.status = 'active'
+        WHERE ur.dept_id = ? AND u.status = 'active' AND r.role_name IN ('Faculty', 'HOD')
         GROUP BY u.user_id
         ORDER BY u.full_name
     ");
@@ -284,7 +284,7 @@ include_once HEADER;
                                 <td><?php echo htmlspecialchars($doc['year_name']); ?></td>
                                 <td><?php echo date('d M Y', strtotime($doc['created_at'])); ?></td>
                                 <td>
-                                    <a href="<?php echo BASE_URL . '/' . htmlspecialchars($doc['file_path']); ?>" 
+                                    <a href="<?php echo BASE_URL . '/public/view_public_file.php?file_path=' . urlencode($doc['file_path']); ?>" 
                                        target="_blank" class="btn-action btn-reupload" style="text-decoration:none; padding:6px 14px;">
                                        📄 View File
                                     </a>

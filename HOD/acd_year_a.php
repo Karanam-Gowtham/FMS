@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="../css/acd_year1.css">
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <main class="hero">
         <div class="container">
             <div class="contact-wrapper">

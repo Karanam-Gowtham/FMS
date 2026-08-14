@@ -131,7 +131,6 @@ include 'header_hod.php';
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container">
         <?php
             if ($_SERVER["REQUEST_METHOD"] == "POST") {

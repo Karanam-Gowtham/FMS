@@ -10,6 +10,8 @@ $event = $_REQUEST['event'] ?? 'Unknown';
 
 // Event-specific login validation credentials
 $credentials = [
+    'NAAC' => ['email' => ['naac@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
+    'NBA' => ['email' => ['nba@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
     'NCC' => ['email' => ['ncc@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
     'Sports' => ['email' => ['sports@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
     'Clubs' => ['email' => ['clubs@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
@@ -31,8 +33,14 @@ $isAdmin = isset($_SESSION['admin']) || isset($_SESSION['h_username']);
 if (!empty($activeUser) || $isAdmin) {
     // If admin/HOD OR if activeUser email is permitted for this event, auto-bypass login
     if ($isAdmin || (isset($credentials[$event]) && in_array($activeUser, $credentials[$event]['email']))) {
-        $_SESSION['c_cord'] = $activeUser ?? $_SESSION['admin'] ?? 'coordinator';
-        header("Location: c_upload.php?event=" . urlencode($event));
+        if ($event === 'NAAC' || $event === 'NBA') {
+            $_SESSION['cri_username'] = $activeUser ?? $_SESSION['admin'] ?? 'coordinator';
+            $desig = $isAdmin ? (isset($_SESSION['admin']) ? 'admin' : 'hod') : 'criteria_coordinator';
+            header("Location: c_aqar_files.php?designation=" . urlencode($desig) . "&event=" . urlencode($event));
+        } else {
+            $_SESSION['c_cord'] = $activeUser ?? $_SESSION['admin'] ?? 'coordinator';
+            header("Location: c_upload.php?event=" . urlencode($event));
+        }
         exit();
     }
 }
@@ -65,12 +73,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($authenticated) {
-        $_SESSION['c_cord'] = $email;
         $_SESSION['logged_in'] = true;
-        echo "<script>
-            alert('Login successful!');
-            window.location.href = 'c_upload.php?event=" . urlencode($event) . "';
-        </script>";
+        if ($event === 'NAAC' || $event === 'NBA') {
+            $_SESSION['cri_username'] = $email;
+            echo "<script>
+                alert('Login successful!');
+                window.location.href = 'c_aqar_files.php?designation=criteria_coordinator&event=" . urlencode($event) . "';
+            </script>";
+        } else {
+            $_SESSION['c_cord'] = $email;
+            echo "<script>
+                alert('Login successful!');
+                window.location.href = 'c_upload.php?event=" . urlencode($event) . "';
+            </script>";
+        }
         exit();
     } else {
         $error = "Invalid email or password for the $event event.";

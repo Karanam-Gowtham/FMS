@@ -37,19 +37,32 @@ if (strpos($filePath, 'uploads/') === false && strpos($filePath, 'uploads\\') ==
 }
 
 // Fix and normalise the path
+// Fix and normalise the path — this file lives in modules/common/
 $tempPath = str_replace('\\', '/', $filePath);
 
 $resolvedPath = null;
-if (preg_match('/uploads\/.*/', $tempPath, $matches)) {
+$foundPath = '';
+if (preg_match('/uploads\/.*/i', $tempPath, $matches)) {
     $foundPath = $matches[0];
+} else {
+    $foundPath = 'uploads/' . ltrim($tempPath, '/');
+}
 
-    // Try multiple depths — this file lives in modules/common/
-    if (file_exists("../../" . $foundPath)) {
-        $resolvedPath = "../../" . $foundPath;
-    } elseif (file_exists("../" . $foundPath)) {
-        $resolvedPath = "../" . $foundPath;
-    } elseif (file_exists($foundPath)) {
-        $resolvedPath = $foundPath;
+$candidatePaths = [
+    __DIR__ . "/../../" . $foundPath,
+    __DIR__ . "/../faculty/" . $foundPath,
+    __DIR__ . "/../dept_coordinator/" . $foundPath,
+    __DIR__ . "/../../admin/" . $foundPath,
+    __DIR__ . "/../" . $foundPath,
+    $foundPath,
+    "../../" . $foundPath,
+    "../faculty/" . $foundPath
+];
+
+foreach ($candidatePaths as $cp) {
+    if (file_exists($cp) && is_file($cp)) {
+        $resolvedPath = $cp;
+        break;
     }
 }
 

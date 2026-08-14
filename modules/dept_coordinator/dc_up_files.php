@@ -22,11 +22,6 @@ if (isset($_GET['dept'])) {
 
 // Connect to the database
 
-include("../../includes/header.php");
-
-
-
-
 // Retrieve event from GET request
 if (isset($_GET['event'])) {
     $event = $_GET['event'];

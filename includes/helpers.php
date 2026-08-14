@@ -125,7 +125,7 @@ function getRoleLandingUrl(array $role): string {
         case ROLE_COORDINATOR:
             return BASE_URL . "/modules/dept_coordinator/dc_acd_year.php?dept={$encoded_dept}";
         case ROLE_HOD:
-            return BASE_URL . "/HOD/see_uploads.php?dept={$encoded_dept}&designation=HOD";
+            return BASE_URL . "/HOD/hod_acd_year.php?dept={$encoded_dept}&designation=HOD";
         case ROLE_JUNIOR_ASSISTANT:
             return BASE_URL . "/modules/jr_assistant/jr_acd_year.php?dept={$encoded_dept}";
         case ROLE_ADMIN:
@@ -452,8 +452,112 @@ function getPendingCount($conn, $user_id, $roles = []) {
     $result = $stmt->get_result()->fetch_assoc();
     $count = (int)$result['cnt'];
     $stmt->close();
+    
+    // Add Legacy Table Counts
+    foreach ($roles as $role) {
+        $rid = (int)$role['role_id'];
+        $d_name = '';
+        if ($rid == ROLE_HOD || $rid == ROLE_COORDINATOR) {
+            $stmt = $conn->prepare("SELECT dept_name FROM Dept WHERE dept_id = ?");
+            $stmt->bind_param("i", $role['dept_id']);
+            $stmt->execute();
+            $dres = $stmt->get_result()->fetch_assoc();
+            if ($dres) {
+                $d_name = $dres['dept_name'];
+            }
+            $stmt->close();
+        }
+        
+        $email = $_SESSION['email'] ?? '';
+        $username = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['a_username'] ?? '';
+        
+        $legacy_docs = getLegacyPendingDocs($conn, $rid, $d_name, $email, $username);
+        $count += count($legacy_docs);
+    }
 
     return $count;
+}
+
+/**
+ * Fetch pending documents from legacy tables to support previous workflow dashboards.
+ */
+function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = '', $user_identifier = '') {
+    $docs = [];
+    $legacy_status = '';
+    
+    if ($role_id == ROLE_HOD) {
+        $legacy_status = 'Pending HOD';
+    } elseif ($role_id == ROLE_COORDINATOR) {
+        $legacy_status = 'Pending Dept Coordinator';
+    } elseif ($role_id == ROLE_CENTRAL_COORDINATOR) {
+        $legacy_status = 'Pending Central Coordinator';
+    } elseif ($role_id == ROLE_FACULTY) {
+        $legacy_status = 'Pending'; // For faculty, they want to see their own pending/rejected docs
+    } else {
+        return [];
+    }
+
+    $tables = [
+        ['table' => 'patents_table', 'title_col' => 'patent_title', 'branch_col' => 'branch', 'user_col' => 'Username', 'date_col' => 'submission_time', 'file_col' => 'patent_file', 'type' => 'Patent'],
+        ['table' => 'published_tab', 'title_col' => 'paper_title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'paper_file', 'type' => 'Published Paper'],
+        ['table' => 'conference_tab', 'title_col' => 'paper_title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'paper_file_path', 'type' => 'Conference Paper'],
+        ['table' => 'fdps_tab', 'title_col' => 'title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'certificate', 'type' => 'FDP Attended'],
+        ['table' => 'conf_org_tab', 'title_col' => 'title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'brochure', 'type' => 'Conference Organised'],
+        ['table' => 'fdps_org_tab', 'title_col' => 'title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'merged_file', 'type' => 'FDP Organised'],
+        ['table' => 'dept_files', 'title_col' => 'file_name', 'branch_col' => 'dept', 'user_col' => 'username', 'date_col' => 'uploaded_at', 'file_col' => 'file_path', 'type' => 'Dept File']
+    ];
+    
+    // Legacy branches sometimes don't have underscores
+    $branch_legacy = str_replace('_', '', $dept_name);
+
+    foreach ($tables as $t) {
+        $query = "SELECT id as document_id, '{$t['table']}' as source_table, 
+                         {$t['title_col']} as original_file_name, '{$t['type']}' as type_name, 
+                         {$t['user_col']} as uploader_email, {$t['date_col']} as updated_at, 
+                         status, {$t['file_col']} as file_path 
+                  FROM {$t['table']} 
+                  WHERE ";
+                  
+        $params = [];
+        $types = "";
+        
+        if ($role_id == ROLE_FACULTY) {
+            $query .= "({$t['user_col']} = ? OR {$t['user_col']} = ?)";
+            $params[] = $user_email;
+            $params[] = $user_identifier;
+            $types .= "ss";
+        } else {
+            $query .= "({$t['branch_col']} = ? OR {$t['branch_col']} = ?) AND status = ?";
+            $params[] = $dept_name;
+            $params[] = $branch_legacy;
+            $params[] = $legacy_status;
+            $types .= "sss";
+        }
+        
+        $stmt = $conn->prepare($query);
+        if ($stmt) {
+            if(!empty($params)) $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            while($row = $res->fetch_assoc()) {
+                // Fetch uploader name for the dashboard
+                $row['uploader_name'] = $row['uploader_email']; // default
+                $u_stmt = $conn->prepare("SELECT full_name FROM users WHERE email = ? LIMIT 1");
+                if ($u_stmt) {
+                    $u_stmt->bind_param("s", $row['uploader_email']);
+                    $u_stmt->execute();
+                    $u_res = $u_stmt->get_result();
+                    if ($u_row = $u_res->fetch_assoc()) {
+                        $row['uploader_name'] = $u_row['full_name'];
+                    }
+                    $u_stmt->close();
+                }
+                $docs[] = $row;
+            }
+            $stmt->close();
+        }
+    }
+    return $docs;
 }
 
 /**

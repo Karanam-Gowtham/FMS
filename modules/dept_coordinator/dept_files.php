@@ -22,19 +22,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_tab using username
-$sql_dept = "SELECT dept FROM reg_tab WHERE userid = ?";
-$stmt_dept = $conn->prepare($sql_dept);
-$stmt_dept->bind_param("s", $username);
-$stmt_dept->execute();
-$result_dept = $stmt_dept->get_result();
-
-if ($result_dept->num_rows > 0) {
-    $row = $result_dept->fetch_assoc();
-    $rdept = $row['dept']; // Store the retrieved department
-} else {
-    die("Department not found for the user.");
-}
+// Department is already retrieved from URL as $dept
 
 // Retrieve event from GET request
 if (isset($_GET['event'])) {
@@ -217,20 +205,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 10px;
             color: #fff;
             font-weight: bold;
-        }
-        input{
-            
-            width: 80%;
-            color:white;
-        }
-        select{
-            width:84%;
+            display: block;
         }
 
         input[type="text"],
         input[type="file"],
         select {
-            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
             margin-bottom: 20px;
             border: none;
             border-radius: 5px;
@@ -244,13 +227,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: white;
             font-size: 1rem;
             font-weight: bold;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
-            width: 83%;
-            margin-bottom:50px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 30px;
+            margin-top: 10px;
         }
 
         .button:hover {

@@ -112,7 +112,6 @@ include "header_hod.php";
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <h1>AQARs Supporting Documents</h1>
         <form action="files_cor.php" method="POST">

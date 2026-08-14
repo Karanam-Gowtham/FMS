@@ -172,7 +172,6 @@ $conn->close();
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <h1>Branch and Achievements Selector for FDPS Organised</h1>
     <div class="form-container">
         <form action="" method="POST">

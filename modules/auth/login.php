@@ -37,6 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
             ['table' => 'reg_tab', 'user_col' => 'userid', 'role_id' => 4, 'dept_col' => 'dept'],
             ['table' => 'reg_hod', 'user_col' => 'userid', 'role_id' => 3, 'dept_col' => 'department'],
             ['table' => 'reg_dept_cord', 'user_col' => 'userid', 'role_id' => 5, 'dept_col' => 'department'],
+            ['table' => 'reg_cri_cord', 'user_col' => 'userid', 'role_id' => 2, 'dept_col' => NULL],
+            ['table' => 'reg_central_cord', 'user_col' => 'userid', 'role_id' => 6, 'dept_col' => NULL],
             ['table' => 'admin_reg', 'user_col' => 'Username', 'role_id' => 1, 'dept_col' => NULL]
         ];
 

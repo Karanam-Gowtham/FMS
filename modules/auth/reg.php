@@ -12,6 +12,8 @@ if (isLoggedIn()) {
 $message = '';
 $msg_type = '';
 
+$departments = getDepartments($conn);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     $full_name = trim($_POST['full_name']);
     $email = trim($_POST['email']);
@@ -65,10 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                     if ($d['dept_id'] == $dept_id) { $d_name = $d['dept_name']; break; }
                 }
 
-                $reg_stmt = $conn->prepare("INSERT IGNORE INTO reg_tab (name, userid, email, password, dept) VALUES (?, ?, ?, ?, ?)");
-                $reg_stmt->bind_param("sssss", $full_name, $email, $email, $password, $d_name);
-                @$reg_stmt->execute();
-                @$reg_stmt->close();
+                $reg_stmt = $conn->prepare("INSERT IGNORE INTO reg_tab (faculty_name, userid, email, password, dept) VALUES (?, ?, ?, ?, ?)");
+                if ($reg_stmt) {
+                    $reg_stmt->bind_param("sssss", $full_name, $email, $email, $password, $d_name);
+                    @$reg_stmt->execute();
+                    @$reg_stmt->close();
+                }
 
                 $message = "Registration successful! You can now log in.";
                 $msg_type = "alert-success";
@@ -81,9 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         $check->close();
     }
 }
-
-// Get departments for dropdown
-$departments = getDepartments($conn);
 
 include_once HEADER;
 ?>

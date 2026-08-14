@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['signIn'])) {
         $_SESSION['logged_in'] = true;
 
         ob_end_clean();
-        header("Location: see_uploads.php?dept=" . urlencode($_SESSION['dept']) . "&designation=HOD");
+        header("Location: hod_acd_year.php?dept=" . urlencode($_SESSION['dept']) . "&designation=HOD");
         exit();
     } else {
         // Fallback check in reg_hod table
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['signIn'])) {
             $_SESSION['logged_in'] = true;
 
             ob_end_clean();
-            header("Location: see_uploads.php?dept=" . urlencode($_SESSION['dept']) . "&designation=HOD");
+            header("Location: hod_acd_year.php?dept=" . urlencode($_SESSION['dept']) . "&designation=HOD");
             exit();
         } else {
             $error_msg = "Invalid HOD User ID or password.";

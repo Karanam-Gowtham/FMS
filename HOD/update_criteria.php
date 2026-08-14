@@ -124,7 +124,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container">
     <h2>Update Criteria</h2>
     <form method="POST">

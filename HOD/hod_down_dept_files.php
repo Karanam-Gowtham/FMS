@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_files']) && 
             $safePath = getSafePathHodDeptDown($files[0]);
 
             if ($safePath) {
+                while (ob_get_level()) { ob_end_clean(); }
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
                 header("Content-Disposition: attachment; filename=\"" . basename($safePath) . "\"");
@@ -85,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_files']) && 
                     }
                 }
                 $zip->close();
+                while (ob_get_level()) { ob_end_clean(); }
                 header('Content-Type: application/zip');
                 header("Content-Disposition: attachment; filename=\"$zipName\"");
                 header('Content-Length: ' . filesize($zipPath));
@@ -298,10 +300,6 @@ include_once "header_hod.php";
 </head>
 
 <body>
-    <?php include "../includes/header.php"; ?>
-
-    
-
     <div class="container11">
         <h1>Retrieve <?php echo htmlspecialchars($action1); ?> Files</h1>
         <?php if (!$selected_branch): ?>
@@ -329,7 +327,7 @@ include_once "header_hod.php";
     <div class="container111">
         <?php
         if (!empty($selected_branch)) {
-            $sql = "SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ? AND status = 'Accepted'";
+            $sql = "SELECT username, file_type, sub_file_type, file_name, file_path FROM dept_files WHERE dept = ? AND file_type = ? AND (status IS NULL OR status != 'Rejected')";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ss", $selected_branch, $action1);
             $stmt->execute();

@@ -191,7 +191,6 @@ $conn->close();
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="cont11">
     <h1>Branch and Patent Records Selector</h1>
     <div class="form-container">

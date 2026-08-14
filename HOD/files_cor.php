@@ -175,7 +175,6 @@ if (isset($_GET['download_excel'])) {
     include("header_hod.php");
 ?>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <h1>My Uploads</h1>
         <!-- Add the Download Excel button -->

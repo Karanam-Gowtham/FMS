@@ -187,7 +187,6 @@ include "./header_hod.php";
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="cont11">
         <h1>Branch and Achievements Selector for FDPS</h1>
         <div class="form-container">

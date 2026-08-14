@@ -2,7 +2,7 @@
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
-    padding: 0;
+/* padding reset removed for fixed header */
     background: linear-gradient(135deg, #2b5876, #4e4376);
     color: #f4f4f4;
     display: flex;

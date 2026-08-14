@@ -14,12 +14,36 @@ function fixPath($p)
     if (empty($p)) {
         return "";
     }
-    $p = htmlspecialchars_decode($p);
+    $p = htmlspecialchars_decode((string)$p);
     $p = str_replace('\\', '/', $p);
-    if (preg_match(REGEX_UPLOADS, $p, $matches)) {
-        return "../" . $matches[0];
+    
+    $foundPath = '';
+    if (preg_match('/uploads\/.*/i', $p, $matches)) {
+        $foundPath = $matches[0];
+    } else {
+        $foundPath = 'uploads/' . ltrim($p, '/');
     }
-    return $p;
+
+    $candidatePaths = [
+        __DIR__ . "/../" . $foundPath,
+        __DIR__ . "/../modules/faculty/" . $foundPath,
+        __DIR__ . "/../modules/dept_coordinator/" . $foundPath,
+        __DIR__ . "/../admin/" . $foundPath,
+        __DIR__ . "/../../" . $foundPath,
+        __DIR__ . "/../../modules/faculty/" . $foundPath,
+        __DIR__ . "/../../modules/dept_coordinator/" . $foundPath,
+        __DIR__ . "/../../admin/" . $foundPath,
+        "../" . $foundPath,
+        "../modules/faculty/" . $foundPath,
+        $foundPath
+    ];
+
+    foreach ($candidatePaths as $cp) {
+        if (file_exists($cp) && is_file($cp)) {
+            return $cp;
+        }
+    }
+    return "../" . $foundPath;
 }
 
 $dept = "";
@@ -63,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     }
 
     if ($action === 'download') {
-        if (ob_get_length()) {
+        while (ob_get_level()) {
             ob_end_clean();
         }
 
@@ -77,10 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $file = $result->fetch_assoc();
 
             if ($file && !empty($file[$fileColumn])) {
-                $filePath = $file[$fileColumn];
-                if (preg_match(REGEX_UPLOADS, $filePath, $matches)) {
-                    $filePath = "../" . $matches[0];
-                }
+                $filePath = fixPath($file[$fileColumn]);
 
                 if (file_exists($filePath)) {
                     header('Content-Type: application/octet-stream');
@@ -89,11 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     readfile($filePath);
                     exit;
                 } else {
-                    echo "<script>alert('File not found.'); window.location.href = window.location.href;
-        function viewSingleFile(filePath) {
-            window.open('view_file_hod.php?file_path=' + encodeURIComponent(filePath), '_blank');
-        }
-</script>";
+                    echo "<script>alert('File not found. Path: " . htmlspecialchars($file[$fileColumn], ENT_QUOTES) . "'); window.location.href = window.location.href;</script>";
                     exit;
                 }
             }
@@ -114,10 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     $file = $result->fetch_assoc();
 
                     if ($file && !empty($file[$fileColumn])) {
-                        $filePath = $file[$fileColumn];
-                        if (preg_match(REGEX_UPLOADS, $filePath, $matches)) {
-                            $filePath = "../" . $matches[0];
-                        }
+                        $filePath = fixPath($file[$fileColumn]);
 
                         if (file_exists($filePath)) {
                             $fileName = basename($filePath);
@@ -295,10 +309,6 @@ include_once "header_hod.php";
 </head>
 
 <body>
-    <?php include "../includes/header.php"; ?>
-
-    
-
     <div class="container11">
         <h1>Retrieve Student Activity files</h1>
         <div class="filter-section">
@@ -340,7 +350,7 @@ include_once "header_hod.php";
         <?php
         if ($main_select) {
             if ($main_select == 'Journals') {
-                $sql = "SELECT * FROM s_journal_tab WHERE branch = ? AND status = 'Accepted'";
+                $sql = "SELECT * FROM s_journal_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("s", $dept);
                 $stmt->execute();
@@ -358,7 +368,7 @@ include_once "header_hod.php";
                     echo "<p>No Journals found.</p>";
                 }
             } elseif ($main_select == 'Conferences') {
-                $sql = "SELECT * FROM s_conference_tab WHERE branch = ? AND status = 'Accepted'";
+                $sql = "SELECT * FROM s_conference_tab WHERE branch = ? AND (status IS NULL OR status != 'Rejected')";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("s", $dept);
                 $stmt->execute();
@@ -375,7 +385,7 @@ include_once "header_hod.php";
                     echo "<p>No Conferences found.</p>";
                 }
             } elseif ($main_select == PROFESSIONAL_BODIES && $bodies_sub_select) {
-                $sql = "SELECT * FROM s_bodies WHERE Body = ? AND branch = ? AND status = 'Accepted'";
+                $sql = "SELECT * FROM s_bodies WHERE Body = ? AND branch = ? AND (status IS NULL OR status != 'Rejected')";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("ss", $bodies_sub_select, $dept);
                 $stmt->execute();
@@ -392,7 +402,7 @@ include_once "header_hod.php";
                     echo "<p>No records found for " . htmlspecialchars($bodies_sub_select) . ".</p>";
                 }
             } elseif (in_array($main_select, ['Projects', 'Internships', 'SIH'])) {
-                $sql = "SELECT * FROM s_events WHERE branch = ? AND activity = ? AND status = 'Accepted'";
+                $sql = "SELECT * FROM s_events WHERE branch = ? AND activity = ? AND (status IS NULL OR status != 'Rejected')";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("ss", $dept, $main_select);
                 $stmt->execute();

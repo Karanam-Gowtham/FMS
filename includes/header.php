@@ -13,8 +13,7 @@ if (isset($extra_head)) { echo $extra_head; }
 <style>
         body {
             margin: 0;
-            padding: 0;
-            padding-top: 70px; /* Globally clear the fixed header */
+            padding-top: 85px !important; /* Globally clear the fixed header */
             font-family: 'Segoe UI', sans-serif;
         }
 
@@ -384,8 +383,8 @@ if (isset($extra_head)) { echo $extra_head; }
                 <div class="dropdown">
                     <span>Central Login &#9662;</span>
                     <div class="dropdown-content">
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login_n.php?event=NAAC">NAAC</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login_n.php?event=NBA">NBA</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NAAC">NAAC</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NBA">NBA</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NCC">NCC</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Sports">Sports</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Clubs">Clubs &amp; Professional Bodies</a>

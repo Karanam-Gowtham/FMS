@@ -8,7 +8,7 @@ body {
     background: linear-gradient(to right, #1e3c72, #2a5298);
     color: #fff;
     margin: 0;
-    padding: 0;
+/* padding reset removed for fixed header */
 }
 
 header {
@@ -30,7 +30,7 @@ h1 {
 
 /* Navigation */
 .navbar {
-    margin-top: -80px;
+    margin-top: 0px;
     font-size: larger;
 }
 

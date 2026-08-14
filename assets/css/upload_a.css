@@ -1,7 +1,7 @@
 /* General Reset */
 * {
     margin: 0;
-    padding: 0;
+/* padding reset removed for fixed header */
     box-sizing: border-box;
     font-family: 'Arial', sans-serif;
 }
@@ -18,7 +18,7 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    margin-top:-20px;
+    margin-top: 0px;
 }
 
 

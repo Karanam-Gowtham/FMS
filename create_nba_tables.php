@@ -1,5 +1,6 @@
 <?php
-$c = mysqli_connect('localhost', 'root', '', 'project-fms');
+include "includes/connection.php";
+$c = $conn;
 
 $tables = ['criteria', 'criteria1', 'criteria2'];
 foreach ($tables as $t) {

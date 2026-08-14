@@ -21,16 +21,6 @@
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Get session username
         $user = $_SESSION['username'];
-        
-        $branch_query = "SELECT dept FROM reg_tab WHERE userid = '$user'";
-        $branch_result = $conn->query($branch_query);
-
-        if ($branch_result && $branch_result->num_rows > 0) {
-            $branch_row = $branch_result->fetch_assoc();
-            $branch = $branch_row['dept'];
-        } else {
-            die("Branch not found for the user.");
-        }
 
         $patent_title = $_POST['patent_title'];
         $type_input = $_POST['type'];

@@ -156,6 +156,36 @@ function fms_upload_table_for_criteria(string $criteria, string $subCriteria): ?
 }
 
 /**
+ * Returns the file path columns for a given table.
+ */
+function fms_table_file_columns(string $table): array
+{
+    static $map = [
+        'files' => ['file_path'],
+        'files5_1_1and2' => ['file_path'],
+        'files5_1_3' => ['file_path'],
+        'files5_1_4' => ['file_path'],
+        'files5_2_1' => ['file_path'],
+        'files5_2_2' => ['file_path'],
+        'files5_2_3' => ['file_path'],
+        'files5_3_1' => ['file_path'],
+        'files5_3_3' => ['file_path'],
+        'dept_files' => ['file_path'],
+        'fdps_tab' => ['certificate', 'brochure'],
+        'fdps_org_tab' => ['certificate', 'brochure', 'merged_file'],
+        'conference_tab' => ['certificate_path', 'paper_file_path'],
+        'conf_org_tab' => ['brochure'],
+        'published_tab' => ['paper_file'],
+        'patents_table' => ['patent_file'],
+        's_journal_tab' => ['paper_file'],
+        's_conference_tab' => ['certificate_path', 'paper_file_path'],
+        's_events' => ['certificate_path'],
+        's_bodies' => ['certificate_path'],
+    ];
+    return $map[$table] ?? ['file_path'];
+}
+
+/**
  * Normalize to a uploads/... relative path for DB lookup.
  */
 function fms_normalize_uploads_relative_path(string $raw): string
@@ -214,29 +244,31 @@ function fms_verify_file_path_access(mysqli $conn, string $rawPath, string $role
             continue;
         }
         $pk = fms_table_pk_column($table);
+        $fileCols = fms_table_file_columns($table);
         $placeholders = implode(',', array_fill(0, count($variants), '?'));
-        $sql = "SELECT `$pk` FROM `$table` WHERE file_path IN ($placeholders) LIMIT 1";
-        $stmt = $conn->prepare($sql);
-        if ($stmt === false) {
-            continue;
-        }
         $types = str_repeat('s', count($variants));
-        $stmt->bind_param($types, ...$variants);
-        if (!$stmt->execute()) {
+
+        foreach ($fileCols as $col) {
+            $sql = "SELECT `$pk` FROM `$table` WHERE `$col` IN ($placeholders) LIMIT 1";
+            $stmt = $conn->prepare($sql);
+            if ($stmt === false) {
+                continue;
+            }
+            $stmt->bind_param($types, ...$variants);
+            if (!$stmt->execute()) {
+                $stmt->close();
+                continue;
+            }
+            $res = $stmt->get_result();
+            $row = $res->fetch_assoc();
             $stmt->close();
-            continue;
+            if ($row) {
+                $id = (int) ($row[$pk] ?? $row['ID'] ?? $row['id'] ?? 0);
+                if ($id >= 1) {
+                    return fms_dashboard_row_in_scope($conn, $table, $id, $role, $user_id, $dept);
+                }
+            }
         }
-        $res = $stmt->get_result();
-        $row = $res->fetch_assoc();
-        $stmt->close();
-        if (!$row) {
-            continue;
-        }
-        $id = (int) ($row[$pk] ?? $row['ID'] ?? $row['id'] ?? 0);
-        if ($id < 1) {
-            continue;
-        }
-        return fms_dashboard_row_in_scope($conn, $table, $id, $role, $user_id, $dept);
     }
     return false;
 }
@@ -302,6 +334,24 @@ function fms_table_pk_column(string $table): string
     return 'id';
 }
 
+function fms_table_dept_column(string $table): ?string
+{
+    static $map = [
+        'dept_files' => 'dept',
+        'fdps_tab' => 'branch',
+        'fdps_org_tab' => 'branch',
+        'conference_tab' => 'branch',
+        'conf_org_tab' => 'branch',
+        'published_tab' => 'branch',
+        'patents_table' => 'branch',
+        's_journal_tab' => 'branch',
+        's_conference_tab' => 'branch',
+        's_events' => 'branch',
+        's_bodies' => 'branch',
+    ];
+    return $map[$table] ?? null;
+}
+
 function fms_dashboard_row_in_scope(
     mysqli $conn,
     string $table,
@@ -325,38 +375,36 @@ function fms_dashboard_row_in_scope(
         return $ok;
     }
 
-    if ($table === 'dept_files') {
-        if ($role === 'HOD' && $dept !== '') {
-            $stmt = $conn->prepare('SELECT id FROM dept_files WHERE id = ? AND dept = ? LIMIT 1');
-            $stmt->bind_param('is', $fileId, $dept);
-            $stmt->execute();
-            $ok = $stmt->get_result()->num_rows > 0;
-            $stmt->close();
-            return $ok;
+    if ($role === 'HOD' || $role === 'Dept_Coordinator' || $role === 'Jr_Assistant') {
+        if ($dept === '') {
+            return false;
         }
-        if ($role === 'Dept_Coordinator' || $role === 'Jr_Assistant') {
-            $stmt = $conn->prepare('SELECT id FROM dept_files WHERE id = ? AND username = ? LIMIT 1');
-            $stmt->bind_param('is', $fileId, $user_id);
+        $branch_legacy = str_replace('_', '', $dept);
+        $deptCol = fms_table_dept_column($table);
+
+        if ($deptCol !== null) {
+            $stmt = $conn->prepare(
+                "SELECT t.`$pk` FROM `$table` t WHERE t.`$pk` = ? AND (t.`$deptCol` = ? OR t.`$deptCol` = ? OR EXISTS (SELECT 1 FROM reg_tab r_scope WHERE r_scope.userid = t.`$ownerCol` AND (r_scope.dept = ? OR r_scope.dept = ?))) LIMIT 1"
+            );
+            if ($stmt) {
+                $stmt->bind_param('issss', $fileId, $dept, $branch_legacy, $dept, $branch_legacy);
+            }
+        } else {
+            $stmt = $conn->prepare(
+                "SELECT t.`$pk` FROM `$table` t WHERE t.`$pk` = ? AND EXISTS (SELECT 1 FROM reg_tab r_scope WHERE r_scope.userid = t.`$ownerCol` AND (r_scope.dept = ? OR r_scope.dept = ?)) LIMIT 1"
+            );
+            if ($stmt) {
+                $stmt->bind_param('iss', $fileId, $dept, $branch_legacy);
+            }
+        }
+
+        if ($stmt) {
             $stmt->execute();
             $ok = $stmt->get_result()->num_rows > 0;
             $stmt->close();
             return $ok;
         }
         return false;
-    }
-
-    if ($role === 'HOD' || $role === 'Dept_Coordinator' || $role === 'Jr_Assistant') {
-        if ($dept === '') {
-            return false;
-        }
-        $stmt = $conn->prepare(
-            "SELECT t.`$pk` FROM `$table` t WHERE t.`$pk` = ? AND EXISTS (SELECT 1 FROM reg_tab r_scope WHERE r_scope.userid = t.`$ownerCol` AND r_scope.dept = ?) LIMIT 1"
-        );
-        $stmt->bind_param('is', $fileId, $dept);
-        $stmt->execute();
-        $ok = $stmt->get_result()->num_rows > 0;
-        $stmt->close();
-        return $ok;
     }
 
     if ($role === 'Central_Coordinator') {

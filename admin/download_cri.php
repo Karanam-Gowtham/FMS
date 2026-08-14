@@ -395,36 +395,36 @@ include "header_admin.php";
                     </tr>
                     <?php
                     $id = 1;
-                    $sql = "SELECT id, faculty_name, academic_year, description, file_name, file_path, criteria, criteria_no 
+                    // Query all three possible upload tables using UNION ALL
+                    $sql = "SELECT id, faculty_name, academic_year, '' AS Dept, description, file_name, file_path, criteria, criteria_no, 'a_c_files' AS source_table
                             FROM a_c_files 
-                            WHERE criteria = ? AND criteria_no = ?";
+                            WHERE criteria = ? AND criteria_no = ?
+                            UNION ALL
+                            SELECT id, Faculty_name AS faculty_name, academic_year, '' AS Dept, '' AS description, file_name, file_path, criteria, criteria_no, 'a_cri_files' AS source_table
+                            FROM a_cri_files 
+                            WHERE criteria = ? AND criteria_no = ?
+                            UNION ALL
+                            SELECT id, Faculty_name AS faculty_name, academic_year, Dept, Description AS description, file_name, file_path, criteria, criteria_no, 'a_files' AS source_table
+                            FROM a_files 
+                            WHERE criteria = ? AND criteria_no = ?
+                            ORDER BY faculty_name";
                     $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("ss", $criteria, $subCriteria);
+                    $stmt->bind_param("ssssss", $criteria, $subCriteria, $criteria, $subCriteria, $criteria, $subCriteria);
                     $stmt->execute();
                     $result = $stmt->get_result();
-
-                    // fallback if no rows
-                    if ($result->num_rows === 0) {
-                        $sql = "SELECT id, faculty_name, academic_year,Dept, description, file_name, file_path, criteria, criteria_no 
-                                FROM a_files 
-                                WHERE criteria = ? AND criteria_no = ?";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("ss", $criteria, $subCriteria);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                    }
 
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>
                             <td><input type='checkbox' name='selected_files[]' value='" . $row['id'] . "' 
                                 data-filepath='" . htmlspecialchars($row['file_path'], ENT_QUOTES, 'UTF-8') . "' 
+                                data-source='" . htmlspecialchars($row['source_table']) . "'
                                 onchange='trackOrder(event)'></td>
                             <td>" . $id++ . "</td>
                             <td>" . htmlspecialchars($row['faculty_name']) . "</td>
                             <td>" . htmlspecialchars($row['academic_year']) . "</td>
-                            <td>" . htmlspecialchars($row['Dept']) . "</td>
+                            <td>" . htmlspecialchars($row['Dept'] ?? '') . "</td>
                             <td>" . htmlspecialchars($row['file_name']) . "</td>
-                            <td>" . htmlspecialchars($row['description']) . "</td>
+                            <td>" . htmlspecialchars($row['description'] ?? '') . "</td>
                             <td>" . htmlspecialchars($row['criteria']) . "</td>
                             <td>" . htmlspecialchars($row['criteria_no']) . "</td>
                         </tr>";

@@ -219,7 +219,6 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : '';
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
 
     <div class="cont11">
     <div class="container">

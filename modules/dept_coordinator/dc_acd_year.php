@@ -361,8 +361,24 @@ body {
                         </button>
                     </form>
 
-                </div>
+        </div>
 
+        <!-- WORKFLOW DASHBOARD -->
+        <div class="container" style="margin-top: 60px;">
+            <?php 
+                $user_id = $_SESSION['user_id'] ?? 0;
+                $dept_id = 0;
+                if (isset($_SESSION['dept'])) {
+                    $stmt = $conn->prepare("SELECT dept_id FROM Dept WHERE dept_name = ?");
+                    $stmt->bind_param("s", $_SESSION['dept']);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+                    if ($row = $res->fetch_assoc()) $dept_id = $row['dept_id'];
+                    $stmt->close();
+                }
+                $base_url = '../../';
+                include "../../includes/dashboard_table.php"; 
+            ?>
         </div>
     </main>
 

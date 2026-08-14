@@ -88,7 +88,6 @@
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container11">
         <div class="login-container">
             <form action="" method="POST">

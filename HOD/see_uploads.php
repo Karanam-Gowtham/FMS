@@ -1,4 +1,5 @@
 
+<?php include 'header_hod.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,11 +90,7 @@
         }
     </style>
 </head>
-<?php
-    include 'header_hod.php';
-?>
 <body>
-    <?php include "../includes/header.php"; ?>
     <div class="container111">
         
     <h1>See the Uploaded Files</h1>
@@ -102,6 +99,24 @@
             <button class='btn1' onclick="location.href='acd_year_a.php'">Faculty uploaded files</button><br>
             <button class='btn1' onclick="location.href='acd_year_a1.php'">Dept co-ordinates uploaded files</button>
         </div>
+        </div>
+
+        <!-- WORKFLOW DASHBOARD -->
+        <div class="container111" style="max-width: 1200px; margin: 60px auto 0 auto; background: white; border-radius: 10px; padding: 20px;">
+            <?php 
+                $user_id = $_SESSION['user_id'] ?? 0;
+                $dept_id = 0;
+                if (isset($_SESSION['dept'])) {
+                    $stmt = $conn->prepare("SELECT dept_id FROM Dept WHERE dept_name = ?");
+                    $stmt->bind_param("s", $_SESSION['dept']);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+                    if ($row = $res->fetch_assoc()) $dept_id = $row['dept_id'];
+                    $stmt->close();
+                }
+                $base_url = '../';
+                include "../includes/dashboard_table.php"; 
+            ?>
         </div>
     </div>
 </body>

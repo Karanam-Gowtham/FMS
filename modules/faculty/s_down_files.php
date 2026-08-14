@@ -126,7 +126,7 @@ if (isset($_POST['export'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Data Display</title>
-    <link rel="stylesheet" href="./css/s_down_files.css">
+    <link rel="stylesheet" href="../../assets/css/s_down_files.css">
 </head>
 <body>
     <?php include "../../includes/header.php"; ?>

@@ -4,7 +4,7 @@ body {
     background-size: cover;
     background-position: center;
     margin: 0;
-    padding: 0;
+/* padding reset removed for fixed header */
     font-family: Arial, sans-serif;
     color: white;
     display: flex;

@@ -38,9 +38,30 @@ mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `dept` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
 $depts = [
-    1 => 'CSE', 2 => 'AI_DS', 3 => 'AI_ML', 4 => 'IT', 5 => 'ECE', 6 => 'EEE', 7 => 'MECH', 8 => 'CIVIL', 9 => 'BSH',
-    10 => 'NAAC', 11 => 'NBA', 12 => 'NCC', 13 => 'Sports', 14 => 'Clubs', 15 => 'NSS', 16 => 'IIC', 17 => 'Women_Empowerment',
-    18 => 'PASH', 19 => 'Anti_Ragging', 20 => 'SAC', 21 => 'CSE-CS', 22 => 'MatheMatics', 23 => 'Physics', 24 => 'Chemistry'
+    1 => 'CSE',
+    2 => 'AI_DS',
+    3 => 'AI_ML',
+    4 => 'IT',
+    5 => 'ECE',
+    6 => 'EEE',
+    7 => 'MECH',
+    8 => 'CIVIL',
+    9 => 'BSH',
+    10 => 'NAAC',
+    11 => 'NBA',
+    12 => 'NCC',
+    13 => 'Sports',
+    14 => 'Clubs',
+    15 => 'NSS',
+    16 => 'IIC',
+    17 => 'Women_Empowerment',
+    18 => 'PASH',
+    19 => 'Anti_Ragging',
+    20 => 'SAC',
+    21 => 'CSE-CS',
+    22 => 'MatheMatics',
+    23 => 'Physics',
+    24 => 'Chemistry'
 ];
 foreach ($depts as $id => $name) {
     mysqli_query($conn, "INSERT INTO `dept` (dept_id, dept_name) VALUES ($id, '$name') ON DUPLICATE KEY UPDATE dept_name='$name'");
@@ -87,10 +108,11 @@ mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `document_actions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
 // Helper function to insert user and assign role
-function registerUserWithRole($conn, $name, $identifier, $password, $role_id, $dept_name = 'CSE') {
+function registerUserWithRole($conn, $name, $identifier, $password, $role_id, $dept_name = 'CSE')
+{
     $dept_res = mysqli_query($conn, "SELECT dept_id FROM dept WHERE dept_name = '" . mysqli_real_escape_string($conn, $dept_name) . "' LIMIT 1");
     if ($dept_row = mysqli_fetch_assoc($dept_res)) {
-        $dept_id = (int)$dept_row['dept_id'];
+        $dept_id = (int) $dept_row['dept_id'];
     } else {
         $dept_id = 1; // Default to CSE
     }
@@ -117,7 +139,7 @@ function registerUserWithRole($conn, $name, $identifier, $password, $role_id, $d
     $r_ins->bind_param("iii", $user_id, $role_id, $dept_id);
     $r_ins->execute();
     $r_ins->close();
-    
+
     return $user_id;
 }
 

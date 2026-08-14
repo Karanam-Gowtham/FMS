@@ -21,16 +21,6 @@
         // Get session username
         $user = $_SESSION['username'];
 
-        $branch_query = "SELECT dept FROM reg_tab WHERE userid = '$user'";
-        $branch_result = $conn->query($branch_query);
-
-        if ($branch_result && $branch_result->num_rows > 0) {
-            $branch_row = $branch_result->fetch_assoc();
-            $branch = $branch_row['dept'];
-        } else {
-            die("Branch not found for the user.");
-        }
-
         $paper_title = $_POST['paper_title'];
         $journal_name = $_POST['journal_name'];
         $issn_no = $_POST['issn_no'];
@@ -73,6 +63,7 @@
             if (in_array(strtolower($file_extension), $allowed_extensions)) {
                 $upload_dir = 'uploads/';
                 if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+                $file_new_name = uniqid('paper_') . '.' . $file_extension;
                 $file_destination = $upload_dir . $file_new_name;
                 
                 if (move_uploaded_file($file_tmp_name, $file_destination)) {
@@ -81,7 +72,7 @@
                     
                     // SQL query to insert data into published_tab table
                     $stmt = $conn->prepare("INSERT INTO published_tab (username, branch, paper_title, authors, journal_name, issn_no, volume_no, issue_no, page_no, doi, indexing, impact_factor, jcr_quartile, scopus_quartile, publication_link, submission_time, paper_file, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("ssssssssssssssssss", $user, $branch, $paper_title, $authors_json, $journal_name, $issn_no, $volume_no, $issue_no, $page_no, $doi, $indexing, $impact_factor, $jcr_quartile, $scopus_quartile, $publication_link, $submission_time, $file_destination, $year);
+                    $stmt->bind_param("ssssssssssssssssss", $user, $dept, $paper_title, $authors_json, $journal_name, $issn_no, $volume_no, $issue_no, $page_no, $doi, $indexing, $impact_factor, $jcr_quartile, $scopus_quartile, $publication_link, $submission_time, $file_destination, $year);
 
                     if ($stmt->execute()) {
                         echo "<script>alert('Details and paper uploaded successfully');</script>";

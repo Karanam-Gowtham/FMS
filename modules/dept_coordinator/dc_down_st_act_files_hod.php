@@ -306,8 +306,6 @@ if (isset($_POST['export_sevents'])) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
-include("../../includes/header.php");
-
 ?>
 
 <!DOCTYPE html>
@@ -316,7 +314,7 @@ include("../../includes/header.php");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Achievements</title>
-    <link rel="stylesheet" href="css/s_down_files1.css">
+    <link rel="stylesheet" href="../../assets/css/s_down_files1.css">
 </head>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 <script>

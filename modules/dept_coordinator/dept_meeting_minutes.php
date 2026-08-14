@@ -22,19 +22,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve the department from reg_jr_assistant using username
-$sql_dept = "SELECT department FROM reg_jr_assistant WHERE userid = ?";
-$stmt_dept = $conn->prepare($sql_dept);
-$stmt_dept->bind_param("s", $username);
-$stmt_dept->execute();
-$result_dept = $stmt_dept->get_result();
-
-if ($result_dept->num_rows > 0) {
-    $row = $result_dept->fetch_assoc();
-    $rdept = $row['department']; // Store the retrieved department
-} else {
-    die("Department not found for the user.");
-}
+// Department is already retrieved from URL as $dept
 
 // Hardcoded event for this specific program
 $event = 'Dept Meeting Minutes';

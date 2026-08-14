@@ -173,8 +173,6 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
     </style>
 </head>
 <body>
-    <?php include "../includes/header.php"; ?>
-
     <div class="cont11">
     <div class="container11">
     <?php
