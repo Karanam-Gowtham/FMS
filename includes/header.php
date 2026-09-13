@@ -960,6 +960,18 @@ if (isset($extra_head)) {
 
                 <div class="dropdown-content">
 
+                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=IQAC">
+                        IQAC
+                    </a>
+
+                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=R%26D">
+                        R&amp;D
+                    </a>
+
+                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=Exam_Section">
+                        Exam Section
+                    </a>
+
                     <a href="<?= $app_url ?>/modules/central/c_login.php?event=NAAC">
                         NAAC
                     </a>
@@ -1002,18 +1014,6 @@ if (isset($extra_head)) {
 
                     <a href="<?= $app_url ?>/modules/central/c_login.php?event=SAC">
                         SAC
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=R%26D">
-                        R&amp;D
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=IQAC">
-                        IQAC
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=Exam_Section">
-                        Exam Section
                     </a>
 
                 </div>

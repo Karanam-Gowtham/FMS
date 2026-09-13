@@ -294,6 +294,9 @@ if (
         <label for="event">Choose Event:</label>
         <select name="event" id="event" required>
             <option value="" disabled selected>Select an Event</option>
+            <option value="IQAC" <?php if ($event === "IQAC") echo "selected"; ?>>IQAC</option>
+            <option value="R&D" <?php if ($event === "R&D") echo "selected"; ?>>R&D</option>
+            <option value="Exam_Section" <?php if ($event === "Exam_Section") echo "selected"; ?>>Exam Section</option>
             <option value="NCC" <?php if ($event === "NCC") echo "selected"; ?>>NCC</option>
             <option value="Sports" <?php if ($event === "Sports") echo "selected"; ?>>Sports</option>
             <option value="Clubs" <?php if ($event === "Clubs") echo "selected"; ?>>Clubs & Professional Bodies</option>
@@ -303,9 +306,6 @@ if (
             <option value="PASH" <?php if ($event === "PASH") echo "selected"; ?>>PASH</option>
             <option value="Antiragging" <?php if ($event === "Antiragging") echo "selected"; ?>>Antiragging</option>
             <option value="SAC" <?php if ($event === "SAC") echo "selected"; ?>>SAC</option>
-            <option value="R&D" <?php if ($event === "R&D") echo "selected"; ?>>R&D</option>
-            <option value="IQAC" <?php if ($event === "IQAC") echo "selected"; ?>>IQAC</option>
-            <option value="Exam_Section" <?php if ($event === "Exam_Section") echo "selected"; ?>>Exam Section</option>
         </select>
         <button type="submit">Submit</button>
     </form>

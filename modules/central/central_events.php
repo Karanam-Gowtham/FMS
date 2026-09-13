@@ -109,6 +109,9 @@
         <a href="c_down_files.php" class="upload-btn"><button class="btn_u">Uploads</button></a>
         <h1>Central Events</h1>
         <div class="button-container">
+            <a href="c_login.php?event=IQAC" class="button">IQAC</a>
+            <a href="c_login.php?event=R%26D" class="button">R&D</a>
+            <a href="c_login.php?event=Exam_Section" class="button">Exam Section</a>
             <a href="c_login.php?event=NCC" class="button">NCC</a>
             <a href="c_login.php?event=Sports" class="button">Sports</a>
             <a href="c_login.php?event=Clubs" class="button">Clubs & Professional Bodies</a>
@@ -118,9 +121,6 @@
             <a href="c_login.php?event=PASH" class="button">PASH</a>
             <a href="c_login.php?event=Antiragging" class="button">Antiragging</a>
             <a href="c_login.php?event=SAC" class="button">SAC</a>
-            <a href="c_login.php?event=R%26D" class="button">R&D</a>
-            <a href="c_login.php?event=IQAC" class="button">IQAC</a>
-            <a href="c_login.php?event=Exam_Section" class="button">Exam Section</a>
         </div>
     </div>
 </body>

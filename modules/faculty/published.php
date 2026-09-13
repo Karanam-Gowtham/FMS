@@ -347,7 +347,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="doi">DOI(Date):</label>
+                    <label for="doi">DOI:</label>
                     <input type="text" id="doi" name="doi" required>
                 </div>
 

@@ -1,77 +1,194 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
-require_once '../../includes/connection.php';
+require_once '../../config.php';
+require_once CONNECTION_PATH;
+require_once INCLUDES_PATH . '/helpers.php';
 
-if (empty($_SESSION['username'])) {
-    ?>
-    <div class="contain11" style="max-width: 100%; height: 100vh;text-align: center; background-image: linear-gradient(to right, #4CAF50, #81C784); margin: 0px auto; padding: 20px; border-radius: 10px;">
-        <h2 class='login-message'>You are not Logged in. Please <a href='../auth/login.php' class='register-link'>Login</a> to edit your profile.</h2>
-        <h2>If you're not registered, <a href='../auth/reg.php' class='register-link'>register here</a>.</h2>
-    </div>
-    <?php
-    exit;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-$username = $_SESSION['username'];
+if (!isLoggedIn() && empty($_SESSION['logged_in']) && empty($_SESSION['username']) && empty($_SESSION['user_id'])) {
+    header("Location: " . BASE_URL . "/modules/auth/login.php");
+    exit();
+}
 
-$query = "SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid 
-          FROM reg_tab WHERE userid = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $username);
+$user_id = $_SESSION['user_id'] ?? null;
+$identifier = $_SESSION['user_identifier'] ?? '';
+$email = $_SESSION['email'] ?? '';
+$uname = $_SESSION['username'] ?? '';
+$full_name = $_SESSION['full_name'] ?? '';
+
+// Try to find user in reg_tab first
+$stmt = $conn->prepare("
+    SELECT faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid 
+    FROM reg_tab 
+    WHERE userid = ? OR email = ? OR userid = ? OR email = ? OR faculty_name = ?
+    LIMIT 1
+");
+$stmt->bind_param("sssss", $identifier, $email, $uname, $uname, $full_name);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
+$user = null;
+if ($result && $result->num_rows > 0) {
     $user = $result->fetch_assoc();
 } else {
-    echo "<p>User data not found. Please <a href='../auth/logout.php'>log in again</a>.</p>";
-    exit;
+    // Fallback to users table
+    $u_stmt = $conn->prepare("SELECT user_id, full_name, email, phone, password, profile_photo FROM users WHERE user_id = ? OR email = ? OR full_name = ? LIMIT 1");
+    $u_stmt->bind_param("iss", $user_id, $email, $full_name);
+    $u_stmt->execute();
+    $u_res = $u_stmt->get_result();
+    if ($u_res && $u_res->num_rows > 0) {
+        $u_data = $u_res->fetch_assoc();
+        $user = [
+            'faculty_name' => $u_data['full_name'] ?? $full_name,
+            'designation' => 'Faculty',
+            'qualification' => 'B.Tech',
+            'dept' => $_SESSION['dept'] ?? 'CSE',
+            'pern_no' => '',
+            'dob' => '',
+            'gender' => 'Male',
+            'address' => '',
+            'email' => $u_data['email'] ?? $email,
+            'aadhar' => '',
+            'pan' => '',
+            'phone' => $u_data['phone'] ?? '',
+            'experience' => '',
+            'password' => $u_data['password'] ?? '',
+            'photo_path' => $u_data['profile_photo'] ?? '',
+            'userid' => !empty($identifier) ? $identifier : ($u_data['email'] ?? $email)
+        ];
+    } else {
+        $user = [
+            'faculty_name' => $full_name ?: $uname,
+            'designation' => 'Faculty',
+            'qualification' => 'B.Tech',
+            'dept' => $_SESSION['dept'] ?? 'CSE',
+            'pern_no' => '',
+            'dob' => '',
+            'gender' => 'Male',
+            'address' => '',
+            'email' => $email,
+            'aadhar' => '',
+            'pan' => '',
+            'phone' => '',
+            'experience' => '',
+            'password' => '',
+            'photo_path' => '',
+            'userid' => !empty($identifier) ? $identifier : ($email ?: $uname)
+        ];
+    }
+    $u_stmt->close();
 }
+$stmt->close();
 
-// Handle update
+$message = '';
+$msg_type = '';
+
+// Handle profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $faculty_name = $_POST['faculty_name'];
-    $designation = $_POST['designation'];
-    $qualification = $_POST['qualification'];
-    $dept = $_POST['dept'];
-    $pern_no = $_POST['pern_no'];
-    $dob = $_POST['dob'];
-    $gender = $_POST['gender'];
-    $address = $_POST['address'];
-    $email = $_POST['email'];
-    $aadhar = $_POST['aadhar'];
-    $pan = $_POST['pan'];
-    $phone = $_POST['phone'];
-    $experience = $_POST['experience'];
-    $password = $_POST['password'];
+    $faculty_name = trim($_POST['faculty_name'] ?? '');
+    $designation = trim($_POST['designation'] ?? '');
+    $qualification = trim($_POST['qualification'] ?? '');
+    $dept = trim($_POST['dept'] ?? '');
+    $pern_no = trim($_POST['pern_no'] ?? '');
+    $dob = trim($_POST['dob'] ?? '');
+    $gender = trim($_POST['gender'] ?? 'Male');
+    $address = trim($_POST['address'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $aadhar = trim($_POST['aadhar'] ?? '');
+    $pan = trim($_POST['pan'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $experience = trim($_POST['experience'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    // Handle photo
-    $photo_path = $_FILES['photo_path']['name'];
-    if ($photo_path) {
-        $target_dir = "uploads/";
-        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-        $target_file = $target_dir . uniqid() . "_" . basename($_FILES["photo_path"]["name"]);
-        move_uploaded_file($_FILES["photo_path"]["tmp_name"], $target_file);
-    } else {
-        $target_file = $user['photo_path'];
+    // Handle photo upload
+    $target_file = $user['photo_path'] ?? '';
+    if (isset($_FILES['photo_path']) && !empty($_FILES['photo_path']['name']) && $_FILES['photo_path']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = ROOT_PATH . "/uploads/profiles/";
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        $ext = pathinfo($_FILES["photo_path"]["name"], PATHINFO_EXTENSION);
+        $filename = "photo_" . uniqid() . "." . strtolower($ext);
+        if (move_uploaded_file($_FILES["photo_path"]["tmp_name"], $upload_dir . $filename)) {
+            $target_file = "uploads/profiles/" . $filename;
+        }
     }
 
-    $update_query = "UPDATE reg_tab 
-        SET faculty_name=?, designation=?, qualification=?, dept=?, pern_no=?, dob=?, gender=?, address=?, email=?, aadhar=?, pan=?, phone=?, experience=?, password=?, photo_path=? 
-        WHERE userid=?";
-    $update_stmt = $conn->prepare($update_query);
-    $update_stmt->bind_param(
-        "ssssssssssssssss",
-        $faculty_name, $designation, $qualification,$dept, $pern_no, $dob, $gender, $address, $email,
-        $aadhar, $pan, $phone, $experience, $password, $target_file, $username
-    );
+    $current_userid = !empty($user['userid']) ? $user['userid'] : $email;
 
-    if ($update_stmt->execute()) {
-        echo "<script>alert('Profile updated successfully!'); window.location.href='edit_profile.php';</script>";
+    // Check if user exists in reg_tab
+    $chk = $conn->prepare("SELECT id FROM reg_tab WHERE userid = ? OR email = ?");
+    $chk->bind_param("ss", $current_userid, $email);
+    $chk->execute();
+    $exists = $chk->get_result()->num_rows > 0;
+    $chk->close();
+
+    if ($exists) {
+        $update_query = "UPDATE reg_tab 
+            SET faculty_name=?, designation=?, qualification=?, dept=?, pern_no=?, dob=?, gender=?, address=?, email=?, aadhar=?, pan=?, phone=?, experience=?, password=?, photo_path=? 
+            WHERE userid=? OR email=?";
+        $update_stmt = $conn->prepare($update_query);
+        $update_stmt->bind_param(
+            "sssssssssssssssss",
+            $faculty_name, $designation, $qualification, $dept, $pern_no, $dob, $gender, $address, $email,
+            $aadhar, $pan, $phone, $experience, $password, $target_file, $current_userid, $email
+        );
+        $success = $update_stmt->execute();
+        $update_stmt->close();
     } else {
-        echo "<script>alert('Failed to update profile. Try again.');</script>";
+        $ins_query = "INSERT INTO reg_tab (faculty_name, designation, qualification, dept, pern_no, dob, gender, address, email, aadhar, pan, phone, experience, password, photo_path, userid)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $ins_stmt = $conn->prepare($ins_query);
+        $ins_stmt->bind_param(
+            "ssssssssssssssss",
+            $faculty_name, $designation, $qualification, $dept, $pern_no, $dob, $gender, $address, $email,
+            $aadhar, $pan, $phone, $experience, $password, $target_file, $current_userid
+        );
+        $success = $ins_stmt->execute();
+        $ins_stmt->close();
+    }
+
+    // Sync users table if available
+    $u_up = $conn->prepare("UPDATE users SET full_name = ?, phone = ?, password = ?, profile_photo = ? WHERE email = ? OR user_id = ?");
+    if ($u_up) {
+        $u_up->bind_param("sssssi", $faculty_name, $phone, $password, $target_file, $email, $user_id);
+        $u_up->execute();
+        $u_up->close();
+    }
+
+    // Update session info
+    $_SESSION['full_name'] = $faculty_name;
+    $_SESSION['username'] = $faculty_name;
+    $_SESSION['email'] = $email;
+
+    if ($success) {
+        $message = 'Profile updated successfully!';
+        $msg_type = 'alert-success';
+        // Refresh $user data
+        $user['faculty_name'] = $faculty_name;
+        $user['designation'] = $designation;
+        $user['qualification'] = $qualification;
+        $user['dept'] = $dept;
+        $user['pern_no'] = $pern_no;
+        $user['dob'] = $dob;
+        $user['gender'] = $gender;
+        $user['address'] = $address;
+        $user['email'] = $email;
+        $user['aadhar'] = $aadhar;
+        $user['pan'] = $pan;
+        $user['phone'] = $phone;
+        $user['experience'] = $experience;
+        $user['password'] = $password;
+        $user['photo_path'] = $target_file;
+    } else {
+        $message = 'Failed to update profile: ' . $conn->error;
+        $msg_type = 'alert-danger';
     }
 }
+
+include_once HEADER;
 ?>
 
 <!DOCTYPE html>
@@ -79,119 +196,278 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
+    <title>Edit Profile - FMS</title>
     <style>
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #8f69b8, #2575fc); }
-        .container11 {
-            max-width: 800px; margin: 50px auto; padding: 20px;
-            background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        .profile-wrapper {
+            max-width: 850px;
+            margin: 30px auto 60px;
+            padding: 0 15px;
         }
-        h1 { text-align: center; color: #4CAF50; margin-bottom: 20px; }
-        .profile-image { display:block; margin:0 auto 20px; width:150px; height:150px; border-radius:50%; object-fit:cover; }
-        label { font-weight: bold; }
-        input, select, textarea {
-            width: 97%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;
+
+        .profile-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 35px 40px;
+            border: 1px solid #e2e8f0;
         }
-        button { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #45a049; }
-        header{
-            margin-top:-50px;
-            margin-left:-8px;
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-header h1 {
+            color: #1e293b;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .profile-header p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .photo-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 20px;
+        }
+
+        .profile-image {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #3b82f6;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .alert-box {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #1e293b;
+            background-color: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            margin-top: 15px;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .profile-card {
+                padding: 25px 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <?php include "../../includes/header.php"; ?>
-    <div class="container11">
-        <h1>Edit Profile</h1>
-        <?php
-        $photo_path = htmlspecialchars($user['photo_path']);
-        echo "<img src='" . ($photo_path ?: "uploads/default_pic.png") . "' class='profile-image'>";
-        ?>
-        <form method="post" enctype="multipart/form-data">
-            <label>Name:</label>
-            <input type="text" name="faculty_name" value="<?= htmlspecialchars($user['faculty_name']); ?>" required>
+    <div class="profile-wrapper">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="photo-container">
+                    <?php
+                    $photo_path = $user['photo_path'] ?? '';
+                    $img_src = !empty($photo_path) ? (BASE_URL . '/' . ltrim($photo_path, '/')) : (IMAGES_PATH . '/logo.png');
+                    ?>
+                    <img src="<?= htmlspecialchars($img_src); ?>" class="profile-image" alt="Profile Photo" onerror="this.src='<?= IMAGES_PATH ?>/logo.png'">
+                </div>
+                <h1>Edit Faculty Profile</h1>
+                <p>Keep your personal and academic credentials up to date</p>
+            </div>
 
-            <label>Designation:</label>
-            <input type="text" name="designation" value="<?= htmlspecialchars($user['designation']); ?>" required>
+            <?php if (!empty($message)): ?>
+                <div class="alert-box <?= $msg_type; ?>">
+                    <?= htmlspecialchars($message); ?>
+                </div>
+            <?php endif; ?>
 
-            <label for="qualification">Highest Qualification:</label>
-                <select name="qualification" required>
-                    <option value="">Select Qualification</option>
-                    <option value="B.Sc" <?= ($user['qualification']=="B.Sc"?"selected":"") ?>>B.Sc</option>
-                    <option value="B.Com" <?= ($user['qualification']=="B.Com"?"selected":"") ?>>B.Com</option>
-                    <option value="B.A" <?= ($user['qualification']=="B.A"?"selected":"") ?>>B.A</option>
-                    <option value="B.Tech" <?= ($user['qualification']=="B.Tech"?"selected":"") ?>>B.Tech</option>
-                    <option value="M.Sc" <?= ($user['qualification']=="M.Sc"?"selected":"") ?>>M.Sc</option>
-                    <option value="M.Com" <?= ($user['qualification']=="M.Com"?"selected":"") ?>>M.Com</option>
-                    <option value="M.A" <?= ($user['qualification']=="M.A"?"selected":"") ?>>M.A</option>
-                    <option value="M.Tech" <?= ($user['qualification']=="M.Tech"?"selected":"") ?>>M.Tech</option>
-                    <option value="MBA" <?= ($user['qualification']=="MBA"?"selected":"") ?>>MBA</option>
-                    <option value="MCA" <?= ($user['qualification']=="MCA"?"selected":"") ?>>MCA</option>
-                    <option value="Ph.D" <?= ($user['qualification']=="Ph.D"?"selected":"") ?>>Ph.D</option>
-                    <option value="Post Doctorate" <?= ($user['qualification']=="Post Doctorate"?"selected":"") ?>>Post Doctorate</option>
-                    <option value="Other" <?= ($user['qualification']=="Other"?"selected":"") ?>>Other</option>
-                </select>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="faculty_name">Full Name *</label>
+                        <input type="text" id="faculty_name" name="faculty_name" value="<?= htmlspecialchars($user['faculty_name'] ?? ''); ?>" required>
+                    </div>
 
-                <label for="dept">Department:</label>
-                <select name="dept" required>
-                    <option value="">Select Department</option>
-                    <option value="CSE-AI&DS" <?= ($user['dept']=="CSE-AI&DS"?"selected":"") ?>>CSE-AI&DS</option>
-                    <option value="CSE-AI&ML" <?= ($user['dept']=="CSE-AI&ML"?"selected":"") ?>>CSE-AI&ML</option>
-                    <option value="CSE" <?= ($user['dept']=="CSE"?"selected":"") ?>>CSE</option>
-                    <option value="CSE-CS" <?= ($user['dept']=="CSE-CS"?"selected":"") ?>>CSE-CS</option>
-                    <option value="CIVIL" <?= ($user['dept']=="CIVIL"?"selected":"") ?>>CIVIL</option>
-                    <option value="MatheMatics" <?= ($user['dept']=="MatheMatics"?"selected":"") ?>>MatheMatics</option>
-                    <option value="Physics" <?= ($user['dept']=="Physics"?"selected":"") ?>>Physics</option>
-                    <option value="Chemistry" <?= ($user['dept']=="Chemistry"?"selected":"") ?>>Chemistry</option>
-                    <option value="BSH" <?= ($user['dept']=="BSH"?"selected":"") ?>>BSH</option>
-                    <option value="MECH" <?= ($user['dept']=="MECH"?"selected":"") ?>>MECH</option>
-                    <option value="EEE" <?= ($user['dept']=="EEE"?"selected":"") ?>>EEE</option>
-                    <option value="ECE" <?= ($user['dept']=="ECE"?"selected":"") ?>>ECE</option>
-                    <option value="IT" <?= ($user['dept']=="IT"?"selected":"") ?>>IT</option>
-                </select>
+                    <div class="form-group">
+                        <label for="designation">Designation *</label>
+                        <input type="text" id="designation" name="designation" value="<?= htmlspecialchars($user['designation'] ?? ''); ?>" required>
+                    </div>
 
+                    <div class="form-group">
+                        <label for="qualification">Highest Qualification *</label>
+                        <select id="qualification" name="qualification" required>
+                            <option value="">Select Qualification</option>
+                            <?php
+                            $quals = ["B.Sc", "B.Com", "B.A", "B.Tech", "M.Sc", "M.Com", "M.A", "M.Tech", "MBA", "MCA", "Ph.D", "Post Doctorate", "Other"];
+                            foreach ($quals as $q):
+                            ?>
+                                <option value="<?= $q ?>" <?= (($user['qualification'] ?? '') == $q) ? 'selected' : '' ?>><?= $q ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
+                    <div class="form-group">
+                        <label for="dept">Department *</label>
+                        <select id="dept" name="dept" required>
+                            <option value="">Select Department</option>
+                            <?php
+                            $depts = ["CSE-AI&DS", "CSE-AI&ML", "CSE", "CSE-CS", "CIVIL", "MatheMatics", "Physics", "Chemistry", "BSH", "MECH", "EEE", "ECE", "IT"];
+                            foreach ($depts as $d):
+                            ?>
+                                <option value="<?= $d ?>" <?= (($user['dept'] ?? '') == $d) ? 'selected' : '' ?>><?= $d ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-            <label>PERN Number:</label>
-            <input type="text" name="pern_no" value="<?= htmlspecialchars($user['pern_no']); ?>" required>
+                    <div class="form-group">
+                        <label for="pern_no">PERN Number</label>
+                        <input type="text" id="pern_no" name="pern_no" value="<?= htmlspecialchars($user['pern_no'] ?? ''); ?>">
+                    </div>
 
-            <label>Date of Birth:</label>
-            <input type="date" name="dob" value="<?= htmlspecialchars($user['dob']); ?>" required>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" value="<?= htmlspecialchars($user['dob'] ?? ''); ?>">
+                    </div>
 
-            <label>Gender:</label>
-            <select name="gender" required>
-                <option value="Male" <?= ($user['gender']=="Male"?"selected":"") ?>>Male</option>
-                <option value="Female" <?= ($user['gender']=="Female"?"selected":"") ?>>Female</option>
-                <option value="Other" <?= ($user['gender']=="Other"?"selected":"") ?>>Other</option>
-            </select>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="Male" <?= (($user['gender'] ?? '') == 'Male') ? 'selected' : '' ?>>Male</option>
+                            <option value="Female" <?= (($user['gender'] ?? '') == 'Female') ? 'selected' : '' ?>>Female</option>
+                            <option value="Other" <?= (($user['gender'] ?? '') == 'Other') ? 'selected' : '' ?>>Other</option>
+                        </select>
+                    </div>
 
-            <label>Email:</label>
-            <input type="email" name="email" value="<?= htmlspecialchars($user['email']); ?>" required>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($user['phone'] ?? ''); ?>">
+                    </div>
 
-            <label>Aadhar:</label>
-            <input type="text" name="aadhar" value="<?= htmlspecialchars($user['aadhar']); ?>" required>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email'] ?? ''); ?>" required>
+                    </div>
 
-            <label>PAN:</label>
-            <input type="text" name="pan" value="<?= htmlspecialchars($user['pan']); ?>" required>
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="text" id="password" name="password" value="<?= htmlspecialchars($user['password'] ?? ''); ?>" required>
+                    </div>
 
-            <label>Phone:</label>
-            <input type="text" name="phone" value="<?= htmlspecialchars($user['phone']); ?>" required>
+                    <div class="form-group">
+                        <label for="aadhar">Aadhar Number</label>
+                        <input type="text" id="aadhar" name="aadhar" value="<?= htmlspecialchars($user['aadhar'] ?? ''); ?>">
+                    </div>
 
-            <label>Address:</label>
-            <textarea name="address" required><?= htmlspecialchars($user['address']); ?></textarea>
+                    <div class="form-group">
+                        <label for="pan">PAN Card Number</label>
+                        <input type="text" id="pan" name="pan" value="<?= htmlspecialchars($user['pan'] ?? ''); ?>">
+                    </div>
 
-            <label>Experience:</label>
-            <textarea name="experience"><?= htmlspecialchars($user['experience']); ?></textarea>
+                    <div class="form-group form-full">
+                        <label for="photo_path">Upload New Profile Photo</label>
+                        <input type="file" id="photo_path" name="photo_path" accept="image/*">
+                    </div>
 
-            <label>Password:</label>
-            <input type="input" name="password" value="<?= htmlspecialchars($user['password']); ?>" required>
-            
-            <label>Upload New Photo:</label>
-            <input type="file" name="photo_path" accept="image/*">
+                    <div class="form-group form-full">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address"><?= htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                    </div>
 
-            <button type="submit">Update Profile</button>
-        </form>
+                    <div class="form-group form-full">
+                        <label for="experience">Experience Summary</label>
+                        <textarea id="experience" name="experience"><?= htmlspecialchars($user['experience'] ?? ''); ?></textarea>
+                    </div>
+
+                    <div class="form-full">
+                        <button type="submit" class="btn-submit">Update Profile</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 </html>
