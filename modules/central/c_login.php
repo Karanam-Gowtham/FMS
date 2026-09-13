@@ -8,31 +8,17 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 $event = $_REQUEST['event'] ?? 'Unknown';
 
-// Event-specific login validation credentials
-$credentials = [
-    'NAAC' => ['email' => ['naac@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'NBA' => ['email' => ['nba@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'NCC' => ['email' => ['ncc@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'Sports' => ['email' => ['sports@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'Clubs' => ['email' => ['clubs@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'NSS' => ['email' => ['nss@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'Women_Empowerment' => ['email' => ['women@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'IIC' => ['email' => ['iic@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'PASH' => ['email' => ['pash@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'Antiragging' => ['email' => ['antiragging@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'SAC' => ['email' => ['sac@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'R&D' => ['email' => ['rnd@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'IQAC' => ['email' => ['iqac@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']],
-    'Exam_Section' => ['email' => ['exam@gmail.com', 'test@gmail.com'], 'password' => ['123', '123']]
-];
+// Security: Hard-coded credential arrays removed. All authentication
+// must go through the database (users + user_roles tables).
+// Previously, 14 event-specific email/password pairs were hard-coded here
+// with plaintext password '123' for every event. This was a security vulnerability.
 
 // Check if user is already logged in with valid session
 $activeUser = $_SESSION['c_cord'] ?? $_SESSION['username'] ?? $_SESSION['email'] ?? null;
 $isAdmin = isset($_SESSION['admin']) || isset($_SESSION['h_username']);
 
 if (!empty($activeUser) || $isAdmin) {
-    // If admin/HOD OR if activeUser email is permitted for this event, auto-bypass login
-    if ($isAdmin || (isset($credentials[$event]) && in_array($activeUser, $credentials[$event]['email']))) {
+    if ($isAdmin) {
         if ($event === 'NAAC' || $event === 'NBA') {
             $_SESSION['cri_username'] = $activeUser ?? $_SESSION['admin'] ?? 'coordinator';
             $desig = $isAdmin ? (isset($_SESSION['admin']) ? 'admin' : 'hod') : 'criteria_coordinator';
@@ -51,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $authenticated = false;
 
-    // Check Users & User_Roles table
+    // Authenticate against Users & User_Roles table only
     $stmt = $conn->prepare("
         SELECT u.* FROM users u
         JOIN user_roles ur ON u.user_id = ur.user_id
@@ -65,11 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt->close();
 
-    // Also check event credentials list or reg_central_cord
-    if (!$authenticated && isset($credentials[$event])) {
-        if (in_array($email, $credentials[$event]['email']) && in_array($password, $credentials[$event]['password'])) {
+    // Also check reg_central_cord table for legacy users not yet migrated
+    if (!$authenticated) {
+        $stmt = $conn->prepare("SELECT userid FROM reg_central_cord WHERE userid = ? AND password = ?");
+        $stmt->bind_param("ss", $email, $password);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
             $authenticated = true;
         }
+        $stmt->close();
     }
 
     if ($authenticated) {

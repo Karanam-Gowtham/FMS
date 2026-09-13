@@ -1,9 +1,12 @@
-﻿<?php
+<?php
 use PHPMailer\PHPMailer\PHPMailer;
 // Load PHPMailer manually since composer is not available
 require_once __DIR__ . '/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/src/SMTP.php';
+
+// Load SMTP configuration from centralized config
+require_once __DIR__ . '/../config.php';
 
 function sendNotificationEmail($toEmail, $recipientName, $pendingCount)
 {
@@ -14,17 +17,17 @@ function sendNotificationEmail($toEmail, $recipientName, $pendingCount)
     $mail = new PHPMailer(true);
 
     try {
-        //Server settings
+        //Server settings — credentials from config.php, not hard-coded
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'gowtham.lite@gmail.com';
-        $mail->Password = 'uqyk efpk muqq usfa';
+        $mail->Host = SMTP_HOST;
+        $mail->SMTPAuth = SMTP_AUTH;
+        $mail->Username = SMTP_USERNAME;
+        $mail->Password = SMTP_PASSWORD;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+        $mail->Port = SMTP_PORT;
 
         //Recipients
-        $mail->setFrom('gowtham.lite@gmail.com', 'FMS Notification System');
+        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
         $mail->addAddress($toEmail, $recipientName);
 
         //Content
