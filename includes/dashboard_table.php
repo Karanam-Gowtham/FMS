@@ -40,54 +40,51 @@ $table_check = $conn->query("SHOW TABLES LIKE 'Documents'");
 if ($table_check && $table_check->num_rows > 0) {
     if ($role_id == ROLE_FACULTY) { // Faculty
         $stmt = $conn->prepare("
-            SELECT d.*, dt.type_name, dc.category_name, dep.dept_name, ay.year_name,
+            SELECT d.*, dt.type_label as type_name, dt.category as category_name, dep.dept_name, ay.year_label as year_name,
                    u.full_name as uploader_name
-            FROM Documents d
-            LEFT JOIN Document_Types dt ON d.type_id = dt.type_id
-            LEFT JOIN Document_Categories dc ON dt.category_id = dc.category_id
-            LEFT JOIN Dept dep ON d.dept_id = dep.dept_id
-            LEFT JOIN Academic_Years ay ON d.academic_year_id = ay.academic_year_id
-            LEFT JOIN Users u ON d.uploaded_by = u.user_id
+            FROM documents d
+            LEFT JOIN document_types dt ON d.doc_type_id = dt.type_id
+            LEFT JOIN dept dep ON d.dept_id = dep.dept_id
+            LEFT JOIN academic_years ay ON d.year_id = ay.year_id
+            LEFT JOIN users u ON d.uploaded_by = u.user_id
             WHERE d.uploaded_by = ?
             ORDER BY d.updated_at DESC
         ");
         $stmt->bind_param("i", $user_id);
     } elseif ($role_id == ROLE_HOD || $role_id == ROLE_COORDINATOR) { // HOD or Dept Coordinator
         $stmt = $conn->prepare("
-            SELECT d.*, dt.type_name, dc.category_name, dep.dept_name, ay.year_name,
+            SELECT d.*, dt.type_label as type_name, dt.category as category_name, dep.dept_name, ay.year_label as year_name,
                    u.full_name as uploader_name
-            FROM Documents d
-            LEFT JOIN Document_Types dt ON d.type_id = dt.type_id
-            LEFT JOIN Document_Categories dc ON dt.category_id = dc.category_id
-            LEFT JOIN Dept dep ON d.dept_id = dep.dept_id
-            LEFT JOIN Academic_Years ay ON d.academic_year_id = ay.academic_year_id
-            LEFT JOIN Users u ON d.uploaded_by = u.user_id
-            WHERE d.current_role_id = ? AND d.dept_id = ? AND d.status = 'Pending'
+            FROM documents d
+            LEFT JOIN document_types dt ON d.doc_type_id = dt.type_id
+            LEFT JOIN dept dep ON d.dept_id = dep.dept_id
+            LEFT JOIN academic_years ay ON d.year_id = ay.year_id
+            LEFT JOIN users u ON d.uploaded_by = u.user_id
+            LEFT JOIN workflow_steps ws ON d.current_step = ws.step_id
+            WHERE ws.responsible_role_id = ? AND d.dept_id = ? AND d.status = 'pending'
             ORDER BY d.updated_at DESC
         ");
         $stmt->bind_param("ii", $role_id, $dept_id);
     } elseif ($role_id == ROLE_ADMIN || $role_id == ROLE_IQAC) { // Admin or IQAC
         $stmt = $conn->prepare("
-            SELECT d.*, dt.type_name, dc.category_name, dep.dept_name, ay.year_name,
+            SELECT d.*, dt.type_label as type_name, dt.category as category_name, dep.dept_name, ay.year_label as year_name,
                    u.full_name as uploader_name
-            FROM Documents d
-            LEFT JOIN Document_Types dt ON d.type_id = dt.type_id
-            LEFT JOIN Document_Categories dc ON dt.category_id = dc.category_id
-            LEFT JOIN Dept dep ON d.dept_id = dep.dept_id
-            LEFT JOIN Academic_Years ay ON d.academic_year_id = ay.academic_year_id
-            LEFT JOIN Users u ON d.uploaded_by = u.user_id
+            FROM documents d
+            LEFT JOIN document_types dt ON d.doc_type_id = dt.type_id
+            LEFT JOIN dept dep ON d.dept_id = dep.dept_id
+            LEFT JOIN academic_years ay ON d.year_id = ay.year_id
+            LEFT JOIN users u ON d.uploaded_by = u.user_id
             ORDER BY d.updated_at DESC
         ");
     } else {
         $stmt = $conn->prepare("
-            SELECT d.*, dt.type_name, dc.category_name, dep.dept_name, ay.year_name,
+            SELECT d.*, dt.type_label as type_name, dt.category as category_name, dep.dept_name, ay.year_label as year_name,
                    u.full_name as uploader_name
-            FROM Documents d
-            LEFT JOIN Document_Types dt ON d.type_id = dt.type_id
-            LEFT JOIN Document_Categories dc ON dt.category_id = dc.category_id
-            LEFT JOIN Dept dep ON d.dept_id = dep.dept_id
-            LEFT JOIN Academic_Years ay ON d.academic_year_id = ay.academic_year_id
-            LEFT JOIN Users u ON d.uploaded_by = u.user_id
+            FROM documents d
+            LEFT JOIN document_types dt ON d.doc_type_id = dt.type_id
+            LEFT JOIN dept dep ON d.dept_id = dep.dept_id
+            LEFT JOIN academic_years ay ON d.year_id = ay.year_id
+            LEFT JOIN users u ON d.uploaded_by = u.user_id
             WHERE d.uploaded_by = ?
             ORDER BY d.updated_at DESC
         ");
@@ -130,7 +127,7 @@ if ($table_check && $table_check->num_rows > 0) {
 }
 ?>
 
-<link rel="stylesheet" href="<?php echo (isset($base_url) ? $base_url : '../') . 'assets/css/dashboard.css'; ?>">
+<link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/dashboard.css">
 <style>
 /* Scoped overrides to prevent dashboard.css from breaking legacy grid */
 .dash-card {
@@ -162,13 +159,13 @@ if ($table_check && $table_check->num_rows > 0) {
         <div style="overflow-x:auto;">
         <table class="dash-table" style="width: 100%; border-collapse: collapse;">
             <thead>
-                <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
-                    <th style="padding: 12px 15px; color: #475569;">File</th>
-                    <th style="padding: 12px 15px; color: #475569;">Type</th>
-                    <th style="padding: 12px 15px; color: #475569;">Uploaded By</th>
-                    <th style="padding: 12px 15px; color: #475569;">Date</th>
-                    <th style="padding: 12px 15px; color: #475569;">Status</th>
-                    <th style="padding: 12px 15px; color: #475569;">Actions</th>
+                <tr style="border-bottom: 2px solid #e2e8f0; text-align: left;">
+                    <th style="padding: 12px 15px; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">Document</th>
+                    <th style="padding: 12px 15px; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">Type</th>
+                    <th style="padding: 12px 15px; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">Uploader</th>
+                    <th style="padding: 12px 15px; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">Date</th>
+                    <th style="padding: 12px 15px; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">Status</th>
+                    <th style="padding: 12px 15px; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -186,13 +183,21 @@ if ($table_check && $table_check->num_rows > 0) {
                         $color = '#ef4444';
                         $bg = '#fee2e2';
                     }
-                    $raw_file = $doc['file_path'] ?? '';
-                    $view_url = (isset($base_url) ? $base_url : '../') . 'modules/common/view_file1.php?file_path=' . urlencode($raw_file);
+                    $is_legacy = isset($doc['source_table']);
+                    $doc_title = $is_legacy ? ($doc['original_file_name'] ?? 'Untitled') : ($doc['title'] ?? 'Untitled');
+                    $did = $is_legacy ? ($doc['document_id'] ?? $doc['id'] ?? 0) : ($doc['doc_id'] ?? 0);
+                    
+                    if ($is_legacy) {
+                        $raw_file = $doc['file_path'] ?? '';
+                        $view_url = BASE_URL . '/modules/common/view_file1.php?file_path=' . urlencode($raw_file);
+                    } else {
+                        $view_url = BASE_URL . '/pages/documents/view.php?id=' . $did;
+                    }
                     ?>
                     <tr style="border-bottom: 1px solid #f1f5f9;">
                         <td style="padding: 12px 15px;">
                             <a href="<?php echo $view_url; ?>" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 500;" title="Click to view file">
-                                <?php echo htmlspecialchars($doc['original_file_name']); ?>
+                                <?php echo htmlspecialchars($doc_title); ?>
                             </a>
                         </td>
                         <td style="padding: 12px 15px;"><?php echo htmlspecialchars($doc['type_name']); ?></td>
@@ -200,26 +205,27 @@ if ($table_check && $table_check->num_rows > 0) {
                         <td style="padding: 12px 15px;"><?php echo date('M d, Y', strtotime($doc['updated_at'])); ?></td>
                         <td style="padding: 12px 15px;">
                             <span style="display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; color: <?php echo $color; ?>; background-color: <?php echo $bg; ?>;">
-                                <?php echo htmlspecialchars($doc['status']); ?>
+                                <?php echo htmlspecialchars(ucfirst($doc['status'])); ?>
                             </span>
                         </td>
                         <td style="padding: 12px 15px; white-space: nowrap;">
                             <a href="<?php echo $view_url; ?>" target="_blank" style="background:#3b82f6; color:white; border:none; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.85rem; margin-right:5px; display:inline-block; font-weight:600;">View</a>
                             <?php 
                             $is_approver = ($role_id == ROLE_HOD || $role_id == ROLE_COORDINATOR || $role_id == ROLE_CENTRAL_COORDINATOR);
-                            $can_approve = $is_approver && (strpos($doc['status'], 'Pending') !== false);
+                            $can_approve = $is_approver && (stripos($doc['status'], 'pending') !== false);
                             
-                            if ($can_approve): 
-                                $did = $doc['document_id'] ?? $doc['id'] ?? 0;
-                                $table = $doc['source_table'] ?? 'Documents';
+                            // Only show legacy inline approve/reject buttons for legacy documents
+                            // Modern documents must be approved via the new view.php interface
+                            if ($can_approve && $is_legacy): 
+                                $table = $doc['source_table'];
                             ?>
-                                <form action="<?php echo (isset($base_url) ? $base_url : '../'); ?>includes/process_approval.php" method="POST" style="display:inline;">
+                                <form action="<?php echo BASE_URL; ?>/includes/process_approval.php" method="POST" style="display:inline;">
                                     <input type="hidden" name="document_id" value="<?php echo htmlspecialchars($did); ?>">
                                     <input type="hidden" name="source_table" value="<?php echo htmlspecialchars($table); ?>">
                                     <input type="hidden" name="action" value="Accept">
                                     <button type="submit" style="background:#22c55e; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.85rem; margin-right:5px; font-weight:600;">Accept</button>
                                 </form>
-                                <form action="<?php echo (isset($base_url) ? $base_url : '../'); ?>includes/process_approval.php" method="POST" style="display:inline;">
+                                <form action="<?php echo BASE_URL; ?>/includes/process_approval.php" method="POST" style="display:inline;">
                                     <input type="hidden" name="document_id" value="<?php echo htmlspecialchars($did); ?>">
                                     <input type="hidden" name="source_table" value="<?php echo htmlspecialchars($table); ?>">
                                     <input type="hidden" name="action" value="Reject">
