@@ -1,4 +1,11 @@
 <?php
+// PHASE 3: Redirect to unified login. Original code preserved below.
+require_once __DIR__ . '/../../config.php';
+header("Location: " . BASE_URL . "/pages/login.php");
+exit();
+// === LEGACY CODE BELOW (preserved for rollback) ===
+?>
+<?php
 ob_start();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
