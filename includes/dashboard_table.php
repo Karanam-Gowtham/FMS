@@ -34,9 +34,9 @@ if (!$role_id) {
     elseif (isset($_SESSION['j_username'])) $role_id = ROLE_JUNIOR_ASSISTANT;
 }
 
-// Ensure the Documents table exists before querying
+// Ensure the Document_Types table exists before querying
 $documents = [];
-$table_check = $conn->query("SHOW TABLES LIKE 'Documents'");
+$table_check = $conn->query("SHOW TABLES LIKE 'Document_Types'");
 if ($table_check && $table_check->num_rows > 0) {
     if ($role_id == ROLE_FACULTY) { // Faculty
         $stmt = $conn->prepare("
@@ -102,30 +102,30 @@ if ($table_check && $table_check->num_rows > 0) {
         }
         $stmt->close();
     }
+}
     
-    // FETCH LEGACY PENDING DOCUMENTS
-    if (function_exists('getLegacyPendingDocs')) {
-        $d_name = '';
-        if ($role_id == ROLE_HOD || $role_id == ROLE_COORDINATOR) {
-            $stmt = $conn->prepare("SELECT dept_name FROM Dept WHERE dept_id = ?");
-            $stmt->bind_param("i", $dept_id);
-            $stmt->execute();
-            $dres = $stmt->get_result()->fetch_assoc();
-            if ($dres) {
-                $d_name = $dres['dept_name'];
-            }
-            $stmt->close();
+// FETCH LEGACY PENDING DOCUMENTS
+if (function_exists('getLegacyPendingDocs')) {
+    $d_name = '';
+    if ($role_id == ROLE_HOD || $role_id == ROLE_COORDINATOR) {
+        $stmt = $conn->prepare("SELECT dept_name FROM Dept WHERE dept_id = ?");
+        $stmt->bind_param("i", $dept_id);
+        $stmt->execute();
+        $dres = $stmt->get_result()->fetch_assoc();
+        if ($dres) {
+            $d_name = $dres['dept_name'];
         }
-        
-        $email = $_SESSION['email'] ?? '';
-        $username = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['a_username'] ?? '';
-        
-        $legacy_docs = getLegacyPendingDocs($conn, $role_id, $d_name, $email, $username);
-        
-        // Append legacy docs to the main documents array
-        foreach ($legacy_docs as $ldoc) {
-            $documents[] = $ldoc;
-        }
+        $stmt->close();
+    }
+    
+    $email = $_SESSION['email'] ?? '';
+    $username = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['a_username'] ?? '';
+    
+    $legacy_docs = getLegacyPendingDocs($conn, $role_id, $d_name, $email, $username);
+    
+    // Append legacy docs to the main documents array
+    foreach ($legacy_docs as $ldoc) {
+        $documents[] = $ldoc;
     }
 }
 ?>

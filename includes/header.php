@@ -383,6 +383,9 @@ if (isset($extra_head)) { echo $extra_head; }
                 <div class="dropdown">
                     <span>Central Login &#9662;</span>
                     <div class="dropdown-content">
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=IQAC">IQAC</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=R%26D">R&amp;D</a>
+                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Exam_Section">Exam Section</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NAAC">NAAC</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NBA">NBA</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NCC">NCC</a>
@@ -394,9 +397,6 @@ if (isset($extra_head)) { echo $extra_head; }
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=PASH">PASH</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Antiragging">Antiragging</a>
                         <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=SAC">SAC</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=R%26D">R&amp;D</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=IQAC">IQAC</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Exam_Section">Exam Section</a>
                     </div>
                 </div>
 

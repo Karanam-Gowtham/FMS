@@ -17,6 +17,28 @@ $username = $activeSessionUser;
 
 $event = $_GET['event'] ?? 'Unknown';
 
+if ($event === 'R&D') {
+    $_SESSION['role_id'] = 8; // ROLE_RND_DEAN
+    $_SESSION['logged_in'] = true;
+    // Look up user_id by email
+    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $activeSessionUser);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows > 0) {
+        $_SESSION['user_id'] = $res->fetch_assoc()['user_id'];
+    } else {
+        // Auto-create user
+        $ins = $conn->prepare("INSERT INTO users (full_name, email, password) VALUES (?, ?, '')");
+        $name = explode('@', $activeSessionUser)[0];
+        $ins->bind_param("ss", $name, $activeSessionUser);
+        $ins->execute();
+        $_SESSION['user_id'] = $conn->insert_id;
+    }
+    header("Location: " . BASE_URL . "/modules/rnd_dean/dashboard.php");
+    exit();
+}
+
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

@@ -14,6 +14,7 @@ define('ROLE_FACULTY', 4);
 define('ROLE_COORDINATOR', 5);
 define('ROLE_CENTRAL_COORDINATOR', 6);
 define('ROLE_JUNIOR_ASSISTANT', 7);
+define('ROLE_RND_DEAN', 8);
 
 // Document status constants
 define('DOC_PENDING', 'Pending');
@@ -37,6 +38,7 @@ function normalizeRoleName(string $role_name): string {
         'central_coordinator' => 'Central_Coordinator',
         'criteria_coordinator' => 'IQAC',
         'junior_assistant' => 'Junior_Assistant',
+        'rnd_dean' => 'RnD_Dean'
     ];
 
     return $map[$normalized] ?? $role_name;
@@ -134,6 +136,8 @@ function getRoleLandingUrl(array $role): string {
             return BASE_URL . "/modules/central/c_aqar_files.php?designation=central_coordinator&event={$encoded_dept}";
         case ROLE_IQAC:
             return BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event=IQAC";
+        case ROLE_RND_DEAN:
+            return BASE_URL . "/modules/rnd_dean/dashboard.php";
         default:
             return BASE_URL . "/dashboard.php";
     }
@@ -261,7 +265,8 @@ function getDocumentTypes($conn, $category_id = null) {
  * Get active academic years.
  */
 function getAcademicYears($conn) {
-    $result = $conn->query("SELECT * FROM Academic_Years ORDER BY year_name DESC");
+    $result = $conn->query("SELECT year as year_name FROM academic_year ORDER BY year DESC");
+    if (!$result) return [];
     $years = [];
     while ($row = $result->fetch_assoc()) {
         $years[] = $row;
@@ -273,7 +278,8 @@ function getAcademicYears($conn) {
  * Get the current active academic year.
  */
 function getActiveAcademicYear($conn) {
-    $result = $conn->query("SELECT * FROM Academic_Years WHERE is_active = 1 LIMIT 1");
+    $result = $conn->query("SELECT year as year_name FROM academic_year ORDER BY year DESC LIMIT 1");
+    if (!$result) return null;
     return $result->fetch_assoc();
 }
 

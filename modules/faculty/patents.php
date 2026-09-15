@@ -23,9 +23,25 @@
         $user = $_SESSION['username'];
 
         $patent_title = $_POST['patent_title'];
+        $patent_no = $conn->real_escape_string($_POST['patent_no']);
         $type_input = $_POST['type'];
         $date_of_issue = $_POST['date_of_issue'];
         $year = $_POST['year'];
+
+        // Process Investors JSON
+        $investors_array = [];
+        if (isset($_POST['investor_name']) && is_array($_POST['investor_name'])) {
+            for ($i = 0; $i < count($_POST['investor_name']); $i++) {
+                if (!empty(trim($_POST['investor_name'][$i]))) {
+                    $investors_array[] = [
+                        'name' => trim($_POST['investor_name'][$i]),
+                        'affiliation' => trim($_POST['investor_affiliation'][$i]),
+                        'position' => trim($_POST['investor_position'][$i])
+                    ];
+                }
+            }
+        }
+        $investors_json = $conn->real_escape_string(json_encode($investors_array, JSON_UNESCAPED_UNICODE));
 
         // Handle file upload
         $patent_file = $_FILES['patent_file']['name'];
@@ -39,8 +55,8 @@
             $submission_time = date('Y-m-d H:i:s');
 
             // Insert query
-            $sql = "INSERT INTO patents_table (Username, branch, patent_title, type, date_of_issue, patent_file, submission_time,year) 
-            VALUES ('$user', '$dept', '$patent_title', '$type_input', '$date_of_issue', '$target_file', '$submission_time','$year')";
+            $sql = "INSERT INTO patents_table (Username, branch, patent_title, patent_no, type, date_of_issue, investors, patent_file, submission_time,year) 
+            VALUES ('$user', '$dept', '$patent_title', '$patent_no', '$type_input', '$date_of_issue', '$investors_json', '$target_file', '$submission_time','$year')";
 
 
             if ($conn->query($sql) === TRUE) {
@@ -178,6 +194,35 @@
             outline: none;
             border-color: #84fab0;
         }
+        
+        .author-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .author-table th, .author-table td {
+            border: 1px solid rgb(165, 225, 239);
+            padding: 8px;
+            text-align: left;
+        }
+        .author-table input, .author-table select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: white;
+        }
+        
+        .btn-add {
+            background-color: #4ca1af;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
 
         .btn1 {
             padding: 15px;
@@ -242,6 +287,12 @@
                     <label for="patent_title">Patent Title:</label>
                     <input type="text" id="patent_title" name="patent_title" placeholder="Enter Patent Title" required>
                 </div>
+                
+                <!-- Patent No -->
+                <div class="form-group">    
+                    <label for="patent_no">Patent No:</label>
+                    <input type="text" id="patent_no" name="patent_no" placeholder="Enter Patent No" required>
+                </div>
 
                 <!-- Patent Type -->
                 <div class="form-group">
@@ -283,6 +334,37 @@
                     <label for="date_of_issue">Date of Issue:</label>
                     <input type="date" id="date_of_issue" name="date_of_issue" required>
                 </div>
+                
+                <!-- Investors -->
+                <div class="form-group">
+                    <label>Investors:</label>
+                    <table class="author-table" id="investorTable">
+                        <thead>
+                            <tr>
+                                <th>Name of the Investor</th>
+                                <th>Name of Affiliation</th>
+                                <th>Position of the Investor</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" name="investor_name[]" required></td>
+                                <td><input type="text" name="investor_affiliation[]" required></td>
+                                <td>
+                                    <select name="investor_position[]" required>
+                                        <option value="First Investor">First Investor</option>
+                                        <option value="First Investor with equal contribution">First Investor with equal contribution</option>
+                                        <option value="Corresponding Investor">Corresponding Investor</option>
+                                        <option value="Co-investor">Co-investor</option>
+                                    </select>
+                                </td>
+                                <td><button type="button" onclick="removeInvestorRow(this)" style="padding: 5px 10px; background: #ff4d4d; color: white; border: none; border-radius: 4px; cursor: pointer;">-</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn-add" onclick="addInvestorRow()" style="margin-top: 10px; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">+ Add Investor</button>
+                </div>
 
                 <!-- Patent File -->
                 <div class="form-group">
@@ -296,5 +378,31 @@
         </div>
     </div>
 </div>
+<script>
+function addInvestorRow() {
+    var table = document.getElementById("investorTable").getElementsByTagName('tbody')[0];
+    var newRow = table.insertRow(table.rows.length);
+    
+    var cell1 = newRow.insertCell(0);
+    var cell2 = newRow.insertCell(1);
+    var cell3 = newRow.insertCell(2);
+    
+    cell1.innerHTML = '<input type="text" name="investor_name[]" required>';
+    cell2.innerHTML = '<input type="text" name="investor_affiliation[]" required>';
+    cell3.innerHTML = `<select name="investor_position[]" required>
+                        <option value="First Investor">First Investor</option>
+                        <option value="First Investor with equal contribution">First Investor with equal contribution</option>
+                        <option value="Corresponding Investor">Corresponding Investor</option>
+                        <option value="Co-investor">Co-investor</option>
+                      </select>`;
+    var cell4 = newRow.insertCell(3);
+    cell4.innerHTML = '<button type="button" onclick="removeInvestorRow(this)" style="padding: 5px 10px; background: #ff4d4d; color: white; border: none; border-radius: 4px; cursor: pointer;">-</button>';
+}
+
+function removeInvestorRow(button) {
+    var row = button.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+}
+</script>
 </body>
 </html>

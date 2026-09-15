@@ -26,6 +26,13 @@ if ($source_table === 'Documents') {
 } else {
     // Legacy documents
     $new_status = ($action === 'Accept') ? 'Accepted' : 'Rejected';
+    
+    // Forward R&D documents to the R&D Dean
+    $rnd_tables = ['published_tab', 'conference_tab', 'patents_table'];
+    if ($action === 'Accept' && in_array($source_table, $rnd_tables)) {
+        $new_status = 'Pending Dean';
+    }
+
     // Validate table name
     $valid_tables = ['patents_table', 'published_tab', 'conference_tab', 'fdps_tab', 'conf_org_tab', 'fdps_org_tab', 'dept_files', 's_journal_tab', 's_conference_tab', 's_bodies', 's_events'];
     if (in_array($source_table, $valid_tables)) {

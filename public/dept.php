@@ -189,7 +189,7 @@ include_once HEADER;
             <h1><?php echo htmlspecialchars(str_replace('_', ' ', $dept_name)); ?> <span>Department</span></h1>
             <p>Welcome to the official repository and research achievements page for the Department of <?php echo htmlspecialchars(str_replace('_', ' ', $dept_name)); ?> at GMRIT.</p>
 
-            <?php if (isLoggedIn() && (int)$_SESSION['dept_id'] === $dept_id && in_array((int)$_SESSION['role_id'], [ROLE_COORDINATOR, ROLE_HOD])): ?>
+            <?php if (isLoggedIn() && (int)($_SESSION['dept_id'] ?? 0) === $dept_id && in_array((int)($_SESSION['role_id'] ?? 0), [ROLE_COORDINATOR, ROLE_HOD])): ?>
                 <div style="margin-top:20px;">
                     <a href="<?php echo PORTAL_PATH; ?>/dept_coordinator/dc_acd_year.php" class="btn-primary" style="text-decoration:none; font-size:0.9em; padding:10px 22px; display:inline-block;">
                         ⚙️ Manage Department Repository
