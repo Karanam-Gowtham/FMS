@@ -24,7 +24,12 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 } else {
-    echo "<p>User data not found. Please <a href='../auth/logout.php'>log in again</a>.</p>";
+    ?>
+    <div class="contain11" style="max-width: 100%; height: 100vh;text-align: center; background-image: linear-gradient(to right, #4CAF50, #81C784); margin: 0px auto; padding: 20px; border-radius: 10px;">
+        <h2 class='login-message' style="color:white; margin-top: 100px;">Profile editing is only available for registered Faculty members.</h2>
+        <h3 style="color:white;"><a href='../../dashboard.php' style="color: white; text-decoration: underline;">Return to Dashboard</a> or <a href='../auth/logout.php' style="color: white; text-decoration: underline;">Log out</a></h3>
+    </div>
+    <?php
     exit;
 }
 
@@ -81,22 +86,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <style>
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #8f69b8, #2575fc); }
+        body { 
+            font-family: 'Inter', Arial, sans-serif; 
+            background: #0f172a; 
+            color: #e2e8f0;
+            margin: 0;
+            background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
+            min-height: 100vh;
+        }
         .container11 {
-            max-width: 800px; margin: 50px auto; padding: 20px;
-            background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 700px; 
+            margin: 60px auto; 
+            padding: 40px;
+            background: rgba(30, 41, 59, 0.7); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
         }
-        h1 { text-align: center; color: #4CAF50; margin-bottom: 20px; }
-        .profile-image { display:block; margin:0 auto 20px; width:150px; height:150px; border-radius:50%; object-fit:cover; }
-        label { font-weight: bold; }
+        h1 { 
+            text-align: center; 
+            color: #38bdf8; 
+            margin-bottom: 30px; 
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .profile-image { 
+            display: block; 
+            margin: 0 auto 35px; 
+            width: 140px; 
+            height: 140px; 
+            border-radius: 50%; 
+            object-fit: cover;
+            border: 4px solid #38bdf8;
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.3);
+            background: #1e293b;
+        }
+        label { 
+            font-weight: 600; 
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         input, select, textarea {
-            width: 97%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;
+            width: 100%; 
+            padding: 14px 16px; 
+            margin-bottom: 24px; 
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 8px;
+            color: #f8fafc;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 1em;
         }
-        button { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #45a049; }
-        header{
-            margin-top:-50px;
-            margin-left:-8px;
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        button { 
+            background: linear-gradient(135deg, #38bdf8, #2563eb); 
+            color: white; 
+            padding: 16px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+        select option {
+            background: #1e293b;
+            color: #f1f5f9;
         }
     </style>
 </head>
@@ -106,7 +178,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Edit Profile</h1>
         <?php
         $photo_path = htmlspecialchars($user['photo_path']);
-        echo "<img src='" . ($photo_path ?: "uploads/default_pic.png") . "' class='profile-image'>";
+        $fallback_url = 'https://ui-avatars.com/api/?name=' . urlencode($user['faculty_name']) . '&background=random&color=fff&size=150';
+        $actual_src = $photo_path ? "../../" . $photo_path : $fallback_url;
+        echo "<img src='" . $actual_src . "' class='profile-image' onerror=\"this.onerror=null; this.src='" . $fallback_url . "';\">";
         ?>
         <form method="post" enctype="multipart/form-data">
             <label>Name:</label>

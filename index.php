@@ -18,11 +18,6 @@ include_once HEADER;
     <main class="hero">
         <div class="container">
             <div class="hero-content">
-                <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true): ?>
-                    <a href="<?php echo PORTAL_PATH; ?>/faculty/edit_profile.php" class="btn-profile">
-                        <button class="btn-outline">Edit Profile</button>
-                    </a>
-                <?php endif; ?>
 
                 <h2>Welcome to GMRIT</h2>
                 <h1>File Management System</h1>
@@ -36,16 +31,23 @@ include_once HEADER;
                     </p>
                 </div>
 
-                <?php if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true): ?>
                 <div class="hero-buttons">
-                    <a href="<?php echo BASE_URL; ?>/modules/auth/login.php" class="hero-btn hero-btn-primary">
-                        Sign In
-                    </a>
-                    <a href="<?php echo BASE_URL; ?>/modules/auth/reg.php" class="hero-btn hero-btn-outline">
-                        Register
-                    </a>
+                    <?php if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true): ?>
+                        <a href="<?php echo BASE_URL; ?>/modules/auth/login.php" class="hero-btn hero-btn-primary">
+                            Sign In
+                        </a>
+                        <a href="<?php echo BASE_URL; ?>/modules/auth/reg.php" class="hero-btn hero-btn-outline">
+                            Register
+                        </a>
+                    <?php else: ?>
+                        <a href="<?php echo BASE_URL; ?>/dashboard.php" class="hero-btn hero-btn-primary">
+                            Dashboard
+                        </a>
+                        <a href="<?php echo PORTAL_PATH; ?>/faculty/edit_profile.php" class="hero-btn hero-btn-outline">
+                            Edit Profile
+                        </a>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
             </div>
         </div>
     </main>

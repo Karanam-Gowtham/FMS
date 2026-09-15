@@ -112,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['username'] = $user['full_name'];
+        $_SESSION['username'] = $userid;
         $_SESSION['user_identifier'] = $userid;
         $_SESSION['roles'] = $roles;
         $_SESSION['logged_in'] = true;
