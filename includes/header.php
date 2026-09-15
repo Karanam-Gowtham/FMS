@@ -851,29 +851,7 @@ if (isset($extra_head)) {
              MOBILE HAMBURGER
         ===================================================== -->
 
-<<<<<<< HEAD
-                <div class="dropdown">
-                    <span>Central Login &#9662;</span>
-                    <div class="dropdown-content">
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=IQAC">IQAC</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=R%26D">R&amp;D</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Exam_Section">Exam Section</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NAAC">NAAC</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NBA">NBA</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NCC">NCC</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Sports">Sports</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Clubs">Clubs &amp; Professional Bodies</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=NSS">NSS</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Women_Empowerment">Women Empowerment</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=IIC">IIC</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=PASH">PASH</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=Antiragging">Antiragging</a>
-                        <a href="<?php echo $app_url; ?>/modules/central/c_login.php?event=SAC">SAC</a>
-                    </div>
-                </div>
-=======
         <button type="button" class="hamburger" id="hamburger-btn" aria-label="Toggle navigation" aria-expanded="false">
->>>>>>> a50d40f31f4fc84691c1d99511484093df1fc064
 
             <span></span>
 
