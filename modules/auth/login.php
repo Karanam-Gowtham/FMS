@@ -1,6 +1,15 @@
 <?php
+// PHASE 3: Redirect to unified login. Original code preserved below.
+require_once __DIR__ . '/../../config.php';
+header("Location: " . BASE_URL . "/pages/login.php");
+exit();
+// === LEGACY CODE BELOW (preserved for rollback) ===
+?>
+<?php
 ob_start();
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include_once '../../config.php';
 include_once '../../includes/connection.php';
 include_once '../../includes/helpers.php';
@@ -62,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
                     $d_stmt->bind_param("s", $dept_name);
                     $d_stmt->execute();
                     $d_res = $d_stmt->get_result();
-                    $dept_id = ($d_row = $d_res->fetch_assoc()) ? (int)$d_row['dept_id'] : 1;
+                    $dept_id = ($d_row = $d_res->fetch_assoc()) ? (int) $d_row['dept_id'] : 1;
                     $d_stmt->close();
 
                     $r_ins = $conn->prepare("INSERT IGNORE INTO user_roles (user_id, role_id, dept_id) VALUES (?, ?, ?)");
@@ -135,6 +144,7 @@ include_once '../../includes/header.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -179,6 +189,7 @@ include_once '../../includes/header.php';
                 opacity: 0;
                 transform: scale(0.9);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1);
@@ -233,6 +244,7 @@ include_once '../../includes/header.php';
         }
     </style>
 </head>
+
 <body>
     <div class="container11">
         <div class="login-container">
@@ -249,10 +261,10 @@ include_once '../../includes/header.php';
     </div>
 
     <?php if ($login_error): ?>
-    <script>
-        alert("Wrong User ID or password!");
-    </script>
+        <script>
+            alert("Wrong User ID or password!");
+        </script>
     <?php endif; ?>
 </body>
-</html>
 
+</html>

@@ -15,18 +15,7 @@ mysqli_report(MYSQLI_REPORT_OFF);
 $conn = @mysqli_connect($db_host, $db_user, $db_pass, $db_name, $db_port);
 
 if (!$conn) {
-    $fallback_dbs = ['gmritfms', 'fms', 'project-fms'];
-    foreach ($fallback_dbs as $fb) {
-        if ($fb !== $db_name) {
-            $conn = @mysqli_connect($db_host, $db_user, $db_pass, $fb, $db_port);
-            if ($conn) break;
-        }
-    }
-}
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+    die("Connection failed:" . mysqli_connect_error());
 }
 
 // Ensure session is started natively since we dropped the separate session.php logic

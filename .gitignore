@@ -19,3 +19,9 @@
 /fuel/app/logs/*/*/*
 /fuel/app/cache/*/*
 /fuel/app/config/crypt.php
+
+# IDE config
+.idea/
+
+# Temporary files
+/tmp/

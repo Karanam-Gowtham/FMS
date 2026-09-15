@@ -2,7 +2,11 @@
 include("../includes/connection.php");
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-
+// Security: require authentication before serving any file
+if (!isset($_SESSION['admin']) && !isset($_SESSION['h_username']) && !isset($_SESSION['username'])) {
+    http_response_code(403);
+    die("Access denied. Please log in to view files.");
+}
 
 if (!isset($_GET['id'])) {
     die("Invalid file ID.");
