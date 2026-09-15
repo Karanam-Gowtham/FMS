@@ -1103,7 +1103,7 @@ if (isset($extra_head)) {
                  PDF MERGER
             =================================================== -->
 
-            <a href="<?= $app_url ?>/pdf_merger.php">
+            <a href="<?= $app_url ?>/modules/common/pdf_merger.php">
                 PDF Merger
             </a>
 

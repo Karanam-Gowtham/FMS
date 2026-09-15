@@ -1,9 +1,18 @@
 <?php
+
 /**
  * FMS Configuration
  * Centralized path definitions for the entire application.
  */
+/* =========================================================
+   ROOT PATH
+   ========================================================= */
+
 define('ROOT_PATH', __DIR__);
+
+/* =========================================================
+   DATABASE CONFIGURATION
+   ========================================================= */
 
 if (!defined('DB_NAME')) {
     define('DB_NAME', getenv('DB_NAME') ?: 'gmritfms');
@@ -18,42 +27,59 @@ if (!defined('DB_PASS')) {
     define('DB_PASS', getenv('DB_PASS') ?: '');
 }
 
-// Dynamic Base URL detection (works locally and on live servers like InfinityFree)
+/* =========================================================
+   BASE URL
+   ========================================================= */
+
 if (!defined('BASE_URL')) {
-    $isHttps = (
-        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
-        ($_SERVER['SERVER_PORT'] ?? 80) == 443 ||
-        (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
-        (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
-    );
-    $protocol = $isHttps ? "https" : "http";
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    
-    // Calculate subDir cleanly
-    $docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
-    $currentDir = str_replace('\\', '/', __DIR__);
-    
-    $subDir = '';
-    if (!empty($docRoot) && strpos($currentDir, $docRoot) === 0) {
-        $subDir = substr($currentDir, strlen($docRoot));
+    /*
+     * Find the folder in which the FMS project is located.
+     */
+    $documentRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+    $currentDirectory = str_replace('\\', '/', __DIR__);
+    $subDirectory = '';
+    if (!empty($documentRoot) && strpos($currentDirectory, $documentRoot) === 0) {
+        $subDirectory = substr($currentDirectory, strlen($documentRoot));
     }
-    $subDir = '/' . ltrim(str_replace('\\', '/', $subDir), '/');
-    if ($subDir === '/') {
-        $subDir = '';
+    $subDirectory = '/' . ltrim($subDirectory, '/');
+    if ($subDirectory === '/') {
+        $subDirectory = '';
     }
-    
-    $baseUrl = $protocol . "://" . $host . $subDir;
-    define('BASE_URL', rtrim($baseUrl, '/'));
+    define('BASE_URL', rtrim($protocol . '://' . $host . $subDirectory, '/'));
 }
 
+/* =========================================================
+   INCLUDES
+   ========================================================= */
+
 define('INCLUDES_PATH', ROOT_PATH . '/includes');
+/* =========================================================
+   ASSETS
+   ========================================================= */
+
 define('ASSETS_URL', BASE_URL . '/assets');
 define('IMAGES_PATH', ASSETS_URL . '/img');
 define('CSS_PATH', ASSETS_URL . '/css');
 define('JS_PATH', ASSETS_URL . '/js');
+
+/* =========================================================
+   APPLICATION FILES
+   ========================================================= */
+
 define('CONNECTION_PATH', INCLUDES_PATH . '/connection.php');
-define('PORTAL_PATH', BASE_URL . '/modules');
 define('HEADER', INCLUDES_PATH . '/header.php');
+
+/* =========================================================
+   MODULES
+   ========================================================= */
+define('PORTAL_PATH', BASE_URL . '/modules');
+/* =========================================================
+   UPLOADS
+   ========================================================= */
+
 define('UPLOADS_PATH', ROOT_PATH . '/uploads');
 define('UPLOADS_URL', BASE_URL . '/uploads');
+
 ?>
