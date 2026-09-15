@@ -16,13 +16,19 @@ if (!$doc_id || !in_array($action, ['Accept', 'Reject'])) {
     die(json_encode(['success' => false, 'message' => 'Invalid request']));
 }
 
-if ($source_table === 'Documents') {
-    // Modern documents
-    $new_status = ($action === 'Accept') ? 'Approved' : 'Rejected';
-    $stmt = $conn->prepare("UPDATE Documents SET status = ? WHERE document_id = ?");
-    $stmt->bind_param("si", $new_status, $doc_id);
-    $success = $stmt->execute();
-    $stmt->close();
+if ($source_table === 'Documents' || $source_table === 'documents') {
+    // Modern documents: Use the data-driven workflow engine
+    require_once __DIR__ . '/../core/workflow_engine.php';
+    
+    $action_key = ($action === 'Accept') ? 'approve' : 'reject';
+    $actor_user_id = $_SESSION['user_id'] ?? 0;
+    
+    $result = wf_execute_action($conn, $doc_id, $actor_user_id, $action_key, $reason);
+    $success = $result['success'];
+    
+    if (!$success) {
+        die(json_encode(['success' => false, 'message' => $result['error']]));
+    }
 } else {
     // Legacy documents
     $new_status = ($action === 'Accept') ? 'Accepted' : 'Rejected';

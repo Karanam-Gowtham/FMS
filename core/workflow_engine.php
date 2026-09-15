@@ -290,12 +290,19 @@ function wf_get_allowed_actions(mysqli $conn, array $document, array $auth): arr
  * @param string  $remarks     Optional remarks/rejection reason
  * @return array ['success' => bool, 'error' => string|null, 'new_status' => string|null]
  */
-function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string $action_key, string $remarks = ''): array
+function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string $action_key, string $remarks = '', string $table_name = 'documents', string $id_col = 'doc_id'): array
 {
+    // Validate table name to prevent SQL injection
+    $allowed_tables = ['documents', 'patents_table', 'published_tab', 'conference_tab', 'fdps_tab', 'conf_org_tab', 'fdps_org_tab', 'dept_files', 's_journal_tab', 's_conference_tab', 's_bodies', 's_events'];
+    if (!in_array($table_name, $allowed_tables)) {
+        return ['success' => false, 'error' => 'Invalid table name.', 'new_status' => null];
+    }
+
     // 1. Load the document
+    // Legacy tables use 'username' as uploader, we'll try to get both if possible, or fallback
+    // Since legacy tables don't have doc_type_id, we will assume current_step is enough for the transition.
     $stmt = $conn->prepare(
-        "SELECT doc_id, doc_type_id, uploaded_by, dept_id, status, current_step
-         FROM documents WHERE doc_id = ?"
+        "SELECT * FROM `$table_name` WHERE `$id_col` = ?"
     );
     $stmt->bind_param('i', $doc_id);
     $stmt->execute();

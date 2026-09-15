@@ -110,36 +110,43 @@ INSERT INTO workflow_actions (action_key, label) VALUES
 -- STEP 4: Seed workflow configurations
 -- ============================================================
 
--- Workflow A: department_standard (Faculty → HOD → R&D Dean → Accepted)
+-- Workflow A: department_standard (Faculty → Dept Coordinator → HOD → R&D Dean → Accepted)
 INSERT INTO workflows (workflow_key, label, description) VALUES
     ('department_standard', 'Standard Department Review',
-     'Faculty uploads → HOD reviews (department scope) → R&D Dean reviews (global scope) → Accepted');
+     'Faculty uploads → Dept Coordinator reviews (department scope) → HOD reviews (department scope) → R&D Dean reviews (global scope) → Accepted');
 
 SET @wf_dept = LAST_INSERT_ID();
 
 INSERT INTO workflow_steps (workflow_id, step_order, step_label, responsible_role_id, scope) VALUES
-    (@wf_dept, 1, 'HOD Review',      3, 'department'),
-    (@wf_dept, 2, 'R&D Dean Review', 8, 'global');
+    (@wf_dept, 1, 'Dept Coordinator Review', 5, 'department'),
+    (@wf_dept, 2, 'HOD Review',              3, 'department'),
+    (@wf_dept, 3, 'R&D Dean Review',         8, 'global');
 
 -- Get the step IDs we just inserted
-SET @step_hod  = (SELECT step_id FROM workflow_steps WHERE workflow_id = @wf_dept AND step_order = 1);
-SET @step_dean = (SELECT step_id FROM workflow_steps WHERE workflow_id = @wf_dept AND step_order = 2);
+SET @step_cord = (SELECT step_id FROM workflow_steps WHERE workflow_id = @wf_dept AND step_order = 1);
+SET @step_hod  = (SELECT step_id FROM workflow_steps WHERE workflow_id = @wf_dept AND step_order = 2);
+SET @step_dean = (SELECT step_id FROM workflow_steps WHERE workflow_id = @wf_dept AND step_order = 3);
 
 -- Actions: approve=1, reject=2, resubmit=3
 INSERT INTO workflow_transitions (step_id, action_id, to_step_id, resulting_status) VALUES
+    -- Dept Coordinator Review
+    (@step_cord, 1, @step_hod,  'pending'),      -- approve → advance to HOD
+    (@step_cord, 2, NULL,       'rejected'),     -- reject  → rejected
+    
     -- HOD Review
-    (@step_hod,  1, @step_dean, 'pending'),     -- approve → advance to Dean
+    (@step_hod,  1, @step_dean, 'pending'),      -- approve → advance to Dean
     (@step_hod,  2, NULL,       'rejected'),     -- reject  → rejected
+    
     -- R&D Dean Review
     (@step_dean, 1, NULL,       'accepted'),     -- approve → final accept
     (@step_dean, 2, NULL,       'rejected');     -- reject  → rejected
 
 -- Resubmit transitions (uploader only, from rejected state)
--- The step_id here indicates "which step was the document at when rejected"
--- For resubmit, we always go back to the first step
+-- Always go back to the first step (Dept Coordinator)
 INSERT INTO workflow_transitions (step_id, action_id, to_step_id, resulting_status) VALUES
-    (@step_hod,  3, @step_hod,  'pending'),     -- resubmit from step 1 → back to step 1
-    (@step_dean, 3, @step_hod,  'pending');      -- resubmit from step 2 → back to step 1
+    (@step_cord, 3, @step_cord, 'pending'),      -- resubmit from step 1
+    (@step_hod,  3, @step_cord, 'pending'),      -- resubmit from step 2
+    (@step_dean, 3, @step_cord, 'pending');      -- resubmit from step 3
 
 
 -- Workflow B: central (Central Coordinator uploads → R&D Dean reviews → Accepted)

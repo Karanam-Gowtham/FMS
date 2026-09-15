@@ -311,136 +311,31 @@ function getActiveAcademicYear($conn) {
  * Looks up Approval_Flow to find the next step.
  * Returns the new status and next_role_id.
  */
-function processApproval($conn, $document_id, $approver_user_id, $approver_role_id)
+function processApproval($conn, $document_id, $approver_user_id, $approver_role_id = null)
 {
-    // Get document info
-    $stmt = $conn->prepare("SELECT * FROM Documents WHERE document_id = ?");
-    $stmt->bind_param("i", $document_id);
-    $stmt->execute();
-    $doc = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if (!$doc)
-        return false;
-
-    // Find the current step in approval flow
-    $stmt = $conn->prepare("
-        SELECT * FROM Approval_Flow
-        WHERE type_id = ? AND current_role_id = ?
-        ORDER BY sequence_no ASC LIMIT 1
-    ");
-    $stmt->bind_param("ii", $doc['type_id'], $doc['current_role_id']);
-    $stmt->execute();
-    $current_step = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if (!$current_step) {
-        // No flow step found - mark as approved
-        $update = $conn->prepare("UPDATE Documents SET status = 'Approved', current_role_id = ? WHERE document_id = ?");
-        $update->bind_param("ii", $approver_role_id, $document_id);
-        $update->execute();
-        $update->close();
-    } else {
-        // Find next step
-        $stmt = $conn->prepare("
-            SELECT * FROM Approval_Flow
-            WHERE type_id = ? AND sequence_no > ?
-            ORDER BY sequence_no ASC LIMIT 1
-        ");
-        $stmt->bind_param("ii", $doc['type_id'], $current_step['sequence_no']);
-        $stmt->execute();
-        $next_step = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        if ($next_step) {
-            // Move to next approval step
-            $update = $conn->prepare("UPDATE Documents SET current_role_id = ? WHERE document_id = ?");
-            $update->bind_param("ii", $next_step['current_role_id'], $document_id);
-            $update->execute();
-            $update->close();
-        } else {
-            // No more steps - approved!
-            $update = $conn->prepare("UPDATE Documents SET status = 'Approved' WHERE document_id = ?");
-            $update->bind_param("i", $document_id);
-            $update->execute();
-            $update->close();
-        }
-    }
-
-    // Log the action
-    $action = $conn->prepare("
-        INSERT INTO Document_Actions (document_id, user_id, role_id, action_type)
-        VALUES (?, ?, ?, 'Approved')
-    ");
-    $action->bind_param("iii", $document_id, $approver_user_id, $approver_role_id);
-    $action->execute();
-    $action->close();
-
-    return true;
+    require_once __DIR__ . '/../core/workflow_engine.php';
+    $result = wf_execute_action($conn, $document_id, $approver_user_id, 'approve');
+    return $result['success'];
 }
 
 /**
  * Process document rejection.
  */
-function processRejection($conn, $document_id, $rejector_user_id, $rejector_role_id, $remarks = '')
+function processRejection($conn, $document_id, $rejector_user_id, $rejector_role_id = null, $remarks = '')
 {
-    $update = $conn->prepare("UPDATE Documents SET status = 'Rejected' WHERE document_id = ?");
-    $update->bind_param("i", $document_id);
-    $update->execute();
-    $update->close();
-
-    $action = $conn->prepare("
-        INSERT INTO Document_Actions (document_id, user_id, role_id, action_type, remarks)
-        VALUES (?, ?, ?, 'Rejected', ?)
-    ");
-    $action->bind_param("iiis", $document_id, $rejector_user_id, $rejector_role_id, $remarks);
-    $action->execute();
-    $action->close();
-
-    return true;
+    require_once __DIR__ . '/../core/workflow_engine.php';
+    $result = wf_execute_action($conn, $document_id, $rejector_user_id, 'reject', $remarks);
+    return $result['success'];
 }
 
 /**
  * Process document resubmission (after rejection).
  */
-function processResubmission($conn, $document_id, $user_id, $role_id)
+function processResubmission($conn, $document_id, $user_id, $role_id = null)
 {
-    // Get document type to find the first approval step
-    $stmt = $conn->prepare("SELECT type_id FROM Documents WHERE document_id = ?");
-    $stmt->bind_param("i", $document_id);
-    $stmt->execute();
-    $doc = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if (!$doc)
-        return false;
-
-    // Find first approval step
-    $stmt = $conn->prepare("
-        SELECT current_role_id FROM Approval_Flow
-        WHERE type_id = ? ORDER BY sequence_no ASC LIMIT 1
-    ");
-    $stmt->bind_param("i", $doc['type_id']);
-    $stmt->execute();
-    $first_step = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $first_role = $first_step ? $first_step['current_role_id'] : ROLE_HOD;
-
-    $update = $conn->prepare("UPDATE Documents SET status = 'Pending', current_role_id = ? WHERE document_id = ?");
-    $update->bind_param("ii", $first_role, $document_id);
-    $update->execute();
-    $update->close();
-
-    $action = $conn->prepare("
-        INSERT INTO Document_Actions (document_id, user_id, role_id, action_type)
-        VALUES (?, ?, ?, 'Resubmitted')
-    ");
-    $action->bind_param("iii", $document_id, $user_id, $role_id);
-    $action->execute();
-    $action->close();
-
-    return true;
+    require_once __DIR__ . '/../core/workflow_engine.php';
+    $result = wf_execute_action($conn, $document_id, $user_id, 'resubmit');
+    return $result['success'];
 }
 
 # Pending Documents
@@ -453,44 +348,45 @@ function getPendingCount($conn, $user_id, $roles = [])
     if (empty($roles))
         return 0;
 
-    $where_clauses = [];
-    $params = [];
-    $types = "";
-
+    $count = 0;
+    
+    // Modern Documents count (Data-Driven Workflow Engine)
+    // Find all documents currently at a step assigned to one of the user's roles
+    // taking scope (department vs global) into account.
+    $modern_query = "
+        SELECT COUNT(d.doc_id) as cnt 
+        FROM Documents d
+        JOIN workflow_steps ws ON d.current_step = ws.step_id
+        WHERE d.status = 'pending' AND (
+    ";
+    
+    $role_conditions = [];
     foreach ($roles as $role) {
-        $rid = (int) $role['role_id'];
-        $did = (int) $role['dept_id'];
-
+        $rid = (int)$role['role_id'];
+        $did = (int)$role['dept_id'];
+        
+        // Faculty (Uploader) sees their own rejected/pending docs that need resubmission
         if ($rid == ROLE_FACULTY) {
-            $where_clauses[] = "(uploaded_by = ? AND status IN ('Pending', 'Rejected'))";
-            $types .= "i";
-            $params[] = $user_id;
-        } elseif ($rid == ROLE_HOD || $rid == ROLE_COORDINATOR) {
-            $where_clauses[] = "(current_role_id = ? AND dept_id = ? AND status = 'Pending')";
-            $types .= "ii";
-            $params[] = $rid;
-            $params[] = $did;
-        } elseif ($rid == ROLE_IQAC || $rid == ROLE_ADMIN) {
-            $where_clauses[] = "(current_role_id = ? AND status = 'Pending')";
-            $types .= "i";
-            $params[] = $rid;
+            // Add a subquery for the uploader count
+            $uploader_query = "SELECT COUNT(*) as u_cnt FROM Documents WHERE uploaded_by = $user_id AND status = 'rejected'";
+            $u_res = $conn->query($uploader_query);
+            if ($u_res && $u_row = $u_res->fetch_assoc()) {
+                $count += (int)$u_row['u_cnt'];
+            }
+        }
+        
+        // Data-driven scope check
+        $role_conditions[] = "(ws.responsible_role_id = $rid AND (ws.scope = 'global' OR (ws.scope = 'department' AND d.dept_id = $did)))";
+    }
+    
+    if (!empty($role_conditions)) {
+        $modern_query .= implode(" OR ", $role_conditions) . ")";
+        $res = $conn->query($modern_query);
+        if ($res && $row = $res->fetch_assoc()) {
+            $count += (int)$row['cnt'];
         }
     }
 
-    if (empty($where_clauses))
-        return 0;
-
-    $query = "SELECT COUNT(*) as cnt FROM Documents WHERE " . implode(" OR ", $where_clauses);
-    $stmt = $conn->prepare($query);
-
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
-
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-    $count = (int) $result['cnt'];
-    $stmt->close();
 
     // Add Legacy Table Counts
     foreach ($roles as $role) {

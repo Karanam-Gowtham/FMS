@@ -15,16 +15,19 @@ define('ROOT_PATH', __DIR__);
    ========================================================= */
 
 if (!defined('DB_NAME')) {
-    define('DB_NAME', getenv('DB_NAME') ?: 'gmritfms');
+   define('DB_NAME', getenv('DB_NAME') ?: 'gmritfms');
 }
 if (!defined('DB_HOST')) {
-    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+   define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 }
 if (!defined('DB_USER')) {
-    define('DB_USER', getenv('DB_USER') ?: 'root');
+   define('DB_USER', getenv('DB_USER') ?: 'root');
 }
 if (!defined('DB_PASS')) {
-    define('DB_PASS', getenv('DB_PASS') ?: '');
+   define('DB_PASS', getenv('DB_PASS') ?: '');
+}
+if (!defined('DB_PORT')) {
+   define('DB_PORT', getenv('DB_PORT') ?: 3306);
 }
 
 /* =========================================================
@@ -32,22 +35,22 @@ if (!defined('DB_PASS')) {
    ========================================================= */
 
 if (!defined('BASE_URL')) {
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    /*
-     * Find the folder in which the FMS project is located.
-     */
-    $documentRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
-    $currentDirectory = str_replace('\\', '/', __DIR__);
-    $subDirectory = '';
-    if (!empty($documentRoot) && strpos($currentDirectory, $documentRoot) === 0) {
-        $subDirectory = substr($currentDirectory, strlen($documentRoot));
-    }
-    $subDirectory = '/' . ltrim($subDirectory, '/');
-    if ($subDirectory === '/') {
-        $subDirectory = '';
-    }
-    define('BASE_URL', rtrim($protocol . '://' . $host . $subDirectory, '/'));
+   $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+   $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+   /*
+    * Find the folder in which the FMS project is located.
+    */
+   $documentRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+   $currentDirectory = str_replace('\\', '/', __DIR__);
+   $subDirectory = '';
+   if (!empty($documentRoot) && strpos($currentDirectory, $documentRoot) === 0) {
+      $subDirectory = substr($currentDirectory, strlen($documentRoot));
+   }
+   $subDirectory = '/' . ltrim($subDirectory, '/');
+   if ($subDirectory === '/') {
+      $subDirectory = '';
+   }
+   define('BASE_URL', rtrim($protocol . '://' . $host . $subDirectory, '/'));
 }
 
 /* =========================================================
