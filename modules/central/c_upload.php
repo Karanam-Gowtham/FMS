@@ -35,7 +35,7 @@ if ($event === 'R&D') {
         $ins->execute();
         $_SESSION['user_id'] = $conn->insert_id;
     }
-    header("Location: " . BASE_URL . "/modules/rnd_dean/dashboard.php");
+    header("Location: " . BASE_URL . "/pages/rnd/dashboard.php");
     exit();
 }
 
@@ -344,12 +344,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $result = mysqli_query($conn, $query);
 
                             if (!$result) {
-                                die("Query Failed: " . mysqli_error($conn)); // Debug error
+                                $query = "SELECT year_label FROM academic_years ORDER BY year_label DESC";
+                                $result = mysqli_query($conn, $query);
                             }
 
-                            if (mysqli_num_rows($result) > 0) {
+                            if ($result && mysqli_num_rows($result) > 0) {
                                 while ($row = mysqli_fetch_assoc($result)) {
-                                    $year = htmlspecialchars($row['year']);
+                                    $year = htmlspecialchars($row['year_label'] ?? $row['year']);
                                     echo "<option value=\"$year\">$year</option>";
                                 }
                             } else {

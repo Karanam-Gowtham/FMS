@@ -4,7 +4,7 @@ ini_set('display_errors', 0);
 include_once "../includes/connection.php";
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-define('REGEX_UPLOADS', '/uploads\/.*/');
+
 define('PATH_UP_UP', '../../');
 define('ATTR_DATA_FILEPATH', "' data-filepath='");
 define('ATTR_DATA_FILES', "' data-files='");

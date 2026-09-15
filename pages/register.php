@@ -13,17 +13,21 @@ require_once __DIR__ . '/../core/bootstrap.php';
 
 // Already logged in? Go to dashboard
 if (auth_is_logged_in()) {
-    header("Location: " . BASE_URL . "/pages/dashboard.php");
+    $active = auth_active_role();
+    if ($active) {
+        header("Location: " . get_role_landing_url($active));
+    } else {
+        header("Location: " . BASE_URL . "/pages/select_role.php");
+    }
     exit();
 }
 
 $error = '';
 $success = '';
 
-// Load academic departments only (exclude central/NAAC/NBA etc.)
+// Load academic departments
 $dept_result = $conn->query("
-    SELECT dept_id, dept_name FROM dept
-    WHERE dept_id <= 9 OR dept_id >= 21
+    SELECT dept_id, dept_name FROM departments
     ORDER BY dept_name
 ");
 $departments = [];
@@ -53,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please select a department.';
     } else {
         // Validate dept_id exists
-        $dept_check = $conn->prepare("SELECT dept_id FROM dept WHERE dept_id = ?");
+        $dept_check = $conn->prepare("SELECT dept_id FROM departments WHERE dept_id = ?");
         $dept_check->bind_param("i", $dept_id);
         $dept_check->execute();
         if ($dept_check->get_result()->num_rows === 0) {
@@ -244,6 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+    <?php include_once HEADER; ?>
     <div class="card">
         <h1>Faculty Registration</h1>
         <p class="subtitle">Create your FMS account</p>

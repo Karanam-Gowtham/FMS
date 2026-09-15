@@ -82,8 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $file = $result->fetch_assoc();
             
             if ($file && !empty($file[$fileColumn])) {
-                if (file_exists($file[$fileColumn])) {
-                    unlink($file[$fileColumn]);
+                $filePath = fms_resolve_file_path($file[$fileColumn], __DIR__);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
                 }
                 
                 $sql = "DELETE FROM $tableName WHERE id = ?";
@@ -98,11 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     
     // DOWNLOAD ACTION
     elseif ($action == 'download') {
-        // Clean any previous output to prevent headers already sent
         if (ob_get_length()) {
             ob_end_clean();
         }
-    
         if (count($selectedFiles) == 1) {
             $fileId = $selectedFiles[0];
             $sql = "SELECT $fileColumn FROM $tableName WHERE id = ?";
@@ -111,28 +110,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $stmt->execute();
             $result = $stmt->get_result();
             $file = $result->fetch_assoc();
-    
-            if ($file && !empty($file[$fileColumn]) && file_exists($file[$fileColumn])) {
-                $filePath = $file[$fileColumn];
-    
-                // Set headers and send file
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
-                header('Content-Length: ' . filesize($filePath));
-                ob_clean();
-                flush();
-                readfile($filePath);
-                exit;
-            } else {
-                echo "<script>alert('File not found.'); window.location.href = window.location.href;</script>";
-                exit;
+            if ($file && !empty($file[$fileColumn])) {
+                $filePath = fms_resolve_file_path($file[$fileColumn], __DIR__);
+                if (file_exists($filePath)) {
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+                    header('Content-Length: ' . filesize($filePath));
+                    ob_clean();
+                    flush();
+                    readfile($filePath);
+                    exit;
+                }
             }
+            echo "<script>alert('File not found.'); window.location.href = window.location.href;</script>";
+            exit;
         } else {
-            // Handle multiple file download via ZIP
             $zip = new ZipArchive();
             $zipFileName = $category . "_files_" . time() . ".zip";
             $zipFilePath = sys_get_temp_dir() . '/' . $zipFileName;
-    
             if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
                 foreach ($selectedFiles as $fileId) {
                     $sql = "SELECT $fileColumn FROM $tableName WHERE id = ?";
@@ -141,21 +136,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $file = $result->fetch_assoc();
-    
-                    if ($file && !empty($file[$fileColumn]) && file_exists($file[$fileColumn])) {
-                        $zip->addFile($file[$fileColumn], basename($file[$fileColumn]));
+                    if ($file && !empty($file[$fileColumn])) {
+                        $filePath = fms_resolve_file_path($file[$fileColumn], __DIR__);
+                        if (file_exists($filePath)) {
+                            $zip->addFile($filePath, basename($filePath));
+                        }
                     }
                 }
                 $zip->close();
-    
-                // Send ZIP headers
                 header('Content-Type: application/zip');
                 header('Content-Disposition: attachment; filename="' . basename($zipFileName) . '"');
                 header('Content-Length: ' . filesize($zipFilePath));
                 ob_clean();
                 flush();
                 readfile($zipFilePath);
-                unlink($zipFilePath); // cleanup temp file
+                unlink($zipFilePath);
                 exit;
             } else {
                 echo "<script>alert('Failed to create zip file.'); window.location.href = window.location.href;</script>";
@@ -163,10 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             }
         }
     }
-    
-    
 }
-
 ///------------------------------------------------------------------------------------------------------------
 // SQL query to fetch all records from the fdps_tab table
 
@@ -334,7 +326,7 @@ if (isset($_POST['export_patent'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Achievements</title>
-    <link rel="stylesheet" href="css/download_pap.css">
+    <link rel="stylesheet" href="../../assets/css/download_pap.css">
         <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
 <body>
@@ -345,7 +337,7 @@ if (isset($_POST['export_patent'])) {
     <div class="div1">
         <div class="filter-section">
         
-            <h1><?php echo ($catg === 'fdps') ? 'fdps_attended' : "$catg"; ?> Files</h1>
+            <h1><?php echo ($catg === 'fdps') ? 'FDPS Attended' : ucfirst(str_replace('_', ' ', $catg)); ?> Files</h1>
             <form method="POST" class="filter-form">
             <input type="hidden" name="action_F" value="<?php echo htmlspecialchars($catg); ?>">
                 <select name="dept" id="dept">

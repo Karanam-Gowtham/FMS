@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * R&D Dean Dashboard
  *
@@ -44,7 +44,7 @@ if ($filter_dept_id > 0) {
 $all_depts       = doc_get_departments($conn);
 $academic_years  = doc_get_academic_years($conn);
 $active_year     = doc_get_active_year($conn);
-$research_types  = doc_get_types($conn, 'research');   // Business classification: category='research'
+$research_types  = doc_get_types($conn);   // Business classification: category='research'
 $rnd_cat_map     = rnd_get_category_map($conn);
 $rnd_categories  = rnd_get_categories($conn);
 
@@ -68,8 +68,7 @@ function rnd_url(array $overrides = []): string {
 }
 
 // â”€â”€ Summary Stats â”€â”€
-// Department R&D documents (category='research')
-$dept_rnd_filters = ['category' => 'research'];
+$dept_rnd_filters = ['type_keys' => ['journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised']];
 if ($filter_dept_id > 0) $dept_rnd_filters['dept_id'] = $filter_dept_id;
 if ($filter_year_id > 0) $dept_rnd_filters['year_id'] = $filter_year_id;
 

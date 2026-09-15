@@ -9,7 +9,7 @@ $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation
 
 if (isset($_GET['delete'])) {
     $yearToDelete = $_GET['delete'];
-    $stmt = $conn->prepare("DELETE FROM academic_year WHERE year = ?");
+    $stmt = $conn->prepare("DELETE FROM academic_years WHERE year_label = ?");
     $stmt->bind_param("s", $yearToDelete);
     $stmt->execute();
     $stmt->close();
@@ -21,7 +21,7 @@ if (isset($_GET['delete'])) {
 if (isset($_POST['edit_submit'])) {
     $oldYear = $_POST['old_year'];
     $newYear = $_POST['new_year'];
-    $stmt = $conn->prepare("UPDATE academic_year SET year = ? WHERE year = ?");
+    $stmt = $conn->prepare("UPDATE academic_years SET year_label = ? WHERE year_label = ?");
     $stmt->bind_param("ss", $newYear, $oldYear);
     $stmt->execute();
     $stmt->close();
@@ -30,7 +30,7 @@ if (isset($_POST['edit_submit'])) {
 }
 
 // Fetch data
-$result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
+$result = $conn->query("SELECT * FROM academic_years ORDER BY year_label DESC");
 ?>
 
 <!DOCTYPE html>
@@ -212,9 +212,9 @@ $result = $conn->query("SELECT * FROM academic_year ORDER BY year DESC");
         while ($row = $result->fetch_assoc()) {
             echo "<tr>";
             echo "<td>" . $sno++ . "</td>";
-            echo "<td>" . htmlspecialchars($row['year']) . "</td>";
-            echo "<td><button class='btn11 edit-btn11' onclick='showEditPopup(\"" . htmlspecialchars($row['year']) . "\")'>Edit</button></td>";
-            echo "<td><button class='btn11 delete-btn11' onclick='confirmDelete(\"" . htmlspecialchars($row['year']) . "\")'>Delete</button></td>";
+            echo "<td>" . htmlspecialchars($row['year_label']) . "</td>";
+            echo "<td><button class='btn11 edit-btn11' onclick='showEditPopup(\"" . htmlspecialchars($row['year_label']) . "\")'>Edit</button></td>";
+            echo "<td><button class='btn11 delete-btn11' onclick='confirmDelete(\"" . htmlspecialchars($row['year_label']) . "\")'>Delete</button></td>";
             echo "</tr>";
         }
     } else {

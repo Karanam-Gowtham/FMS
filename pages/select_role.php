@@ -11,7 +11,12 @@ require_once __DIR__ . '/../core/legacy_bridge.php';
 
 // If already authenticated with a role, go to dashboard
 if (auth_is_logged_in()) {
-    header("Location: " . BASE_URL . "/pages/dashboard.php");
+    $active = auth_active_role();
+    if ($active) {
+        header("Location: " . get_role_landing_url($active));
+    } else {
+        header("Location: " . BASE_URL . "/pages/login.php");
+    }
     exit();
 }
 
@@ -195,6 +200,7 @@ $display_roles = get_distinct_role_assignments($roles);
     </style>
 </head>
 <body>
+    <?php include_once HEADER; ?>
     <div class="card">
         <h1>Select Your Role</h1>
         <p class="subtitle">Welcome, <?= htmlspecialchars($user['full_name']) ?>. You have multiple roles.</p>

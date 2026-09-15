@@ -12,13 +12,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $year = trim($_POST["year"]);
 
     if (!empty($year)) {
-        $check = "SELECT * FROM academic_year WHERE year = '$year'";
+        $check = "SELECT * FROM academic_years WHERE year_label = '$year'";
         $check_result = mysqli_query($conn, $check);
 
         if (mysqli_num_rows($check_result) > 0) {
             $error = "Academic year '$year' already exists.";
         } else {
-            $insert = "INSERT INTO academic_year (year) VALUES ('$year')";
+            $insert = "INSERT INTO academic_years (year_label) VALUES ('$year')";
             if (mysqli_query($conn, $insert)) {
                 $success = "Academic year '$year' added successfully!";
             } else {

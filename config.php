@@ -15,7 +15,7 @@ define('ROOT_PATH', __DIR__);
    ========================================================= */
 
 if (!defined('DB_NAME')) {
-   define('DB_NAME', getenv('DB_NAME') ?: 'gmritfms');
+   define('DB_NAME', getenv('DB_NAME') ?: 'gmrdufms');
 }
 if (!defined('DB_HOST')) {
    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');

@@ -59,9 +59,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $result = $stmt->get_result();
             $file = $result->fetch_assoc();
 
-            if ($file && file_exists($file[$fileColumn])) {
-                unlink($file[$fileColumn]);
+            if ($file && !empty($file[$fileColumn])) {
+            $resolved = fms_resolve_file_path($file[$fileColumn], __DIR__);
+            if (file_exists($resolved)) {
+                unlink($resolved);
             }
+        }
 
             $sql = "DELETE FROM $tableName WHERE id = ?";
             $stmt = $conn->prepare($sql);
@@ -87,8 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
             $result = $stmt->get_result();
             $file = $result->fetch_assoc();
 
-            if ($file && file_exists($file[$fileColumn])) {
-                $filePath = $file[$fileColumn];
+            if ($file && !empty($file[$fileColumn])) {
+            $filePath = fms_resolve_file_path($file[$fileColumn], __DIR__);
+            if (file_exists($filePath)) {
                 header('Content-Type: application/octet-stream');
                 header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
                 header('Content-Length: ' . filesize($filePath));
@@ -96,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                 flush();
                 readfile($filePath);
                 exit;
-            } else {
+            }
+        } else {
                 echo "<script>alert('File not found: " . $file[$fileColumn] . "');</script>";
                 exit;
             }
@@ -116,22 +121,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                         $result = $stmt->get_result();
                         $file = $result->fetch_assoc();
 
-                        if ($file && file_exists($file[$fileColumn])) {
-                            // Get the base name of the file (e.g., 'report.pdf')
-                            $fileName = basename($file[$fileColumn]);
-
-                            // If the file already exists in the zip, append a unique identifier (fileCounter)
-                            $newFileName = $fileName;
-
-                            // Ensure unique filename by appending a counter if file already exists
-                            while ($zip->locateName($newFileName) !== false) {
-                                $newFileName = pathinfo($fileName, PATHINFO_FILENAME) . "_$fileCounter." . pathinfo($fileName, PATHINFO_EXTENSION);
-                                $fileCounter++;
-                            }
-
-                            // Add file to the ZIP with the new unique name
-                            $zip->addFile($file[$fileColumn], $newFileName);
-                        }
+                        if ($file && !empty($file[$fileColumn])) {
+            $filePath = fms_resolve_file_path($file[$fileColumn], __DIR__);
+            if (file_exists($filePath)) {
+                $fileName = basename($filePath);
+                $newFileName = $fileName;
+                while ($zip->locateName($newFileName) !== false) {
+                    $newFileName = pathinfo($fileName, PATHINFO_FILENAME) . "_$fileCounter." . pathinfo($fileName, PATHINFO_EXTENSION);
+                    $fileCounter++;
+                }
+                $zip->addFile($filePath, $newFileName);
+            }
+        }
                     }
 
                     $zip->close();

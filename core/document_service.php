@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/meta_registry.php';
 require_once __DIR__ . '/file_service.php';
+require_once __DIR__ . '/legacy_sync.php';
 require_once __DIR__ . '/workflow_engine.php';
 
 // ============================================================
@@ -27,8 +28,8 @@ require_once __DIR__ . '/workflow_engine.php';
 function doc_get_type_by_key(mysqli $conn, string $type_key): ?array
 {
     $stmt = $conn->prepare(
-        "SELECT type_id, type_key, type_label, category, workflow_key, meta_table, form_template, is_active
-         FROM document_types WHERE type_key = ? AND is_active = 1"
+        "SELECT type_id, type_code AS type_key, label AS type_label, workflow_id
+         FROM document_types WHERE type_code = ?"
     );
     $stmt->bind_param('s', $type_key);
     $stmt->execute();
@@ -47,7 +48,7 @@ function doc_get_type_by_key(mysqli $conn, string $type_key): ?array
 function doc_get_type_by_id(mysqli $conn, int $type_id): ?array
 {
     $stmt = $conn->prepare(
-        "SELECT type_id, type_key, type_label, category, workflow_key, meta_table, form_template, is_active
+        "SELECT type_id, type_code AS type_key, label AS type_label, workflow_id
          FROM document_types WHERE type_id = ?"
     );
     $stmt->bind_param('i', $type_id);
@@ -64,22 +65,13 @@ function doc_get_type_by_id(mysqli $conn, int $type_id): ?array
  * @param string|null $category  Optional filter (e.g. 'research', 'student', 'criteria')
  * @return array
  */
-function doc_get_types(mysqli $conn, ?string $category = null): array
+function doc_get_types(mysqli $conn): array
 {
-    if ($category !== null) {
-        $stmt = $conn->prepare(
-            "SELECT type_id, type_key, type_label, category, workflow_key
-             FROM document_types WHERE is_active = 1 AND category = ?
-             ORDER BY type_label"
-        );
-        $stmt->bind_param('s', $category);
-    } else {
-        $stmt = $conn->prepare(
-            "SELECT type_id, type_key, type_label, category, workflow_key
-             FROM document_types WHERE is_active = 1
-             ORDER BY category, type_label"
-        );
-    }
+    $stmt = $conn->prepare(
+        "SELECT type_id, type_code AS type_key, label AS type_label, workflow_id
+         FROM document_types
+         ORDER BY label"
+    );
     $stmt->execute();
     $result = $stmt->get_result();
     $types = [];
@@ -141,8 +133,8 @@ function doc_create(
     try {
         // 3. Insert into documents
         $stmt = $conn->prepare(
-            "INSERT INTO documents (doc_type_id, uploaded_by, dept_id, year_id, title, status, current_step, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, 'pending', NULL, NOW(), NOW())"
+            "INSERT INTO documents (type_id, uploaded_by, dept_id, academic_year_id, title, file_path, status, current_step, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, '', 'pending', 1, NOW(), NOW())"
         );
         $type_id = (int)$doc_type['type_id'];
         $stmt->bind_param('iiiis', $type_id, $uploaded_by, $dept_id, $year_id, $title);
@@ -189,6 +181,9 @@ function doc_create(
         if (!$wf_result['success']) {
             throw new RuntimeException('Workflow initialization failed: ' . $wf_result['error']);
         }
+
+        // 7. Sync to legacy tables for backward compatibility
+        legacy_sync_insert_document($conn, $doc_id, $type_key, $uploaded_by, $dept_id, $academic_year_id ?? 0, $title, $meta_data, $files);
 
         $conn->commit();
 
@@ -277,18 +272,18 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
 function doc_get(mysqli $conn, int $doc_id): ?array
 {
     $stmt = $conn->prepare(
-        "SELECT d.doc_id, d.doc_type_id, d.uploaded_by, d.dept_id, d.year_id,
+        "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id,
                 d.title, d.status, d.current_step, d.rejection_reason,
                 d.created_at, d.updated_at,
-                dt.type_key, dt.type_label, dt.category, dt.workflow_key,
+                dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,
                 u.full_name AS uploader_name,
                 dep.dept_name,
                 ay.year_label
          FROM documents d
-         JOIN document_types dt ON dt.type_id = d.doc_type_id
+         JOIN document_types dt ON dt.type_id = d.type_id
          JOIN users u ON u.user_id = d.uploaded_by
-         JOIN dept dep ON dep.dept_id = d.dept_id
-         LEFT JOIN academic_years ay ON ay.year_id = d.year_id
+         JOIN departments dep ON dep.dept_id = d.dept_id
+         LEFT JOIN academic_years ay ON ay.year_id = d.academic_year_id
          WHERE d.doc_id = ?"
     );
     $stmt->bind_param('i', $doc_id);
@@ -364,15 +359,19 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['type_key'])) {
-        $where_clauses[] = 'dt.type_key = ?';
+        $where_clauses[] = 'dt.type_code = ?';
         $params[] = $filters['type_key'];
         $types .= 's';
     }
-
-    if (!empty($filters['category'])) {
-        $where_clauses[] = 'dt.category = ?';
-        $params[] = $filters['category'];
-        $types .= 's';
+    
+    // Support filtering by an array of type keys (instead of category)
+    if (!empty($filters['type_keys']) && is_array($filters['type_keys'])) {
+        $placeholders = str_repeat('?,', count($filters['type_keys']) - 1) . '?';
+        $where_clauses[] = 'dt.type_code IN (' . $placeholders . ')';
+        foreach ($filters['type_keys'] as $tk) {
+            $params[] = $tk;
+            $types .= 's';
+        }
     }
 
     if (!empty($filters['status'])) {
@@ -382,7 +381,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['year_id'])) {
-        $where_clauses[] = 'd.year_id = ?';
+        $where_clauses[] = 'd.academic_year_id = ?';
         $params[] = (int)$filters['year_id'];
         $types .= 'i';
     }
@@ -400,7 +399,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         'd.created_at DESC', 'd.created_at ASC',
         'd.updated_at DESC', 'd.updated_at ASC',
         'd.title ASC', 'd.title DESC',
-        'dt.type_label ASC', 'dt.type_label DESC',
+        'dt.label ASC', 'dt.label DESC',
     ];
     if (!in_array($order, $allowed_orders, true)) {
         $order = 'd.created_at DESC';
@@ -408,7 +407,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
 
     // Count total
     $count_sql = "SELECT COUNT(*) as total FROM documents d
-                  JOIN document_types dt ON dt.type_id = d.doc_type_id
+                  JOIN document_types dt ON dt.type_id = d.type_id
                   $where_sql";
     $count_stmt = $conn->prepare($count_sql);
     if ($types && $params) {
@@ -419,18 +418,18 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     $count_stmt->close();
 
     // Fetch rows
-    $sql = "SELECT d.doc_id, d.doc_type_id, d.uploaded_by, d.dept_id, d.year_id,
+    $sql = "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id,
                    d.title, d.status, d.current_step, d.rejection_reason,
                    d.created_at, d.updated_at,
-                   dt.type_key, dt.type_label, dt.category,
+                   dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,
                    u.full_name AS uploader_name,
                    dep.dept_name,
                    ay.year_label
             FROM documents d
-            JOIN document_types dt ON dt.type_id = d.doc_type_id
+            JOIN document_types dt ON dt.type_id = d.type_id
             JOIN users u ON u.user_id = d.uploaded_by
-            JOIN dept dep ON dep.dept_id = d.dept_id
-            LEFT JOIN academic_years ay ON ay.year_id = d.year_id
+            JOIN departments dep ON dep.dept_id = d.dept_id
+            LEFT JOIN academic_years ay ON ay.year_id = d.academic_year_id
             $where_sql
             ORDER BY $order
             LIMIT ? OFFSET ?";
@@ -507,19 +506,19 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
     $total = (int)$count_stmt->get_result()->fetch_assoc()['total'];
     $count_stmt->close();
 
-    $sql = "SELECT d.doc_id, d.doc_type_id, d.uploaded_by, d.dept_id, d.year_id,
+    $sql = "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id,
                    d.title, d.status, d.current_step,
                    d.created_at, d.updated_at,
-                   dt.type_key, dt.type_label, dt.category,
+                   dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,
                    u.full_name AS uploader_name,
                    dep.dept_name,
                    ay.year_label,
                    ws.step_label
             FROM documents d
-            JOIN document_types dt ON dt.type_id = d.doc_type_id
+            JOIN document_types dt ON dt.type_id = d.type_id
             JOIN users u ON u.user_id = d.uploaded_by
-            JOIN dept dep ON dep.dept_id = d.dept_id
-            LEFT JOIN academic_years ay ON ay.year_id = d.year_id
+            JOIN departments dep ON dep.dept_id = d.dept_id
+            LEFT JOIN academic_years ay ON ay.year_id = d.academic_year_id
             JOIN workflow_steps ws ON ws.step_id = d.current_step
             WHERE d.status = 'pending' AND $role_sql
             ORDER BY d.created_at ASC
@@ -595,7 +594,7 @@ function doc_get_active_year(mysqli $conn): ?array
  */
 function doc_get_departments(mysqli $conn): array
 {
-    $stmt = $conn->prepare("SELECT dept_id, dept_name FROM dept ORDER BY dept_name");
+    $stmt = $conn->prepare("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
     $stmt->execute();
     $result = $stmt->get_result();
     $depts = [];

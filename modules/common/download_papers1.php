@@ -76,9 +76,12 @@ function handleBulkDelete($conn, $selectedFiles, $tableName, $fileColumn, $usern
         $file = $result->fetch_assoc();
 
         if ($file && !empty($file[$fileColumn])) {
-            if (file_exists($file[$fileColumn])) {
-                unlink($file[$fileColumn]);
-            }
+            if (!empty($file[$fileColumn])) {
+        $resolved = fms_resolve_file_path($file[$fileColumn], __DIR__);
+        if (file_exists($resolved)) {
+            unlink($resolved);
+        }
+    }
 
             $sql = "DELETE FROM $tableName WHERE id = ? AND username = ?";
             $stmt = $conn->prepare($sql);

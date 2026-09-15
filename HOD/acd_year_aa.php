@@ -212,12 +212,12 @@ $designation = isset($_GET['designation']) ? htmlspecialchars($_GET['designation
             <select name="year" id="academic-year" required>
             <option value="" disabled selected>Select an academic year</option>
                                 <?php
-                                $query = "SELECT year FROM academic_year ORDER BY year DESC";
+                                $query = "SELECT year_label FROM academic_years ORDER BY year_label DESC";
                                 $result = mysqli_query($conn, $query);
 
                                 if ($result && mysqli_num_rows($result) > 0) {
                                     while ($row = mysqli_fetch_assoc($result)) {
-                                        $year = htmlspecialchars($row['year']);
+                                        $year = htmlspecialchars($row['year_label']);
                                         echo "<option value=\"$year\">$year</option>";
                                     }
                                 } else {

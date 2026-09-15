@@ -72,7 +72,7 @@ function auth_load_user_roles(mysqli $conn, int $user_id): array
         SELECT ur.user_role_id, ur.role_id, ur.dept_id, r.role_name, d.dept_name
         FROM user_roles ur
         JOIN roles r ON r.role_id = ur.role_id
-        LEFT JOIN dept d ON d.dept_id = ur.dept_id
+        LEFT JOIN departments d ON d.dept_id = ur.dept_id
         WHERE ur.user_id = ?
         ORDER BY ur.role_id, ur.dept_id
     ");
@@ -356,11 +356,15 @@ function get_role_landing_url(array $role): string
         case ROLE_ADMIN:
             return BASE_URL . "/HOD/acd_year_aa.php?designation=admin";
         case ROLE_CENTRAL_COORDINATOR:
-            return BASE_URL . "/modules/central/c_aqar_files.php?designation=central_coordinator&event={$dept}";
+            if ($role['dept_name'] === 'NAAC' || $role['dept_name'] === 'NBA') {
+                return BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event={$dept}";
+            } else {
+                return BASE_URL . "/modules/central/c_upload.php?event={$dept}";
+            }
         case ROLE_IQAC:
             return BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event=IQAC";
         case ROLE_RND_DEAN:
-            return BASE_URL . "/pages/dashboard.php";
+            return BASE_URL . "/pages/rnd/dashboard.php";
         default:
             return BASE_URL . "/pages/dashboard.php";
     }

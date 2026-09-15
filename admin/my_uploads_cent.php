@@ -1,5 +1,6 @@
 <?php
 include("../includes/connection.php");
+include_once __DIR__ . '/../includes/helpers.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['c_username'])) {
@@ -50,7 +51,7 @@ if (isset($_POST['action']) && isset($_POST['selected_files'])) {
                 $result = $stmt->get_result();
     
                 if ($file = $result->fetch_assoc()) {
-                    $filePath = $file['file_path'];
+                    $filePath = fms_resolve_file_path($file['file_path']);
                     $fileName = basename($filePath);
     
                     if (file_exists($filePath)) {

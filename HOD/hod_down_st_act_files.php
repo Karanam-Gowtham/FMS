@@ -3,7 +3,7 @@ include_once "../includes/connection.php";
 include_once "../includes/constants.php";
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-define('REGEX_UPLOADS', '/uploads\/.*/');
+
 
 if (!isset($_SESSION['h_username']) && !isset($_SESSION['admin'])) {
     die("You need to log in to view uploads.");

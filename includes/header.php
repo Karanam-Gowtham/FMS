@@ -894,11 +894,11 @@ if (isset($extra_head)) {
                         CSE-CS
                     </a>
 
-                    <a href="<?= $app_url ?>/public/dept.php?dept=AI_ML">
+                    <a href="<?= $app_url ?>/public/dept.php?dept=AIML">
                         CSE-AI&amp;ML
                     </a>
 
-                    <a href="<?= $app_url ?>/public/dept.php?dept=AI_DS">
+                    <a href="<?= $app_url ?>/public/dept.php?dept=AIDS">
                         CSE-AI&amp;DS
                     </a>
 
@@ -1048,11 +1048,11 @@ if (isset($extra_head)) {
                             CSE-CS
                         </a>
 
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=AI_ML">
+                        <a href="<?= $app_url ?>/admin/admins.php?dept=AIML">
                             CSE-AI&amp;ML
                         </a>
 
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=AI_DS">
+                        <a href="<?= $app_url ?>/admin/admins.php?dept=AIDS">
                             CSE-AI&amp;DS
                         </a>
 
@@ -1148,7 +1148,7 @@ if (isset($extra_head)) {
 
                 <!-- Logout -->
 
-                <a href="<?= $app_url ?>/modules/auth/logout.php" class="nav-btn nav-btn-logout">
+                <a href="<?= $app_url ?>/pages/logout.php" class="nav-btn nav-btn-logout">
                     Logout
                 </a>
 
@@ -1162,14 +1162,14 @@ if (isset($extra_head)) {
 
                 <!-- Sign In -->
 
-                <a href="<?= $app_url ?>/modules/auth/login.php" class="nav-btn">
+                <a href="<?= $app_url ?>/pages/login.php" class="nav-btn">
                     Sign In
                 </a>
 
 
                 <!-- Register -->
 
-                <a href="<?= $app_url ?>/modules/auth/reg.php" class="nav-btn nav-btn-register">
+                <a href="<?= $app_url ?>/pages/register.php" class="nav-btn nav-btn-register">
                     Register
                 </a>
 

@@ -11,7 +11,7 @@ require_once __DIR__ . '/../core/legacy_bridge.php';
 require_login();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: " . BASE_URL . "/pages/dashboard.php");
+    header("Location: " . get_role_landing_url(auth_active_role()));
     exit();
 }
 
@@ -25,6 +25,6 @@ if (auth_switch_role($user_role_id)) {
     header("Location: " . get_role_landing_url($new_role));
 } else {
     // Invalid role — back to dashboard
-    header("Location: " . BASE_URL . "/pages/dashboard.php");
+    header("Location: " . get_role_landing_url(auth_active_role()));
 }
 exit();

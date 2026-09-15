@@ -8,7 +8,7 @@ if (!isset($_SESSION['h_username']) && !isset($_SESSION['user_id'])) {
     die("You need to log in to view your dashboard.");
 }
 
-$dept = $_GET['dept'] ?? $_SESSION['dept'] ?? 'CSE';
+$dept = $_GET['dept'] ?? $_SESSION['dept_name'] ?? $_SESSION['dept'] ?? 'CSE';
 $desg = $_GET['designation'] ?? 'HOD';
 ?>
 <!DOCTYPE html>
@@ -185,7 +185,8 @@ $desg = $_GET['designation'] ?? 'HOD';
                 $user_id = $_SESSION['user_id'] ?? 0;
                 $dept_id = 0;
                 if (isset($_SESSION['dept'])) {
-                    $stmt = $conn->prepare("SELECT dept_id FROM Dept WHERE dept_name = ?");
+                    $stmt = $conn->prepare("SELECT dept_id FROM departments WHERE dept_name = ?");
+                    if (!$stmt) die("Prepare failed: " . $conn->error);
                     $stmt->bind_param("s", $_SESSION['dept']);
                     $stmt->execute();
                     $res = $stmt->get_result();

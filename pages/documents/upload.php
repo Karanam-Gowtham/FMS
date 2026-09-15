@@ -43,7 +43,7 @@ foreach ($auth['roles'] as $role) {
     $dept_id = (int)$role['dept_id'];
     if ($dept_id > 0 && !isset($user_depts[$dept_id])) {
         // Look up dept name
-        $dept_stmt = $conn->prepare("SELECT dept_name FROM dept WHERE dept_id = ?");
+        $dept_stmt = $conn->prepare("SELECT dept_name FROM departments WHERE dept_id = ?");
         $dept_stmt->bind_param('i', $dept_id);
         $dept_stmt->execute();
         $dept_row = $dept_stmt->get_result()->fetch_assoc();

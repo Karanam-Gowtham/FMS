@@ -13,9 +13,14 @@ $username = $_SESSION['a_username'];
 
 
 if (isset($_GET['dept'])) {
-    $dept = $_GET['dept']; // Get the 'dept' value from the URL
+    $dept = $_GET['dept'];
+} elseif (isset($_SESSION['dept_name']) && !empty($_SESSION['dept_name'])) {
+    $dept = $_SESSION['dept_name'];
+} elseif (isset($_SESSION['dept']) && !empty($_SESSION['dept'])) {
+    $dept = $_SESSION['dept'];
 } else {
-    echo "Department not set.";
+    echo "<div style='background:#fee2e2; color:#991b1b; padding:10px; text-align:center;'>Department not set. Please contact admin.</div>";
+    $dept = "";
 }
 
 if (isset($_GET['desg'])) {
@@ -369,7 +374,7 @@ body {
                 $user_id = $_SESSION['user_id'] ?? 0;
                 $dept_id = 0;
                 if (isset($_SESSION['dept'])) {
-                    $stmt = $conn->prepare("SELECT dept_id FROM Dept WHERE dept_name = ?");
+                    $stmt = $conn->prepare("SELECT dept_id FROM departments WHERE dept_name = ?");
                     $stmt->bind_param("s", $_SESSION['dept']);
                     $stmt->execute();
                     $res = $stmt->get_result();

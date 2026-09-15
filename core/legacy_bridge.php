@@ -102,6 +102,9 @@ function legacy_bridge_sync(): void
         case ROLE_CENTRAL_COORDINATOR:
             $_SESSION['c_username'] = $identity;
             $_SESSION['c_cord'] = $identity;
+            if ($dept_name === 'NAAC' || $dept_name === 'NBA') {
+                $_SESSION['cri_username'] = $identity;
+            }
             break;
 
         case ROLE_IQAC:

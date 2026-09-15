@@ -140,9 +140,9 @@ include_once 'header_hod.php';
             <select name="year" id="year" required>
                 <option value="" disabled selected>-- Choose Year --</option>
                 <?php
-                $res = mysqli_query($conn, "SELECT year FROM academic_year ORDER BY year DESC");
+                $res = mysqli_query($conn, "SELECT year_label FROM academic_years ORDER BY year_label DESC");
                 while($row = mysqli_fetch_assoc($res)) {
-                    echo "<option value='".$row['year']."'>".$row['year']."</option>";
+                    echo "<option value='".$row['year_label']."'>".$row['year_label']."</option>";
                 }
                 ?>
             </select>

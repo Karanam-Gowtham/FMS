@@ -8,7 +8,7 @@ $dept_param = isset($_GET['dept']) ? trim($_GET['dept']) : '';
 // Lookup department in database
 $dept_info = null;
 if ($dept_param !== '') {
-    $stmt = $conn->prepare("SELECT * FROM dept WHERE dept_name = ?");
+    $stmt = $conn->prepare("SELECT * FROM departments WHERE dept_name = ?");
     $stmt->bind_param("s", $dept_param);
     $stmt->execute();
     $dept_info = $stmt->get_result()->fetch_assoc();
@@ -49,55 +49,28 @@ if ($dept_id > 0) {
     $stmt->close();
 }
 
-// Fetch publicly approved research documents (Papers, Patents, Conferences, FDPS where is_public = 1)
-// Fetch publicly approved research documents from legacy tables
 $public_docs = [];
 if ($dept_id > 0) {
-    // We check against the exact dept name, and also without underscores for legacy branches
-    $branch_legacy = str_replace('_', '', $dept_name);
-    
-    // 1. Papers Published
-    $res1 = $conn->prepare("SELECT p.paper_title as original_file_name, 'Paper Published' as type_name, u.full_name as uploader_name, p.year as year_name, p.submission_time as created_at, p.paper_file as file_path FROM published_tab p LEFT JOIN users u ON p.username = u.email WHERE (p.branch = ? OR p.branch = ?) AND p.status = 'Accepted'");
-    $res1->bind_param("ss", $dept_name, $branch_legacy);
-    $res1->execute();
-    $dres1 = $res1->get_result();
-    while ($row = $dres1->fetch_assoc()) { $public_docs[] = $row; }
-    
-    // 2. Patents
-    $res2 = $conn->prepare("SELECT p.patent_title as original_file_name, 'Patent' as type_name, u.full_name as uploader_name, p.year as year_name, p.submission_time as created_at, p.patent_file as file_path FROM patents_table p LEFT JOIN users u ON p.Username = u.email WHERE (p.branch = ? OR p.branch = ?) AND p.status = 'Accepted'");
-    $res2->bind_param("ss", $dept_name, $branch_legacy);
-    $res2->execute();
-    $dres2 = $res2->get_result();
-    while ($row = $dres2->fetch_assoc()) { $public_docs[] = $row; }
-    
-    // 3. Conferences
-    $res3 = $conn->prepare("SELECT c.paper_title as original_file_name, 'Conference' as type_name, u.full_name as uploader_name, c.year as year_name, c.submission_time as created_at, c.paper_file_path as file_path FROM conference_tab c LEFT JOIN users u ON c.username = u.email WHERE (c.branch = ? OR c.branch = ?) AND c.status = 'Accepted'");
-    $res3->bind_param("ss", $dept_name, $branch_legacy);
-    $res3->execute();
-    $dres3 = $res3->get_result();
-    while ($row = $dres3->fetch_assoc()) { $public_docs[] = $row; }
-    
-    // 4. FDPS Attended
-    $res4 = $conn->prepare("SELECT f.title as original_file_name, 'FDP Attended' as type_name, u.full_name as uploader_name, f.year as year_name, f.submission_time as created_at, f.certificate as file_path FROM fdps_tab f LEFT JOIN users u ON f.username = u.email WHERE (f.branch = ? OR f.branch = ?) AND f.status = 'Accepted'");
-    $res4->bind_param("ss", $dept_name, $branch_legacy);
-    $res4->execute();
-    $dres4 = $res4->get_result();
-    while ($row = $dres4->fetch_assoc()) { $public_docs[] = $row; }
-    
-    // 5. FDPS Organized
-    $res5 = $conn->prepare("SELECT f.title as original_file_name, 'FDP Organized' as type_name, u.full_name as uploader_name, f.year as year_name, f.submission_time as created_at, f.merged_file as file_path FROM fdps_org_tab f LEFT JOIN users u ON f.username = u.email WHERE (f.branch = ? OR f.branch = ?) AND f.status = 'Accepted'");
-    $res5->bind_param("ss", $dept_name, $branch_legacy);
-    $res5->execute();
-    $dres5 = $res5->get_result();
-    while ($row = $dres5->fetch_assoc()) { 
+    $stmt = $conn->prepare("
+        SELECT dm.meta_value as original_file_name, dt.label as type_name, 
+               u.full_name as uploader_name, ay.year_label as year_name, 
+               d.created_at, d.file_path 
+        FROM documents d
+        LEFT JOIN document_types dt ON d.type_id = dt.type_id
+        LEFT JOIN users u ON d.uploaded_by = u.user_id
+        LEFT JOIN academic_years ay ON d.academic_year_id = ay.year_id
+        LEFT JOIN document_metadata dm ON d.doc_id = dm.doc_id AND dm.meta_key = 'title'
+        WHERE d.dept_id = ? AND d.status = 'accepted'
+        ORDER BY d.created_at DESC
+    ");
+    $stmt->bind_param("i", $dept_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) { 
         if(empty($row['file_path'])) $row['file_path'] = '#';
         $public_docs[] = $row; 
     }
-    
-    // Sort by created_at DESC
-    usort($public_docs, function($a, $b) {
-        return strtotime($b['created_at']) - strtotime($a['created_at']);
-    });
+    $stmt->close();
 }
 
 // Calculate research stats
@@ -227,7 +200,7 @@ include_once HEADER;
                 <div class="faculty-grid">
                     <?php foreach ($faculty as $f): ?>
                         <div class="faculty-card">
-                            <?php if ($f['profile_photo']): ?>
+                            <?php if (!empty($f['profile_photo'])): ?>
                                 <img src="<?php echo BASE_URL . '/' . htmlspecialchars($f['profile_photo']); ?>" 
                                      alt="<?php echo htmlspecialchars($f['full_name']); ?>" 
                                      style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #3b82f6; margin:0 auto;">

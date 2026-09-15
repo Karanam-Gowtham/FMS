@@ -65,7 +65,7 @@ if (isset($_SESSION['a_username']) && !empty($_SESSION['a_username'])) {
     $role_url = $bc_base_url . '/modules/central/c_aqar_files.php?designation=criteria_coordinator' . (!empty($dept) ? '&event=' . urlencode($dept) : '');
 } elseif (isset($_SESSION['c_cord']) && !empty($_SESSION['c_cord'])) {
     $role = 'Central Dashboard';
-    $role_url = $bc_base_url . '/modules/central/cc_acd_year.php';
+    $role_url = $bc_base_url . '/modules/central/c_upload.php' . (!empty($dept) ? '?event=' . urlencode($dept) : '');
 } elseif (isset($_SESSION['j_username']) && !empty($_SESSION['j_username'])) {
     $role = 'Jr Assistant Dashboard';
     $role_url = $bc_base_url . '/modules/jr_assistant/jr_acd_year.php';
@@ -191,7 +191,9 @@ $file_map = [
     'dept.php' => 'Department Details',
 ];
 
-if (isset($file_map[$current_script])) {
+if (isset($custom_breadcrumb_title)) {
+    $page_name = $custom_breadcrumb_title;
+} elseif (isset($file_map[$current_script])) {
     $page_name = $file_map[$current_script];
 } else {
     $page_name = ucwords(str_replace(['_', '.php'], [' ', ''], $current_script));

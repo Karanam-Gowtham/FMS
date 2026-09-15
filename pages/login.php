@@ -13,7 +13,12 @@ require_once __DIR__ . '/../core/legacy_bridge.php';
 
 // Already logged in? Redirect to dashboard
 if (auth_is_logged_in()) {
-    header("Location: " . BASE_URL . "/pages/dashboard.php");
+    $active = auth_active_role();
+    if ($active) {
+        header("Location: " . get_role_landing_url($active));
+    } else {
+        header("Location: " . BASE_URL . "/pages/select_role.php");
+    }
     exit();
 }
 
@@ -23,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrfValidate();
 
     $identifier = trim($_POST['identifier'] ?? '');
-    $password   = $_POST['password'] ?? '';
+    $password = $_POST['password'] ?? '';
 
     if (empty($identifier) || empty($password)) {
         $error = 'Please enter your User ID and password.';
@@ -58,13 +63,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — FMS</title>
     <meta name="description" content="Faculty Management System - Login">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background-image: url('<?= BASE_URL ?>/assets/img/gmr_landing_page.jpg');
@@ -103,8 +113,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .login-card h1 {
@@ -150,7 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
-        .form-group input::placeholder { color: #64748b; }
+        .form-group input::placeholder {
+            color: #64748b;
+        }
 
         .btn-login {
             width: 100%;
@@ -172,7 +191,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
         }
 
-        .btn-login:active { transform: translateY(0); }
+        .btn-login:active {
+            transform: translateY(0);
+        }
 
         .error-msg {
             background: rgba(239, 68, 68, 0.15);
@@ -195,10 +216,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-decoration: none;
         }
 
-        .footer-links a:hover { text-decoration: underline; }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
+
 <body>
+    <?php include_once HEADER; ?>
     <div class="login-card">
         <h1>FMS Login</h1>
         <p class="subtitle">Faculty Management System</p>
@@ -212,17 +237,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group">
                 <label for="identifier">User ID or Email</label>
-                <input type="text" id="identifier" name="identifier"
-                       placeholder="e.g. cse-hod or user@gmrit.edu.in"
-                       value="<?= htmlspecialchars($_POST['identifier'] ?? '') ?>"
-                       required autocomplete="username" autofocus>
+                <input type="text" id="identifier" name="identifier" placeholder="e.g. cse-hod or user@gmrit.edu.in"
+                    value="<?= htmlspecialchars($_POST['identifier'] ?? '') ?>" required autocomplete="username"
+                    autofocus>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password"
-                       placeholder="Enter your password"
-                       required autocomplete="current-password">
+                <input type="password" id="password" name="password" placeholder="Enter your password" required
+                    autocomplete="current-password">
             </div>
 
             <button type="submit" class="btn-login">Sign In</button>
@@ -233,4 +256,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
+
 </html>

@@ -9,7 +9,8 @@
  */
 require_once __DIR__ . '/../../core/bootstrap.php';
 
-$auth = auth_require_login();
+require_login();
+$auth = auth_context();
 
 $doc_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($doc_id <= 0) {
@@ -127,9 +128,8 @@ $page_title = htmlspecialchars($document['title']);
 
 <div class="container">
     <div class="breadcrumb">
-        <a href="<?= BASE_URL ?>/pages/dashboard.php">Dashboard</a> &raquo;
-        <a href="<?= BASE_URL ?>/pages/documents/list.php">Documents</a> &raquo;
-        <?= $page_title ?>
+        <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
+        <?= htmlspecialchars($document['title'] ?: 'View Document') ?>
     </div>
 
     <div class="doc-header">

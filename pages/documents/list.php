@@ -42,7 +42,7 @@ switch ($active_role_id) {
     case ROLE_JUNIOR_ASSISTANT:
         // See own department's documents
         $forced_filters['dept_id'] = $active_dept_id;
-        $dept_stmt = $conn->prepare("SELECT dept_name FROM dept WHERE dept_id = ?");
+        $dept_stmt = $conn->prepare("SELECT dept_name FROM departments WHERE dept_id = ?");
         $dept_stmt->bind_param('i', $active_dept_id);
         $dept_stmt->execute();
         $dept_name = $dept_stmt->get_result()->fetch_assoc()['dept_name'] ?? 'Unknown';

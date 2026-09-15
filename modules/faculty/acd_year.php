@@ -11,7 +11,11 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 if (isset($_GET['dept'])) {
-    $dept = $_GET['dept']; // Get the 'dept' value from the URL
+    $dept = $_GET['dept'];
+} elseif (isset($_SESSION['dept_name']) && !empty($_SESSION['dept_name'])) {
+    $dept = $_SESSION['dept_name'];
+} elseif (isset($_SESSION['dept']) && !empty($_SESSION['dept'])) {
+    $dept = $_SESSION['dept'];
 } else {
     // Fallback: get dept from reg_tab
     $dept_query = "SELECT dept FROM reg_tab WHERE userid = '$username'";
@@ -20,7 +24,7 @@ if (isset($_GET['dept'])) {
         $dept_row = mysqli_fetch_assoc($dept_result);
         $dept = $dept_row['dept'];
     } else {
-        echo "Department not set.";
+        echo "<div style='background:#fee2e2; color:#991b1b; padding:10px; text-align:center;'>Department not set. Please contact admin.</div>";
         $dept = "";
     }
 }

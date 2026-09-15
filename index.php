@@ -7,7 +7,6 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 
-include_once HEADER;
 ?>
 
 <!DOCTYPE html>
@@ -22,6 +21,7 @@ include_once HEADER;
 </head>
 
 <body>
+    <?php include_once HEADER; ?>
 
     <main class="hero">
         <div class="container">
@@ -45,18 +45,18 @@ include_once HEADER;
                     <?php if (!$isLoggedIn): ?>
 
                         <!-- Guest User -->
-                        <a href="<?php echo BASE_URL; ?>/modules/auth/login.php" class="hero-btn hero-btn-primary">
+                        <a href="<?php echo BASE_URL; ?>/pages/login.php" class="hero-btn hero-btn-primary">
                             Sign In
                         </a>
 
-                        <a href="<?php echo BASE_URL; ?>/modules/auth/reg.php" class="hero-btn hero-btn-outline">
+                        <a href="<?php echo BASE_URL; ?>/pages/register.php" class="hero-btn hero-btn-outline">
                             Register
                         </a>
 
                     <?php else: ?>
 
                         <!-- Logged-in User -->
-                        <a href="<?php echo BASE_URL; ?>/dashboard.php" class="hero-btn hero-btn-primary">
+                        <a href="<?php echo BASE_URL; ?>/pages/login.php" class="hero-btn hero-btn-primary">
                             Dashboard
                         </a>
 

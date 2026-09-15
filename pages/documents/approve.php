@@ -18,7 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Require authentication
-$auth = auth_require_login();
+require_login();
+$auth = auth_context();
 
 // CSRF validation — csrfValidate() dies on failure, returns void on success
 csrfValidate();

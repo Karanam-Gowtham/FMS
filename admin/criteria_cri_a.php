@@ -223,6 +223,7 @@ $criteria = isset($_GET['criteria']) ? htmlspecialchars($_GET['criteria']) : 'No
             }
 
         $result = $conn->query($sql);
+        if (!$result) die("Query failed: " . $conn->error . " SQL: " . $sql);
 
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {

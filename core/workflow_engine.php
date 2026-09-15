@@ -30,8 +30,8 @@ function wf_get_workflow_for_type(mysqli $conn, int $doc_type_id): ?array
     $stmt = $conn->prepare(
         "SELECT w.workflow_id, w.workflow_key, w.label
          FROM workflows w
-         JOIN document_types dt ON dt.workflow_key = w.workflow_key
-         WHERE dt.type_id = ? AND w.is_active = 1"
+         JOIN document_types dt ON dt.workflow_id = w.workflow_id
+         WHERE dt.type_id = ?"
     );
     $stmt->bind_param('i', $doc_type_id);
     $stmt->execute();

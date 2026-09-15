@@ -60,7 +60,7 @@ function meta_get_fields(string $type_key): array
         'journal' => [
             ['name' => 'paper_title',        'label' => 'Paper Title',         'type' => 'text',   'required' => true],
             ['name' => 'journal_name',       'label' => 'Journal Name',        'type' => 'text',   'required' => true],
-            ['name' => 'authors',            'label' => 'Authors (JSON)',       'type' => 'textarea', 'required' => false],
+            ['name' => 'authors',            'label' => 'Name of Authors',     'type' => 'author_table', 'required' => true],
             ['name' => 'issn_no',            'label' => 'ISSN No.',            'type' => 'text',   'required' => false],
             ['name' => 'volume_no',          'label' => 'Volume No.',          'type' => 'text',   'required' => false],
             ['name' => 'issue_no',           'label' => 'Issue No.',           'type' => 'text',   'required' => false],
@@ -78,7 +78,7 @@ function meta_get_fields(string $type_key): array
         'conference' => [
             ['name' => 'paper_title',        'label' => 'Paper Title',         'type' => 'text',   'required' => true],
             ['name' => 'conference_name',    'label' => 'Conference Name',     'type' => 'text',   'required' => true],
-            ['name' => 'authors',            'label' => 'Authors (JSON)',       'type' => 'textarea', 'required' => false],
+            ['name' => 'authors',            'label' => 'Name of Authors',     'type' => 'author_table', 'required' => true],
             ['name' => 'paper_type',         'label' => 'Paper Type',          'type' => 'text',   'required' => false],
             ['name' => 'volume_no',          'label' => 'Volume No.',          'type' => 'text',   'required' => false],
             ['name' => 'issue_no',           'label' => 'Issue No.',           'type' => 'text',   'required' => false],
@@ -95,12 +95,12 @@ function meta_get_fields(string $type_key): array
         'patent' => [
             ['name' => 'patent_title',  'label' => 'Patent Title',    'type' => 'text',   'required' => true],
             ['name' => 'patent_no',     'label' => 'Patent No.',      'type' => 'text',   'required' => false],
-            ['name' => 'patent_type',   'label' => 'Patent Type',     'type' => 'text',   'required' => false],
+            ['name' => 'patent_type',   'label' => 'Patent Type',     'type' => 'select', 'options' => ['published', 'granted'], 'required' => true],
             ['name' => 'date_of_issue', 'label' => 'Date of Issue',   'type' => 'date',   'required' => false],
-            ['name' => 'inventors',     'label' => 'Inventors (JSON)','type' => 'textarea','required' => false],
+            ['name' => 'inventors',     'label' => 'Inventors',       'type' => 'author_table','required' => false],
         ],
         'fdp_attended' => [
-            ['name' => 'mode',         'label' => 'Mode',          'type' => 'text', 'required' => false],
+            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
             ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => false],
             ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => false],
             ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => false],
@@ -113,7 +113,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => false],
         ],
         'conf_organised' => [
-            ['name' => 'mode',         'label' => 'Mode',          'type' => 'text', 'required' => false],
+            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
             ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => false],
             ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => false],
             ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => false],
@@ -127,7 +127,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'ext_or_int',  'label' => 'Ext/Int',         'type' => 'text',     'required' => false],
         ],
         'dept_file' => [
-            ['name' => 'file_type',     'label' => 'File Type',       'type' => 'text',   'required' => false],
+            ['name' => 'file_type',     'label' => 'File Category',   'type' => 'dept_category',   'required' => true],
             ['name' => 'sub_file_type', 'label' => 'Sub File Type',   'type' => 'text',   'required' => false],
             ['name' => 'semester',      'label' => 'Semester',         'type' => 'number', 'required' => false],
             ['name' => 'review_period', 'label' => 'Review Period',   'type' => 'text',   'required' => false],

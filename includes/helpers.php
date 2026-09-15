@@ -6,20 +6,8 @@
 
 include_once __DIR__ . '/session.php';
 
-// Role ID constants (match Roles table)
-define('ROLE_ADMIN', 1);
-define('ROLE_IQAC', 2);
-define('ROLE_HOD', 3);
-define('ROLE_FACULTY', 4);
-define('ROLE_COORDINATOR', 5);
-define('ROLE_CENTRAL_COORDINATOR', 6);
-define('ROLE_JUNIOR_ASSISTANT', 7);
-define('ROLE_RND_DEAN', 8);
+include_once __DIR__ . '/../core/constants.php';
 
-// Document status constants
-define('DOC_PENDING', 'Pending');
-define('DOC_APPROVED', 'Approved');
-define('DOC_REJECTED', 'Rejected');
 
 /**
  * Normalize role labels coming from the database or legacy pages.
@@ -43,6 +31,37 @@ function normalizeRoleName(string $role_name): string
     ];
 
     return $map[$normalized] ?? $role_name;
+}
+
+/**
+ * Resolves a file path string from the database into an absolute path on disk.
+ * Used by legacy dashboard download scripts to locate files.
+ */
+function fms_resolve_file_path(string $dbPath, string $scriptDir): string
+{
+    if (empty($dbPath)) {
+        return '';
+    }
+    // If it's a modern upload, it starts with uploads/
+    if (strpos($dbPath, 'uploads/') === 0) {
+        $candidate = $scriptDir . '/../../' . $dbPath;
+        if (file_exists($candidate) && is_file($candidate)) {
+            return $candidate;
+        }
+    }
+    // If it's a legacy upload, it usually starts with ../../uploads/
+    if (strpos($dbPath, '../../') === 0) {
+        $candidate = $scriptDir . '/' . $dbPath;
+        if (file_exists($candidate) && is_file($candidate)) {
+            return $candidate;
+        }
+    }
+    // Fallback: check if the path works directly relative to script
+    if (file_exists($dbPath) && is_file($dbPath)) {
+        return $dbPath;
+    }
+    // Return original if not found, to let subsequent code handle the error
+    return $dbPath;
 }
 
 /**
@@ -144,7 +163,7 @@ function getRoleLandingUrl(array $role): string
         case ROLE_IQAC:
             return BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event=IQAC";
         case ROLE_RND_DEAN:
-            return BASE_URL . "/modules/rnd_dean/dashboard.php";
+            return BASE_URL . "/pages/rnd/dashboard.php";
         default:
             return BASE_URL . "/dashboard.php";
     }
@@ -241,7 +260,7 @@ function isLoggedIn()
 function requireLogin()
 {
     if (!isLoggedIn()) {
-        header("Location: " . BASE_URL . "/modules/auth/login.php");
+        header("Location: " . BASE_URL . "/pages/login.php");
         exit();
     }
 }
@@ -254,7 +273,7 @@ function requireLogin()
  */
 function getDepartments($conn)
 {
-    $result = $conn->query("SELECT * FROM Dept ORDER BY dept_name");
+    $result = $conn->query("SELECT * FROM departments ORDER BY dept_name");
     $depts = [];
     while ($row = $result->fetch_assoc()) {
         $depts[] = $row;
@@ -286,7 +305,7 @@ function getDocumentTypes($conn, $category_id = null)
  * Get active academic years.
  */
 function getAcademicYears($conn) {
-    $result = $conn->query("SELECT year as year_name FROM academic_year ORDER BY year DESC");
+    $result = $conn->query("SELECT year_label as year_name FROM academic_years ORDER BY year_label DESC");
     if (!$result) return [];
     $years = [];
     while ($row = $result->fetch_assoc()) {
@@ -299,7 +318,7 @@ function getAcademicYears($conn) {
  * Get the current active academic year.
  */
 function getActiveAcademicYear($conn) {
-    $result = $conn->query("SELECT year as year_name FROM academic_year ORDER BY year DESC LIMIT 1");
+    $result = $conn->query("SELECT year_label as year_name FROM academic_years ORDER BY year_label DESC LIMIT 1");
     if (!$result) return null;
     return $result->fetch_assoc();
 }
@@ -387,115 +406,10 @@ function getPendingCount($conn, $user_id, $roles = [])
         }
     }
 
-
-    // Add Legacy Table Counts
-    foreach ($roles as $role) {
-        $rid = (int) $role['role_id'];
-        $d_name = '';
-        if ($rid == ROLE_HOD || $rid == ROLE_COORDINATOR) {
-            $stmt = $conn->prepare("SELECT dept_name FROM Dept WHERE dept_id = ?");
-            $stmt->bind_param("i", $role['dept_id']);
-            $stmt->execute();
-            $dres = $stmt->get_result()->fetch_assoc();
-            if ($dres) {
-                $d_name = $dres['dept_name'];
-            }
-            $stmt->close();
-        }
-
-        $email = $_SESSION['email'] ?? '';
-        $username = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['a_username'] ?? '';
-
-        $legacy_docs = getLegacyPendingDocs($conn, $rid, $d_name, $email, $username);
-        $count += count($legacy_docs);
-    }
-
     return $count;
 }
 
-/**
- * Fetch pending documents from legacy tables to support previous workflow dashboards.
- */
-function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = '', $user_identifier = '')
-{
-    $docs = [];
-    $legacy_status = '';
 
-    if ($role_id == ROLE_HOD) {
-        $legacy_status = 'Pending HOD';
-    } elseif ($role_id == ROLE_COORDINATOR) {
-        $legacy_status = 'Pending Dept Coordinator';
-    } elseif ($role_id == ROLE_CENTRAL_COORDINATOR) {
-        $legacy_status = 'Pending Central Coordinator';
-    } elseif ($role_id == ROLE_FACULTY) {
-        $legacy_status = 'Pending'; // For faculty, they want to see their own pending/rejected docs
-    } else {
-        return [];
-    }
-
-    $tables = [
-        ['table' => 'patents_table', 'title_col' => 'patent_title', 'branch_col' => 'branch', 'user_col' => 'Username', 'date_col' => 'submission_time', 'file_col' => 'patent_file', 'type' => 'Patent'],
-        ['table' => 'published_tab', 'title_col' => 'paper_title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'paper_file', 'type' => 'Published Paper'],
-        ['table' => 'conference_tab', 'title_col' => 'paper_title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'paper_file_path', 'type' => 'Conference Paper'],
-        ['table' => 'fdps_tab', 'title_col' => 'title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'certificate', 'type' => 'FDP Attended'],
-        ['table' => 'conf_org_tab', 'title_col' => 'title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'brochure', 'type' => 'Conference Organised'],
-        ['table' => 'fdps_org_tab', 'title_col' => 'title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'merged_file', 'type' => 'FDP Organised'],
-        ['table' => 'dept_files', 'title_col' => 'file_name', 'branch_col' => 'dept', 'user_col' => 'username', 'date_col' => 'uploaded_at', 'file_col' => 'file_path', 'type' => 'Dept File']
-    ];
-
-    // Legacy branches sometimes don't have underscores
-    $branch_legacy = str_replace('_', '', $dept_name);
-
-    foreach ($tables as $t) {
-        $query = "SELECT id as document_id, '{$t['table']}' as source_table, 
-                         {$t['title_col']} as original_file_name, '{$t['type']}' as type_name, 
-                         {$t['user_col']} as uploader_email, {$t['date_col']} as updated_at, 
-                         status, {$t['file_col']} as file_path 
-                  FROM {$t['table']} 
-                  WHERE ";
-
-        $params = [];
-        $types = "";
-
-        if ($role_id == ROLE_FACULTY) {
-            $query .= "({$t['user_col']} = ? OR {$t['user_col']} = ?)";
-            $params[] = $user_email;
-            $params[] = $user_identifier;
-            $types .= "ss";
-        } else {
-            $query .= "({$t['branch_col']} = ? OR {$t['branch_col']} = ?) AND status = ?";
-            $params[] = $dept_name;
-            $params[] = $branch_legacy;
-            $params[] = $legacy_status;
-            $types .= "sss";
-        }
-
-        $stmt = $conn->prepare($query);
-        if ($stmt) {
-            if (!empty($params))
-                $stmt->bind_param($types, ...$params);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            while ($row = $res->fetch_assoc()) {
-                // Fetch uploader name for the dashboard
-                $row['uploader_name'] = $row['uploader_email']; // default
-                $u_stmt = $conn->prepare("SELECT full_name FROM users WHERE email = ? LIMIT 1");
-                if ($u_stmt) {
-                    $u_stmt->bind_param("s", $row['uploader_email']);
-                    $u_stmt->execute();
-                    $u_res = $u_stmt->get_result();
-                    if ($u_row = $u_res->fetch_assoc()) {
-                        $row['uploader_name'] = $u_row['full_name'];
-                    }
-                    $u_stmt->close();
-                }
-                $docs[] = $row;
-            }
-            $stmt->close();
-        }
-    }
-    return $docs;
-}
 
 
 # File Systems 

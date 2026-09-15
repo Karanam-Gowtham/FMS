@@ -46,7 +46,13 @@ function fms_hod_dept_exists_sql(mysqli $conn, string $table, string $dept): str
     $d = mysqli_real_escape_string($conn, $dept);
     $tb = '`' . str_replace('`', '``', $table) . '`';
     $oc = '`' . str_replace('`', '``', $ownerCol) . '`';
-    return " AND EXISTS (SELECT 1 FROM reg_tab r_scope WHERE r_scope.userid = $tb.$oc AND r_scope.dept = '$d')";
+    return " AND EXISTS (
+        SELECT 1 FROM users u 
+        JOIN user_roles ur ON u.user_id = ur.user_id 
+        JOIN departments d ON ur.dept_id = d.dept_id 
+        WHERE u.full_name COLLATE utf8mb4_unicode_ci = $tb.$oc COLLATE utf8mb4_unicode_ci 
+        AND d.dept_name = '$d'
+    )";
 }
 
 /**
@@ -384,14 +390,26 @@ function fms_dashboard_row_in_scope(
 
         if ($deptCol !== null) {
             $stmt = $conn->prepare(
-                "SELECT t.`$pk` FROM `$table` t WHERE t.`$pk` = ? AND (t.`$deptCol` = ? OR t.`$deptCol` = ? OR EXISTS (SELECT 1 FROM reg_tab r_scope WHERE r_scope.userid = t.`$ownerCol` AND (r_scope.dept = ? OR r_scope.dept = ?))) LIMIT 1"
+                "SELECT t.`$pk` FROM `$table` t WHERE t.`$pk` = ? AND (t.`$deptCol` = ? OR t.`$deptCol` = ? OR EXISTS (
+                    SELECT 1 FROM users u 
+                    JOIN user_roles ur ON u.user_id = ur.user_id 
+                    JOIN departments d ON ur.dept_id = d.dept_id 
+                    WHERE u.full_name COLLATE utf8mb4_unicode_ci = t.`$ownerCol` COLLATE utf8mb4_unicode_ci 
+                    AND (d.dept_name = ? OR d.dept_name = ?)
+                )) LIMIT 1"
             );
             if ($stmt) {
                 $stmt->bind_param('issss', $fileId, $dept, $branch_legacy, $dept, $branch_legacy);
             }
         } else {
             $stmt = $conn->prepare(
-                "SELECT t.`$pk` FROM `$table` t WHERE t.`$pk` = ? AND EXISTS (SELECT 1 FROM reg_tab r_scope WHERE r_scope.userid = t.`$ownerCol` AND (r_scope.dept = ? OR r_scope.dept = ?)) LIMIT 1"
+                "SELECT t.`$pk` FROM `$table` t WHERE t.`$pk` = ? AND EXISTS (
+                    SELECT 1 FROM users u 
+                    JOIN user_roles ur ON u.user_id = ur.user_id 
+                    JOIN departments d ON ur.dept_id = d.dept_id 
+                    WHERE u.full_name COLLATE utf8mb4_unicode_ci = t.`$ownerCol` COLLATE utf8mb4_unicode_ci 
+                    AND (d.dept_name = ? OR d.dept_name = ?)
+                ) LIMIT 1"
             );
             if ($stmt) {
                 $stmt->bind_param('iss', $fileId, $dept, $branch_legacy);

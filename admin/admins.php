@@ -322,7 +322,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="password" placeholder="Password" name="password" required>
             <button class="btnl" type="submit" name="signIn">Login</button>
         </form>
-        <p id="register" class="register" style="display: none;">Don't have an account? <a href="../modules/auth/reg.php" class="reg">Register here</a>...</p>
+        <p id="register" class="register" style="display: none;">Don't have an account? <a href="../pages/register.php" class="reg">Register here</a>...</p>
     </div>
 </div>
 
