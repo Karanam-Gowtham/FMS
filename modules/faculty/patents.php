@@ -55,15 +55,15 @@
             $submission_time = date('Y-m-d H:i:s');
 
             // Insert query
-            $sql = "INSERT INTO patents_table (Username, branch, patent_title, patent_no, type, date_of_issue, investors, patent_file, submission_time,year) 
-            VALUES ('$user', '$dept', '$patent_title', '$patent_no', '$type_input', '$date_of_issue', '$investors_json', '$target_file', '$submission_time','$year')";
+            $stmt = $conn->prepare("INSERT INTO patents_table (Username, branch, patent_title, patent_no, type, date_of_issue, investors, patent_file, submission_time, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssssssss", $user, $dept, $patent_title, $patent_no, $type_input, $date_of_issue, $investors_json, $target_file, $submission_time, $year);
 
-
-            if ($conn->query($sql) === TRUE) {
+            if ($stmt->execute()) {
                 echo "<script>alert('Details uploaded successfully');</script>";
             } else {
-                echo "Error: " . $sql . "<br>" . $conn->error;
+                echo "Error: " . $stmt->error;
             }
+            $stmt->close();
         } else {
             echo "Sorry, there was an error uploading the patent file.";
         }
@@ -107,8 +107,8 @@
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
-            width: 600px;
-            max-width: 100%;
+            width: 800px;
+            max-width: 95%;
             color: white;
         }
 
@@ -224,6 +224,35 @@
             margin-bottom: 20px;
         }
 
+        .investor-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .investor-table th, .investor-table td {
+            border: 1px solid rgb(165, 225, 239);
+            padding: 8px;
+            text-align: left;
+        }
+        .investor-table input, .investor-table select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .btn-add {
+            background-color: #4ca1af;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
         .btn1 {
             padding: 15px;
             font-size: 18px;
@@ -292,6 +321,43 @@
                 <div class="form-group">    
                     <label for="patent_no">Patent No:</label>
                     <input type="text" id="patent_no" name="patent_no" placeholder="Enter Patent No" required>
+                </div>
+
+                <!-- Patent No -->
+                <div class="form-group">    
+                    <label for="patent_no">Patent No:</label>
+                    <input type="text" id="patent_no" name="patent_no" placeholder="Enter Patent Number" required>
+                </div>
+
+                <!-- Name of Investors -->
+                <div class="form-group">
+                    <label>Name of Investors:</label>
+                    <table class="investor-table" id="investorTable">
+                        <thead>
+                            <tr>
+                                <th>Name of the Investor</th>
+                                <th>Name of Affiliation</th>
+                                <th>Position of the Investor</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" name="investor_name[]" required></td>
+                                <td><input type="text" name="investor_affiliation[]" required></td>
+                                <td>
+                                    <select name="investor_position[]" required>
+                                        <option value="First investor">First investor</option>
+                                        <option value="First investor with equal contribution">First investor with equal contribution</option>
+                                        <option value="Corresponding Investor">Corresponding Investor</option>
+                                        <option value="Co-investor">Co-investor</option>
+                                    </select>
+                                </td>
+                                <td><button type="button" onclick="removeInvestorRow(this)" style="padding: 5px 10px; background: #ff4d4d; color: white; border: none; border-radius: 4px; cursor: pointer;">-</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn-add" onclick="addInvestorRow()">+ Add Investor</button>
                 </div>
 
                 <!-- Patent Type -->
@@ -378,6 +444,10 @@
         </div>
     </div>
 </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> a50d40f31f4fc84691c1d99511484093df1fc064
 <script>
 function addInvestorRow() {
     var table = document.getElementById("investorTable").getElementsByTagName('tbody')[0];
@@ -390,8 +460,13 @@ function addInvestorRow() {
     cell1.innerHTML = '<input type="text" name="investor_name[]" required>';
     cell2.innerHTML = '<input type="text" name="investor_affiliation[]" required>';
     cell3.innerHTML = `<select name="investor_position[]" required>
+<<<<<<< HEAD
                         <option value="First Investor">First Investor</option>
                         <option value="First Investor with equal contribution">First Investor with equal contribution</option>
+=======
+                        <option value="First investor">First investor</option>
+                        <option value="First investor with equal contribution">First investor with equal contribution</option>
+>>>>>>> a50d40f31f4fc84691c1d99511484093df1fc064
                         <option value="Corresponding Investor">Corresponding Investor</option>
                         <option value="Co-investor">Co-investor</option>
                       </select>`;

@@ -24,7 +24,8 @@ define('DOC_REJECTED', 'Rejected');
 /**
  * Normalize role labels coming from the database or legacy pages.
  */
-function normalizeRoleName(string $role_name): string {
+function normalizeRoleName(string $role_name): string
+{
     $normalized = strtolower(trim(str_replace(['-', ' '], '_', $role_name)));
 
     $map = [
@@ -47,7 +48,8 @@ function normalizeRoleName(string $role_name): string {
 /**
  * Clear all legacy role-specific session keys before activating a role.
  */
-function clearLegacyRoleSessions(): void {
+function clearLegacyRoleSessions(): void
+{
     unset(
         $_SESSION['username'],
         $_SESSION['a_username'],
@@ -64,7 +66,8 @@ function clearLegacyRoleSessions(): void {
 /**
  * Sync the active role into both modern and legacy session formats.
  */
-function setActiveRoleContext(array $role, ?string $identity = null): void {
+function setActiveRoleContext(array $role, ?string $identity = null): void
+{
     $role_id = (int) ($role['role_id'] ?? 0);
     $role_name = normalizeRoleName((string) ($role['role_name'] ?? ''));
     $dept_id = (int) ($role['dept_id'] ?? 0);
@@ -113,10 +116,14 @@ function setActiveRoleContext(array $role, ?string $identity = null): void {
     }
 }
 
+
+# Role Navigation Tools 
+
 /**
  * Resolve the landing URL for a selected role.
  */
-function getRoleLandingUrl(array $role): string {
+function getRoleLandingUrl(array $role): string
+{
     $role_id = (int) ($role['role_id'] ?? 0);
     $dept_name = (string) ($role['dept_name'] ?? '');
     $encoded_dept = urlencode($dept_name);
@@ -144,10 +151,51 @@ function getRoleLandingUrl(array $role): string {
 }
 
 /**
+ * Get role name from role_id.
+ */
+function getRoleName($conn, $role_id)
+{
+    $stmt = $conn->prepare("SELECT role_name FROM Roles WHERE role_id = ?");
+    $stmt->bind_param("i", $role_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    return $row ? $row['role_name'] : 'Unknown';
+}
+
+
+/**
+ * Require a specific role. Redirects to index if role doesn't match.
+ */
+function requireRole($allowed_roles)
+{
+    requireLogin();
+    if (!is_array($allowed_roles)) {
+        $allowed_roles = [$allowed_roles];
+    }
+    $has_role = false;
+    foreach ($_SESSION['roles'] as $role) {
+        if (in_array((int) $role['role_id'], $allowed_roles)) {
+            $has_role = true;
+            break;
+        }
+    }
+    if (!$has_role) {
+        header("Location: " . BASE_URL . "/index.php");
+        exit();
+    }
+}
+
+
+# Profile Tools 
+
+/**
  * Get current logged-in user info from session.
  * Returns associative array or null if not logged in.
  */
-function getCurrentUser($conn) {
+function getCurrentUser($conn)
+{
     if (isset($_SESSION['user_id'])) {
         $user_id = (int) $_SESSION['user_id'];
         $stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
@@ -161,7 +209,7 @@ function getCurrentUser($conn) {
             return $user;
         }
     }
-    
+
     // Fallback: construct pseudo user object from session variables
     $identifier = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['admin'] ?? $_SESSION['a_username'] ?? $_SESSION['c_username'] ?? $_SESSION['email'] ?? 'User';
     return [
@@ -175,7 +223,8 @@ function getCurrentUser($conn) {
 /**
  * Check if user is logged in.
  */
-function isLoggedIn() {
+function isLoggedIn()
+{
     return (!empty($_SESSION['logged_in']) && $_SESSION['logged_in'] === true)
         || isset($_SESSION['user_id'])
         || !empty($_SESSION['username'])
@@ -189,51 +238,22 @@ function isLoggedIn() {
 /**
  * Require login - redirect to login page if not logged in.
  */
-function requireLogin() {
+function requireLogin()
+{
     if (!isLoggedIn()) {
         header("Location: " . BASE_URL . "/modules/auth/login.php");
         exit();
     }
 }
 
-/**
- * Require a specific role. Redirects to index if role doesn't match.
- */
-function requireRole($allowed_roles) {
-    requireLogin();
-    if (!is_array($allowed_roles)) {
-        $allowed_roles = [$allowed_roles];
-    }
-    $has_role = false;
-    foreach ($_SESSION['roles'] as $role) {
-        if (in_array((int)$role['role_id'], $allowed_roles)) {
-            $has_role = true;
-            break;
-        }
-    }
-    if (!$has_role) {
-        header("Location: " . BASE_URL . "/index.php");
-        exit();
-    }
-}
 
-/**
- * Get role name from role_id.
- */
-function getRoleName($conn, $role_id) {
-    $stmt = $conn->prepare("SELECT role_name FROM Roles WHERE role_id = ?");
-    $stmt->bind_param("i", $role_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $stmt->close();
-    return $row ? $row['role_name'] : 'Unknown';
-}
+# Database Retrievals 
 
 /**
  * Get all departments.
  */
-function getDepartments($conn) {
+function getDepartments($conn)
+{
     $result = $conn->query("SELECT * FROM Dept ORDER BY dept_name");
     $depts = [];
     while ($row = $result->fetch_assoc()) {
@@ -245,7 +265,8 @@ function getDepartments($conn) {
 /**
  * Get document types by category.
  */
-function getDocumentTypes($conn, $category_id = null) {
+function getDocumentTypes($conn, $category_id = null)
+{
     if ($category_id) {
         $stmt = $conn->prepare("SELECT * FROM Document_Types WHERE category_id = ? ORDER BY type_name");
         $stmt->bind_param("i", $category_id);
@@ -283,12 +304,15 @@ function getActiveAcademicYear($conn) {
     return $result->fetch_assoc();
 }
 
+# Approval System
+
 /**
  * Process document approval.
  * Looks up Approval_Flow to find the next step.
  * Returns the new status and next_role_id.
  */
-function processApproval($conn, $document_id, $approver_user_id, $approver_role_id) {
+function processApproval($conn, $document_id, $approver_user_id, $approver_role_id)
+{
     // Get document info
     $stmt = $conn->prepare("SELECT * FROM Documents WHERE document_id = ?");
     $stmt->bind_param("i", $document_id);
@@ -296,7 +320,8 @@ function processApproval($conn, $document_id, $approver_user_id, $approver_role_
     $doc = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    if (!$doc) return false;
+    if (!$doc)
+        return false;
 
     // Find the current step in approval flow
     $stmt = $conn->prepare("
@@ -357,7 +382,8 @@ function processApproval($conn, $document_id, $approver_user_id, $approver_role_
 /**
  * Process document rejection.
  */
-function processRejection($conn, $document_id, $rejector_user_id, $rejector_role_id, $remarks = '') {
+function processRejection($conn, $document_id, $rejector_user_id, $rejector_role_id, $remarks = '')
+{
     $update = $conn->prepare("UPDATE Documents SET status = 'Rejected' WHERE document_id = ?");
     $update->bind_param("i", $document_id);
     $update->execute();
@@ -377,7 +403,8 @@ function processRejection($conn, $document_id, $rejector_user_id, $rejector_role
 /**
  * Process document resubmission (after rejection).
  */
-function processResubmission($conn, $document_id, $user_id, $role_id) {
+function processResubmission($conn, $document_id, $user_id, $role_id)
+{
     // Get document type to find the first approval step
     $stmt = $conn->prepare("SELECT type_id FROM Documents WHERE document_id = ?");
     $stmt->bind_param("i", $document_id);
@@ -385,7 +412,8 @@ function processResubmission($conn, $document_id, $user_id, $role_id) {
     $doc = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    if (!$doc) return false;
+    if (!$doc)
+        return false;
 
     // Find first approval step
     $stmt = $conn->prepare("
@@ -415,20 +443,24 @@ function processResubmission($conn, $document_id, $user_id, $role_id) {
     return true;
 }
 
+# Pending Documents
+
 /**
  * Get count of pending documents for a user's role and department.
  */
-function getPendingCount($conn, $user_id, $roles = []) {
-    if (empty($roles)) return 0;
-    
+function getPendingCount($conn, $user_id, $roles = [])
+{
+    if (empty($roles))
+        return 0;
+
     $where_clauses = [];
     $params = [];
     $types = "";
 
     foreach ($roles as $role) {
-        $rid = (int)$role['role_id'];
-        $did = (int)$role['dept_id'];
-        
+        $rid = (int) $role['role_id'];
+        $did = (int) $role['dept_id'];
+
         if ($rid == ROLE_FACULTY) {
             $where_clauses[] = "(uploaded_by = ? AND status IN ('Pending', 'Rejected'))";
             $types .= "i";
@@ -445,23 +477,24 @@ function getPendingCount($conn, $user_id, $roles = []) {
         }
     }
 
-    if (empty($where_clauses)) return 0;
+    if (empty($where_clauses))
+        return 0;
 
     $query = "SELECT COUNT(*) as cnt FROM Documents WHERE " . implode(" OR ", $where_clauses);
     $stmt = $conn->prepare($query);
-    
+
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
-    
+
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
-    $count = (int)$result['cnt'];
+    $count = (int) $result['cnt'];
     $stmt->close();
-    
+
     // Add Legacy Table Counts
     foreach ($roles as $role) {
-        $rid = (int)$role['role_id'];
+        $rid = (int) $role['role_id'];
         $d_name = '';
         if ($rid == ROLE_HOD || $rid == ROLE_COORDINATOR) {
             $stmt = $conn->prepare("SELECT dept_name FROM Dept WHERE dept_id = ?");
@@ -473,10 +506,10 @@ function getPendingCount($conn, $user_id, $roles = []) {
             }
             $stmt->close();
         }
-        
+
         $email = $_SESSION['email'] ?? '';
         $username = $_SESSION['username'] ?? $_SESSION['h_username'] ?? $_SESSION['a_username'] ?? '';
-        
+
         $legacy_docs = getLegacyPendingDocs($conn, $rid, $d_name, $email, $username);
         $count += count($legacy_docs);
     }
@@ -487,10 +520,11 @@ function getPendingCount($conn, $user_id, $roles = []) {
 /**
  * Fetch pending documents from legacy tables to support previous workflow dashboards.
  */
-function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = '', $user_identifier = '') {
+function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = '', $user_identifier = '')
+{
     $docs = [];
     $legacy_status = '';
-    
+
     if ($role_id == ROLE_HOD) {
         $legacy_status = 'Pending HOD';
     } elseif ($role_id == ROLE_COORDINATOR) {
@@ -512,7 +546,7 @@ function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = ''
         ['table' => 'fdps_org_tab', 'title_col' => 'title', 'branch_col' => 'branch', 'user_col' => 'username', 'date_col' => 'submission_time', 'file_col' => 'merged_file', 'type' => 'FDP Organised'],
         ['table' => 'dept_files', 'title_col' => 'file_name', 'branch_col' => 'dept', 'user_col' => 'username', 'date_col' => 'uploaded_at', 'file_col' => 'file_path', 'type' => 'Dept File']
     ];
-    
+
     // Legacy branches sometimes don't have underscores
     $branch_legacy = str_replace('_', '', $dept_name);
 
@@ -523,10 +557,10 @@ function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = ''
                          status, {$t['file_col']} as file_path 
                   FROM {$t['table']} 
                   WHERE ";
-                  
+
         $params = [];
         $types = "";
-        
+
         if ($role_id == ROLE_FACULTY) {
             $query .= "({$t['user_col']} = ? OR {$t['user_col']} = ?)";
             $params[] = $user_email;
@@ -539,13 +573,14 @@ function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = ''
             $params[] = $legacy_status;
             $types .= "sss";
         }
-        
+
         $stmt = $conn->prepare($query);
         if ($stmt) {
-            if(!empty($params)) $stmt->bind_param($types, ...$params);
+            if (!empty($params))
+                $stmt->bind_param($types, ...$params);
             $stmt->execute();
             $res = $stmt->get_result();
-            while($row = $res->fetch_assoc()) {
+            while ($row = $res->fetch_assoc()) {
                 // Fetch uploader name for the dashboard
                 $row['uploader_name'] = $row['uploader_email']; // default
                 $u_stmt = $conn->prepare("SELECT full_name FROM users WHERE email = ? LIMIT 1");
@@ -566,10 +601,14 @@ function getLegacyPendingDocs($conn, $role_id, $dept_name = '', $user_email = ''
     return $docs;
 }
 
+
+# File Systems 
+
 /**
  * Generate a unique stored filename.
  */
-function generateStoredFileName($original_name) {
+function generateStoredFileName($original_name)
+{
     $ext = pathinfo($original_name, PATHINFO_EXTENSION);
     return uniqid('doc_', true) . '.' . $ext;
 }
@@ -578,7 +617,8 @@ function generateStoredFileName($original_name) {
  * Handle file upload to the uploads directory.
  * Returns stored filename on success, false on failure.
  */
-function handleFileUpload($file, $subfolder = '') {
+function handleFileUpload($file, $subfolder = '')
+{
     if ($file['error'] !== UPLOAD_ERR_OK) {
         return false;
     }
