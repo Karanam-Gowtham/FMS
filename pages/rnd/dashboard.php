@@ -18,8 +18,9 @@
 require_once __DIR__ . '/../../core/bootstrap.php';
 
 // â”€â”€ Authentication & Authorization â”€â”€
-$auth = auth_require_login();
-$active_role = $auth['active_role'] ?? null;
+require_login();
+$auth = auth_context();
+$active_role = auth_active_role();
 $active_role_id = $active_role ? (int)$active_role['role_id'] : 0;
 
 if ($active_role_id !== ROLE_RND_DEAN) {
@@ -45,8 +46,6 @@ $all_depts       = doc_get_departments($conn);
 $academic_years  = doc_get_academic_years($conn);
 $active_year     = doc_get_active_year($conn);
 $research_types  = doc_get_types($conn);   // Business classification: category='research'
-$rnd_cat_map     = rnd_get_category_map($conn);
-$rnd_categories  = rnd_get_categories($conn);
 
 // Default to active year if none selected
 if ($filter_year_id === 0 && $active_year) {
@@ -135,7 +134,7 @@ $page_title = 'R&D Dashboard';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?> â€” FMS</title>
+    <title><?= $page_title ?> &mdash; FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
@@ -143,7 +142,7 @@ $page_title = 'R&D Dashboard';
         .breadcrumb a { color: #4a90d9; text-decoration: none; }
         .header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
 
-        /* Filters â€” matches list.php / my_uploads.php */
+        /* Filters &mdash; matches list.php / my_uploads.php */
         .filters { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: end; }
         .filters .form-group { flex: 1; min-width: 150px; }
         .filters label { display: block; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 0.2rem; }
@@ -160,14 +159,14 @@ $page_title = 'R&D Dashboard';
         .rnd-stat-tile.st-rejected .num { color: #721c24; }
         .rnd-stat-tile.st-central .num { color: #4a90d9; }
 
-        /* Tabs â€” matches list.php */
+        /* Tabs &mdash; matches list.php */
         .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
         .tabs a { padding: 0.5rem 1rem; border: 1px solid #dee2e6; border-radius: 6px; text-decoration: none; color: #495057; font-weight: 500; font-size: 0.9rem; }
         .tabs a:hover { border-color: #4a90d9; color: #4a90d9; }
         .tabs a.active { background: #4a90d9; color: white; border-color: #4a90d9; }
         .tabs .badge { background: #dc3545; color: white; padding: 0.15rem 0.5rem; border-radius: 10px; font-size: 0.75rem; margin-left: 0.3rem; }
 
-        /* Category filter cards â€” matches upload.php type-card pattern */
+        /* Category filter cards &mdash; matches upload.php type-card pattern */
         .rnd-cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
         .rnd-cat-card { padding: 1rem; border: 2px solid #e9ecef; border-radius: 8px; text-decoration: none; color: #333;
                         transition: border-color 0.2s, box-shadow 0.2s; display: block; background: white; }
@@ -176,7 +175,7 @@ $page_title = 'R&D Dashboard';
         .rnd-cat-card .cat-count { font-size: 1.3em; font-weight: 700; color: #333; }
         .rnd-cat-card .cat-name { font-size: 0.8rem; color: #6c757d; margin-top: 4px; }
 
-        /* Tables â€” matches list.php */
+        /* Tables &mdash; matches list.php */
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 0.65rem; text-align: left; border-bottom: 1px solid #e9ecef; font-size: 0.9rem; }
         th { background: #f8f9fa; font-weight: 600; color: #495057; font-size: 0.8rem; text-transform: uppercase; }
@@ -184,13 +183,13 @@ $page_title = 'R&D Dashboard';
         td a { color: #4a90d9; text-decoration: none; }
         td a:hover { text-decoration: underline; }
 
-        /* Status badges â€” matches list.php / view.php / my_uploads.php */
+        /* Status badges &mdash; matches list.php / view.php / my_uploads.php */
         .status-badge { padding: 0.2rem 0.55rem; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-accepted { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
 
-        /* Buttons â€” matches list.php / view.php */
+        /* Buttons &mdash; matches list.php / view.php */
         .btn-sm { padding: 0.45rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
         .btn-approve { background: #28a745; color: white; }
         .btn-approve:hover { background: #218838; }
@@ -202,10 +201,10 @@ $page_title = 'R&D Dashboard';
                        border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
         .btn-success:hover { background: #218838; }
 
-        /* Section panels â€” matches view.php */
+        /* Section panels &mdash; matches view.php */
         .section { background: #f8f9fa; padding: 1.2rem; border-radius: 8px; margin-bottom: 1.2rem; border: 1px solid #e9ecef; }
 
-        /* Empty state â€” matches list.php */
+        /* Empty state &mdash; matches list.php */
         .empty-state { text-align: center; padding: 3rem; color: #6c757d; }
 
         /* Inline approve/reject form */
@@ -330,7 +329,7 @@ $page_title = 'R&D Dashboard';
         <div class="section">
             <p class="sub-info">
                 Showing <?= count($dept_rnd_docs) ?> of <?= $dept_rnd_total ?> documents
-                â€” <?= htmlspecialchars($selected_dept_name) ?> â€” <?= htmlspecialchars($selected_year_label) ?>
+                &mdash; <?= htmlspecialchars($selected_dept_name) ?> &mdash; <?= htmlspecialchars($selected_year_label) ?>
             </p>
 
             <?php if (empty($dept_rnd_docs)): ?>
@@ -349,7 +348,7 @@ $page_title = 'R&D Dashboard';
                             <td><?= htmlspecialchars($doc['type_label']) ?></td>
                             <td><?= htmlspecialchars($doc['uploader_name']) ?></td>
                             <td><?= htmlspecialchars($doc['dept_name']) ?></td>
-                            <td><?= htmlspecialchars($doc['year_label'] ?? 'â€”') ?></td>
+                            <td><?= htmlspecialchars($doc['year_label'] ?? '&mdash;') ?></td>
                             <td><span class="status-badge status-<?= htmlspecialchars($doc['status']) ?>"><?= ucfirst($doc['status']) ?></span></td>
                             <td><?= date('d M Y', strtotime($doc['created_at'])) ?></td>
                         </tr>
@@ -389,7 +388,7 @@ $page_title = 'R&D Dashboard';
                             <td><?= htmlspecialchars($doc['type_label']) ?></td>
                             <td><?= htmlspecialchars($doc['uploader_name']) ?></td>
                             <td><?= htmlspecialchars($doc['dept_name']) ?></td>
-                            <td><?= htmlspecialchars($doc['step_label'] ?? 'â€”') ?></td>
+                            <td><?= htmlspecialchars($doc['step_label'] ?? '&mdash;') ?></td>
                             <td><?= date('d M Y', strtotime($doc['created_at'])) ?></td>
                             <td>
                                 <?php if (!empty($allowed)): ?>
@@ -400,11 +399,11 @@ $page_title = 'R&D Dashboard';
                                     <input type="text" name="remarks" class="remarks-sm" placeholder="Remarks...">
                                     <?php if (in_array('approve', $allowed)): ?>
                                         <button type="submit" name="action" value="approve" class="btn-sm btn-approve"
-                                                title="Approve">âœ“ Approve</button>
+                                                title="Approve">&#10003; Approve</button>
                                     <?php endif; ?>
                                     <?php if (in_array('reject', $allowed)): ?>
                                         <button type="submit" name="action" value="reject" class="btn-sm btn-reject"
-                                                title="Reject">âœ• Reject</button>
+                                                title="Reject">&#10005; Reject</button>
                                     <?php endif; ?>
                                     <a href="<?= BASE_URL ?>/pages/documents/view.php?id=<?= $doc['doc_id'] ?>"
                                        class="btn-sm btn-view" title="View details">View</a>
@@ -451,12 +450,12 @@ $page_title = 'R&D Dashboard';
                         // Load meta to get category
                         $meta = doc_get_meta($conn, (int)$doc['doc_id'], 'central_rnd');
                         $cat_id = $meta ? (int)($meta['rnd_category_id'] ?? 0) : 0;
-                        $cat_label = $rnd_cat_map[$cat_id] ?? 'â€”';
+                        $cat_label = '&mdash;';
                     ?>
                         <tr>
                             <td><a href="<?= BASE_URL ?>/pages/documents/view.php?id=<?= $doc['doc_id'] ?>"><?= htmlspecialchars($doc['title']) ?></a></td>
                             <td><?= htmlspecialchars($cat_label) ?></td>
-                            <td><?= htmlspecialchars($doc['year_label'] ?? 'â€”') ?></td>
+                            <td><?= htmlspecialchars($doc['year_label'] ?? '&mdash;') ?></td>
                             <td><?= date('d M Y', strtotime($doc['created_at'])) ?></td>
                             <td><span class="status-badge status-<?= htmlspecialchars($doc['status']) ?>"><?= ucfirst($doc['status']) ?></span></td>
                             <td>

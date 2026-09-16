@@ -556,7 +556,7 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
  */
 function doc_get_academic_years(mysqli $conn): array
 {
-    $stmt = $conn->prepare("SELECT year_id, year_label, is_active FROM academic_years ORDER BY year_label DESC");
+    $stmt = $conn->prepare("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
     $stmt->execute();
     $result = $stmt->get_result();
     $years = [];
@@ -575,7 +575,7 @@ function doc_get_academic_years(mysqli $conn): array
  */
 function doc_get_active_year(mysqli $conn): ?array
 {
-    $stmt = $conn->prepare("SELECT year_id, year_label FROM academic_years WHERE is_active = 1 LIMIT 1");
+    $stmt = $conn->prepare("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC LIMIT 1");
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
     $stmt->close();

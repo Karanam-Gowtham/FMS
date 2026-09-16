@@ -16,6 +16,13 @@ legacy_bridge_sync();
 
 $auth = auth_context();
 $active_role = auth_active_role();
+
+// Automatically redirect from this generic placeholder to the specific role dashboard
+if ($active_role) {
+    header("Location: " . get_role_landing_url($active_role));
+    exit();
+}
+
 $user_roles = $auth['roles'];
 
 // Role display name mapping

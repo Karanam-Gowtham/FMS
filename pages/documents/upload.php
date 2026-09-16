@@ -10,7 +10,8 @@
 require_once __DIR__ . '/../../core/bootstrap.php';
 
 // Require authentication
-$auth = auth_require_login();
+require_login();
+$auth = auth_context();
 
 // Get document type from URL parameter (validated filter, not authorization)
 $type_key = isset($_GET['type']) ? trim($_GET['type']) : '';

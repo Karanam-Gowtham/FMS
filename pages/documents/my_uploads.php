@@ -9,7 +9,8 @@
  */
 require_once __DIR__ . '/../../core/bootstrap.php';
 
-$auth = auth_require_login();
+require_login();
+$auth = auth_context();
 $user_id = (int)$auth['user_id'];
 
 // Filters from GET parameters (validated, not used for authorization)

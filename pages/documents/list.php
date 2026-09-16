@@ -15,7 +15,8 @@
  */
 require_once __DIR__ . '/../../core/bootstrap.php';
 
-$auth = auth_require_login();
+require_login();
+$auth = auth_context();
 $user_id = (int)$auth['user_id'];
 $active_role = $auth['active_role'] ?? null;
 $active_role_id = $active_role ? (int)$active_role['role_id'] : 0;

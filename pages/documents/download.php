@@ -9,7 +9,8 @@
  */
 require_once __DIR__ . '/../../core/bootstrap.php';
 
-$auth = auth_require_login();
+require_login();
+$auth = auth_context();
 
 $file_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($file_id <= 0) {
