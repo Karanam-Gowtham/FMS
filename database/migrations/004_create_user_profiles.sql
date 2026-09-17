@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS `user_profiles` (
+    `profile_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL,
+    `pan_no` VARCHAR(20) NOT NULL,
+    `apaar_id` VARCHAR(50) DEFAULT NULL,
+    `highest_degree` VARCHAR(100) NOT NULL,
+    `university` VARCHAR(150) NOT NULL,
+    `specialization` VARCHAR(150) NOT NULL,
+    `doj_institution` DATE NOT NULL,
+    `doj_department` DATE DEFAULT NULL,
+    `experience_years` DECIMAL(4, 1) DEFAULT 0.0,
+    `designation_joining` VARCHAR(100) NOT NULL,
+    `designation_present` VARCHAR(100) NOT NULL,
+    `date_designated_prof` DATE DEFAULT NULL,
+    `association_nature` ENUM('Regular', 'Contract', 'Ad hoc') NOT NULL,
+    `contract_type` ENUM('Full time', 'Part time', 'Hourly based') DEFAULT NULL,
+    `is_currently_associated` TINYINT(1) NOT NULL DEFAULT 1,
+    `date_of_leaving` DATE DEFAULT NULL,
+    PRIMARY KEY (`profile_id`),
+    UNIQUE KEY `uk_user_id` (`user_id`),
+    CONSTRAINT `fk_profile_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
