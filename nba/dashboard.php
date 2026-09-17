@@ -175,7 +175,7 @@ $nba_criteria = [
     <!-- Criteria Grid -->
     <div class="criteria-grid">
         <?php foreach ($nba_criteria as $num => $title): ?>
-            <a href="<?= $num === 1 ? BASE_URL . '/nba/criterion1.php?year=' . urlencode($filter_year) : '#' ?>" class="criteria-card">
+            <a href="<?= $num === 1 ? BASE_URL . '/nba/criterion1.php?year=' . urlencode($filter_year) : ($num === 2 ? BASE_URL . '/nba/criterion2.php?year=' . urlencode($filter_year) : ($num === 3 ? BASE_URL . '/nba/criterion3.php?year=' . urlencode($filter_year) : '#')) ?>" class="criteria-card">
                 <div class="criteria-number">Criterion <?= $num ?></div>
                 <div class="criteria-title"><?= htmlspecialchars($title) ?></div>
                 

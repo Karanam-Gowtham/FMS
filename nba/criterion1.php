@@ -62,84 +62,8 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?> &mdash; FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
-    <style>
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .breadcrumb { margin-bottom: 1rem; color: #6c757d; font-size: 0.9rem; }
-        .breadcrumb a { color: #4a90d9; text-decoration: none; }
-        .header-row { margin-bottom: 1.5rem; border-bottom: 2px solid #e9ecef; padding-bottom: 1rem; }
-        .header-row h1 { margin: 0; color: #333; font-size: 1.8rem; }
-        .header-row p { color: #6c757d; margin-top: 0.5rem; font-size: 0.95rem; }
-
-        .section-card {
-            background: #fff;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-        
-        .section-card h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            font-size: 1.2rem;
-            border-bottom: 1px solid #f1f3f5;
-            padding-bottom: 0.8rem;
-            margin-bottom: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .dynamic-list { margin-bottom: 1.5rem; }
-        .dynamic-list-item { display: flex; gap: 10px; margin-bottom: 10px; }
-        .dynamic-list-item input { flex: 1; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 5px; }
-        .btn-remove { background: #dc3545; color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 5px; cursor: pointer; }
-        .btn-add { background: #e9ecef; color: #495057; border: 1px solid #ced4da; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-        .btn-add:hover { background: #dee2e6; }
-
-        /* Matrix Table */
-        .matrix-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .matrix-table th, .matrix-table td { border: 1px solid #dee2e6; padding: 0.5rem; text-align: center; }
-        .matrix-table th { background: #f8f9fa; font-weight: 600; }
-        .matrix-input { width: 50px; text-align: center; padding: 0.4rem; border: 1px solid #ced4da; border-radius: 4px; }
-        
-        /* CSV Dropzone */
-        .csv-dropzone {
-            border: 2px dashed #4a90d9;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 2.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .csv-dropzone:hover { background: #eaf3fb; border-color: #2b70b5; }
-        .csv-dropzone h4 { margin: 0 0 10px 0; color: #333; }
-        .csv-dropzone p { margin: 0; color: #6c757d; font-size: 0.9rem; }
-        
-        .file-upload-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef; }
-        .file-upload-row strong { font-size: 0.95rem; color: #333; }
-        .file-upload-row .desc { font-size: 0.8rem; color: #6c757d; display: block; margin-top: 4px; }
-
-        .btn-save {
-            background: #28a745;
-            color: white;
-            padding: 0.8rem 2rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(40,167,69,0.2);
-        }
-        .btn-save:hover { background: #218838; }
-
-        .toast {
-            position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 1rem 1.5rem; border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 1000;
-        }
-    </style>
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <?php include __DIR__ . '/../includes/header.php'; ?>
@@ -420,29 +344,113 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         </div>
         
         <!-- CSV Upload for COs -->
-        <div class="section-card">
-            <h3>1.4 & 1.5 Course Outcomes & Articulation Matrices</h3>
+        <div id="section-1-4" class="section-card" style="display: none;">
+            <h3>1.4 Course Outcomes and Course Articulation Matrix</h3>
+            
+            <h4>1.4.1 Course Outcome (Semester Wise)</h4>
             <p style="font-size: 0.9rem; color: #555; margin-bottom: 1.5rem;">
-                Criterion 1 requires CO mapping tables for <strong>16 Core Courses</strong> (2 per semester from semesters 1-8). 
-                To save time, upload a CSV/Excel file containing the Course Codes, COs, and Mapping values. The system will automatically parse and ignore invalid/empty rows.
+                (Provide Course outcomes (COs) for two core courses per semester from 1-8 semesters as a sample. The maximum number of outcomes for a course is expected to be around 6. COs should reflect on the measurable outcomes towards attaining POs and PSOs).<br><br>
+                <em>Note: You can manually fill the 16 tables below, or upload a CSV/Excel file to auto-populate them.</em>
             </p>
             
             <div class="csv-dropzone" id="csvDropzone" onclick="document.getElementById('csvInput').click()">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-                <h4>Click or Drag & Drop your CSV File Here</h4>
-                <p>Supports .csv files containing CO mappings</p>
-                <input type="file" id="csvInput" style="display: none;" accept=".csv" onchange="handleCSVSelect(this)">
+                <h4>Click or Drag & Drop your Excel/CSV File Here</h4>
+                <p>Supports .xlsx, .xls, .csv files containing CO mappings</p>
+                <input type="file" id="csvInput" style="display: none;" accept=".xlsx, .xls, .csv" onchange="handleCSVSelect(this)">
             </div>
-            <div id="csvFileName" style="margin-top: 10px; font-weight: 600; color: #28a745;"></div>
+            <div id="csvFileName" style="margin-top: 10px; font-weight: 600; color: #28a745; margin-bottom: 20px;"></div>
+            
+            <div id="co-tables-container">
+                <!-- 16 Tables Populated by JS -->
+            </div>
+            
+            <hr style="margin: 40px 0; border: 0; border-top: 1px solid #e9ecef;">
+            
+            <h4>1.4.2 Course Articulation Matrix</h4>
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 1.5rem;">
+                (Provide course articulation matrices for two core courses per semester from 1-8 semesters which have been provided in the section 1.4.1. Select courses to demonstrate the mapping/correlation with POs and PSOs.)
+            </p>
+            
+            <div id="co-matrix-tables-container">
+                <!-- 16 Matrices Populated by JS -->
+            </div>
+            
+            <hr style="margin: 40px 0; border: 0; border-top: 1px solid #e9ecef;">
+            
+            <h4>1.5 Program Articulation Matrix</h4>
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">
+                Table No.1.5.1: Program articulation matrix
+            </p>
+            
+            <div id="program-articulation-container" style="overflow-x: auto; margin-bottom: 30px;">
+                <!-- Populated by JS -->
+            </div>
         </div>
 
-        <div style="text-align: right; margin-bottom: 4rem;">
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 4rem;">
+            <div id="pdf-download-container" style="display: none;">
+                <!-- Link injected here -->
+            </div>
+            <button type="button" class="btn-primary" id="btn-generate-pdf" onclick="generateMasterPDF()" style="background: #17a2b8; border: none; border-radius: 4px; padding: 10px 20px; color: white; cursor: pointer; font-weight: bold;">
+                Generate Master PDF
+            </button>
             <button type="button" class="btn-save" onclick="saveCriterionData()">Save Criterion 1</button>
         </div>
     </form>
 </div>
 
 <script>
+    function generateMasterPDF() {
+        const btn = document.getElementById('btn-generate-pdf');
+        const originalText = btn.innerText;
+        btn.innerText = 'Generating... Please wait';
+        btn.disabled = true;
+        
+        saveCurrentLevel(); // Ensure currently focused level is saved to object
+        
+        const payload = {
+            levelData: levelData,
+            peos: peos,
+            matrix: matrixData
+        };
+
+        const formData = new FormData();
+        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('json_data', JSON.stringify(payload));
+        
+        fetch('api_generate_criterion1_pdf.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            
+            if (data.success && data.pdf_url) {
+                const container = document.getElementById('pdf-download-container');
+                container.style.display = 'block';
+                container.innerHTML = `<a href="${data.pdf_url}" target="_blank" style="color: #28a745; font-weight: bold; text-decoration: underline;">📄 View/Download Master PDF</a>`;
+                
+                const toast = document.getElementById('toast');
+                toast.innerText = 'PDF Generated Successfully!';
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                    toast.innerText = 'Data saved successfully!';
+                }, 3000);
+            } else {
+                alert('Error generating PDF: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            btn.innerText = originalText;
+            btn.disabled = false;
+            alert('A network error occurred while generating the PDF.');
+        });
+    }
     // —— Dynamic Level Logic ——
     let levelData = {};
     let currentLevel = 'dept_<?= $dept_id ?>';
@@ -456,6 +464,8 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
     let psos = [];     // Active department's PSOs
     let matrixData = {}; 
     let poPsoCourseMapping = {}; // Format: { 'PO1': 'C101, C102', 'PSO1': 'C203' }
+    
+    let courseOutcomesData = []; // Array of 16 tables
 
     let curriculumCourses = []; // [{code: '', title: '', l: 0, t: 0, p: 0, sl: 0}]
     let curriculumComponents = []; // [{name: '', percent: '', hours: '', credits: ''}]
@@ -496,12 +506,12 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         // Initialize active department's data specifically for the matrix
         const defaultDept = 'dept_<?= $dept_id ?>';
         if (!levelData[defaultDept]) {
-            levelData[defaultDept] = { vision: '', missions: [{id: 'M1', text: ''}], curriculum: [], components: [], pos: [{id: 'PO1', text: ''}], psos: [{id: 'PSO1', text: ''}], poPsoCourseMapping: {} };
+            levelData[defaultDept] = { vision: '', missions: [{id: 'M1', text: ''}], curriculum: [], components: [], pos: [{id: 'PO1', text: ''}], psos: [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}], poPsoCourseMapping: {} };
         }
 
         peos = initialData.peos || [{id: 'PEO1', text: ''}];
         pos = initialData.pos || [{id: 'PO1', text: ''}];
-        psos = initialData.psos || [{id: 'PSO1', text: ''}];
+        psos = initialData.psos || [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}];
         matrixData = initialData.matrix || {};
 
         switchLevel(); // Load UI for current dropdown selection
@@ -627,8 +637,8 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         if (!tbody) return;
         tbody.innerHTML = '';
         
-        // Render 12 standard POs
-        for (let i = 1; i <= 12; i++) {
+        // Render 11 standard POs
+        for (let i = 1; i <= 11; i++) {
             const id = 'PO' + i;
             const val = poPsoCourseMapping[id] || '';
             tbody.innerHTML += `
@@ -641,7 +651,6 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         
         // Render dynamic PSOs
         psos.forEach(pso => {
-            if (!pso.text && pso.id !== 'PSO1') return; // skip completely empty ones except maybe PSO1
             const id = pso.id;
             const val = poPsoCourseMapping[id] || '';
             tbody.innerHTML += `
@@ -657,6 +666,259 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         poPsoCourseMapping[id] = value;
     }
 
+    // —— 1.4.1, 1.4.2 & 1.5 Course Outcomes & Articulation Matrices Logic ——
+    function initDefaultCourseOutcomes() {
+        courseOutcomesData = Array.from({length: 16}, () => ({ 
+            semesterNo: '', 
+            courseTitle: '', 
+            courseCode: '', 
+            cos: ['', '', '', '', '', ''],
+            coMapping: Array.from({length: 6}, () => ({})),
+            programMapping: {}
+        }));
+    }
+
+    function renderCourseOutcomes() {
+        const container = document.getElementById('co-tables-container');
+        if (!container) return;
+        
+        let html = '';
+        courseOutcomesData.forEach((course, index) => {
+            html += `
+                <div style="margin-bottom: 30px; border: 1px solid #e9ecef; padding: 15px; border-radius: 8px; background: #fff;">
+                    <h5 style="margin-top: 0; color: #333;">Table No. 1.4.1.${index + 1}: Course outcomes.</h5>
+                    <table class="matrix-table" style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+                        <tbody>
+                            <tr>
+                                <th style="width: 20%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Semester No:</th>
+                                <td colspan="3" style="border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.semesterNo.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'semesterNo', this.value)"></td>
+                            </tr>
+                            <tr>
+                                <th style="width: 20%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Course Title:</th>
+                                <td style="width: 40%; border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseTitle.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseTitle', this.value)"></td>
+                                <th style="width: 15%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Course Code:</th>
+                                <td style="width: 25%; border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseCode.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseCode', this.value)"></td>
+                            </tr>
+                            <tr>
+                                <th colspan="2" style="background: #fff3cd; border: 1px solid #000; text-align: center; padding: 8px;">Course Outcome No.</th>
+                                <th colspan="2" style="background: #fff3cd; border: 1px solid #000; text-align: center; padding: 8px;">Course Outcome Statement</th>
+                            </tr>
+            `;
+            
+            for (let i = 0; i < 6; i++) {
+                let coText = course.cos[i] || '';
+                html += `
+                            <tr>
+                                <th colspan="2" style="text-align: center; border: 1px solid #000; padding: 8px; background: #fff;">CO${i+1}</th>
+                                <td colspan="2" style="border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${coText.replace(/"/g, '&quot;')}" onchange="updateCOStatement(${index}, ${i}, this.value)"></td>
+                            </tr>
+                `;
+            }
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateCOData(tableIndex, field, value) {
+        courseOutcomesData[tableIndex][field] = value;
+        if (field === 'courseTitle' || field === 'courseCode') {
+            renderCourseMatrices(); // update matrix headers
+            renderProgramArticulation(); // update 1.5 matrix
+        }
+    }
+
+    function updateCOStatement(tableIndex, coIndex, value) {
+        courseOutcomesData[tableIndex].cos[coIndex] = value;
+    }
+
+    function renderCourseMatrices() {
+        const container = document.getElementById('co-matrix-tables-container');
+        if (!container) return;
+        
+        let html = '';
+        courseOutcomesData.forEach((course, index) => {
+            if (!course.coMapping) course.coMapping = Array.from({length: 6}, () => ({}));
+            
+            let activePSOs = psos;
+            
+            html += `
+                <div style="margin-bottom: 30px; border: 1px solid #e9ecef; padding: 15px; border-radius: 8px; background: #fff;">
+                    <h5 style="margin-top: 0; color: #333;">Table No. 1.4.2.${index + 1}: Course articulation matrix.</h5>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; padding: 0 10px;">
+                        <span>Course Name: ${course.courseTitle || ''}</span>
+                        <span>Course Code: ${course.courseCode || ''}</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="matrix-table" style="width: 100%; font-size: 0.8rem; border-collapse: collapse; text-align: center;">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="background: #fff3cd; border: 1px solid #000; padding: 8px; width: 120px;">Course Outcomes<br>(COs) code<br>&<br>Statement</th>
+                                    <th colspan="11" style="background: #fff3cd; border: 1px solid #000; padding: 8px;">Program Outcomes (POs)</th>
+                                    ${activePSOs.length > 0 ? `<th colspan="${activePSOs.length}" style="background: #fff3cd; border: 1px solid #000; padding: 8px;">Program Specific Outcomes (PSOs)</th>` : ''}
+                                </tr>
+                                <tr>
+            `;
+            
+            for (let i = 1; i <= 11; i++) {
+                html += `<th style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PO-${i}</th>`;
+            }
+            activePSOs.forEach((pso, psoIdx) => {
+                html += `<th style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PSO-${psoIdx+1}</th>`;
+            });
+            
+            html += `
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            for (let i = 0; i < 6; i++) {
+                html += `
+                                <tr>
+                                    <th style="background: #f8f9fa; border: 1px solid #000; padding: 4px;">CO-${i+1}</th>
+                `;
+                for (let j = 1; j <= 11; j++) {
+                    let val = course.coMapping[i][`PO${j}`] || '';
+                    html += `<td style="border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, 'PO${j}', this.value)"></td>`;
+                }
+                activePSOs.forEach((pso, psoIdx) => {
+                    let psoKey = `PSO${psoIdx+1}`;
+                    let val = course.coMapping[i][psoKey] || '';
+                    html += `<td style="border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, '${psoKey}', this.value)"></td>`;
+                });
+                html += `</tr>`;
+            }
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateCoMapping(tableIndex, coIndex, key, value) {
+        if (!courseOutcomesData[tableIndex].coMapping) {
+            courseOutcomesData[tableIndex].coMapping = Array.from({length: 6}, () => ({}));
+        }
+        courseOutcomesData[tableIndex].coMapping[coIndex][key] = value;
+    }
+
+    function renderProgramArticulation() {
+        const container = document.getElementById('program-articulation-container');
+        if (!container) return;
+        
+        let activePSOs = psos;
+        
+        let html = `
+            <table class="matrix-table" style="width: 100%; font-size: 0.8rem; border-collapse: collapse; text-align: center;">
+                <thead>
+                    <tr>
+                        <th style="background: #fff3cd; border: 1px solid #000; padding: 8px;">Course<br>Code</th>
+                        <th style="background: #fff3cd; border: 1px solid #000; padding: 8px; min-width: 150px;">Course<br>Name</th>
+        `;
+        
+        for (let i = 1; i <= 11; i++) {
+            html += `<th style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PO${i}</th>`;
+        }
+        activePSOs.forEach((pso, psoIdx) => {
+            html += `<th style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PSO${psoIdx+1}</th>`;
+        });
+        
+        html += `
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        courseOutcomesData.forEach((course, index) => {
+            if (!course.programMapping) course.programMapping = {};
+            
+            html += `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 4px; background: #f8f9fa;">${course.courseCode || ''}</td>
+                        <td style="border: 1px solid #000; padding: 4px; background: #f8f9fa; text-align: left;">${course.courseTitle || ''}</td>
+            `;
+            
+            for (let j = 1; j <= 11; j++) {
+                let val = course.programMapping[`PO${j}`] || '';
+                html += `<td style="border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, 'PO${j}', this.value)"></td>`;
+            }
+            activePSOs.forEach((pso, psoIdx) => {
+                let psoKey = `PSO${psoIdx+1}`;
+                let val = course.programMapping[psoKey] || '';
+                html += `<td style="border: 1px solid #000; padding: 0;"><input type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, '${psoKey}', this.value)"></td>`;
+            });
+            
+            html += `</tr>`;
+        });
+        
+        html += `
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 15px; text-align: left;">
+                <button type="button" class="btn-add" style="background: #17a2b8;" onclick="autoCalculateProgramMatrix()">Auto-Calculate from 1.4.2</button>
+                <span style="font-size: 0.8rem; color: #666; margin-left: 10px;">(Calculates the average mapping across COs for each course)</span>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    function updateProgramMapping(tableIndex, key, value) {
+        if (!courseOutcomesData[tableIndex].programMapping) {
+            courseOutcomesData[tableIndex].programMapping = {};
+        }
+        courseOutcomesData[tableIndex].programMapping[key] = value;
+    }
+
+    function autoCalculateProgramMatrix() {
+        let activePSOs = psos;
+        
+        courseOutcomesData.forEach((course) => {
+            if (!course.programMapping) course.programMapping = {};
+            if (!course.coMapping) return;
+            
+            // Calculate PO averages
+            for (let j = 1; j <= 11; j++) {
+                let key = `PO${j}`;
+                let sum = 0, count = 0;
+                for (let i = 0; i < 6; i++) {
+                    let val = parseFloat(course.coMapping[i][key]);
+                    if (!isNaN(val) && val > 0) {
+                        sum += val;
+                        count++;
+                    }
+                }
+                course.programMapping[key] = count > 0 ? (sum / count).toFixed(2).replace(/\.00$/, '') : '';
+            }
+            
+            // Calculate PSO averages
+            activePSOs.forEach((pso, psoIdx) => {
+                let key = `PSO${psoIdx+1}`;
+                let sum = 0, count = 0;
+                for (let i = 0; i < 6; i++) {
+                    let val = parseFloat(course.coMapping[i][key]);
+                    if (!isNaN(val) && val > 0) {
+                        sum += val;
+                        count++;
+                    }
+                }
+                course.programMapping[key] = count > 0 ? (sum / count).toFixed(2).replace(/\.00$/, '') : '';
+            });
+        });
+        
+        renderProgramArticulation();
+    }
+
     function switchLevel() {
         const select = document.getElementById('level-select');
         currentLevel = select.value;
@@ -667,7 +929,7 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         
         // Ensure data object exists for this dept level
         if (!levelData[currentLevel]) {
-            levelData[currentLevel] = { vision: '', missions: [{id: 'M1', text: ''}], curriculum: [], components: [], pos: [{id: 'PO1', text: ''}], psos: [{id: 'PSO1', text: ''}], poPsoCourseMapping: {} };
+            levelData[currentLevel] = { vision: '', missions: [{id: 'M1', text: ''}], curriculum: [], components: [], pos: [{id: 'PO1', text: ''}], psos: [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}], poPsoCourseMapping: {} };
         }
 
         // Populate Univ Level
@@ -693,11 +955,12 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         missions = levelData[currentLevel].missions || [{id: 'M1', text: ''}];
         renderList('dept-mission-list', missions, 'Dept Mission', 'M', 'DeptMission');
 
-        // Toggle PEO, Matrix, and Curriculum containers only for departments
+        // Toggle PEO, Matrix, Curriculum, and CO containers only for departments
         if (currentLevel.startsWith('dept_')) {
             document.getElementById('peo-matrix-container').style.display = 'block';
             document.getElementById('section-1-2').style.display = 'block';
             document.getElementById('section-1-3').style.display = 'block';
+            document.getElementById('section-1-4').style.display = 'block';
             
             // Populate Curriculum Courses
             curriculumCourses = levelData[currentLevel].curriculum || [];
@@ -713,18 +976,31 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
             renderList('po-list', pos, 'PO', 'PO', 'PO');
             
             // Populate PSOs
-            psos = levelData[currentLevel].psos || [{id: 'PSO1', text: ''}];
-            renderList('pso-list', psos, 'PSO', 'PSO');
+            psos = levelData[currentLevel].psos || [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}];
+            if(psos.length === 1 && psos[0].id === 'PSO1' && !levelData[currentLevel].psos_initialized) {
+                // If they have 1 PSO and it's the old default, force add PSO2 once.
+                psos.push({id: 'PSO2', text: ''});
+                levelData[currentLevel].psos_initialized = true;
+            }
+            renderList('pso-list', psos, 'PSO', 'PSO', 'PSO');
             
             // Populate PO/PSO Mapping
             poPsoCourseMapping = levelData[currentLevel].poPsoCourseMapping || {};
             renderPoPsoCourseMapping();
+            
+            // Populate Course Outcomes (16 tables) and Matrices
+            courseOutcomesData = levelData[currentLevel].courseOutcomes || [];
+            if (courseOutcomesData.length === 0) initDefaultCourseOutcomes();
+            renderCourseOutcomes();
+            renderCourseMatrices();
+            renderProgramArticulation();
             
             renderMatrix();
         } else {
             document.getElementById('peo-matrix-container').style.display = 'none';
             document.getElementById('section-1-2').style.display = 'none';
             document.getElementById('section-1-3').style.display = 'none';
+            document.getElementById('section-1-4').style.display = 'none';
         }
     }
 
@@ -751,6 +1027,7 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
             levelData[currentLevel].pos = pos;
             levelData[currentLevel].psos = psos;
             levelData[currentLevel].poPsoCourseMapping = poPsoCourseMapping;
+            levelData[currentLevel].courseOutcomes = courseOutcomesData;
         }
     }
 
@@ -786,19 +1063,25 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
             peos.push({ id: '', text: '' });
             renderList('peo-list', peos, 'PEO', 'PEO', 'PEO');
         } else if (type === 'PO') {
-            if (pos.length >= 12) {
-                alert("The NBA specifies exactly 12 standard Program Outcomes (POs).");
+            if (pos.length >= 11) {
+                alert("Exactly 11 standard Program Outcomes (POs) are allowed.");
                 return;
             }
             pos.push({ id: '', text: '' });
             renderList('po-list', pos, 'PO', 'PO', 'PO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
         } else if (type === 'PSO') {
             if (psos.length >= 3) {
                 alert("You can only specify up to 3 PSOs.");
                 return;
             }
-            psos.push({ id: '', text: '' });
+            psos.push({ id: 'PSO' + (psos.length + 1), text: '' });
             renderList('pso-list', psos, 'PSO', 'PSO', 'PSO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
         }
     }
 
@@ -818,9 +1101,17 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         } else if (type === 'PO') {
             pos.splice(index, 1);
             renderList('po-list', pos, 'PO', 'PO', 'PO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
         } else if (type === 'PSO') {
             psos.splice(index, 1);
+            // Re-index remaining PSOs
+            psos.forEach((p, i) => p.id = 'PSO' + (i + 1));
             renderList('pso-list', psos, 'PSO', 'PSO', 'PSO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
         }
     }
 
@@ -917,10 +1208,38 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         container.innerHTML = html;
     }
 
-    // —— CSV UI Logic ——
+    // —— CSV/Excel UI Logic ——
+    let processedCSVFile = null;
+
     function handleCSVSelect(input) {
         if (input.files && input.files[0]) {
-            document.getElementById('csvFileName').innerText = 'Selected File: ' + input.files[0].name;
+            const file = input.files[0];
+            document.getElementById('csvFileName').innerText = 'Selected File: ' + file.name + ' (Processing...)';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Convert sheet back to raw CSV string!
+                    const csvString = XLSX.utils.sheet_to_csv(worksheet);
+                    
+                    // Store as a blob ready to upload
+                    const blob = new Blob([csvString], { type: 'text/csv' });
+                    processedCSVFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".csv", { type: 'text/csv' });
+                    
+                    document.getElementById('csvFileName').innerText = 'Selected File: ' + file.name + ' (Ready to save)';
+                } catch (err) {
+                    console.error(err);
+                    alert("Error parsing Excel/CSV file. Please ensure it's a valid format.");
+                    document.getElementById('csvFileName').innerText = '';
+                    processedCSVFile = null;
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
     }
 
@@ -941,11 +1260,17 @@ $page_title = 'Criterion 1: Outcome-Based Curriculum';
         // Append files if they exist
         const file113 = document.querySelector('input[name="file_1_1_3"]').files[0];
         const file114 = document.querySelector('input[name="file_1_1_4"]').files[0];
-        const csvFile = document.getElementById('csvInput').files[0];
 
         if (file113) formData.append('file_1_1_3', file113);
         if (file114) formData.append('file_1_1_4', file114);
-        if (csvFile) formData.append('csv_file', csvFile);
+        
+        // Append the processed CSV blob from SheetJS, or fallback to the raw input
+        if (processedCSVFile) {
+            formData.append('csv_file', processedCSVFile);
+        } else {
+            const rawCsv = document.getElementById('csvInput').files[0];
+            if (rawCsv) formData.append('csv_file', rawCsv);
+        }
 
         // Send AJAX POST
         fetch('api_save_criterion1.php', {

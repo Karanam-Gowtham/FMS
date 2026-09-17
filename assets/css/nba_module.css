@@ -1,0 +1,136 @@
+/* NBA Accreditation Module Styles */
+
+.container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+.breadcrumb { margin-bottom: 1rem; color: #6c757d; font-size: 0.9rem; }
+.breadcrumb a { color: #4a90d9; text-decoration: none; }
+.header-row { margin-bottom: 1.5rem; border-bottom: 2px solid #e9ecef; padding-bottom: 1rem; }
+.header-row h1 { margin: 0; color: #333; font-size: 1.8rem; }
+.header-row p { color: #6c757d; margin-top: 0.5rem; font-size: 0.95rem; }
+
+.section-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.section-card h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #f1f3f5;
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-desc {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    background: #fdfdfe;
+    padding: 10px;
+    border-left: 4px solid #4a90d9;
+    border-radius: 4px;
+}
+
+/* Dynamic Lists (Criterion 1) */
+.dynamic-list { margin-bottom: 1.5rem; }
+.dynamic-list-item { display: flex; gap: 10px; margin-bottom: 10px; }
+.dynamic-list-item input { flex: 1; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 5px; }
+.btn-remove { background: #dc3545; color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 5px; cursor: pointer; }
+.btn-add { background: #e9ecef; color: #495057; border: 1px solid #ced4da; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+.btn-add:hover { background: #dee2e6; }
+
+/* Matrix Table (Criterion 1) */
+.matrix-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.matrix-table th, .matrix-table td { border: 1px solid #dee2e6; padding: 0.5rem; text-align: center; }
+.matrix-table th { background: #f8f9fa; font-weight: 600; }
+.matrix-input { width: 50px; text-align: center; padding: 0.4rem; border: 1px solid #ced4da; border-radius: 4px; }
+
+/* CSV Dropzone (Criterion 1) */
+.csv-dropzone {
+    border: 2px dashed #4a90d9;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.csv-dropzone:hover { background: #eaf3fb; border-color: #2b70b5; }
+.csv-dropzone h4 { margin: 0 0 10px 0; color: #333; }
+.csv-dropzone p { margin: 0; color: #6c757d; font-size: 0.9rem; }
+
+.file-upload-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef; }
+.file-upload-row strong { font-size: 0.95rem; color: #333; }
+.file-upload-row .desc { font-size: 0.8rem; color: #6c757d; display: block; margin-top: 4px; }
+
+/* PDF Dropzone (Criterion 2) */
+.pdf-dropzone {
+    border: 2px dashed #4a90d9;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+.pdf-dropzone:hover { background: #eaf3fb; border-color: #2b70b5; }
+.pdf-dropzone h4 { margin: 0 0 10px 0; color: #333; }
+.pdf-dropzone p { margin: 0; color: #6c757d; font-size: 0.9rem; }
+
+.upload-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #4a90d9;
+    display: none;
+}
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    display: none;
+}
+.file-preview a { color: #28a745; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.file-preview a:hover { text-decoration: underline; }
+.btn-remove-pdf {
+    background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+}
+
+/* Global Buttons & Toasts */
+.btn-save {
+    background: #28a745;
+    color: white;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(40,167,69,0.2);
+}
+.btn-save:hover { background: #218838; }
+
+.toast {
+    position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 1rem 1.5rem; border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 1000;
+}
