@@ -4,10 +4,8 @@ namespace App\Controllers;
 class DashboardController {
     public function index() {
         require_once __DIR__ . '/../../core/bootstrap.php';
-        require_once __DIR__ . '/../../core/legacy_bridge.php';
 
         require_login();
-        legacy_bridge_sync();
 
         $auth = auth_context();
         $active_role = auth_active_role();

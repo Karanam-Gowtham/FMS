@@ -1,11 +1,8 @@
 <?php
 include_once 'config.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-$isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
+require_once __DIR__ . '/core/bootstrap.php';
+$isLoggedIn = auth_is_logged_in();
 
 ?>
 
@@ -45,22 +42,22 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
                     <?php if (!$isLoggedIn): ?>
 
                         <!-- Guest User -->
-                        <a href="<?php echo BASE_URL; ?>/pages/login.php" class="hero-btn hero-btn-primary">
+                        <a href="<?php echo BASE_URL; ?>/public/index.php?route=auth/login" class="hero-btn hero-btn-primary">
                             Sign In
                         </a>
 
-                        <a href="<?php echo BASE_URL; ?>/pages/register.php" class="hero-btn hero-btn-outline">
+                        <a href="<?php echo BASE_URL; ?>/public/index.php?route=auth/register" class="hero-btn hero-btn-outline">
                             Register
                         </a>
 
                     <?php else: ?>
 
                         <!-- Logged-in User -->
-                        <a href="<?php echo BASE_URL; ?>/pages/login.php" class="hero-btn hero-btn-primary">
+                        <a href="<?php echo BASE_URL; ?>/public/index.php?route=dashboard" class="hero-btn hero-btn-primary">
                             Dashboard
                         </a>
 
-                        <a href="<?php echo PORTAL_PATH; ?>/faculty/edit_profile.php" class="hero-btn hero-btn-outline">
+                        <a href="<?php echo BASE_URL; ?>/public/index.php?route=profile/edit" class="hero-btn hero-btn-outline">
                             Edit Profile
                         </a>
 

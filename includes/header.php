@@ -868,263 +868,13 @@ if (isset($extra_head)) {
 
         <div class="nav-links" id="nav-links">
 
-
-            <!-- ==================================================
-                 DEPARTMENTS
-            =================================================== -->
-
-            <div class="dropdown">
-
-                <button type="button" class="dropdown-toggle">
-
-                    Departments
-
-                    <span class="arrow">▼</span>
-
-                </button>
-
-
-                <div class="dropdown-content">
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=CSE">
-                        CSE
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=CSE-CS">
-                        CSE-CS
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=AIML">
-                        CSE-AI&amp;ML
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=AIDS">
-                        CSE-AI&amp;DS
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=IT">
-                        IT
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=ECE">
-                        ECE
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=EEE">
-                        EEE
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=MECH">
-                        MECH
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=CIVIL">
-                        CIVIL
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=MatheMatics">
-                        MatheMatics
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=Physics">
-                        Physics
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=Chemistry">
-                        Chemistry
-                    </a>
-
-                    <a href="<?= $app_url ?>/public/dept.php?dept=BSH">
-                        BSH
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <!-- ==================================================
-                 CENTRAL LOGIN
-            =================================================== -->
-
-            <div class="dropdown">
-
-                <button type="button" class="dropdown-toggle">
-
-                    Central Login
-
-                    <span class="arrow">▼</span>
-
-                </button>
-
-
-                <div class="dropdown-content">
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=IQAC">
-                        IQAC
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=R%26D">
-                        R&amp;D
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=Exam_Section">
-                        Exam Section
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=NAAC">
-                        NAAC
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=NBA">
-                        NBA
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=NCC">
-                        NCC
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=Sports">
-                        Sports
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=Clubs">
-                        Clubs &amp; Professional Bodies
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=NSS">
-                        NSS
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=Women_Empowerment">
-                        Women Empowerment
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=IIC">
-                        IIC
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=PASH">
-                        PASH
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=Antiragging">
-                        Antiragging
-                    </a>
-
-                    <a href="<?= $app_url ?>/modules/central/c_login.php?event=SAC">
-                        SAC
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <!-- ==================================================
-                 ADMIN - SWITCH DEPARTMENTS
-            =================================================== -->
-
-            <?php if (isset($_SESSION['admin'])): ?>
-
-                <div class="dropdown">
-
-                    <button type="button" class="dropdown-toggle">
-
-                        Switch Depts
-
-                        <span class="arrow">▼</span>
-
-                    </button>
-
-
-                    <div class="dropdown-content">
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=CSE">
-                            CSE
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=CSE-CS">
-                            CSE-CS
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=AIML">
-                            CSE-AI&amp;ML
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=AIDS">
-                            CSE-AI&amp;DS
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=IT">
-                            IT
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=ECE">
-                            ECE
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=EEE">
-                            EEE
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=MECH">
-                            MECH
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=CIVIL">
-                            CIVIL
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=MatheMatics">
-                            MatheMatics
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=Physics">
-                            Physics
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=Chemistry">
-                            Chemistry
-                        </a>
-
-                        <a href="<?= $app_url ?>/admin/admins.php?dept=BSH">
-                            BSH
-                        </a>
-
-                    </div>
-
-                </div>
-
-            <?php endif; ?>
-
-
-            <!-- ==================================================
-                 PDF MERGER
-            =================================================== -->
-
-            <a href="<?= $app_url ?>/modules/common/pdf_merger.php">
-                PDF Merger
-            </a>
-
-
             <!-- ==================================================
                  CHECK LOGIN STATUS
             =================================================== -->
 
             <?php
-
-            $is_logged_in =
-                isset($_SESSION['username']) ||
-                isset($_SESSION['a_username']) ||
-                isset($_SESSION['j_username']) ||
-                isset($_SESSION['h_username']) ||
-                isset($_SESSION['admin']) ||
-                isset($_SESSION['c_cord']) ||
-                isset($_SESSION['logged_in']);
-
+            $is_logged_in = auth_is_logged_in();
             ?>
-
 
             <!-- ==================================================
                  LOGGED IN
@@ -1132,50 +882,38 @@ if (isset($extra_head)) {
 
             <?php if ($is_logged_in): ?>
 
-
                 <!-- Dashboard -->
-
-                <a href="<?= $app_url ?>/dashboard.php" class="nav-btn-link dashboard-link">
-
+                <a href="<?= $app_url ?>/public/index.php?route=dashboard" class="nav-btn-link dashboard-link">
                     Dashboard
-
-                    <span id="dashboard-badge" class="notif-badge">
-                        0
-                    </span>
-
                 </a>
 
+                <!-- Edit Profile -->
+                <a href="<?= $app_url ?>/public/index.php?route=profile/edit" class="nav-btn-link dashboard-link">
+                    Edit Profile
+                </a>
 
                 <!-- Logout -->
-
-                <a href="<?= $app_url ?>/pages/logout.php" class="nav-btn nav-btn-logout">
+                <a href="<?= $app_url ?>/public/index.php?route=auth/logout" class="nav-btn nav-btn-logout">
                     Logout
                 </a>
 
-
-                <!-- ==================================================
+            <!-- ==================================================
                  LOGGED OUT
             =================================================== -->
 
             <?php else: ?>
 
-
                 <!-- Sign In -->
-
-                <a href="<?= $app_url ?>/pages/login.php" class="nav-btn">
+                <a href="<?= $app_url ?>/public/index.php?route=auth/login" class="nav-btn">
                     Sign In
                 </a>
 
-
                 <!-- Register -->
-
-                <a href="<?= $app_url ?>/pages/register.php" class="nav-btn nav-btn-register">
+                <a href="<?= $app_url ?>/public/index.php?route=auth/register" class="nav-btn nav-btn-register">
                     Register
                 </a>
 
-
             <?php endif; ?>
-
 
         </div>
 

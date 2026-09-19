@@ -59,7 +59,6 @@ class AuthController {
 
     public function selectRole() {
         require_once __DIR__ . '/../../core/bootstrap.php';
-        require_once __DIR__ . '/../../core/legacy_bridge.php';
 
         if (auth_is_logged_in()) {
             $active = auth_active_role();
@@ -99,7 +98,6 @@ class AuthController {
                 auth_update_last_login($conn, $user['user_id']);
 
                 unset($_SESSION['_pending_auth']);
-                legacy_bridge_sync();
 
                 header("Location: " . get_role_landing_url($valid_role));
                 exit();
