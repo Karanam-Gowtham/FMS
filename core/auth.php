@@ -344,30 +344,8 @@ function get_role_landing_url(array $role): string
     $role_id = (int)$role['role_id'];
     $dept = urlencode($role['dept_name'] ?? '');
 
-    switch ($role_id) {
-        case ROLE_FACULTY:
-            return BASE_URL . "/modules/faculty/acd_year.php?dept={$dept}";
-        case ROLE_DEPT_COORDINATOR:
-            return BASE_URL . "/modules/dept_coordinator/dc_acd_year.php?dept={$dept}";
-        case ROLE_HOD:
-            return BASE_URL . "/HOD/hod_acd_year.php?dept={$dept}&designation=HOD";
-        case ROLE_JUNIOR_ASSISTANT:
-            return BASE_URL . "/modules/jr_assistant/jr_acd_year.php?dept={$dept}";
-        case ROLE_ADMIN:
-            return BASE_URL . "/HOD/acd_year_aa.php?designation=admin";
-        case ROLE_CENTRAL_COORDINATOR:
-            if ($role['dept_name'] === 'NAAC' || $role['dept_name'] === 'NBA') {
-                return BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event={$dept}";
-            } else {
-                return BASE_URL . "/modules/central/c_upload.php?event={$dept}";
-            }
-        case ROLE_IQAC:
-            return BASE_URL . "/modules/central/c_aqar_files.php?designation=criteria_coordinator&event=IQAC";
-        case ROLE_RND_DEAN:
-            return BASE_URL . "/pages/rnd/dashboard.php";
-        default:
-            return BASE_URL . "/pages/dashboard.php";
-    }
+    // Unified MVC Dashboard for all roles
+    return BASE_URL . "/public/index.php?route=dashboard";
 }
 
 /**

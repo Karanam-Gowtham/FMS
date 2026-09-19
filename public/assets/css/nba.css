@@ -1,0 +1,80 @@
+.container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+.breadcrumb { margin-bottom: 1rem; color: #6c757d; font-size: 0.9rem; }
+.breadcrumb a { color: #4a90d9; text-decoration: none; }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e9ecef; padding-bottom: 1rem; }
+.header-row h1 { margin: 0; color: #333; font-size: 1.8rem; }
+
+/* Filters */
+.filters { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; align-items: flex-end; background: #f8f9fa; padding: 1.2rem; border-radius: 8px; border: 1px solid #e9ecef; }
+.filters .form-group { flex: 1; min-width: 200px; max-width: 300px; }
+.filters label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.filters select { width: 100%; padding: 0.6rem; border: 1px solid #ced4da; border-radius: 6px; font-size: 0.95rem; background: #fff; }
+.filters select:focus { outline: none; border-color: #4a90d9; box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.2); }
+
+/* Criteria Grid */
+.criteria-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
+.criteria-card { 
+    background: white; 
+    padding: 1.5rem; 
+    border: 1px solid #e9ecef; 
+    border-radius: 10px; 
+    text-decoration: none; 
+    color: #333;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+.criteria-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #4a90d9;
+    opacity: 0.8;
+}
+
+.criteria-card:hover { 
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08); 
+    border-color: #4a90d9;
+}
+
+.criteria-number { 
+    font-size: 0.8rem; 
+    font-weight: 700; 
+    color: #4a90d9; 
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.criteria-title { 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+}
+
+.criteria-status {
+    margin-top: auto;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.status-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.status-badge.pending { background: #fff3cd; color: #856404; }
+.status-badge.in-progress { background: #cce5ff; color: #004085; }
+.status-badge.completed { background: #d4edda; color: #155724; }
