@@ -5,7 +5,6 @@ class AuthController {
 
     public function login() {
         require_once __DIR__ . '/../../core/bootstrap.php';
-        require_once __DIR__ . '/../../core/legacy_bridge.php';
 
         if (auth_is_logged_in()) {
             $active = auth_active_role();
@@ -28,7 +27,7 @@ class AuthController {
             if (empty($identifier) || empty($password)) {
                 $error = 'Please enter your User ID and password.';
             } else {
-                $conn = db_connect();
+                global $conn;
                 $user = auth_authenticate($conn, $identifier, $password);
 
                 if ($user === false) {
@@ -41,7 +40,6 @@ class AuthController {
                     } elseif (count($roles) === 1) {
                         auth_create_session($user, $roles[0]);
                         auth_update_last_login($conn, $user['user_id']);
-                        legacy_bridge_sync();
 
                         header("Location: " . get_role_landing_url($roles[0]));
                         exit();
@@ -93,7 +91,7 @@ class AuthController {
             }
 
             if ($valid_role) {
-                $conn = db_connect();
+                global $conn;
                 auth_create_session($user, $valid_role);
                 auth_update_last_login($conn, $user['user_id']);
 
@@ -127,7 +125,7 @@ class AuthController {
         $error = '';
         $success = '';
 
-        $conn = db_connect();
+        global $conn;
         $dept_result = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
         $departments = [];
         while ($row = $dept_result->fetch_assoc()) {

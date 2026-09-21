@@ -869,6 +869,31 @@ if (isset($extra_head)) {
         <div class="nav-links" id="nav-links">
 
             <!-- ==================================================
+                 DEPARTMENTS
+            =================================================== -->
+            <div class="dropdown">
+                <button type="button" class="dropdown-toggle">
+                    Departments
+                    <span class="arrow">▼</span>
+                </button>
+                <div class="dropdown-content">
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=CSE">CSE</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=CSE-CS">CSE-CS</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=AIML">CSE-AI&amp;ML</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=AIDS">CSE-AI&amp;DS</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=IT">IT</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=ECE">ECE</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=EEE">EEE</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=MECH">MECH</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=CIVIL">CIVIL</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=MatheMatics">MatheMatics</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=Physics">Physics</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=Chemistry">Chemistry</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=BSH">BSH</a>
+                </div>
+            </div>
+
+            <!-- ==================================================
                  CHECK LOGIN STATUS
             =================================================== -->
 

@@ -17,7 +17,7 @@ class NBACriterionController {
         }
 
         $dept_id = $active_role['dept_id'];
-        $conn = db_connect();
+        global $conn;
 
         // Fetch departments for the selector (Exclude central/admin wings)
         $excluded_depts = "'Antiragging', 'Clubs', 'Exam_Section', 'IIC', 'IQAC', 'NAAC', 'NBA', 'NCC', 'NSS', 'PASH', 'PE', 'PG', 'R&D', 'SAC', 'Sports', 'Women_Empowerment'";

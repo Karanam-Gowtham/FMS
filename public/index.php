@@ -5,6 +5,8 @@
  * All requests are routed through here.
  */
 
+require_once __DIR__ . '/../core/bootstrap.php';
+
 // Simple autoloader for now
 spl_autoload_register(function ($class) {
     $prefix = 'App\\';
@@ -73,6 +75,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'academic_years/list') {
     $controller = new \App\Controllers\AcademicYearController();
     $controller->list();
+} elseif ($route === 'public/department') {
+    $controller = new \App\Controllers\PublicController();
+    $controller->department();
 } elseif ($route === 'auth/login') {
     $controller = new \App\Controllers\AuthController();
     $controller->login();

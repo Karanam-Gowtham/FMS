@@ -14,7 +14,7 @@ class AcademicYearController {
             exit();
         }
 
-        $conn = db_connect();
+        global $conn;
         
         // Only Admin and HOD can manage academic years globally
         $can_manage = in_array($active_role['role_id'], [ROLE_ADMIN, ROLE_HOD]);

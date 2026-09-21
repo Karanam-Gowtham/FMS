@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/meta_registry.php';
 require_once __DIR__ . '/file_service.php';
-require_once __DIR__ . '/legacy_sync.php';
+
 require_once __DIR__ . '/workflow_engine.php';
 
 // ============================================================
@@ -68,14 +68,43 @@ function doc_get_type_by_id(mysqli $conn, int $type_id): ?array
 function doc_get_types(mysqli $conn): array
 {
     $stmt = $conn->prepare(
-        "SELECT type_id, type_code AS type_key, label AS type_label, workflow_id
+        "SELECT type_id, type_code, label AS type_label, workflow_id
          FROM document_types
          ORDER BY label"
     );
     $stmt->execute();
     $result = $stmt->get_result();
     $types = [];
+    
+    // Hardcoded mapping of type_code to category (since DB schema is outdated and missing the category column)
+    $category_map = [
+        'journal' => 'research',
+        'conference' => 'research',
+        'patent' => 'research',
+        'fdp_attended' => 'research',
+        'fdp_organised' => 'research',
+        'conf_organised' => 'research',
+        'criteria_file' => 'criteria',
+        'scholarship' => 'criteria',
+        'dept_file' => 'department',
+        'central_file' => 'central',
+        'placement' => 'student',
+        'higher_ed' => 'student',
+        'exam_qual' => 'student',
+        'award' => 'student',
+        'student_event' => 'student',
+        'student_body' => 'student',
+        'student_journal' => 'student',
+        'student_conference' => 'student'
+    ];
+
     while ($row = $result->fetch_assoc()) {
+        $type_code = $row['type_code'];
+        // Inject the missing properties that the codebase expects
+        $row['type_key'] = $type_code;
+        $row['category'] = $category_map[$type_code] ?? 'other';
+        $row['is_active'] = 1; // Assuming all returned are active
+        
         $types[] = $row;
     }
     $stmt->close();
@@ -392,6 +421,33 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         $types .= 's';
     }
 
+    $join_sql = '';
+    $meta_select = '';
+    if (!empty($filters['sub_type'])) {
+        $join_sql .= ' JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
+        $where_clauses[] = 'mdf.file_type = ?';
+        $params[] = $filters['sub_type'];
+        $types .= 's';
+    }
+
+    if (!empty($filters['type_key'])) {
+        $meta_table = meta_get_table($filters['type_key']);
+        $meta_fields = meta_get_fields($filters['type_key']);
+        if ($meta_table && !empty($meta_fields)) {
+            // Check if already joined (e.g. mdf)
+            if (strpos($join_sql, $meta_table) === false) {
+                 $join_sql .= " LEFT JOIN `$meta_table` mt ON mt.doc_id = d.doc_id ";
+            } else {
+                 // if it's meta_dept_file, we alias to mdf
+                 $meta_table_alias = 'mdf';
+            }
+            $alias = isset($meta_table_alias) ? $meta_table_alias : 'mt';
+            foreach ($meta_fields as $mf) {
+                $meta_select .= ", $alias.`{$mf['name']}` as `meta_{$mf['name']}` ";
+            }
+        }
+    }
+
     $where_sql = $where_clauses ? 'WHERE ' . implode(' AND ', $where_clauses) : '';
 
     // Whitelist order column to prevent injection
@@ -408,6 +464,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     // Count total
     $count_sql = "SELECT COUNT(*) as total FROM documents d
                   JOIN document_types dt ON dt.type_id = d.type_id
+                  $join_sql
                   $where_sql";
     $count_stmt = $conn->prepare($count_sql);
     if ($types && $params) {
@@ -425,11 +482,13 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
                    u.full_name AS uploader_name,
                    dep.dept_name,
                    ay.year_label
+                   $meta_select
             FROM documents d
             JOIN document_types dt ON dt.type_id = d.type_id
             JOIN users u ON u.user_id = d.uploaded_by
             JOIN departments dep ON dep.dept_id = d.dept_id
             LEFT JOIN academic_years ay ON ay.year_id = d.academic_year_id
+            $join_sql
             $where_sql
             ORDER BY $order
             LIMIT ? OFFSET ?";

@@ -60,7 +60,7 @@ class NBAAPIController {
                 }
             }
 
-            $conn = db_connect();
+            global $conn;
             $conn->begin_transaction();
 
             // 1. Check/Create Submission

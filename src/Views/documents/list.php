@@ -31,10 +31,17 @@
         .pagination { display: flex; gap: 0.4rem; justify-content: center; margin-top: 1.5rem; }
         .pagination a { padding: 0.35rem 0.7rem; border: 1px solid #dee2e6; border-radius: 4px; text-decoration: none; color: #495057; font-size: 0.9rem; }
         .pagination a.active { background: #4a90d9; color: white; border-color: #4a90d9; }
+        .breadcrumb-bar { background: #f8f9fa; padding: 0.8rem 2rem; border-bottom: 1px solid #e9ecef; font-size: 0.9rem; color: #6c757d; }
+        .breadcrumb-bar a { color: #4a90d9; text-decoration: none; }
     </style>
 </head>
 <body>
-<?php include __DIR__ . '/../../includes/header.php'; ?>
+<?php include __DIR__ . '/../../../includes/header.php'; ?>
+
+<div class="breadcrumb-bar">
+    <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
+    <?= htmlspecialchars($scope_label) ?>
+</div>
 
 <div class="container">
     <div class="header-row">
@@ -109,6 +116,11 @@
                     <th>Uploaded By</th>
                     <th>Department</th>
                     <th>Year</th>
+                    <?php if (!empty($meta_fields)): ?>
+                        <?php foreach ($meta_fields as $mf): ?>
+                            <th><?= htmlspecialchars($mf['label']) ?></th>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                     <th>Status</th>
                     <th>Date</th>
                 </tr>
@@ -116,11 +128,16 @@
             <tbody>
                 <?php foreach ($documents as $doc): ?>
                 <tr>
-                    <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>"><?= htmlspecialchars($doc['title']) ?></a></td>
+                    <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
                     <td><?= htmlspecialchars($doc['type_label']) ?></td>
                     <td><?= htmlspecialchars($doc['uploader_name']) ?></td>
                     <td><?= htmlspecialchars($doc['dept_name']) ?></td>
-                    <td><?= htmlspecialchars($doc['year_label'] ?? '—') ?></td>
+                    <td><?= htmlspecialchars(str_replace(' ', '-', $doc['year_label'] ?? '—')) ?></td>
+                    <?php if (!empty($meta_fields)): ?>
+                        <?php foreach ($meta_fields as $mf): ?>
+                            <td><?= htmlspecialchars($doc['meta_' . $mf['name']] ?? '—') ?></td>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                     <td><span class="status-badge status-<?= htmlspecialchars($doc['status']) ?>"><?= ucfirst(htmlspecialchars($doc['status'])) ?></span></td>
                     <td><?= date('d M Y', strtotime($doc['created_at'])) ?></td>
                 </tr>

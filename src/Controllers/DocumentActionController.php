@@ -8,7 +8,7 @@ class DocumentActionController {
         
         require_login();
         $auth = auth_context();
-        $conn = db_connect();
+        global $conn;
 
         $error_msg = '';
         $success_msg = '';
@@ -18,6 +18,20 @@ class DocumentActionController {
         } else {
             $post_type_key = trim($_POST['type_key'] ?? '');
             $post_title    = trim($_POST['title'] ?? '');
+            
+            // Fallback for title if it's a student activity or exam
+            if ($post_title === '' && (strpos($post_type_key, 'student_') === 0 || $post_type_key === 'exam_qual')) {
+                if (!empty($_POST['meta']['event_name'])) {
+                    $post_title = trim($_POST['meta']['event_name']);
+                } elseif (!empty($_POST['meta']['paper_title'])) {
+                    $post_title = trim($_POST['meta']['paper_title']);
+                } elseif (!empty($_POST['meta']['exam'])) {
+                    $post_title = trim($_POST['meta']['exam']);
+                } else {
+                    $post_title = 'Student Activity';
+                }
+            }
+
             $post_dept_id  = (int)($_POST['dept_id'] ?? 0);
             $post_year_id  = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : null;
 
@@ -101,7 +115,7 @@ class DocumentActionController {
         
         require_login();
         $auth = auth_context();
-        $conn = db_connect();
+        global $conn;
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             die("Invalid request method.");
@@ -119,7 +133,7 @@ class DocumentActionController {
             die("Invalid request parameters.");
         }
 
-        $doc = doc_get_by_id($conn, $doc_id);
+        $doc = doc_get($conn, $doc_id);
         if (!$doc) {
             die("Document not found.");
         }
@@ -149,7 +163,7 @@ class DocumentActionController {
         
         require_login();
         $auth = auth_context();
-        $conn = db_connect();
+        global $conn;
 
         $file_id = isset($_GET['file_id']) ? (int)$_GET['file_id'] : 0;
         if ($file_id <= 0) {
@@ -169,7 +183,7 @@ class DocumentActionController {
         }
 
         // Check document access
-        $doc = doc_get_by_id($conn, $file_record['doc_id']);
+        $doc = doc_get($conn, $file_record['doc_id']);
         if (!$doc) {
             die("Associated document not found.");
         }

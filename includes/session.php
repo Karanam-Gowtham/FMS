@@ -1,6 +1,6 @@
 <?php
 // Centralized session bootstrap with secure cookie flags
-include_once __DIR__ . '/constants.php';
+require_once __DIR__ . '/../core/constants.php';
 if (session_status() === PHP_SESSION_NONE) {
     // Detect if the current connection is secure (HTTPS)
     $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')

@@ -7,7 +7,7 @@ class ProfileController {
         require_login();
 
         $auth = auth_context();
-        $conn = db_connect();
+        global $conn;
 
         $stmt = $conn->prepare("SELECT u.name, u.email, p.* FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ?");
         $stmt->bind_param("i", $auth['user_id']);
@@ -23,7 +23,7 @@ class ProfileController {
         require_login();
 
         $auth = auth_context();
-        $conn = db_connect();
+        global $conn;
         $error = '';
         $success = '';
 

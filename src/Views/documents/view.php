@@ -40,16 +40,19 @@
         .history-table th, .history-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #dee2e6; font-size: 0.85rem; }
         .history-table th { font-weight: 600; color: #495057; }
         .remarks-input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; min-height: 60px; resize: vertical; margin-bottom: 0.8rem; }
+        .breadcrumb-bar { background: #f8f9fa; padding: 0.8rem 2rem; border-bottom: 1px solid #e9ecef; font-size: 0.9rem; color: #6c757d; }
+        .breadcrumb-bar a { color: #4a90d9; text-decoration: none; }
     </style>
 </head>
 <body>
-<?php include __DIR__ . '/../../includes/header.php'; ?>
+<?php include __DIR__ . '/../../../includes/header.php'; ?>
+
+<div class="breadcrumb-bar">
+    <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
+    <?= htmlspecialchars($document['title'] ?: 'View Document') ?>
+</div>
 
 <div class="container">
-    <div class="breadcrumb">
-        <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
-        <?= htmlspecialchars($document['title'] ?: 'View Document') ?>
-    </div>
 
     <div class="doc-header">
         <h1><?= $page_title ?></h1>
