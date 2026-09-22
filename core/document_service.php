@@ -211,8 +211,62 @@ function doc_create(
             throw new RuntimeException('Workflow initialization failed: ' . $wf_result['error']);
         }
 
+        // 7. Auto-Merge Multiple PDFs
+        $pdfs_to_merge = [];
+        $file_slots_by_name = array_column($file_slots, null, 'name');
+        
+        // Refetch files from db to get correct paths
+        $stmt_f = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ?");
+        $stmt_f->bind_param('i', $doc_id);
+        $stmt_f->execute();
+        $f_res = $stmt_f->get_result();
+        while ($f_row = $f_res->fetch_assoc()) {
+            if (strtolower(pathinfo($f_row['file_path'], PATHINFO_EXTENSION)) === 'pdf') {
+                $slot_def = $file_slots_by_name[$f_row['file_label']] ?? null;
+                $title = $slot_def ? $slot_def['label'] : ucfirst(str_replace('_', ' ', $f_row['file_label']));
+                $pdfs_to_merge[] = [
+                    'path' => __DIR__ . '/../' . $f_row['file_path'],
+                    'title' => $title
+                ];
+            }
+        }
+        $stmt_f->close();
+
+        if (count($pdfs_to_merge) > 1) {
+            require_once __DIR__ . '/pdf_merger_service.php';
+            $merged_filename = $type_key . '_merged_' . uniqid() . '.pdf';
+            $merged_dir = __DIR__ . '/../uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/';
+            if (!is_dir($merged_dir)) { mkdir($merged_dir, 0755, true); }
+            $merged_path = $merged_dir . $merged_filename;
+            
+            try {
+                if (merge_pdfs_with_headings($pdfs_to_merge, $merged_path)) {
+                    $rel_merged_path = 'uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/' . $merged_filename;
+                    
+                    // Update the master file_path in documents table
+                    $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
+                    $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
+                    $upd_stmt->execute();
+                    $upd_stmt->close();
+                    
+                    // Store as a document_files record
+                    $merged_data = [
+                        'original_name' => 'Merged_Document.pdf',
+                        'stored_name' => $merged_filename,
+                        'file_path' => $rel_merged_path,
+                        'mime_type' => 'application/pdf',
+                        'file_size' => filesize($merged_path)
+                    ];
+                    file_save_record($conn, $doc_id, $merged_data, 'merged_pdf');
+                }
+            } catch (Exception $e) {
+                // Ignore merge errors and keep original files
+                error_log("PDF Merge Failed: " . $e->getMessage());
+            }
+        }
+
         // 7. Sync to legacy tables for backward compatibility
-        legacy_sync_insert_document($conn, $doc_id, $type_key, $uploaded_by, $dept_id, $academic_year_id ?? 0, $title, $meta_data, $files);
+        // legacy_sync_insert_document($conn, $doc_id, $type_key, $uploaded_by, $dept_id, $academic_year_id ?? 0, $title, $meta_data, $files);
 
         $conn->commit();
 
@@ -662,4 +716,80 @@ function doc_get_departments(mysqli $conn): array
     }
     $stmt->close();
     return $depts;
+}
+
+// ============================================================
+// DOCUMENT PERMISSIONS & HISTORY
+// ============================================================
+
+/**
+ * Checks if a user has permission to view a document.
+ */
+function doc_can_view(mysqli $conn, array $auth, array $doc): bool
+{
+    // Uploader can always view
+    if ($doc['uploaded_by'] == $auth['user_id']) {
+        return true;
+    }
+    
+    // Check role-based access
+    foreach ($auth['roles'] as $role) {
+        $role_id = (int)$role['role_id'];
+        $dept_id = (int)$role['dept_id'];
+        
+        if (in_array($role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+            return true;
+        }
+        if ($dept_id === (int)$doc['dept_id']) {
+            return true;
+        }
+    }
+    
+    // If they have pending actions on it, they can view it
+    if (doc_can_approve($conn, $auth, $doc)) {
+        return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Checks if a user can approve a document (i.e. it is pending and their role matches the current step).
+ */
+function doc_can_approve(mysqli $conn, array $auth, array $doc): bool
+{
+    if ($doc['status'] !== 'pending' || empty($doc['current_step'])) {
+        return false;
+    }
+    
+    $step = wf_get_step($conn, (int)$doc['current_step']);
+    if (!$step) {
+        return false;
+    }
+    
+    return wf_can_user_act($step, $auth, (int)$doc['dept_id']);
+}
+
+/**
+ * Retrieves the action history for a document.
+ */
+function doc_get_history(mysqli $conn, int $doc_id): array
+{
+    $stmt = $conn->prepare(
+        "SELECT a.*, u.full_name, s.step_label 
+         FROM document_actions a
+         JOIN users u ON a.acted_by = u.user_id
+         LEFT JOIN workflow_steps s ON a.step_id = s.step_id
+         WHERE a.doc_id = ? 
+         ORDER BY a.acted_at ASC"
+    );
+    $stmt->bind_param('i', $doc_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $history = [];
+    while ($row = $result->fetch_assoc()) {
+        $history[] = $row;
+    }
+    $stmt->close();
+    return $history;
 }

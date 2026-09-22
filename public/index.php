@@ -66,6 +66,12 @@ if ($route === 'dashboard') {
 } elseif ($route === 'documents/download') {
     $controller = new \App\Controllers\DocumentActionController();
     $controller->download();
+} elseif ($route === 'documents/edit') {
+    $controller = new \App\Controllers\DocumentController();
+    $controller->edit();
+} elseif ($route === 'documents/process_update') {
+    $controller = new \App\Controllers\DocumentActionController();
+    $controller->processUpdate();
 } elseif ($route === 'profile/view') {
     $controller = new \App\Controllers\ProfileController();
     $controller->view();

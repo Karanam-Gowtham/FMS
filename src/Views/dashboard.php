@@ -184,8 +184,15 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
 <main class="main-content">
     <div class="container12">
         
-        <?php if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY, ROLE_HOD, ROLE_ADMIN, ROLE_DEPT_COORDINATOR, ROLE_CENTRAL_COORDINATOR, ROLE_IQAC])): ?>
-            
+        <?php
+        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
+        $is_faculty = ($role_id === ROLE_FACULTY);
+        $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN]);
+        $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_ADMIN]);
+        ?>
+        
+        <?php if ($is_faculty): ?>
+            <!-- FACULTY DASHBOARD (Uploads) -->
             <div class="header-title">
                 <h1>Achievements</h1>
             </div>
@@ -213,9 +220,9 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                 </a>
             </div>
 
-            <div class="header-title">
+            <div class="header-title" style="margin-top: 2rem;">
                 <h1>Department Files</h1>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type=dept_file" class="my-achievements-btn" style="margin-top:-10px;">My Dept Files</a>
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file" class="my-achievements-btn" style="margin-top:-10px;">My Dept Files</a>
             </div>
             <div class="feedback-grid">
                 <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Admin Files" class="feedback-card">
@@ -235,7 +242,134 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                 </a>
             </div>
 
-        <?php else: ?>
+
+        <?php endif; ?>
+
+        <?php if ($is_reviewer || $is_dept_manager): ?>
+            <!-- HOD / REVIEWER DASHBOARD (Viewing & Approving) -->
+            <?php 
+            $hod_view = $_GET['view'] ?? ''; 
+            ?>
+
+            <?php if ($hod_view === 'achievements' && $is_reviewer): ?>
+                
+                <div class="header-title">
+                    <h1>Department Achievements</h1>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" class="my-achievements-btn" style="margin-top:-10px; background: #6b7280;">&larr; Back to Dashboard</a>
+                </div>
+                
+                <div class="feedback-grid">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type=fdp_attended" class="feedback-card">
+                        <div class="card-content"><h3>View FDPS Attended Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type=fdp_organised" class="feedback-card">
+                        <div class="card-content"><h3>View FDPS Organized Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type=conf_organised" class="feedback-card">
+                        <div class="card-content"><h3>View Conference Organised Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type=journal" class="feedback-card">
+                        <div class="card-content"><h3>View Papers Published Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type=conference" class="feedback-card">
+                        <div class="card-content"><h3>View Conferences Published Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type=patent" class="feedback-card">
+                        <div class="card-content"><h3>View Patents Files</h3></div>
+                    </a>
+                </div>
+
+            <?php elseif ($hod_view === 'dept_files' && $is_dept_manager): ?>
+
+                <div class="header-title">
+                    <h1>Department Files</h1>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" class="my-achievements-btn" style="margin-top:-10px; background: #6b7280;">&larr; Back to Dashboard</a>
+                </div>
+                
+                <div class="feedback-grid">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file&sub_type=Admin Files" class="feedback-card">
+                        <div class="card-content"><h3>Admin Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file&sub_type=Faculty Files" class="feedback-card">
+                        <div class="card-content"><h3>Faculty Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file&sub_type=Student Related Files" class="feedback-card">
+                        <div class="card-content"><h3>Student Related Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file&sub_type=Exam Section Files" class="feedback-card">
+                        <div class="card-content"><h3>Exam Section Files</h3></div>
+                    </a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file&sub_type=Student Activities Files" class="feedback-card">
+                        <div class="card-content"><h3>Student Activities Files</h3></div>
+                    </a>
+                </div>
+
+            <?php else: ?>
+
+                <div class="header-title">
+                    <h1>Department Management</h1>
+                </div>
+                
+                <div class="feedback-grid">
+                    <?php if ($is_reviewer): ?>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=dashboard&view=achievements" class="feedback-card">
+                        <div class="card-content"><h3>Department Achievements</h3></div>
+                    </a>
+                    <?php endif; ?>
+                    
+                    <?php if ($is_dept_manager): ?>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=dashboard&view=dept_files" class="feedback-card">
+                        <div class="card-content"><h3>Department Files List</h3></div>
+                    </a>
+                    <?php endif; ?>
+                </div>
+
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <?php if (!empty($pending_approvals) && empty($_GET['view'])): ?>
+        <!-- PENDING APPROVALS -->
+        <div class="header-title" style="margin-top: 2rem;">
+            <h1>Pending My Approval <span style="background:#ef4444; color:white; padding:2px 8px; border-radius:999px; font-size:0.8rem; margin-left:10px;"><?= count($pending_approvals) ?></span></h1>
+        </div>
+        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; margin-bottom: 2rem;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e5e7eb; background: #f8fafc;">
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">File Title</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Type</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Uploaded By</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Date</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pending_approvals as $doc): ?>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 16px; color: #2563eb; font-weight: 500;">
+                            <?= htmlspecialchars($doc['title']) ?>
+                        </td>
+                        <td style="padding: 12px 16px; color: #64748b;">
+                            <?= htmlspecialchars($doc['type_label'] ?? $doc['type_id']) ?>
+                        </td>
+                        <td style="padding: 12px 16px; color: #64748b;">
+                            <?= htmlspecialchars($doc['uploader_name'] ?? 'Unknown') ?>
+                        </td>
+                        <td style="padding: 12px 16px; color: #64748b;">
+                            <?= date('M d, Y', strtotime($doc['created_at'])) ?>
+                        </td>
+                        <td style="padding: 12px 16px;">
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">Review</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+
+
+        <?php if (!$is_faculty && !$is_reviewer && !$is_dept_manager): ?>
             <div class="header-title">
                 <h1>Quick Actions</h1>
             </div>
@@ -247,6 +381,77 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                     <div class="card-content"><h3>My Documents</h3></div>
                 </a>
             </div>
+        <?php endif; ?>
+
+        <?php if (empty($_GET['view'])): ?>
+        <?php if ($is_faculty || !empty($recent_uploads)): ?>
+        <!-- RECENT UPLOADS & PENDING ACTIONS -->
+        <div class="header-title" style="margin-top: 2rem;">
+            <h1>Recent Uploads & Pending Actions</h1>
+        </div>
+        
+        <?php if (!empty($recent_uploads)): ?>
+        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; margin-bottom: 2rem;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e5e7eb; background: #f8fafc;">
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">File Title</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Type</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Date</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Status</th>
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($recent_uploads as $doc): ?>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 16px; color: #2563eb; font-weight: 500;">
+                            <?= htmlspecialchars($doc['title']) ?>
+                        </td>
+                        <td style="padding: 12px 16px; color: #64748b;">
+                            <?= htmlspecialchars($doc['type_label']) ?>
+                        </td>
+                        <td style="padding: 12px 16px; color: #64748b;">
+                            <?= date('M d, Y', strtotime($doc['created_at'])) ?>
+                        </td>
+                        <td style="padding: 12px 16px;">
+                            <?php
+                            $status_lower = strtolower($doc['status']);
+                            if ($status_lower === 'accepted') {
+                                $bg = '#dcfce7'; $color = '#166534'; $label = 'Accepted';
+                            } elseif ($status_lower === 'rejected') {
+                                $bg = '#fee2e2'; $color = '#991b1b'; $label = 'Rejected';
+                            } else {
+                                $bg = '#fef9c3'; $color = '#854d0e'; $label = 'Pending ' . $doc['step_label'];
+                            }
+                            ?>
+                            <span style="background: <?= $bg ?>; color: <?= $color ?>; padding: 4px 10px; border-radius: 9999px; font-size: 0.85rem; font-weight: 500;">
+                                <?= htmlspecialchars($label) ?>
+                            </span>
+                        </td>
+                        <td style="padding: 12px 16px;">
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">View</a>
+                            <?php if ($status_lower === 'pending' || $status_lower === 'rejected'): ?>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; margin-left: 5px;">Update</a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php else: ?>
+            <p style="color: #64748b; margin-bottom: 2rem;">No recent uploads found.</p>
+        <?php endif; ?>
+        <?php endif; ?>
+
+        <!-- Debug Info -->
+        <div style="margin-top: 2rem; padding: 1rem; background: #fff3cd; border-radius: 8px;">
+            <strong>Debug:</strong> 
+            Your current Role ID is: <code><?= $role_id ?></code> (<?= htmlspecialchars($role_name_display) ?>). 
+            If you expect to see Department Files, your Role ID must be 3 (HOD) or 5 (Dept Coordinator). 
+            If it is 4 (Faculty), you will only see Achievements.
+        </div>
         <?php endif; ?>
         
     </div>

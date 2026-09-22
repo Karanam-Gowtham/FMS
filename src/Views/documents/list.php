@@ -46,27 +46,32 @@
 <div class="container">
     <div class="header-row">
         <h1><?= $scope_label ?></h1>
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload" class="btn-sm btn-success">+ Upload</a>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" class="active">All <?= $scope_label ?></a>
-        <?php if ($pending_count > 0): ?>
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&mode=pending_approval">
-                Pending My Approval <span class="badge"><?= $pending_count ?></span>
-            </a>
-        <?php endif; ?>
+        <?php 
+        $base_params = '';
+        if (!empty($_GET['context'])) $base_params .= '&context=' . urlencode($_GET['context']);
+        if (!empty($_GET['type'])) $base_params .= '&type=' . urlencode($_GET['type']);
+        if (!empty($_GET['sub_type'])) $base_params .= '&sub_type=' . urlencode($_GET['sub_type']);
+        ?>
+        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list<?= $base_params ?>" class="active">All <?= $scope_label ?></a>
     </div>
 
     <!-- Filters -->
     <form method="GET" class="filters" action="<?= BASE_URL ?>/public/index.php">
         <input type="hidden" name="route" value="documents/list">
+        <?php if (!empty($_GET['context'])): ?>
+            <input type="hidden" name="context" value="<?= htmlspecialchars($_GET['context']) ?>">
+        <?php endif; ?>
         <div class="form-group">
             <label for="search">Search</label>
             <input type="text" name="search" id="search" placeholder="Search title..."
                    value="<?= htmlspecialchars($filter_search) ?>">
         </div>
+        
+        <?php if (empty($_GET['context'])): ?>
         <div class="form-group">
             <label for="filter_type">Type</label>
             <select name="type" id="filter_type">
@@ -78,6 +83,38 @@
                 <?php endforeach; ?>
             </select>
         </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($all_departments)): ?>
+        <div class="form-group">
+            <label for="filter_dept">Department</label>
+            <select name="dept_id" id="filter_dept">
+                <option value="">All Departments</option>
+                <?php foreach ($all_departments as $d): ?>
+                    <option value="<?= $d['dept_id'] ?>"<?= (isset($filter_dept) && $filter_dept === (int)$d['dept_id']) ? ' selected' : '' ?>>
+                        <?= htmlspecialchars($d['dept_name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
+        <div class="form-group">
+            <label for="filter_subtype">Sub-Type</label>
+            <select name="sub_type" id="filter_subtype">
+                <option value="">All Sub-Types</option>
+                <?php 
+                $sub_types = ['Admin Files', 'Faculty Files', 'Student Related Files', 'Exam Section Files', 'Student Activities Files'];
+                foreach ($sub_types as $st): 
+                ?>
+                    <option value="<?= htmlspecialchars($st) ?>"<?= (isset($_GET['sub_type']) && $_GET['sub_type'] === $st) ? ' selected' : '' ?>>
+                        <?= htmlspecialchars($st) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <?php endif; ?>
         <div class="form-group">
             <label for="filter_status">Status</label>
             <select name="status" id="filter_status">
@@ -123,6 +160,7 @@
                     <?php endif; ?>
                     <th>Status</th>
                     <th>Date</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -140,6 +178,9 @@
                     <?php endif; ?>
                     <td><span class="status-badge status-<?= htmlspecialchars($doc['status']) ?>"><?= ucfirst(htmlspecialchars($doc['status'])) ?></span></td>
                     <td><?= date('d M Y', strtotime($doc['created_at'])) ?></td>
+                    <td>
+                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #007bff; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-block; cursor: pointer; text-align: center;">View</a>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

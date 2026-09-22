@@ -19,8 +19,11 @@ class DocumentController {
 
         switch ($active_role_id) {
             case ROLE_ADMIN:
-            case ROLE_RND_DEAN:
                 $scope_label = 'All Documents';
+                break;
+            case ROLE_RND_DEAN:
+                $scope_label = 'Research Documents';
+                $forced_filters['category'] = 'research';
                 break;
             case ROLE_IQAC:
                 $scope_label = 'All Documents (IQAC)';
@@ -35,6 +38,10 @@ class DocumentController {
                 $dept_name = $dept_stmt->get_result()->fetch_assoc()['dept_name'] ?? 'Unknown';
                 $dept_stmt->close();
                 $scope_label = htmlspecialchars($dept_name) . ' Documents';
+                if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
+                    $forced_filters['type_key'] = 'dept_file';
+                    $scope_label = htmlspecialchars($dept_name) . ' Department Files';
+                }
                 break;
             case ROLE_CENTRAL_COORDINATOR:
                 $forced_filters['category'] = 'central';
@@ -45,7 +52,8 @@ class DocumentController {
                 $forced_filters['uploaded_by'] = $user_id;
                 // If they specifically requested dept_file from the dashboard, show Dept Files.
                 // Otherwise, the default context for Faculty list views is ALWAYS 'My Achievements'.
-                if (isset($_GET['type']) && $_GET['type'] === 'dept_file') {
+                if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
+                    $forced_filters['type_key'] = 'dept_file';
                     $scope_label = 'My Dept Files';
                 } else {
                     $forced_filters['category'] = 'research';
@@ -63,6 +71,7 @@ class DocumentController {
         $filter_status = isset($_GET['status']) ? trim($_GET['status']) : '';
         $filter_year   = isset($_GET['year'])   ? (int)$_GET['year']   : 0;
         $filter_search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $filter_dept   = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : 0;
         $page_num      = max(1, (int)($_GET['page'] ?? 1));
         $per_page      = 25;
         $offset        = ($page_num - 1) * $per_page;
@@ -73,18 +82,43 @@ class DocumentController {
         if ($filter_status !== '') $filters['status'] = $filter_status;
         if ($filter_year > 0)     $filters['year_id'] = $filter_year;
         if ($filter_search !== '') $filters['search'] = $filter_search;
+        if ($filter_dept > 0)      $filters['dept_id'] = $filter_dept;
+        
+        // Fetch all departments for filtering if central role
+        $all_departments = [];
+        if (in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+            $d_res = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name ASC");
+            if ($d_res) {
+                while($row = $d_res->fetch_assoc()) {
+                    $all_departments[] = $row;
+                }
+            }
+        }
 
-        $result = doc_list($conn, $filters, $per_page, $offset);
-        $documents = $result['rows'];
+        $mode = isset($_GET['mode']) ? trim($_GET['mode']) : '';
+        if ($mode === 'pending_approval') {
+            $result = doc_list_pending_for_user($conn, $auth, $per_page, $offset);
+            $documents = $result['rows'];
+            $scope_label = 'Pending My Approval';
+        } else {
+            $result = doc_list($conn, $filters, $per_page, $offset);
+            $documents = $result['rows'];
+        }
+
         $total = $result['total'];
         $total_pages = (int)ceil($total / $per_page);
 
         $full_types = doc_get_types($conn);
         $all_types = [];
         
-        // If a specific category is forced (like 'research' for My Achievements), 
-        // ONLY show document types from that category.
-        if (!empty($forced_filters['category'])) {
+        // If a specific category or type is forced, filter the dropdown accordingly
+        if (!empty($forced_filters['type_key'])) {
+            foreach ($full_types as $t) {
+                if ($t['type_key'] === $forced_filters['type_key'] && $t['is_active'] == 1) {
+                    $all_types[] = $t;
+                }
+            }
+        } elseif (!empty($forced_filters['category'])) {
             foreach ($full_types as $t) {
                 if ($t['category'] === $forced_filters['category'] && $t['is_active'] == 1) {
                     $all_types[] = $t;
@@ -237,6 +271,69 @@ class DocumentController {
         include __DIR__ . '/../Views/documents/upload.php';
     }
 
+    public function edit() {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        
+        require_login();
+        $auth = auth_context();
+        global $conn;
+
+        $doc_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if (!$doc_id) {
+            die("Invalid document ID.");
+        }
+
+        $document = doc_get($conn, $doc_id);
+        if (!$document) {
+            die("Document not found.");
+        }
+
+        // Only uploader can edit, and only if pending or rejected
+        if ((int)$document['uploaded_by'] !== (int)$auth['user_id']) {
+            die("Unauthorized to edit this document.");
+        }
+        if (strtolower($document['status']) === 'accepted') {
+            die("Cannot edit an accepted document.");
+        }
+
+        $type_key = $document['type_key'];
+        $meta_data = doc_get_meta($conn, $doc_id, $type_key) ?? [];
+        require_once __DIR__ . '/../../core/file_service.php';
+        $files = file_get_by_document($conn, $doc_id);
+        
+        // Build map of existing slots
+        $existing_files_map = [];
+        foreach ($files as $f) {
+            $existing_files_map[$f['file_label']] = $f;
+        }
+
+        $meta_fields = meta_get_fields($type_key);
+        $file_slots = meta_get_file_slots($type_key);
+        
+        $user_depts = [];
+        foreach ($auth['roles'] as $r) {
+            if (!empty($r['dept_id']) && $r['dept_id'] > 0 && !empty($r['dept_name'])) {
+                $user_depts[$r['dept_id']] = $r['dept_name'];
+            }
+        }
+        if (empty($user_depts)) {
+            $dres = $conn->query("SELECT dept_id, dept_name FROM departments");
+            if ($dres) {
+                while($row = $dres->fetch_assoc()) {
+                    $user_depts[$row['dept_id']] = $row['dept_name'];
+                }
+            }
+        }
+        
+        $academic_years = doc_get_academic_years($conn);
+
+        $success_msg = $_SESSION['success_msg'] ?? '';
+        $error_msg = $_SESSION['error_msg'] ?? '';
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
+
+        include __DIR__ . '/../Views/documents/edit.php';
+    }
+
     public function view() {
         require_once __DIR__ . '/../../core/bootstrap.php';
         
@@ -249,17 +346,32 @@ class DocumentController {
             die("Invalid document ID.");
         }
 
-        $doc = doc_get($conn, $doc_id);
-        if (!$doc) {
+        $document = doc_get($conn, $doc_id);
+        if (!$document) {
             die("Document not found.");
         }
 
-        if (!doc_can_view($conn, $auth, $doc)) {
+        if (!doc_can_view($conn, $auth, $document)) {
             die("You do not have permission to view this document.");
         }
 
-        $history = doc_get_history($conn, $doc_id);
-        $can_approve = doc_can_approve($conn, $auth, $doc);
+        $type_key = $document['type_key'];
+        $page_title = 'View: ' . $document['title'];
+
+        // Get meta data
+        $meta_data = doc_get_meta($conn, $doc_id, $type_key);
+        $meta_fields = meta_get_fields($type_key);
+
+        // Get files
+        require_once __DIR__ . '/../../core/file_service.php';
+        $files = file_get_by_document($conn, $doc_id);
+
+        // Get workflow history and actions
+        $action_history = doc_get_history($conn, $doc_id);
+        
+        require_once __DIR__ . '/../../core/workflow_engine.php';
+        $allowed_actions = wf_get_allowed_actions($conn, $document, $auth);
+        $status_label = wf_status_label($conn, $document);
 
         include __DIR__ . '/../Views/documents/view.php';
     }

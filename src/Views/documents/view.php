@@ -49,6 +49,11 @@
 
 <div class="breadcrumb-bar">
     <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
+    <?php if (isset($_GET['mode']) && $_GET['mode'] === 'review'): ?>
+        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Pending Approvals</a> &raquo;
+    <?php else: ?>
+        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list">Documents</a> &raquo;
+    <?php endif; ?>
     <?= htmlspecialchars($document['title'] ?: 'View Document') ?>
 </div>
 
@@ -67,8 +72,8 @@
         </div>
     <?php endif; ?>
 
-    <!-- Action Section (only if user can act) -->
-    <?php if (!empty($allowed_actions)): ?>
+    <!-- Action Section (only if user can act and came from dashboard review mode) -->
+    <?php if (!empty($allowed_actions) && isset($_GET['mode']) && $_GET['mode'] === 'review'): ?>
     <div class="action-section">
         <h3>Actions Available</h3>
         <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/approve" id="actionForm">
@@ -165,7 +170,10 @@
                     <strong><?= htmlspecialchars($f['file_label']) ?></strong>
                     <span style="color: #6c757d; font-size: 0.85rem;">(<?= htmlspecialchars($f['original_name']) ?>)</span>
                 </div>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&file_id=<?= $f['file_id'] ?>" class="btn-download">Download</a>
+                <div>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&file_id=<?= $f['file_id'] ?>&inline=1" class="btn-download" style="background: #28a745; margin-right: 5px;" target="_blank">View File</a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&file_id=<?= $f['file_id'] ?>" class="btn-download">Download</a>
+                </div>
             </li>
             <?php endforeach; ?>
         </ul>
