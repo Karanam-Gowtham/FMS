@@ -1,4 +1,4 @@
-# Faculty Management System (FMS) 🚀
+# File Management System (FMS) 🚀
 
 A premium, role-based document management solution designed for **GMRIT** and higher education institutions. FMS streamlines the lifecycle of academic and administrative proofs — from faculty uploads to workflow-driven approvals and accreditation-ready consolidation (NAAC/NBA).
 
