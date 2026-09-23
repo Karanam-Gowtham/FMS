@@ -36,9 +36,9 @@
     <div class="criteria-grid">
         <?php foreach ($nba_criteria as $num => $title): ?>
             <?php 
-                // Currently only Criteria 1, 2, and 3 are built in the new system.
+                // Currently Criteria 1, 2, 3, and 4 are built in the new system.
                 // Others will show as pending configuration.
-                $is_built = in_array($num, [1, 2, 3]); 
+                $is_built = in_array($num, [1, 2, 3, 4]); 
                 $link = $is_built ? "?route=nba/criterion&id={$num}&year={$filter_year}" : "#";
                 $status_class = $is_built ? "in-progress" : "pending";
                 $status_text = $is_built ? "In Progress" : "Pending Config";

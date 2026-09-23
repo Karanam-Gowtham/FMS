@@ -899,6 +899,8 @@ if (isset($extra_head)) {
 
             <?php
             $is_logged_in = auth_is_logged_in();
+            $header_auth = $is_logged_in ? auth_context() : null;
+            $header_role_id = $header_auth ? (int)($header_auth['active_role']['role_id'] ?? 0) : 0;
             ?>
 
             <!-- ==================================================
@@ -908,14 +910,16 @@ if (isset($extra_head)) {
             <?php if ($is_logged_in): ?>
 
                 <!-- Dashboard -->
-                <a href="<?= $app_url ?>/public/index.php?route=dashboard" class="nav-btn-link dashboard-link">
+                <a href="<?= htmlspecialchars(get_role_landing_url($header_auth['active_role'])) ?>" class="nav-btn-link dashboard-link">
                     Dashboard
                 </a>
 
+                <?php if ($header_role_id === ROLE_FACULTY): ?>
                 <!-- Edit Profile -->
                 <a href="<?= $app_url ?>/public/index.php?route=profile/edit" class="nav-btn-link dashboard-link">
                     Edit Profile
                 </a>
+                <?php endif; ?>
 
                 <!-- Logout -->
                 <a href="<?= $app_url ?>/public/index.php?route=auth/logout" class="nav-btn nav-btn-logout">

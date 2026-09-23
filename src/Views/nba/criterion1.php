@@ -9,14 +9,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../../../includes/header.php'; ?>
 
 <div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
     <div class="breadcrumb">
-        <a href="<?= BASE_URL ?>/pages/dashboard.php">Dashboard</a> &raquo; 
-        <a href="dashboard.php?year=<?= urlencode($year) ?>">NBA Accreditation</a> &raquo; 
+        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Dashboard</a> &raquo; 
+        <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&year=<?= urlencode($year) ?>">NBA Accreditation</a> &raquo; 
         Criterion 1
     </div>
 

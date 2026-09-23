@@ -187,8 +187,8 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
         <?php
         $role_id = $active_role ? (int)$active_role['role_id'] : 0;
         $is_faculty = ($role_id === ROLE_FACULTY);
-        $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN]);
-        $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_ADMIN]);
+        $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR]);
+        $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR]);
         ?>
         
         <?php if ($is_faculty): ?>
@@ -374,9 +374,6 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                 <h1>Quick Actions</h1>
             </div>
             <div class="feedback-grid">
-                <a href="<?= BASE_URL ?>/public/index.php?route=profile/edit" class="feedback-card">
-                    <div class="card-content"><h3>Edit Profile</h3></div>
-                </a>
                 <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" class="feedback-card">
                     <div class="card-content"><h3>My Documents</h3></div>
                 </a>

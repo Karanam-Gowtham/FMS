@@ -45,8 +45,15 @@ class ProfileController {
                     $stmt->execute();
                     $stmt->close();
 
-                    $stmt = $conn->prepare("UPDATE user_profiles SET highest_degree = ?, university = ?, specialization = ? WHERE user_id = ?");
-                    $stmt->bind_param("sssi", $highest_degree, $university, $specialization, $auth['user_id']);
+                    $stmt = $conn->prepare("
+                        INSERT INTO user_profiles (user_id, highest_degree, university, specialization) 
+                        VALUES (?, ?, ?, ?) 
+                        ON DUPLICATE KEY UPDATE 
+                        highest_degree = VALUES(highest_degree), 
+                        university = VALUES(university), 
+                        specialization = VALUES(specialization)
+                    ");
+                    $stmt->bind_param("isss", $auth['user_id'], $highest_degree, $university, $specialization);
                     $stmt->execute();
                     $stmt->close();
 

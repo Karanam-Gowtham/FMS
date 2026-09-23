@@ -344,6 +344,11 @@ function get_role_landing_url(array $role): string
     $role_id = (int)$role['role_id'];
     $dept = urlencode($role['dept_name'] ?? '');
 
+    // NBA/NAAC module redirection
+    if ($role_id === ROLE_CENTRAL_COORDINATOR || $role_id === ROLE_IQAC) {
+        return BASE_URL . "/public/index.php?route=nba/dashboard";
+    }
+
     // Unified MVC Dashboard for all roles
     return BASE_URL . "/public/index.php?route=dashboard";
 }

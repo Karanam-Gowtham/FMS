@@ -11,6 +11,12 @@ class DashboardController {
         $active_role = auth_active_role();
         $user_roles = $auth['roles'] ?? [];
 
+        // If the active role is NBA/NAAC, they should use the NBA module dashboard.
+        if ($active_role && (in_array((int)$active_role['role_id'], [ROLE_CENTRAL_COORDINATOR, ROLE_IQAC]))) {
+            header("Location: " . BASE_URL . "/public/index.php?route=nba/dashboard");
+            exit;
+        }
+
         // Role display name mapping
         $role_icons = [
             ROLE_ADMIN               => '🛡️',
@@ -65,7 +71,7 @@ class DashboardController {
 
         // Fetch pending approvals for reviewer roles
         $pending_approvals = [];
-        if ($active_role && in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC])) {
+        if ($active_role && in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
             require_once __DIR__ . '/../../core/document_service.php';
             $pending_res = doc_list_pending_for_user($conn, $auth, 10, 0);
             $pending_approvals = $pending_res['rows'];
