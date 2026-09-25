@@ -38,22 +38,14 @@ if (!defined('DB_PORT')) {
 if (!defined('BASE_URL')) {
    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-   /*
-    * Find the folder in which the FMS project is located.
-    */
-   $documentRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
-   $currentDirectory = str_replace('\\', '/', __DIR__);
-   $subDirectory = '';
-   if (!empty($documentRoot) && strpos($currentDirectory, $documentRoot) === 0) {
-      $subDirectory = substr($currentDirectory, strlen($documentRoot));
-   }
-   $subDirectory = '/' . ltrim($subDirectory, '/');
-   if ($subDirectory === '/') {
-      $subDirectory = '';
-   }
-   define('BASE_URL', rtrim($protocol . '://' . $host . $subDirectory, '/'));
-}
 
+   $root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+   $path = str_replace('\\', '/', __DIR__);
+
+   $projectPath = str_replace($root, '', $path);
+
+   define('BASE_URL', rtrim($protocol . '://' . $host . $projectPath, '/'));
+}
 /* =========================================================
    INCLUDES
    ========================================================= */
@@ -85,5 +77,3 @@ define('PORTAL_PATH', BASE_URL . '/modules');
 
 define('UPLOADS_PATH', ROOT_PATH . '/uploads');
 define('UPLOADS_URL', BASE_URL . '/uploads');
-
-?>
