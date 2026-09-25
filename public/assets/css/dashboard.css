@@ -163,3 +163,17 @@ body {
     white-space: pre-wrap;
     word-break: break-all;
 }
+
+/* Form Styles */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label { display: block; font-size: 0.85em; color: #cbd5e1; margin-bottom: 6px; font-weight: 500; }
+.form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; background: rgba(0, 0, 0, 0.2); color: #fff; font-size: 0.9em; transition: all 0.2s; }
+.form-group input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+.form-group select option { background: #1e293b; color: #fff; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #3b82f6; background: rgba(0, 0, 0, 0.4); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
+.btn-primary { padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95em; font-weight: 600; transition: background 0.2s; }
+.btn-primary:hover { background: #2563eb; }
+.form-card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.success-msg { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid rgba(16, 185, 129, 0.3); }
+.error-msg { background: rgba(239, 68, 68, 0.15); color: #fca5a5; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.3); }

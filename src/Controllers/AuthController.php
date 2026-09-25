@@ -196,7 +196,7 @@ class AuthController {
                     $conn->begin_transaction();
                     try {
                         $hashed = password_hash($password, PASSWORD_DEFAULT);
-                        $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash, is_active) VALUES (?, ?, ?, 1)");
+                        $stmt = $conn->prepare("INSERT INTO users (full_name, email, password, status) VALUES (?, ?, ?, 'active')");
                         $stmt->bind_param("sss", $full_name, $email, $hashed);
                         $stmt->execute();
                         $new_user_id = $conn->insert_id;

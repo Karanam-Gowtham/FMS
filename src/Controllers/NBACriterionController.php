@@ -16,7 +16,7 @@ class NBACriterionController {
             die("You must have an active role to access NBA criteria.");
         }
 
-        $dept_id = $active_role['dept_id'];
+        $dept_id = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : $active_role['dept_id'];
         global $conn;
 
         // Fetch departments for the selector (Exclude central/admin wings)
