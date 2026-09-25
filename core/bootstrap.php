@@ -3,7 +3,11 @@
  * FMS Application Bootstrap
  * 
  * Single entry point for all new pages. Include this once at the top of every page.
- * Provides: secure session, DB connection, config, auth context, CSRF.
+ * Provides: secure session,
+ *           DB connection,
+ *           config,
+ *           auth context,
+ *           CSRF.
  * 
  * Usage: require_once __DIR__ . '/../core/bootstrap.php';
  */

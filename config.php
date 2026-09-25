@@ -32,6 +32,7 @@ if (!defined('DB_PORT')) {
 
 /* =========================================================
    BASE URL
+   automatically find your FMS project’s URL
    ========================================================= */
 
 if (!defined('BASE_URL')) {
