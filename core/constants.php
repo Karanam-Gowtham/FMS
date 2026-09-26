@@ -26,7 +26,8 @@ define('DOC_STATUS_REJECTED',   'rejected');
 define('DOC_STATUS_ACCEPTED',   'accepted');
 
 // Roles that may self-register publicly
-define('SELF_REGISTER_ROLES', [ROLE_FACULTY]);
+define('ROLE_STUDENT',             9);
+define('SELF_REGISTER_ROLES', [ROLE_FACULTY, ROLE_STUDENT]);
 
 // NOTE: Workflow approval roles are NOT hard-coded here.
 // They are determined by workflow_steps.responsible_role_id in the database.

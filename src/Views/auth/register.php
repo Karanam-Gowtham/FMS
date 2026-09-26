@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Registration &mdash; FMS</title>
+    <title>Registration &mdash; FMS</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -137,11 +137,11 @@
 </head>
 <body>
     <div class="card">
-        <h1>Faculty Registration</h1>
-        <p class="subtitle">Complete your FMS Faculty Profile</p>
+        <h1>FMS Registration</h1>
+        <p class="subtitle">Create your Student or Faculty account</p>
 
         <div class="role-note">
-            ℹ️ This form is exclusively for <strong>Faculty</strong> members to register their comprehensive profiles for accreditation purposes.
+            ℹ️ Please select your role. Students must use their JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in). Faculty fields will hide if Student is selected.
         </div>
 
         <?php if ($error): ?>
@@ -159,6 +159,13 @@
 
             <h3 class="section-title">1. Account Credentials</h3>
             <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="role_type">I am a: *</label>
+                    <select id="role_type" name="role_type" required>
+                        <option value="faculty" <?= (isset($_POST['role_type']) && $_POST['role_type'] === 'faculty') ? 'selected' : '' ?>>Faculty Member</option>
+                        <option value="student" <?= (isset($_POST['role_type']) && $_POST['role_type'] === 'student') ? 'selected' : '' ?>>Student</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="full_name">Full Name *</label>
                     <input type="text" id="full_name" name="full_name" value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required>
@@ -188,6 +195,7 @@
                 </div>
             </div>
 
+            <div id="faculty_sections">
             <h3 class="section-title">2. Professional Details</h3>
             <div class="form-grid">
                 <div class="form-group">
@@ -268,6 +276,7 @@
                     <input type="date" id="date_of_leaving" name="date_of_leaving" value="<?= htmlspecialchars($_POST['date_of_leaving'] ?? '') ?>">
                 </div>
             </div>
+            </div> <!-- End faculty_sections -->
 
             <button type="submit" class="btn-register">Complete Registration</button>
         </form>
@@ -317,10 +326,42 @@
             }
         });
 
+        // Toggle faculty sections based on selected role
+        const roleSelect = document.getElementById('role_type');
+        const facultySections = document.getElementById('faculty_sections');
+        
+        function toggleFacultySections() {
+            const isStudent = roleSelect.value === 'student';
+            
+            if (isStudent) {
+                facultySections.style.display = 'none';
+                // Remove required attributes from faculty fields
+                const inputs = facultySections.querySelectorAll('input, select');
+                inputs.forEach(input => input.removeAttribute('required'));
+            } else {
+                facultySections.style.display = 'block';
+                // Restore required attributes (simplistic approach: just re-add to ones that had it)
+                const requiredIds = ['pan_no', 'highest_degree', 'university', 'specialization', 'doj_institution', 'designation_joining', 'designation_present', 'experience_years'];
+                requiredIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.setAttribute('required', 'required');
+                });
+                const assocNature = document.getElementById('association_nature');
+                if (assocNature) assocNature.setAttribute('required', 'required');
+                const isAssoc = document.getElementById('is_currently_associated');
+                if (isAssoc) isAssoc.setAttribute('required', 'required');
+                toggleContractFields();
+                toggleLeavingDate();
+            }
+        }
+
+        roleSelect.addEventListener('change', toggleFacultySections);
+
         // Initialize on load to restore state if form submission failed
         window.onload = function() {
             toggleContractFields();
             toggleLeavingDate();
+            toggleFacultySections();
         };
     </script>
 </body>

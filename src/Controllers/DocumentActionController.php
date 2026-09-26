@@ -16,6 +16,60 @@ class DocumentActionController {
         if (function_exists('csrfValidate')) {
             csrfValidate();
         }
+
+        // --- Custom Handler Intercept ---
+        if (isset($_POST['custom_handler']) && $_POST['custom_handler'] === 'student_activity') {
+            $_POST['type_key'] = 'stu_act';
+            $_POST['title'] = trim($_POST['event_name'] ?? 'Student Activity');
+            $_POST['dept_id'] = $auth['roles'][0]['dept_id'] ?? 0;
+            $_POST['year_id'] = $_POST['ay_id'] ?? null;
+            
+            // Build the JSON payload for event details based on category
+            $event_details = [
+                'event_name' => trim($_POST['event_name'] ?? ''),
+                'event_date' => trim($_POST['event_date'] ?? '')
+            ];
+            $cat = trim($_POST['activity_category'] ?? '');
+            if ($cat === 'Co-Curricular') {
+                $event_details['event_type'] = trim($_POST['event_type'] ?? '');
+                $event_details['event_title'] = trim($_POST['event_title'] ?? '');
+                $event_details['host_institution'] = trim($_POST['host_institution'] ?? '');
+                $event_details['level'] = trim($_POST['level'] ?? '');
+                $event_details['achievement'] = trim($_POST['achievement'] ?? '');
+            } elseif ($cat === 'Sports & Games') {
+                $sport = trim($_POST['sport_name'] ?? '');
+                if ($sport === 'Other') $sport = trim($_POST['sport_name_other'] ?? '');
+                $event_details['sport_name'] = $sport;
+                $event_details['host_institution'] = trim($_POST['host_institution'] ?? '');
+                $event_details['level'] = trim($_POST['level'] ?? '');
+                $event_details['achievement'] = trim($_POST['achievement'] ?? '');
+            } elseif ($cat === 'NSS & NCC') {
+                $event_details['nss_type'] = trim($_POST['nss_type'] ?? '');
+                $event_details['location'] = trim($_POST['location'] ?? '');
+                $event_details['duration'] = trim($_POST['duration'] ?? '');
+            }
+
+            // Build participants JSON
+            $participants = [];
+            $names = $_POST['participant_names'] ?? [];
+            $jntus = $_POST['participant_jntu'] ?? [];
+            foreach ($names as $idx => $name) {
+                if (trim($name) !== '') {
+                    $participants[] = [
+                        'name' => trim($name),
+                        'jntu' => trim($jntus[$idx] ?? '')
+                    ];
+                }
+            }
+
+            $_POST['meta'] = [
+                'activity_category' => $cat,
+                'participation_type' => trim($_POST['participation_type'] ?? 'Individual'),
+                'event_details' => $event_details, // will be json encoded by doc_insert_meta
+                'participants' => $participants
+            ];
+        }
+        // --- End Custom Handler ---
         
         $post_type_key = trim($_POST['type_key'] ?? '');
             $post_title    = trim($_POST['title'] ?? '');
@@ -108,13 +162,23 @@ class DocumentActionController {
             }
 
         // After processing, either redirect on success or re-render form on error
+        $is_student_activity = (isset($_POST['custom_handler']) && $_POST['custom_handler'] === 'student_activity');
+
         if ($success_msg) {
             $_SESSION['success_msg'] = $success_msg;
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
+            if ($is_student_activity) {
+                header("Location: " . BASE_URL . "/public/index.php?route=student/dashboard");
+            } else {
+                header("Location: " . BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
+            }
             exit;
         } else {
             $_SESSION['error_msg'] = $error_msg;
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/upload&type=" . urlencode($post_type_key));
+            if ($is_student_activity) {
+                header("Location: " . BASE_URL . "/public/index.php?route=student/dashboard");
+            } else {
+                header("Location: " . BASE_URL . "/public/index.php?route=documents/upload&type=" . urlencode($post_type_key));
+            }
             exit;
         }
     }

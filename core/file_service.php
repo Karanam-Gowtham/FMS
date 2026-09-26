@@ -15,13 +15,6 @@ function file_allowed_mimes(): array
 {
     return [
         'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'image/jpeg',
-        'image/png',
-        'image/gif',
     ];
 }
 
@@ -30,15 +23,15 @@ function file_allowed_mimes(): array
  */
 function file_allowed_extensions(): array
 {
-    return ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif'];
+    return ['pdf'];
 }
 
 /**
- * Maximum file size in bytes (10 MB).
+ * Maximum file size in bytes (2 MB).
  */
 function file_max_size(): int
 {
-    return 10 * 1024 * 1024;
+    return 2 * 1024 * 1024;
 }
 
 /**

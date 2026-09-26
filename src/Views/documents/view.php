@@ -150,9 +150,38 @@
                 $val = $meta_data[$field['name']] ?? null;
                 if ($val === null || $val === '') continue;
                 ?>
-                <div class="detail-item">
+                <div class="detail-item" <?= ($field['type'] === 'json' || $field['type'] === 'author_table') ? 'style="grid-column: 1 / -1;"' : '' ?>>
                     <div class="detail-label"><?= htmlspecialchars($field['label']) ?></div>
-                    <div class="detail-value"><?= htmlspecialchars((string)$val) ?></div>
+                    <div class="detail-value">
+                        <?php 
+                        if ($field['type'] === 'json' && is_string($val)) {
+                            $decoded = json_decode($val, true);
+                            if (is_array($decoded)) {
+                                if (empty($decoded)) {
+                                    echo "—";
+                                } else {
+                                    echo "<ul style='margin:0; padding-left: 20px;'>";
+                                    foreach ($decoded as $k => $v) {
+                                        if (is_array($v)) {
+                                            $subvals = [];
+                                            foreach($v as $sk => $sv) {
+                                                if (trim((string)$sv) !== '') $subvals[] = "<strong>".ucwords(str_replace('_', ' ', $sk)).":</strong> " . htmlspecialchars((string)$sv);
+                                            }
+                                            echo "<li>" . implode(" | ", $subvals) . "</li>";
+                                        } else {
+                                            if (trim((string)$v) !== '') echo "<li><strong>".ucwords(str_replace('_', ' ', $k)).":</strong> " . htmlspecialchars((string)$v) . "</li>";
+                                        }
+                                    }
+                                    echo "</ul>";
+                                }
+                            } else {
+                                echo htmlspecialchars((string)$val);
+                            }
+                        } else {
+                            echo htmlspecialchars((string)$val);
+                        }
+                        ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>

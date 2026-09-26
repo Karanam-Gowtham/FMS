@@ -17,6 +17,12 @@ class DashboardController {
             exit;
         }
 
+        // If the active role is Student, redirect to student dashboard.
+        if ($active_role && (int)$active_role['role_id'] === ROLE_STUDENT) {
+            header("Location: " . BASE_URL . "/public/index.php?route=student/dashboard");
+            exit;
+        }
+
         // Role display name mapping
         $role_icons = [
             ROLE_ADMIN               => '🛡️',

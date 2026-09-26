@@ -96,6 +96,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'auth/logout') {
     $controller = new \App\Controllers\AuthController();
     $controller->logout();
+} elseif ($route === 'student/dashboard') {
+    $controller = new \App\Controllers\StudentController();
+    $controller->dashboard();
 } else {
     // 404 Route
     http_response_code(404);

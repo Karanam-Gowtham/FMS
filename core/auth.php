@@ -344,6 +344,11 @@ function get_role_landing_url(array $role): string
     $role_id = (int)$role['role_id'];
     $dept = urlencode($role['dept_name'] ?? '');
 
+    // Student dashboard
+    if ($role_id === ROLE_STUDENT) {
+        return BASE_URL . "/public/index.php?route=student/dashboard";
+    }
+
     // NBA/NAAC module redirection
     if ($role_id === ROLE_CENTRAL_COORDINATOR || $role_id === ROLE_IQAC) {
         return BASE_URL . "/public/index.php?route=nba/dashboard";

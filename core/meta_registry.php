@@ -40,6 +40,7 @@ function meta_get_table(string $type_key): ?string
         'student_body'        => 'meta_student_body',
         'student_journal'     => 'meta_student_journal',
         'student_conference'  => 'meta_student_conference',
+        'stu_act'             => 'document_meta_student_activity',
     ];
 
     return $registry[$type_key] ?? null;
@@ -208,6 +209,12 @@ function meta_get_fields(string $type_key): array
             ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => false],
             ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => false],
         ],
+        'stu_act' => [
+            ['name' => 'activity_category', 'label' => 'Activity Category', 'type' => 'text', 'required' => true],
+            ['name' => 'participation_type', 'label' => 'Participation Type', 'type' => 'text', 'required' => true],
+            ['name' => 'event_details', 'label' => 'Event Details', 'type' => 'json', 'required' => false],
+            ['name' => 'participants', 'label' => 'Participants', 'type' => 'json', 'required' => false],
+        ],
     ];
 
     return $fields[$type_key] ?? [];
@@ -270,6 +277,7 @@ function meta_get_file_slots(string $type_key): array
         'student_journal'=> [['name' => 'paper_file',    'label' => 'Paper File',           'required' => true, 'accept' => '.pdf,.doc,.docx']],
         'student_conference' => [['name' => 'certificate', 'label' => 'Certificate',        'required' => true, 'accept' => '.pdf,.jpg,.png'],
                                   ['name' => 'paper_file', 'label' => 'Paper File',          'required' => false,'accept' => '.pdf,.doc,.docx']],
+        'stu_act'        => [['name' => 'proof_file',    'label' => 'Proof File',           'required' => true, 'accept' => '.pdf']],
     ];
 
     return $slots[$type_key] ?? [['name' => 'document_file', 'label' => 'Document File', 'required' => true, 'accept' => '.pdf,.doc,.docx']];

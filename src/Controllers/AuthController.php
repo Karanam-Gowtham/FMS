@@ -163,10 +163,12 @@ class AuthController {
             if (empty($date_of_leaving) || $is_currently_associated) $date_of_leaving = null;
             if (empty($apaar_id)) $apaar_id = null;
 
-            if (empty($full_name) || empty($email) || empty($password) || empty($pan_no) || empty($highest_degree) || empty($university) || empty($specialization) || empty($doj_institution) || empty($designation_joining) || empty($designation_present) || empty($association_nature)) {
-                $error = 'All mandatory fields must be filled.';
+            if (empty($full_name) || empty($email) || empty($password)) {
+                $error = 'Name, email, and password are required.';
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error = 'Please enter a valid email address.';
+            } elseif (!preg_match('/@gmrit\.edu\.in$/i', $email)) {
+                $error = 'Registration is restricted to @gmrit.edu.in email addresses.';
             } elseif (strlen($password) < 6) {
                 $error = 'Password must be at least 6 characters.';
             } elseif ($password !== $confirm) {
@@ -174,15 +176,36 @@ class AuthController {
             } elseif ($dept_id <= 0) {
                 $error = 'Please select a department.';
             } else {
-                $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
-                $stmt->bind_param("s", $email);
-                $stmt->execute();
-                if ($stmt->get_result()->num_rows > 0) {
-                    $error = 'An account with this email already exists.';
+                // Role assignment based on explicit dropdown
+                $role_type = $_POST['role_type'] ?? 'faculty';
+                $role_id = ($role_type === 'student') ? ROLE_STUDENT : ROLE_FACULTY;
+
+                // Strict security check for Student Role
+                if ($role_id === ROLE_STUDENT) {
+                    $is_student_email = preg_match('/^[0-9]{2}[0-9A-Za-z]{2}[0-9A-Za-z][A-Za-z0-9]{5}@gmrit\.edu\.in$/i', $email);
+                    if (!$is_student_email) {
+                        $error = 'Student registration requires a valid JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in).';
+                    }
                 }
-                $stmt->close();
+
+                // If faculty, validate faculty-specific fields
+                if (empty($error) && $role_id === ROLE_FACULTY) {
+                    if (empty($pan_no) || empty($highest_degree) || empty($university) || empty($specialization) || empty($doj_institution) || empty($designation_joining) || empty($designation_present) || empty($association_nature)) {
+                        $error = 'All mandatory faculty fields must be filled.';
+                    }
+                }
 
                 if (empty($error)) {
+                    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
+                    $stmt->bind_param("s", $email);
+                    $stmt->execute();
+                    if ($stmt->get_result()->num_rows > 0) {
+                        $error = 'An account with this email already exists.';
+                    }
+                    $stmt->close();
+                }
+
+                if (empty($error) && $role_id === ROLE_FACULTY) {
                     $stmt2 = $conn->prepare("SELECT user_id FROM user_profiles WHERE pan_no = ?");
                     $stmt2->bind_param("s", $pan_no);
                     $stmt2->execute();
@@ -202,29 +225,30 @@ class AuthController {
                         $new_user_id = $conn->insert_id;
                         $stmt->close();
 
-                        $role_id = ROLE_FACULTY;
                         $role_stmt = $conn->prepare("INSERT INTO user_roles (user_id, role_id, dept_id) VALUES (?, ?, ?)");
                         $role_stmt->bind_param("iii", $new_user_id, $role_id, $dept_id);
                         $role_stmt->execute();
                         $role_stmt->close();
 
-                        $prof_stmt = $conn->prepare("
-                            INSERT INTO user_profiles (
-                                user_id, pan_no, apaar_id, highest_degree, university, specialization, 
-                                doj_institution, doj_department, experience_years, designation_joining, 
-                                designation_present, date_designated_prof, association_nature, 
-                                contract_type, is_currently_associated, date_of_leaving
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        ");
-                        $prof_stmt->bind_param(
-                            "isssssssddssssis", 
-                            $new_user_id, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
-                            $doj_institution, $doj_department, $experience_years, $designation_joining,
-                            $designation_present, $date_designated_prof, $association_nature,
-                            $contract_type, $is_currently_associated, $date_of_leaving
-                        );
-                        $prof_stmt->execute();
-                        $prof_stmt->close();
+                        if ($role_id === ROLE_FACULTY) {
+                            $prof_stmt = $conn->prepare("
+                                INSERT INTO user_profiles (
+                                    user_id, pan_no, apaar_id, highest_degree, university, specialization, 
+                                    doj_institution, doj_department, experience_years, designation_joining, 
+                                    designation_present, date_designated_prof, association_nature, 
+                                    contract_type, is_currently_associated, date_of_leaving
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            ");
+                            $prof_stmt->bind_param(
+                                "isssssssddssssis", 
+                                $new_user_id, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
+                                $doj_institution, $doj_department, $experience_years, $designation_joining,
+                                $designation_present, $date_designated_prof, $association_nature,
+                                $contract_type, $is_currently_associated, $date_of_leaving
+                            );
+                            $prof_stmt->execute();
+                            $prof_stmt->close();
+                        }
 
                         $conn->commit();
                         $success = 'Registration successful! You can now log in.';

@@ -327,11 +327,12 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
             <?php endif; ?>
         <?php endif; ?>
 
-        <?php if (!empty($pending_approvals) && empty($_GET['view'])): ?>
+        <?php if (!empty($pending_approvals) && $is_reviewer && empty($_GET['view'])): ?>
         <!-- PENDING APPROVALS -->
         <div class="header-title" style="margin-top: 2rem;">
             <h1>Pending My Approval <span style="background:#ef4444; color:white; padding:2px 8px; border-radius:999px; font-size:0.8rem; margin-left:10px;"><?= count($pending_approvals) ?></span></h1>
         </div>
+        
         <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; margin-bottom: 2rem;">
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
