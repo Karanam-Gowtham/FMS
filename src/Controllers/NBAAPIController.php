@@ -138,6 +138,11 @@ class NBAAPIController {
                 throw new \Exception("No file uploaded or an upload error occurred.");
             }
 
+            if ($_FILES['pdf_file']['size'] > 5 * 1024 * 1024) {
+                throw new \Exception("File exceeds the 5MB limit.");
+            }
+
+
             $file = $_FILES['pdf_file'];
             
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
