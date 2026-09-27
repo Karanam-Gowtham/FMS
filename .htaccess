@@ -1,13 +1,3 @@
-Options -Indexes
-
-<FilesMatch "\.(sql|md|log|ini|sh|yml|env)$">
-    Require all denied
-</FilesMatch>
-
-Header set X-Content-Type-Options "nosniff"
-Header set X-XSS-Protection "1; mode=block"
-Header set X-Frame-Options "SAMEORIGIN"
-
 php_value upload_max_filesize 200M
 php_value post_max_size 220M
 php_value max_execution_time 400

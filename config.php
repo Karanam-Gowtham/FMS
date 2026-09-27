@@ -21,10 +21,10 @@ if (!defined('DB_HOST')) {
    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 }
 if (!defined('DB_USER')) {
-   define('DB_USER', getenv('DB_USER') ?: 'fms_secure_user');
+   define('DB_USER', getenv('DB_USER') ?: 'root');
 }
 if (!defined('DB_PASS')) {
-   define('DB_PASS', getenv('DB_PASS') ?: 'fms_secure_pass_4091!');
+   define('DB_PASS', getenv('DB_PASS') ?: '');
 }
 if (!defined('DB_PORT')) {
    define('DB_PORT', getenv('DB_PORT') ?: 3306);
