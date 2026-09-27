@@ -194,6 +194,18 @@ FMS uses a **Role-Based Access Control (RBAC)** system with 8 core roles:
 
 ---
 
+## ✅ CI Note: SonarCloud Decommissioned
+
+This repository no longer contains SonarCloud workflow/configuration files (`.github/workflows` Sonar steps, `sonar-project.properties`, or Sonar-related build script settings).
+
+If you still see a stale **SonarCloud Code Analysis** check on old commits/PRs, update GitHub repository settings (outside the codebase):
+
+- Remove SonarCloud required checks from **Settings → Branches → Branch protection rules**.
+- Remove SonarCloud secrets/variables from **Settings → Secrets and variables → Actions** (for example `SONAR_TOKEN`).
+- Ensure the SonarCloud GitHub App is removed/uninstalled for this repository.
+
+---
+
 ## ⚖️ License
 
 This project is developed for institutional use at GMRIT. See [LICENSE](LICENSE) for details.
