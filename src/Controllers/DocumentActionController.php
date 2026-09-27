@@ -318,6 +318,10 @@ class DocumentActionController {
         $post_dept_id = (int)($_POST['dept_id'] ?? 0);
         $post_year_id = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : 0);
         
+        if ($post_dept_id > 0 && validate_dept_filter($post_dept_id) === null) {
+            die("Unauthorized department selection.");
+        }
+
         if ($post_title !== '' && $post_dept_id > 0) {
             $stmt = $conn->prepare("UPDATE documents SET title = ?, dept_id = ?, academic_year_id = ?, updated_at = NOW() WHERE doc_id = ?");
             $stmt->bind_param('siii', $post_title, $post_dept_id, $post_year_id, $doc_id);

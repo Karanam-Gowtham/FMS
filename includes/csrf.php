@@ -31,7 +31,5 @@ function csrfValidate(): void
         die('CSRF validation failed. Please reload the form and try again.');
     }
 
-    // Regenerate token after successful validation to prevent replay
-    unset($_SESSION['_csrf_token']);
 }
 ?>

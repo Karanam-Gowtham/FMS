@@ -242,7 +242,7 @@ function auth_update_last_login(mysqli $conn, int $user_id): void
 function require_login(): void
 {
     if (!auth_is_logged_in()) {
-        header("Location: " . BASE_URL . "/pages/login.php");
+        header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
         exit();
     }
 }
