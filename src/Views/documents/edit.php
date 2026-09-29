@@ -83,14 +83,12 @@ $active_role = $_SESSION['active_role'] ?? null;
             <div class="form-grid">
                 <?php foreach ($meta_fields as $field): ?>
                     <?php 
-                    $val = $meta_data[$field['name']] ?? '';
-                    // For array fields (like authors), we need special handling, but for now just encode to json if it's an array
-                    if (is_array($val)) {
-                        // Not handling complex authors list perfectly here in edit, just a basic fallback
-                        $val = "Multiple Authors (Edit disabled in basic mode)";
+                    if ($field['type'] === 'json' || $field['type'] === 'authors') {
+                        continue; // Skip rendering JSON fields to prevent overwriting them with strings
                     }
+                    $val = $meta_data[$field['name']] ?? '';
                     ?>
-                    <div class="form-group <?= ($field['type'] === 'text' || $field['name'] === 'title' || $field['type'] === 'authors') ? 'full-width' : '' ?>">
+                    <div class="form-group <?= ($field['type'] === 'text' || $field['name'] === 'title') ? 'full-width' : '' ?>">
                         <label class="<?= $field['required'] ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">
                             <?= htmlspecialchars($field['label']) ?>
                         </label>
@@ -99,7 +97,7 @@ $active_role = $_SESSION['active_role'] ?? null;
                         <?php elseif ($field['type'] === 'number'): ?>
                             <input type="number" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $field['required'] ? 'required' : '' ?>>
                         <?php else: ?>
-                            <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $field['required'] ? 'required' : '' ?> <?= is_array($meta_data[$field['name']] ?? null) ? 'readonly' : '' ?>>
+                            <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $field['required'] ? 'required' : '' ?>>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>

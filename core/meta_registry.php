@@ -41,6 +41,7 @@ function meta_get_table(string $type_key): ?string
         'student_journal'     => 'meta_student_journal',
         'student_conference'  => 'meta_student_conference',
         'stu_act'             => 'document_meta_student_activity',
+        'student_activity_file' => 'meta_student_activity_file',
     ];
 
     return $registry[$type_key] ?? null;
@@ -67,14 +68,13 @@ function meta_get_fields(string $type_key): array
             ['name' => 'issue_no',           'label' => 'Issue No.',           'type' => 'text',   'required' => false],
             ['name' => 'page_no',            'label' => 'Page No.',            'type' => 'text',   'required' => false],
             ['name' => 'doi',                'label' => 'DOI',                 'type' => 'text',   'required' => false],
-            ['name' => 'icr_quartile',       'label' => 'ICR Quartile',       'type' => 'select', 'options' => ['Q1', 'Q2', 'Q3', 'Q4'], 'required' => false],
+            ['name' => 'jcr_quartile',       'label' => 'JCR Quartile',       'type' => 'select', 'options' => ['Q1', 'Q2', 'Q3', 'Q4'], 'required' => false],
             ['name' => 'scopus_quartile',    'label' => 'Scopus Quartile',    'type' => 'text',   'required' => false],
             ['name' => 'publication_link',   'label' => 'Publication Link',   'type' => 'url',    'required' => false],
             ['name' => 'indexing',           'label' => 'Indexing',           'type' => 'select', 'options' => ['SCI', 'SCIE', 'ESCI', 'SCOPUS', 'WOS', 'NON-INDEXED'], 'required' => false],
             ['name' => 'date_of_publication','label' => 'Date of Publication','type' => 'date',   'required' => false],
             ['name' => 'impact_factor',      'label' => 'Impact Factor',      'type' => 'number', 'required' => false],
-            ['name' => 'quality_factor',     'label' => 'Quality Factor',     'type' => 'number', 'required' => false],
-            ['name' => 'payment',            'label' => 'Payment Details',    'type' => 'select', 'options' => ['Free', 'Paid'], 'required' => false],
+            ['name' => 'payment',            'label' => 'Publication',        'type' => 'select', 'options' => ['Open Access', 'Subscription'], 'required' => false],
         ],
         'conference' => [
             ['name' => 'paper_title',        'label' => 'Paper Title',         'type' => 'text',   'required' => true],
@@ -198,8 +198,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'indexing',            'label' => 'Indexing',            'type' => 'text',   'required' => false],
             ['name' => 'date_of_submission',  'label' => 'Date of Submission',  'type' => 'date',   'required' => false],
             ['name' => 'impact_factor',       'label' => 'Impact Factor',       'type' => 'number', 'required' => false],
-            ['name' => 'quality_factor',      'label' => 'Quality Factor',      'type' => 'number', 'required' => false],
-            ['name' => 'payment',             'label' => 'Payment Details',     'type' => 'text',   'required' => false],
+            ['name' => 'payment',             'label' => 'Publication',         'type' => 'select', 'options' => ['Open Access', 'Subscription'], 'required' => false],
         ],
         'student_conference' => [
             ['name' => 'paper_title',  'label' => 'Paper Title',   'type' => 'text', 'required' => false],
@@ -214,6 +213,21 @@ function meta_get_fields(string $type_key): array
             ['name' => 'participation_type', 'label' => 'Participation Type', 'type' => 'text', 'required' => true],
             ['name' => 'event_details', 'label' => 'Event Details', 'type' => 'json', 'required' => false],
             ['name' => 'participants', 'label' => 'Participants', 'type' => 'json', 'required' => false],
+        ],
+        'student_activity_file' => [
+            ['name' => 'activity_category', 'label' => 'Category', 'type' => 'select', 'options' => ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'], 'required' => true],
+            ['name' => 'event_type', 'label' => 'Event Type', 'type' => 'select', 'options' => ['Workshop', 'Hackathon', 'Conference', 'Competition', 'Other'], 'required' => false],
+            ['name' => 'topic_domain', 'label' => 'Topic / Domain', 'type' => 'select', 'options' => ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Cultural / Arts', 'Social / Community Service', 'Other'], 'required' => false],
+            ['name' => 'sub_category', 'label' => 'Organization / Club Name', 'type' => 'text', 'required' => false],
+            ['name' => 'event_title', 'label' => 'Event Title / Topic', 'type' => 'text', 'required' => true],
+            ['name' => 'date_from', 'label' => 'From Date', 'type' => 'date', 'required' => true],
+            ['name' => 'date_to', 'label' => 'To Date', 'type' => 'date', 'required' => false],
+            ['name' => 'resource_person', 'label' => 'Resource Person Name & Details', 'type' => 'textarea', 'required' => false],
+            ['name' => 'target_audience', 'label' => 'Target Audience', 'type' => 'text', 'required' => false],
+            ['name' => 'participant_count', 'label' => 'Number of Participants / Volunteers', 'type' => 'number', 'required' => true],
+            ['name' => 'event_mode', 'label' => 'Mode of Conduct', 'type' => 'radio', 'options' => ['Online', 'Offline', 'Hybrid'], 'required' => false],
+            ['name' => 'location', 'label' => 'Location / Platform Link', 'type' => 'text', 'required' => false],
+            ['name' => 'objective_outcome', 'label' => 'Brief Report / Outcome', 'type' => 'textarea', 'required' => true],
         ],
     ];
 
@@ -278,6 +292,15 @@ function meta_get_file_slots(string $type_key): array
         'student_conference' => [['name' => 'certificate', 'label' => 'Certificate',        'required' => true, 'accept' => '.pdf,.jpg,.png'],
                                   ['name' => 'paper_file', 'label' => 'Paper File',          'required' => false,'accept' => '.pdf,.doc,.docx']],
         'stu_act'        => [['name' => 'proof_file',    'label' => 'Proof File',           'required' => true, 'accept' => '.pdf']],
+        'student_activity_file' => [
+            ['name' => 'circular', 'label' => 'Circular / Brochure', 'required' => true, 'accept' => '.pdf,.jpg,.png'],
+            ['name' => 'schedule', 'label' => 'Schedule', 'required' => false, 'accept' => '.pdf,.jpg,.png'],
+            ['name' => 'attendance', 'label' => 'Attendance Statement', 'required' => true, 'accept' => '.pdf,.xls,.xlsx'],
+            ['name' => 'report', 'label' => 'Event Report', 'required' => true, 'accept' => '.pdf,.doc,.docx'],
+            ['name' => 'photos', 'label' => 'Geographical photos / Online meet snapshots', 'required' => true, 'accept' => '.pdf,.jpg,.png'],
+            ['name' => 'certificate', 'label' => 'Sample Certificate', 'required' => false, 'accept' => '.pdf,.jpg,.png'],
+            ['name' => 'resource_person_profile', 'label' => 'Resource Person Profile', 'required' => false, 'accept' => '.pdf'],
+        ],
     ];
 
     return $slots[$type_key] ?? [['name' => 'document_file', 'label' => 'Document File', 'required' => true, 'accept' => '.pdf,.doc,.docx']];

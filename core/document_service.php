@@ -320,6 +320,10 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
             } elseif ($field['type'] === 'number') {
                 $types_str .= 's'; // store as string, DB will cast
                 $values[] = $val;
+            } elseif (isset($field['type']) && $field['type'] === 'json') {
+                $types_str .= 's';
+                // Encode if it's an array or object, otherwise leave as is
+                $values[] = (is_array($val) || is_object($val)) ? json_encode($val) : $val;
             } else {
                 $types_str .= 's';
                 $values[] = $val;

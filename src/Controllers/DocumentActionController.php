@@ -43,10 +43,6 @@ class DocumentActionController {
                 $event_details['host_institution'] = trim($_POST['host_institution'] ?? '');
                 $event_details['level'] = trim($_POST['level'] ?? '');
                 $event_details['achievement'] = trim($_POST['achievement'] ?? '');
-            } elseif ($cat === 'NSS & NCC') {
-                $event_details['nss_type'] = trim($_POST['nss_type'] ?? '');
-                $event_details['location'] = trim($_POST['location'] ?? '');
-                $event_details['duration'] = trim($_POST['duration'] ?? '');
             }
 
             // Build participants JSON
@@ -74,16 +70,18 @@ class DocumentActionController {
         $post_type_key = trim($_POST['type_key'] ?? '');
             $post_title    = trim($_POST['title'] ?? '');
             
-            // Fallback for title if it's a student activity or exam
-            if ($post_title === '' && (strpos($post_type_key, 'student_') === 0 || $post_type_key === 'exam_qual')) {
+            // Fallback for title if it's missing but meta title fields exist
+            if ($post_title === '') {
                 if (!empty($_POST['meta']['event_name'])) {
                     $post_title = trim($_POST['meta']['event_name']);
                 } elseif (!empty($_POST['meta']['paper_title'])) {
                     $post_title = trim($_POST['meta']['paper_title']);
+                } elseif (!empty($_POST['meta']['patent_title'])) {
+                    $post_title = trim($_POST['meta']['patent_title']);
                 } elseif (!empty($_POST['meta']['exam'])) {
                     $post_title = trim($_POST['meta']['exam']);
                 } else {
-                    $post_title = 'Student Activity';
+                    $post_title = 'Untitled Document';
                 }
             }
 

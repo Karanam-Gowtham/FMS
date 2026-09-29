@@ -87,8 +87,8 @@ require __DIR__ . '/../../../includes/header.php';
                                 <td><strong><?= htmlspecialchars($sub['activity_category']) ?></strong></td>
                                 <td>
                                     <?php
-                                        $eventName = $sub['event_details']['event_name'] ?? 'N/A';
-                                        $level = $sub['event_details']['level'] ?? '';
+                                        $eventName = is_array($sub['event_details']) && isset($sub['event_details']['event_name']) ? $sub['event_details']['event_name'] : 'N/A';
+                                        $level = is_array($sub['event_details']) && isset($sub['event_details']['level']) ? $sub['event_details']['level'] : '';
                                         echo htmlspecialchars($eventName);
                                         if ($level) echo " <small class='text-muted'>($level)</small>";
                                     ?>
@@ -98,7 +98,7 @@ require __DIR__ . '/../../../includes/header.php';
                                 <td>
                                     <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $sub['doc_id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
                                     <?php if ($sub['status'] === 'rejected'): ?>
-                                        <button class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</button>
+                                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $sub['doc_id'] ?>" class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -134,7 +134,6 @@ require __DIR__ . '/../../../includes/header.php';
                                 <option value="">- Select -</option>
                                 <option value="Co-Curricular">Co-Curricular Activities</option>
                                 <option value="Sports & Games">Sports & Games</option>
-                                <option value="NSS & NCC">NSS & NCC</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -184,10 +183,10 @@ require __DIR__ . '/../../../includes/header.php';
                     <div id="participantsContainer">
                         <div class="row mb-2 participant-row">
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="participant_names[]" placeholder="Student Name" required>
+                                <input type="text" class="form-control" name="participant_names[]" placeholder="Student Name" value="<?= htmlspecialchars($auth['full_name'] ?? '') ?>" readonly required>
                             </div>
                             <div class="col-md-5">
-                                <input type="text" class="form-control" name="participant_jntu[]" placeholder="JNTU No. (e.g., 21341A0501)" required>
+                                <input type="text" class="form-control" name="participant_jntu[]" placeholder="JNTU No. (e.g., 21341A0501)" value="<?= htmlspecialchars($auth['username'] ?? '') ?>" readonly required>
                             </div>
                             <div class="col-md-1">
                                 <!-- First row can't be deleted easily, leave empty -->
@@ -321,33 +320,12 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     `;
     
-    const tplNSS = `
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label class="form-label">Type *</label>
-                <select class="form-select" name="nss_type" required>
-                    <option value="NSS">NSS</option>
-                    <option value="NCC">NCC</option>
-                </select>
-            </div>
-            <div class="col-md-5">
-                <label class="form-label">Location / Venue *</label>
-                <input type="text" class="form-control" name="location" required>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Duration (Days) *</label>
-                <input type="number" class="form-control" name="duration" min="1" required>
-            </div>
-        </div>
-    `;
-
     categorySelect.addEventListener('change', function() {
         let val = this.value;
         if(val) {
             dynamicHeading.classList.remove('d-none');
             if(val === 'Co-Curricular') dynamicContainer.innerHTML = tplCoCurricular;
             else if(val === 'Sports & Games') dynamicContainer.innerHTML = tplSports;
-            else if(val === 'NSS & NCC') dynamicContainer.innerHTML = tplNSS;
         } else {
             dynamicHeading.classList.add('d-none');
             dynamicContainer.innerHTML = '';

@@ -61,7 +61,7 @@
 </div>
 
 <div class="upload-container">
-    <h1><?= $page_title ?></h1>
+    <h1 id="page_main_heading"><?= $page_title ?></h1>
 
     <?php if ($success_msg): ?>
         <div class="alert alert-success"><?= htmlspecialchars($success_msg) ?></div>
@@ -116,12 +116,12 @@
                 <?php endforeach; ?>
             <?php endif; ?>
             <!-- Base meta fields -->
-            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
+            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($preselected_subtype === 'Intra College Activities') ? 'display: none;' : '' ?>">
                 
-                <?php $is_student_activity = (strpos($type_key, 'student_') === 0 || $type_key === 'exam_qual'); ?>
-                <div class="form-group" <?= $is_student_activity ? 'style="display: none;"' : '' ?>>
-                    <label class="<?= $is_student_activity ? '' : 'required' ?>" for="title">Title</label>
-                    <input type="text" id="title" name="title" <?= $is_student_activity ? '' : 'required' ?>>
+                <?php $has_custom_title = (strpos($type_key, 'student_') === 0 || in_array($type_key, ['exam_qual', 'journal', 'conference', 'patent'])); ?>
+                <div class="form-group" <?= $has_custom_title ? 'style="display: none;"' : '' ?>>
+                    <label class="<?= $has_custom_title ? '' : 'required' ?>" for="title">Title</label>
+                    <input type="text" id="title" name="title" <?= $has_custom_title ? '' : 'required' ?>>
                 </div>
 
                 <div class="form-group">
@@ -147,7 +147,7 @@
                     <div class="form-group" <?= $isHiddenDeptCategory ? 'style="display:none;"' : '' ?>>
                         <?php 
                         $dynamic_label = $field['label'];
-                        if ($field['name'] === 'sub_file_type' && $preselected_subtype === 'Student Activities Files') {
+                        if ($field['name'] === 'sub_file_type' && $preselected_subtype === 'Intra College Activities') {
                             $dynamic_label = 'Select an Activity';
                         }
                         ?>
@@ -171,7 +171,13 @@
                                 <option value="">— Select —</option>
                                 <?php if (!empty($field['options'])): ?>
                                     <?php foreach ($field['options'] as $opt): ?>
-                                        <option value="<?= htmlspecialchars($opt) ?>"><?= htmlspecialchars($opt) ?></option>
+                                        <?php 
+                                        $selected = '';
+                                        if ($field['name'] === 'activity_category' && isset($_GET['activity']) && $_GET['activity'] === $opt) {
+                                            $selected = 'selected';
+                                        }
+                                        ?>
+                                        <option value="<?= htmlspecialchars($opt) ?>" <?= $selected ?>><?= htmlspecialchars($opt) ?></option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
@@ -258,7 +264,7 @@
                                 } elseif ($preselected_subtype === 'Exam Section Files') {
                                     $options = ['Notice for Internal Lab Exams', 'Invigilation Schedule', 'Absentee Statement', 'Sessional Marks Record', 'Final Sessional Marks'];
                                 } elseif ($preselected_subtype === 'Student Activities Files') {
-                                    $options = ['Journal Papers', 'Conference Papers', 'Projects', 'Internships', 'SIH', 'GATE', 'Hackathons', 'Professional Bodies'];
+                                    $options = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'];
                                 }
 
                                 foreach ($options as $opt) {
@@ -285,7 +291,7 @@
             <?php endif; ?>
 
             <!-- File upload slots -->
-            <div class="file-section" style="background: transparent; border: none; padding: 0; margin-top: 0; box-shadow: none; <?= ($preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
+            <div class="file-section" style="background: transparent; border: none; padding: 0; margin-top: 0; box-shadow: none; <?= ($preselected_subtype === 'Intra College Activities') ? 'display: none;' : '' ?>">
                 <?php foreach ($file_slots as $slot): ?>
                     <div class="form-group">
                         <label class="<?= $slot['required'] ? 'required' : '' ?>" for="file_<?= $slot['name'] ?>">
@@ -298,7 +304,7 @@
                 <?php endforeach; ?>
             </div>
 
-            <button type="submit" class="btn-upload" <?= ($preselected_subtype === 'Student Activities Files') ? 'style="display: none;"' : '' ?>>Upload Document</button>
+            <button type="submit" class="btn-upload" <?= ($preselected_subtype === 'Intra College Activities') ? 'style="display: none;"' : '' ?>>Upload Document</button>
             <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload" style="margin-left: 1rem; color: #6c757d;">← Choose Different Type</a>
         </form>
     <?php endif; ?>
@@ -367,18 +373,25 @@ function handleStudentActivityChange(select) {
     
     if (!val) return;
     
-    if (val === 'Journal Papers') {
-        type = 'student_journal';
-    } else if (val === 'Conference Papers') {
-        type = 'student_conference';
-    } else if (val === 'Professional Bodies') {
-        type = 'student_body';
-    } else if (val === 'GATE') {
-        type = 'exam_qual';
-        subtypeParam = '&exam=' + encodeURIComponent(val);
-    } else {
-        type = 'student_event';
+    var intraCollegeCategories = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'];
+    if (intraCollegeCategories.includes(val)) {
+        type = 'student_activity_file';
         subtypeParam = '&activity=' + encodeURIComponent(val);
+    } else {
+        // Fallbacks
+        if (val === 'Journal Papers') {
+            type = 'student_journal';
+        } else if (val === 'Conference Papers') {
+            type = 'student_conference';
+        } else if (val === 'Professional Bodies') {
+            type = 'student_body';
+        } else if (val === 'GATE') {
+            type = 'exam_qual';
+            subtypeParam = '&exam=' + encodeURIComponent(val);
+        } else {
+            type = 'student_event';
+            subtypeParam = '&activity=' + encodeURIComponent(val);
+        }
     }
     
     if (type) {
@@ -390,5 +403,277 @@ function handleStudentActivityChange(select) {
     }
 }
 </script>
+
+<?php if ($type_key === 'student_activity_file'): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var activityCatEl = document.getElementById('meta_activity_category');
+    var eventTypeEl = document.getElementById('meta_event_type');
+    var topicDomainEl = document.getElementById('meta_topic_domain');
+    var subCatEl = document.getElementById('meta_sub_category');
+    var resourcePersonEl = document.getElementById('meta_resource_person');
+    var locationEl = document.getElementById('meta_location');
+    
+    var targetAudienceEl = document.getElementById('meta_target_audience');
+    var eventTitleEl = document.getElementById('meta_event_title');
+    
+    var eventTypeGrp = eventTypeEl.closest('.form-group');
+    var topicDomainGrp = topicDomainEl ? topicDomainEl.closest('.form-group') : null;
+    var subCatGrp = subCatEl.closest('.form-group');
+    var resourcePersonGrp = resourcePersonEl.closest('.form-group');
+    var locationGrp = locationEl ? locationEl.closest('.form-group') : null;
+    var targetAudienceGrp = targetAudienceEl ? targetAudienceEl.closest('.form-group') : null;
+    var eventTitleGrp = eventTitleEl ? eventTitleEl.closest('.form-group') : null;
+    
+    var circularGrp = document.getElementById('file_circular') ? document.getElementById('file_circular').closest('.form-group') : null;
+    var scheduleGrp = document.getElementById('file_schedule') ? document.getElementById('file_schedule').closest('.form-group') : null;
+    var attendanceGrp = document.getElementById('file_attendance') ? document.getElementById('file_attendance').closest('.form-group') : null;
+    var certificateGrp = document.getElementById('file_certificate') ? document.getElementById('file_certificate').closest('.form-group') : null;
+    var resourceProfileGrp = document.getElementById('file_resource_person_profile') ? document.getElementById('file_resource_person_profile').closest('.form-group') : null;
+
+    // Helper to change input type (e.g. text to select)
+    function changeInputType(element, type, options, placeholder) {
+        var newEl;
+        if (type === 'select') {
+            newEl = document.createElement('select');
+            newEl.innerHTML = '<option value="">' + placeholder + '</option>';
+            options.forEach(function(opt) {
+                var isSelected = (element.value === opt) ? 'selected' : '';
+                newEl.innerHTML += '<option value="' + opt + '" ' + isSelected + '>' + opt + '</option>';
+            });
+        } else {
+            newEl = document.createElement('input');
+            newEl.type = 'text';
+            newEl.placeholder = placeholder;
+            newEl.value = element.value;
+        }
+        newEl.id = element.id;
+        newEl.name = element.name;
+        newEl.className = element.className;
+        if (element.hasAttribute('required')) newEl.setAttribute('required', 'required');
+        element.parentNode.replaceChild(newEl, element);
+        return newEl;
+    }
+
+    var clubDatalist = document.createElement('datalist');
+    clubDatalist.id = 'club_names_list';
+    [
+        'Coding Club', 'Google Developer Student Club (GDSC)', 'Robotics Club', 'STEM Club', 'Math Club', 'Project Club', 'Sector Club', 'HAM Club',
+        'Film Club', 'Music Club', 'Dance Club', 'Photography Club', 'Literary Club', 'Hobby Club',
+        'Women Empowerment Club', 'Civil Services Aspirants Club (CSAC)', 'Green Eco Club', 'UBA Club'
+    ].forEach(function(c) {
+        var opt = document.createElement('option');
+        opt.value = c;
+        clubDatalist.appendChild(opt);
+    });
+    document.body.appendChild(clubDatalist);
+
+    function toTitleCase(str) {
+        return str.replace(/\w\S*/g, function(txt){
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }).replace(/\s+/g, ' ').trim();
+    }
+
+    function updateForm() {
+        var activityCat = document.getElementById('meta_activity_category').value;
+        
+        // Re-fetch elements in case they were replaced
+        eventTypeEl = document.getElementById('meta_event_type');
+        topicDomainEl = document.getElementById('meta_topic_domain');
+        subCatEl = document.getElementById('meta_sub_category');
+        
+        eventTypeGrp.style.display = 'none';
+        if (topicDomainGrp) topicDomainGrp.style.display = 'none';
+        subCatGrp.style.display = 'none';
+        resourcePersonGrp.style.display = 'none';
+        if(scheduleGrp) scheduleGrp.style.display = 'none';
+        if(resourceProfileGrp) resourceProfileGrp.style.display = 'none';
+        
+        // Default visibility for static fields
+        if(targetAudienceGrp) targetAudienceGrp.style.display = 'block';
+        if(eventTitleGrp) {
+            eventTitleGrp.style.display = 'block';
+            eventTitleGrp.querySelector('label').innerText = 'Event Title';
+        }
+
+        // Set Labels based on Category
+        eventTypeGrp.querySelector('label').innerText = 'Event Type';
+        subCatGrp.querySelector('label').innerText = 'Sub Category';
+        resourcePersonGrp.querySelector('label').innerText = 'Resource Person Details';
+
+        var mainHeading = document.getElementById('page_main_heading');
+        if (mainHeading) {
+            mainHeading.innerText = 'Upload: ' + activityCat;
+        }
+
+        // 1. Grad Talks & Expert Talks / Guest Lectures
+        if (activityCat === 'Grad Talks' || activityCat === 'Expert Talks / Guest Lectures') {
+            if (topicDomainGrp) {
+                topicDomainGrp.style.display = 'block';
+                topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic —');
+            }
+            
+            if(eventTitleGrp) eventTitleGrp.querySelector('label').innerText = 'Title of the Talk';
+            
+            resourcePersonGrp.style.display = 'block';
+            if(resourceProfileGrp) resourceProfileGrp.style.display = 'block';
+        } 
+        // 2. Soft skills, Language and communication skills
+        else if (activityCat === 'Soft skills' || activityCat === 'Language and communication skills') {
+            resourcePersonGrp.style.display = 'block';
+            resourcePersonGrp.querySelector('label').innerText = 'Trainer / Agency Details';
+            if(eventTitleGrp) eventTitleGrp.querySelector('label').innerText = 'Program Name';
+            if(scheduleGrp) scheduleGrp.style.display = 'block';
+        }
+        // 3. Life skills
+        else if (activityCat === 'Life skills') {
+            subCatGrp.style.display = 'block';
+            subCatGrp.querySelector('label').innerText = 'Specific Skill';
+            subCatEl = changeInputType(subCatEl, 'select', ['Yoga', 'Physical fitness', 'Health and hygiene', 'Other'], '— Select Skill —');
+            
+            resourcePersonGrp.style.display = 'block';
+            resourcePersonGrp.querySelector('label').innerText = 'Trainer / Agency Details';
+            if(eventTitleGrp) eventTitleGrp.querySelector('label').innerText = 'Program Name';
+            if(scheduleGrp) scheduleGrp.style.display = 'block';
+        }
+        // 4. Professional Societies
+        else if (activityCat === 'Professional Societies') {
+            subCatGrp.style.display = 'block';
+            subCatGrp.querySelector('label').innerText = 'Society Name';
+            subCatEl = changeInputType(subCatEl, 'select', ['ACM', 'CSI', 'IEEE', 'IEI', 'IETE', 'IICHE', 'ISTE', 'SAE'], '— Select Society —');
+
+            eventTypeGrp.style.display = 'block';
+            eventTypeEl = changeInputType(eventTypeEl, 'select', ['Expert Talks / Guest Lectures', 'Grad Talks', 'Workshop', 'Seminar', 'Conference', 'Competition', 'Industrial Visit', 'Training Program', 'Other'], '— Select Event Type —');
+            
+            if (topicDomainGrp) {
+                // Only show Topic / Domain for specific event types
+                var currentEventType = eventTypeEl.value;
+                if (currentEventType === 'Industrial Visit' || currentEventType === 'Competition') {
+                    topicDomainGrp.style.display = 'none';
+                } else {
+                    topicDomainGrp.style.display = 'block';
+                    topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic / Domain —');
+                }
+            }
+
+            if(targetAudienceGrp) targetAudienceGrp.style.display = 'none';
+            
+            // Adjust Resource Person label based on Event Type
+            if (resourcePersonGrp) {
+                resourcePersonGrp.style.display = 'block';
+                var currentEventType = eventTypeEl.value;
+                if (currentEventType === 'Industrial Visit') {
+                    resourcePersonGrp.querySelector('label').innerText = 'Industry Name & Contact Person';
+                } else if (currentEventType === 'Competition') {
+                    resourcePersonGrp.querySelector('label').innerText = 'Jury / Evaluator Details';
+                } else {
+                    resourcePersonGrp.querySelector('label').innerText = 'Resource Person Details';
+                }
+            }
+            
+            if(scheduleGrp) scheduleGrp.style.display = 'block';
+        }
+        // 5. Clubs
+        else if (activityCat === 'Clubs') {
+            subCatGrp.style.display = 'block';
+            subCatGrp.querySelector('label').innerText = 'Club Name';
+            subCatEl = changeInputType(subCatEl, 'text', [], 'Enter Club Name');
+            subCatEl.setAttribute('list', 'club_names_list');
+            
+            // Format text on blur
+            subCatEl.addEventListener('blur', function(e) {
+                e.target.value = toTitleCase(e.target.value);
+            });
+
+            eventTypeGrp.style.display = 'block';
+            eventTypeGrp.querySelector('label').innerText = 'Activity Type';
+            eventTypeEl = changeInputType(eventTypeEl, 'select', ['General Meeting', 'Competition / Contest', 'Audition / Selection', 'Practice / Rehearsal', 'Exhibition / Showcase', 'Awareness Campaign / Drive', 'Fest / Celebration', 'Workshop / Seminar', 'Other'], '— Select Activity Type —');
+            
+            if (topicDomainGrp) {
+                topicDomainGrp.style.display = 'none'; // Never needed for clubs
+            }
+
+            if(targetAudienceGrp) targetAudienceGrp.style.display = 'none';
+            
+            // Adjust Resource Person label based on Activity Type
+            if (resourcePersonGrp) {
+                resourcePersonGrp.style.display = 'block';
+                var currentEventType = eventTypeEl.value;
+                if (currentEventType === 'Competition / Contest' || currentEventType === 'Audition / Selection') {
+                    resourcePersonGrp.querySelector('label').innerText = 'Jury / Evaluator Details (If any)';
+                } else if (currentEventType === 'Workshop / Seminar') {
+                    resourcePersonGrp.querySelector('label').innerText = 'Resource Person Details';
+                } else {
+                    resourcePersonGrp.querySelector('label').innerText = 'Chief Guest / Special Invitee (If any)';
+                }
+            }
+            
+            // Show Schedule for Fests, Competitions, Workshops
+            if(scheduleGrp) {
+                var currentEventType = eventTypeEl.value;
+                if (currentEventType === 'Fest / Celebration' || currentEventType === 'Competition / Contest' || currentEventType === 'Workshop / Seminar') {
+                    scheduleGrp.style.display = 'block';
+                } else {
+                    scheduleGrp.style.display = 'none';
+                }
+            }
+        }
+        // 6. IIC (default behavior from before)
+        else if (activityCat === 'IIC') {
+            eventTypeGrp.style.display = 'block';
+            eventTypeEl = changeInputType(eventTypeEl, 'select', ['Workshop', 'Hackathon', 'Conference', 'Competition', 'Other'], '— Select Event Type —');
+            
+            subCatGrp.style.display = 'block';
+            subCatGrp.querySelector('label').innerText = 'Organization / Details';
+            subCatEl = changeInputType(subCatEl, 'text', [], 'Enter Details');
+            
+            resourcePersonGrp.style.display = 'block';
+            if(scheduleGrp) scheduleGrp.style.display = 'block';
+        }
+
+        // Toggle required attributes for all dynamic fields
+        var allDynamicInputs = document.querySelectorAll('#meta_event_type, #meta_topic_domain, #meta_sub_category, #meta_resource_person, #file_schedule, #file_resource_person_profile');
+        allDynamicInputs.forEach(function(el) {
+            var grp = el.closest('.form-group');
+            if (grp && grp.style.display === 'none') {
+                el.removeAttribute('required');
+            }
+        });
+    }
+
+    function updateModeLabel() {
+        var locationGrp = locationEl ? locationEl.closest('.form-group') : null;
+        if (!locationGrp) return;
+        var modeRadio = document.querySelector('input[name="meta[event_mode]"]:checked');
+        var label = locationGrp.querySelector('label');
+        if (modeRadio) {
+            if (modeRadio.value === 'Online') {
+                label.innerText = 'Platform Link';
+                locationEl.placeholder = 'e.g., MS Teams link, Zoom link';
+            } else if (modeRadio.value === 'Offline') {
+                label.innerText = 'Location / Venue';
+                locationEl.placeholder = 'e.g., Block 1 Seminar Hall';
+            } else {
+                label.innerText = 'Location / Platform Link';
+                locationEl.placeholder = 'Enter Location and/or Link';
+            }
+        }
+    }
+
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'meta_activity_category') {
+            updateForm();
+        } else if (e.target && e.target.id === 'meta_event_type') {
+            updateForm();
+        } else if (e.target && e.target.name === 'meta[event_mode]') {
+            updateModeLabel();
+        }
+    });
+
+    updateForm();
+    updateModeLabel();
+});
+</script>
+<?php endif; ?>
 </body>
 </html>
