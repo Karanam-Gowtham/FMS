@@ -110,266 +110,208 @@ require __DIR__ . '/../../../includes/header.php';
     </div>
 </div>
 
-<!-- Upload Activity Modal -->
+<!-- Upload Activity Modal (Seamless AJAX Form) -->
 <div class="modal fade" id="uploadActivityModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Upload Inter-College Activity</h5>
+                <h5 class="modal-title" id="uploadModalTitle">Upload Inter-College Activity</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= BASE_URL ?>/public/index.php?route=documents/upload" method="POST" enctype="multipart/form-data" id="studentActivityForm">
-                <?= csrfField() ?>
-                <!-- We simulate document type selection for the backend processor -->
-                <input type="hidden" name="doc_type_id" value="4"> <!-- Student Activity -->
-                <input type="hidden" name="custom_handler" value="student_activity">
-                
-                <div class="modal-body">
-                    <!-- Standard Fields -->
-                    <h6 class="border-bottom pb-2 mb-3 text-primary">1. Basic Details</h6>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Activity Category *</label>
-                            <select class="form-select" name="activity_category" id="activity_category" required>
-                                <option value="">- Select -</option>
-                                <option value="Co-Curricular">Co-Curricular Activities</option>
-                                <option value="Sports & Games">Sports & Games</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Event Name *</label>
-                            <input type="text" class="form-control" name="event_name" required>
-                        </div>
+            
+            <div class="modal-body" style="padding-bottom: 0;">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Activity Category *</label>
+                        <select class="form-select" id="route_activity_category">
+                            <option value="">- Select -</option>
+                            <option value="Co-Curricular">Co-Curricular Activities</option>
+                            <option value="Sports & Games">Sports & Games</option>
+                        </select>
                     </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Date of Event *</label>
-                            <input type="date" class="form-control" name="event_date" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Academic Year *</label>
-                            <select class="form-select" name="ay_id" required>
-                                <?php foreach($academic_years as $ay): ?>
-                                    <option value="<?= $ay['ay_id'] ?>"><?= htmlspecialchars($ay['ay_name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                    <div class="col-md-6 mb-3 d-none" id="route_event_type_container">
+                        <label class="form-label fw-bold">Event Type *</label>
+                        <select class="form-select" id="route_event_type">
+                            <!-- Populated dynamically -->
+                        </select>
                     </div>
-
-                    <div class="mb-4">
-                        <label class="form-label">Upload Proof (PDF Only, Max 2MB) *</label>
-                        <input type="file" class="form-control" name="proof_file" accept=".pdf" required>
-                    </div>
-
-                    <!-- Dynamic Fields Section -->
-                    <h6 class="border-bottom pb-2 mb-3 text-primary d-none" id="dynamicHeading">2. Specific Details</h6>
-                    <div id="dynamicFieldsContainer"></div>
-                    
-                    <!-- Team vs Individual Logic -->
-                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">3. Participants</h6>
-                    <div class="mb-3">
-                        <label class="form-label d-block">Participation Type *</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="participation_type" id="partInd" value="Individual" checked>
-                            <label class="form-check-label" for="partInd">Individual</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="participation_type" id="partTeam" value="Team">
-                            <label class="form-check-label" for="partTeam">Team</label>
-                        </div>
-                    </div>
-                    
-                    <div id="participantsContainer">
-                        <div class="row mb-2 participant-row">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" name="participant_names[]" placeholder="Student Name" value="<?= htmlspecialchars($auth['full_name'] ?? '') ?>" readonly required>
-                            </div>
-                            <div class="col-md-5">
-                                <input type="text" class="form-control" name="participant_jntu[]" placeholder="JNTU No. (e.g., 21341A0501)" value="<?= htmlspecialchars($auth['username'] ?? '') ?>" readonly required>
-                            </div>
-                            <div class="col-md-1">
-                                <!-- First row can't be deleted easily, leave empty -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3" id="addMemberWrapper" style="display: none;">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="addMemberBtn">
-                            <i class="fas fa-plus"></i> Add Team Member
-                        </button>
-                    </div>
-
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit for Approval</button>
-                </div>
-            </form>
+            </div>
+
+            <div class="modal-body bg-light border-top d-none" id="modalFormBody">
+                <!-- AJAX loaded form will be injected here -->
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary d-none" id="btnSubmitAjaxForm">Submit for Approval</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const categorySelect = document.getElementById('activity_category');
-    const dynamicContainer = document.getElementById('dynamicFieldsContainer');
-    const dynamicHeading = document.getElementById('dynamicHeading');
+    const catSelect = document.getElementById('route_activity_category');
+    const typeContainer = document.getElementById('route_event_type_container');
+    const typeSelect = document.getElementById('route_event_type');
     
-    // Team Logic
-    const partInd = document.getElementById('partInd');
-    const partTeam = document.getElementById('partTeam');
-    const participantsContainer = document.getElementById('participantsContainer');
-    const addMemberWrapper = document.getElementById('addMemberWrapper');
-    const addMemberBtn = document.getElementById('addMemberBtn');
-    
-    // Dynamic Fields HTML Templates
-    const tplCoCurricular = `
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Event Type *</label>
-                <select class="form-select" name="event_type" required>
-                    <option value="">- Select -</option>
-                    <option value="Paper Presentation">Paper Presentation</option>
-                    <option value="Poster Presentation">Poster Presentation</option>
-                    <option value="Hackathon">Hackathon</option>
-                    <option value="Coding Contest">Coding Contest</option>
-                    <option value="Project Expo">Project Expo</option>
-                    <option value="Workshop/Seminar">Workshop/Seminar</option>
-                    <option value="Journal">Journal</option>
-                    <option value="GATE Exam">GATE Exam</option>
-                    <option value="Other">Other Events</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Title / Details</label>
-                <input type="text" class="form-control" name="event_title" placeholder="Paper title, Journal name, GATE rank...">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Host Institution / College *</label>
-                <input type="text" class="form-control" name="host_institution" required>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Level *</label>
-                <select class="form-select" name="level" required>
-                    <option value="">- Select -</option>
-                    <option value="State">State</option>
-                    <option value="National">National</option>
-                    <option value="International">International</option>
-                    <option value="Inter-University">Inter-University</option>
-                </select>
-            </div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Achievement / Result *</label>
-            <select class="form-select" name="achievement" required>
-                <option value="Participated">Participated</option>
-                <option value="1st Prize">1st Prize</option>
-                <option value="2nd Prize">2nd Prize</option>
-                <option value="3rd Prize">3rd Prize</option>
-                <option value="Qualified">Qualified (GATE/Journal)</option>
-            </select>
-        </div>
-    `;
-    
-    const tplSports = `
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Name of Sport/Game *</label>
-                <select class="form-select" name="sport_name" id="sportSelect" required onchange="if(this.value==='Other'){document.getElementById('sportOther').classList.remove('d-none');}else{document.getElementById('sportOther').classList.add('d-none');}">
-                    <option value="">- Select -</option>
-                    <option value="Cricket">Cricket</option>
-                    <option value="Football">Football</option>
-                    <option value="Basketball">Basketball</option>
-                    <option value="Athletics">Athletics</option>
-                    <option value="Volleyball">Volleyball</option>
-                    <option value="Badminton">Badminton</option>
-                    <option value="Chess">Chess</option>
-                    <option value="Other">Other</option>
-                </select>
-                <input type="text" class="form-control mt-2 d-none" id="sportOther" name="sport_name_other" placeholder="Please specify">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Host Institution / Venue *</label>
-                <input type="text" class="form-control" name="host_institution" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Level *</label>
-                <select class="form-select" name="level" required>
-                    <option value="">- Select -</option>
-                    <option value="Zonal">Zonal</option>
-                    <option value="Inter-University">Inter-University</option>
-                    <option value="State">State</option>
-                    <option value="National">National</option>
-                    <option value="International">International</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Achievement / Medal *</label>
-                <select class="form-select" name="achievement" required>
-                    <option value="Participated">Participated</option>
-                    <option value="Gold / 1st">Gold / 1st</option>
-                    <option value="Silver / 2nd">Silver / 2nd</option>
-                    <option value="Bronze / 3rd">Bronze / 3rd</option>
-                </select>
-            </div>
-        </div>
-    `;
-    
-    categorySelect.addEventListener('change', function() {
-        let val = this.value;
-        if(val) {
-            dynamicHeading.classList.remove('d-none');
-            if(val === 'Co-Curricular') dynamicContainer.innerHTML = tplCoCurricular;
-            else if(val === 'Sports & Games') dynamicContainer.innerHTML = tplSports;
+    const formBody = document.getElementById('modalFormBody');
+    const btnSubmit = document.getElementById('btnSubmitAjaxForm');
+
+    const baseUrl = '<?= BASE_URL ?>/public/index.php?route=documents/upload';
+
+    const coCurricularOptions = [
+        { value: '', label: '- Select -' },
+        { value: 'student_conference', label: 'Paper Presentation' },
+        { value: 'student_conference', label: 'Poster Presentation' },
+        { value: 'student_event', label: 'Hackathon', activity: 'Hackathon' },
+        { value: 'student_event', label: 'Coding Contest', activity: 'Coding Contest' },
+        { value: 'student_event', label: 'Project Expo', activity: 'Project Expo' },
+        { value: 'student_event', label: 'Workshop/Seminar', activity: 'Workshop/Seminar' },
+        { value: 'student_journal', label: 'Journal' },
+        { value: 'exam_qual', label: 'GATE Exam', exam: 'GATE' },
+        { value: 'student_body', label: 'Professional Body / Club' },
+        { value: 'student_event', label: 'Other Events' }
+    ];
+
+    function fetchAndInjectForm(targetUrl) {
+        formBody.classList.remove('d-none');
+        btnSubmit.classList.add('d-none');
+        formBody.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Loading specific fields...</p></div>';
+
+        fetch(targetUrl)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const form = doc.getElementById('uploadForm');
+                
+                if (form) {
+                    // Hide native submit and back links
+                    const oldSubmit = form.querySelector('button[type="submit"]');
+                    if (oldSubmit) oldSubmit.style.display = 'none';
+                    const backLink = form.querySelector('a[href*="documents/upload"]');
+                    if (backLink) backLink.style.display = 'none';
+                    
+                    // Inject hidden field so backend redirects back here
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'custom_handler';
+                    hiddenInput.value = 'student_activity';
+                    form.appendChild(hiddenInput);
+
+                    // Inject Bootstrap classes
+                    const inputs = form.querySelectorAll('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]), select, textarea');
+                    inputs.forEach(input => {
+                        if (input.tagName === 'SELECT') {
+                            input.classList.add('form-select');
+                        } else {
+                            input.classList.add('form-control');
+                        }
+                    });
+                    
+                    const labels = form.querySelectorAll('label');
+                    labels.forEach(label => {
+                        label.classList.add('form-label');
+                        label.classList.add('fw-bold');
+                        label.classList.add('small');
+                    });
+                    
+                    const formGroups = form.querySelectorAll('.form-group');
+                    formGroups.forEach(group => {
+                        group.classList.add('mb-3');
+                    });
+
+                    // Add a nice header for the dynamic section
+                    formBody.innerHTML = '<h6 class="text-primary mb-3"><i class="fas fa-list me-1"></i> Form Details</h6>';
+                    formBody.appendChild(form);
+                    
+                    btnSubmit.classList.remove('d-none');
+                    btnSubmit.disabled = false;
+                    
+                    // Wire up custom submit button
+                    btnSubmit.onclick = function() {
+                        if (form.checkValidity()) {
+                            btnSubmit.disabled = true;
+                            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+                            form.submit();
+                        } else {
+                            form.reportValidity();
+                        }
+                    };
+                    
+                    // Re-run dynamic scripts like authors
+                    const scripts = doc.querySelectorAll('script');
+                    scripts.forEach(script => {
+                        if (script.textContent.includes('addAuthorRow') || script.textContent.includes('handleStudentActivityChange')) {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = script.textContent;
+                            document.body.appendChild(newScript);
+                        }
+                    });
+                } else {
+                    formBody.innerHTML = '<div class="alert alert-danger">Failed to load the correct fields. Please try again or use the main upload page.</div>';
+                }
+            })
+            .catch(err => {
+                formBody.innerHTML = '<div class="alert alert-danger">Network error. Please try again later.</div>';
+            });
+    }
+
+    function handleChange() {
+        let targetUrl = baseUrl;
+        let valid = false;
+        
+        if (catSelect.value === 'Sports & Games') {
+            targetUrl += '&type=student_event&activity=Sports';
+            valid = true;
+        } else if (catSelect.value === 'Co-Curricular') {
+            const selectedOpt = typeSelect.options[typeSelect.selectedIndex];
+            if (selectedOpt && selectedOpt.value !== '') {
+                targetUrl += '&type=' + selectedOpt.value;
+                if (selectedOpt.dataset.activity) {
+                    targetUrl += '&activity=' + encodeURIComponent(selectedOpt.dataset.activity);
+                }
+                if (selectedOpt.dataset.exam) {
+                    targetUrl += '&exam=' + encodeURIComponent(selectedOpt.dataset.exam);
+                }
+                valid = true;
+            }
+        }
+        
+        if (valid) {
+            fetchAndInjectForm(targetUrl);
         } else {
-            dynamicHeading.classList.add('d-none');
-            dynamicContainer.innerHTML = '';
+            formBody.classList.add('d-none');
+            btnSubmit.classList.add('d-none');
+        }
+    }
+
+    catSelect.addEventListener('change', function() {
+        typeSelect.innerHTML = '';
+        formBody.classList.add('d-none');
+        btnSubmit.classList.add('d-none');
+        
+        if (this.value === 'Co-Curricular') {
+            coCurricularOptions.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.value;
+                el.textContent = opt.label;
+                if (opt.activity) el.dataset.activity = opt.activity;
+                if (opt.exam) el.dataset.exam = opt.exam;
+                typeSelect.appendChild(el);
+            });
+            typeContainer.classList.remove('d-none');
+        } else if (this.value === 'Sports & Games') {
+            typeContainer.classList.add('d-none');
+            handleChange();
+        } else {
+            typeContainer.classList.add('d-none');
         }
     });
 
-    // Toggle Team UI
-    function toggleTeamUI() {
-        if (partTeam.checked) {
-            addMemberWrapper.style.display = 'block';
-        } else {
-            addMemberWrapper.style.display = 'none';
-            // Remove all extra rows
-            const rows = participantsContainer.querySelectorAll('.participant-row');
-            for(let i=1; i<rows.length; i++) {
-                rows[i].remove();
-            }
-        }
-    }
-    
-    partInd.addEventListener('change', toggleTeamUI);
-    partTeam.addEventListener('change', toggleTeamUI);
-    
-    // Add Member Button
-    addMemberBtn.addEventListener('click', function() {
-        const row = document.createElement('div');
-        row.className = 'row mb-2 participant-row';
-        row.innerHTML = `
-            <div class="col-md-6">
-                <input type="text" class="form-control" name="participant_names[]" placeholder="Student Name" required>
-            </div>
-            <div class="col-md-5">
-                <input type="text" class="form-control" name="participant_jntu[]" placeholder="JNTU No." required>
-            </div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-member"><i class="fas fa-times"></i></button>
-            </div>
-        `;
-        participantsContainer.appendChild(row);
-        
-        row.querySelector('.remove-member').addEventListener('click', function() {
-            row.remove();
-        });
-    });
+    typeSelect.addEventListener('change', handleChange);
 });
 </script>
 
