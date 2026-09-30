@@ -96,7 +96,35 @@ class DocumentActionController {
             } elseif ($post_dept_id <= 0) {
                 $error_msg = 'Department is required.';
             } else {
-                $dept_authorized = false;
+                $mentor_id = null;
+                $is_student = false;
+                foreach ($auth['roles'] as $role) {
+                    if ((int)$role['role_id'] === ROLE_STUDENT) {
+                        $is_student = true;
+                        break;
+                    }
+                }
+
+                if ($is_student) {
+                    $mentor_per_no = trim($_POST['mentor_per_no'] ?? '');
+                    if ($mentor_per_no === '') {
+                        $error_msg = 'Mentor Per No is required for student uploads.';
+                    } else {
+                        $mentor_stmt = $conn->prepare("SELECT user_id FROM user_profiles WHERE per_no = ?");
+                        $mentor_stmt->bind_param("s", $mentor_per_no);
+                        $mentor_stmt->execute();
+                        $mentor_res = $mentor_stmt->get_result();
+                        if ($mentor_row = $mentor_res->fetch_assoc()) {
+                            $mentor_id = (int)$mentor_row['user_id'];
+                        } else {
+                            $error_msg = 'Invalid Mentor Per No. No faculty found with this Per No.';
+                        }
+                        $mentor_stmt->close();
+                    }
+                }
+
+                if (empty($error_msg)) {
+                    $dept_authorized = false;
                 foreach ($auth['roles'] as $role) {
                     if ((int)$role['dept_id'] === $post_dept_id) {
                         $dept_authorized = true;
@@ -111,9 +139,13 @@ class DocumentActionController {
                     }
                 }
 
-                if (!$dept_authorized) {
+                }
+
+                if (empty($error_msg) && !$dept_authorized) {
                     $error_msg = 'You are not authorized to upload for this department.';
-                } else {
+                } 
+                
+                if (empty($error_msg)) {
                     // Gather metadata
                     $meta_fields = meta_get_fields($post_type_key);
                     $meta_data = [];
@@ -147,7 +179,8 @@ class DocumentActionController {
                         $post_year_id,
                         $post_title,
                         $meta_data,
-                        $mapped_files
+                        $mapped_files,
+                        $mentor_id
                     );
 
                     if (!$result['success']) {

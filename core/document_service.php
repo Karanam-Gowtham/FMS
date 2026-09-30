@@ -133,6 +133,7 @@ function doc_get_types(mysqli $conn): array
  * @param string $title          Document title
  * @param array  $meta_data      Associative array of meta field values
  * @param array  $files          $_FILES array (keyed by file slot name)
+ * @param int|null $mentor_id    Mentor User ID (nullable)
  * @return array ['success' => bool, 'doc_id' => int|null, 'error' => string|null]
  */
 function doc_create(
@@ -143,7 +144,8 @@ function doc_create(
     ?int   $year_id,
     string $title,
     array  $meta_data,
-    array  $files
+    array  $files,
+    ?int   $mentor_id = null
 ): array {
     // 1. Validate type_key
     $doc_type = doc_get_type_by_key($conn, $type_key);
@@ -162,11 +164,11 @@ function doc_create(
     try {
         // 3. Insert into documents
         $stmt = $conn->prepare(
-            "INSERT INTO documents (type_id, uploaded_by, dept_id, academic_year_id, title, file_path, status, current_step, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, '', 'pending', 1, NOW(), NOW())"
+            "INSERT INTO documents (type_id, uploaded_by, dept_id, academic_year_id, mentor_id, title, file_path, status, current_step, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, '', 'pending', 1, NOW(), NOW())"
         );
         $type_id = (int)$doc_type['type_id'];
-        $stmt->bind_param('iiiis', $type_id, $uploaded_by, $dept_id, $year_id, $title);
+        $stmt->bind_param('iiiiis', $type_id, $uploaded_by, $dept_id, $year_id, $mentor_id, $title);
         $stmt->execute();
         $doc_id = $stmt->insert_id;
         $stmt->close();
@@ -590,6 +592,7 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
     $params = [];
     $types = '';
 
+    $user_id = (int)$auth['user_id'];
     foreach ($auth['roles'] as $role) {
         $role_id = (int)$role['role_id'];
         $dept_id = (int)$role['dept_id'];
@@ -597,10 +600,17 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
         // Match steps where this role is responsible
         // For department scope: also match dept
         // For global scope: any dept
-        $role_conditions[] = "(ws.responsible_role_id = ? AND (ws.scope = 'global' OR d.dept_id = ?))";
+        // And if mentor_id is set and this is the ROLE_FACULTY step, only that mentor sees it.
+        $role_conditions[] = "(
+            ws.responsible_role_id = ? 
+            AND (ws.scope = 'global' OR d.dept_id = ?)
+            AND (d.mentor_id IS NULL OR ws.responsible_role_id != " . ROLE_FACULTY . " OR d.mentor_id = ?)
+        )";
         $params[] = $role_id;
         $types .= 'i';
         $params[] = $dept_id;
+        $types .= 'i';
+        $params[] = $user_id;
         $types .= 'i';
     }
 

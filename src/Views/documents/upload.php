@@ -115,6 +115,15 @@
                     <input type="hidden" name="dept_id" value="<?= $did ?>">
                 <?php endforeach; ?>
             <?php endif; ?>
+            <!-- Mentor Per No for Students -->
+            <?php if (auth_active_role()['role_id'] == ROLE_STUDENT): ?>
+                <div class="form-group">
+                    <label class="required" for="mentor_per_no">Mentor's Per No.</label>
+                    <input type="text" id="mentor_per_no" name="mentor_per_no" required placeholder="Enter the exact Per No of your mentor">
+                    <small style="color: #6c757d;">Your upload will be sent to this mentor for verification.</small>
+                </div>
+            <?php endif; ?>
+
             <!-- Base meta fields -->
             <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($preselected_subtype === 'Intra College Activities') ? 'display: none;' : '' ?>">
                 

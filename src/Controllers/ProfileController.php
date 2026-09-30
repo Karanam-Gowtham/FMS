@@ -58,7 +58,16 @@ class ProfileController {
             if (empty($name)) {
                 $error = 'Name cannot be empty.';
             } else {
-                $conn->begin_transaction();
+                $stmt = $conn->prepare("SELECT user_id FROM user_profiles WHERE (per_no = ? OR pan_no = ?) AND user_id != ?");
+                $stmt->bind_param("ssi", $per_no, $pan_no, $auth['user_id']);
+                $stmt->execute();
+                if ($stmt->get_result()->num_rows > 0) {
+                    $error = 'Another user is already using this Per No or PAN No.';
+                }
+                $stmt->close();
+
+                if (empty($error)) {
+                    $conn->begin_transaction();
                 try {
                     $stmt = $conn->prepare("UPDATE users SET full_name = ? WHERE user_id = ?");
                     $stmt->bind_param("si", $name, $auth['user_id']);
@@ -110,6 +119,7 @@ class ProfileController {
                 } catch (\Exception $e) {
                     $conn->rollback();
                     $error = 'Failed to update profile: ' . $e->getMessage();
+                }
                 }
             }
         }

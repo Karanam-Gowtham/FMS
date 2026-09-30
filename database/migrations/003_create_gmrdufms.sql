@@ -113,6 +113,7 @@ CREATE TABLE documents (
     type_id INT NOT NULL,
     uploaded_by INT NOT NULL,
     dept_id INT DEFAULT NULL,
+    mentor_id INT DEFAULT NULL,
     academic_year_id INT DEFAULT NULL,
     file_path VARCHAR(500) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'draft',

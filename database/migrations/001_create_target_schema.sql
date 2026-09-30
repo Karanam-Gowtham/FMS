@@ -109,6 +109,7 @@ CREATE TABLE documents (
     doc_type_id      INT NOT NULL,
     uploaded_by      INT NOT NULL,
     dept_id          INT NOT NULL,
+    mentor_id        INT DEFAULT NULL,
     year_id          INT DEFAULT NULL,
     title            VARCHAR(500) NOT NULL,
     status           VARCHAR(50) NOT NULL DEFAULT 'pending',
