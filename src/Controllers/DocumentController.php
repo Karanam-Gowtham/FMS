@@ -95,6 +95,22 @@ class DocumentController {
             }
         }
 
+        // Fix for missing category filter in doc_list
+        if (!empty($filters['category']) && empty($filters['type_key']) && empty($filters['type_keys'])) {
+            $cat_types = doc_get_types($conn);
+            $type_keys = [];
+            foreach ($cat_types as $t) {
+                if ($t['category'] === $filters['category']) {
+                    $type_keys[] = $t['type_key'];
+                }
+            }
+            if (!empty($type_keys)) {
+                $filters['type_keys'] = $type_keys;
+            } else {
+                $filters['type_key'] = 'none_match_category';
+            }
+        }
+
         $mode = isset($_GET['mode']) ? trim($_GET['mode']) : '';
         if ($mode === 'pending_approval') {
             $result = doc_list_pending_for_user($conn, $auth, $per_page, $offset);

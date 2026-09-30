@@ -894,6 +894,20 @@ if (isset($extra_head)) {
             </div>
 
             <!-- ==================================================
+                 MORE MODULES
+            =================================================== -->
+            <div class="dropdown">
+                <button type="button" class="dropdown-toggle">
+                    More
+                    <span class="arrow">▼</span>
+                </button>
+                <div class="dropdown-content">
+                    <a href="<?= $app_url ?>/public/index.php?route=nba/dashboard">NBA</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=naac/dashboard">NAAC</a>
+                </div>
+            </div>
+
+            <!-- ==================================================
                  CHECK LOGIN STATUS
             =================================================== -->
 

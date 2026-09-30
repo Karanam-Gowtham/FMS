@@ -11,11 +11,7 @@ class DashboardController {
         $active_role = auth_active_role();
         $user_roles = $auth['roles'] ?? [];
 
-        // If the active role is NBA/NAAC, they should use the NBA module dashboard.
-        if ($active_role && (in_array((int)$active_role['role_id'], [ROLE_CENTRAL_COORDINATOR, ROLE_IQAC]))) {
-            header("Location: " . BASE_URL . "/public/index.php?route=nba/dashboard");
-            exit;
-        }
+
 
         // If the active role is Student, redirect to student dashboard.
         if ($active_role && (int)$active_role['role_id'] === ROLE_STUDENT) {

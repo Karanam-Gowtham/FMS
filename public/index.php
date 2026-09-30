@@ -34,6 +34,12 @@ if ($route === 'dashboard') {
 } elseif ($route === 'nba/criterion') {
     $controller = new \App\Controllers\NBACriterionController();
     $controller->show();
+} elseif ($route === 'naac/dashboard') {
+    $controller = new \App\Controllers\NAACDashboardController();
+    $controller->index();
+} elseif ($route === 'naac/criterion') {
+    $controller = new \App\Controllers\NAACCriterionController();
+    $controller->show();
 } elseif ($route === 'api/nba/save') {
     $controller = new \App\Controllers\NBAAPIController();
     $controller->save();
