@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS `user_profiles` (
     `profile_id` INT(11) NOT NULL AUTO_INCREMENT,
     `user_id` INT(11) NOT NULL,
+    `per_no` VARCHAR(50) NOT NULL,
     `pan_no` VARCHAR(20) NOT NULL,
     `apaar_id` VARCHAR(50) DEFAULT NULL,
     `highest_degree` VARCHAR(100) NOT NULL,

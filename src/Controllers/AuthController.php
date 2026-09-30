@@ -141,6 +141,7 @@ class AuthController {
             $confirm   = $_POST['confirm_password'] ?? '';
             $dept_id   = (int)($_POST['dept_id'] ?? 0);
 
+            $per_no = trim($_POST['per_no'] ?? '');
             $pan_no = trim($_POST['pan_no'] ?? '');
             $apaar_id = trim($_POST['apaar_id'] ?? '');
             $highest_degree = trim($_POST['highest_degree'] ?? '');
@@ -190,7 +191,7 @@ class AuthController {
 
                 // If faculty, validate faculty-specific fields
                 if (empty($error) && $role_id === ROLE_FACULTY) {
-                    if (empty($pan_no) || empty($highest_degree) || empty($university) || empty($specialization) || empty($doj_institution) || empty($designation_joining) || empty($designation_present) || empty($association_nature)) {
+                    if (empty($per_no) || empty($pan_no) || empty($highest_degree) || empty($university) || empty($specialization) || empty($doj_institution) || empty($designation_joining) || empty($designation_present) || empty($association_nature)) {
                         $error = 'All mandatory faculty fields must be filled.';
                     }
                 }
@@ -206,11 +207,11 @@ class AuthController {
                 }
 
                 if (empty($error) && $role_id === ROLE_FACULTY) {
-                    $stmt2 = $conn->prepare("SELECT user_id FROM user_profiles WHERE pan_no = ?");
-                    $stmt2->bind_param("s", $pan_no);
+                    $stmt2 = $conn->prepare("SELECT user_id FROM user_profiles WHERE pan_no = ? OR per_no = ?");
+                    $stmt2->bind_param("ss", $pan_no, $per_no);
                     $stmt2->execute();
                     if ($stmt2->get_result()->num_rows > 0) {
-                        $error = 'An account with this PAN number already exists.';
+                        $error = 'An account with this PAN number or Per No already exists.';
                     }
                     $stmt2->close();
                 }
@@ -233,15 +234,15 @@ class AuthController {
                         if ($role_id === ROLE_FACULTY) {
                             $prof_stmt = $conn->prepare("
                                 INSERT INTO user_profiles (
-                                    user_id, pan_no, apaar_id, highest_degree, university, specialization, 
+                                    user_id, per_no, pan_no, apaar_id, highest_degree, university, specialization, 
                                     doj_institution, doj_department, experience_years, designation_joining, 
                                     designation_present, date_designated_prof, association_nature, 
                                     contract_type, is_currently_associated, date_of_leaving
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             ");
                             $prof_stmt->bind_param(
-                                "isssssssddssssis", 
-                                $new_user_id, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
+                                "issssssssddssssis", 
+                                $new_user_id, $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
                                 $doj_institution, $doj_department, $experience_years, $designation_joining,
                                 $designation_present, $date_designated_prof, $association_nature,
                                 $contract_type, $is_currently_associated, $date_of_leaving

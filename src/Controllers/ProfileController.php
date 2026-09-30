@@ -31,6 +31,7 @@ class ProfileController {
             csrfValidate();
             
             $name = trim($_POST['name'] ?? '');
+            $per_no = trim($_POST['per_no'] ?? '');
             $pan_no = trim($_POST['pan_no'] ?? '');
             $apaar_id = trim($_POST['apaar_id'] ?? '');
             $highest_degree = trim($_POST['highest_degree'] ?? '');
@@ -66,12 +67,13 @@ class ProfileController {
 
                     $stmt = $conn->prepare("
                         INSERT INTO user_profiles (
-                            user_id, pan_no, apaar_id, highest_degree, university, specialization, 
+                            user_id, per_no, pan_no, apaar_id, highest_degree, university, specialization, 
                             doj_institution, doj_department, experience_years, designation_joining, 
                             designation_present, date_designated_prof, association_nature, 
                             contract_type, is_currently_associated, date_of_leaving
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
                         ON DUPLICATE KEY UPDATE 
+                            per_no = VALUES(per_no),
                             pan_no = VALUES(pan_no),
                             apaar_id = VALUES(apaar_id),
                             highest_degree = VALUES(highest_degree), 
@@ -90,8 +92,8 @@ class ProfileController {
                     ");
                     
                     $stmt->bind_param(
-                        "isssssssddssssis", 
-                        $auth['user_id'], $pan_no, $apaar_id, $highest_degree, $university, $specialization,
+                        "issssssssddssssis", 
+                        $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
                         $doj_institution, $doj_department, $experience_years, $designation_joining,
                         $designation_present, $date_designated_prof, $association_nature,
                         $contract_type, $is_currently_associated, $date_of_leaving

@@ -47,6 +47,11 @@
             </div>
 
             <div class="form-group">
+                <label for="per_no">Per No (Personnel Number) *</label>
+                <input type="text" id="per_no" name="per_no" value="<?= htmlspecialchars($profile['per_no'] ?? '') ?>" required placeholder="e.g. 12345">
+            </div>
+
+            <div class="form-group">
                 <label for="pan_no">PAN No. *</label>
                 <input type="text" id="pan_no" name="pan_no" value="<?= htmlspecialchars($profile['pan_no'] ?? '') ?>" required 
                        pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}" 

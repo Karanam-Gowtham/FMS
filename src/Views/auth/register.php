@@ -199,6 +199,10 @@
             <h3 class="section-title">2. Professional Details</h3>
             <div class="form-grid">
                 <div class="form-group">
+                    <label for="per_no">Per No (Personnel Number) *</label>
+                    <input type="text" id="per_no" name="per_no" value="<?= htmlspecialchars($_POST['per_no'] ?? '') ?>" required>
+                </div>
+                <div class="form-group">
                     <label for="pan_no">PAN No. *</label>
                     <input type="text" id="pan_no" name="pan_no" value="<?= htmlspecialchars($_POST['pan_no'] ?? '') ?>" required>
                 </div>
@@ -341,7 +345,7 @@
             } else {
                 facultySections.style.display = 'block';
                 // Restore required attributes (simplistic approach: just re-add to ones that had it)
-                const requiredIds = ['pan_no', 'highest_degree', 'university', 'specialization', 'doj_institution', 'designation_joining', 'designation_present', 'experience_years'];
+                const requiredIds = ['per_no', 'pan_no', 'highest_degree', 'university', 'specialization', 'doj_institution', 'designation_joining', 'designation_present', 'experience_years'];
                 requiredIds.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.setAttribute('required', 'required');

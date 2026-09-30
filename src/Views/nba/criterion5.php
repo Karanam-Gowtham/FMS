@@ -81,6 +81,7 @@
                     <tr>
                         <th style="min-width: 50px;">S.N.</th>
                         <th style="min-width: 150px;">Name of the Faculty</th>
+                        <th style="min-width: 100px;">Per No.</th>
                         <th style="min-width: 100px;">PAN No.</th>
                         <th style="min-width: 120px;">APAAR faculty ID* (if any)</th>
                         <th style="min-width: 100px;">Highest degree</th>
@@ -108,6 +109,7 @@
                             <tr>
                                 <td style="text-align: center;"><?= $index + 1 ?></td>
                                 <td><?= htmlspecialchars($fac['full_name']) ?></td>
+                                <td><?= htmlspecialchars($fac['per_no'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($fac['pan_no']) ?></td>
                                 <td><?= htmlspecialchars($fac['apaar_id'] ?: '-') ?></td>
                                 <td><?= htmlspecialchars($fac['highest_degree']) ?></td>
