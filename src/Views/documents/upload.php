@@ -51,9 +51,9 @@
     <?php if ($doc_type): ?>
         <?php if (!empty($preselected_subtype) && $preselected_subtype !== $doc_type['type_label']): ?>
             <?= htmlspecialchars($doc_type['type_label']) ?> &raquo;
-            <?= htmlspecialchars(isset($_GET['activity']) ? $_GET['activity'] : (isset($_GET['exam']) ? $_GET['exam'] : $preselected_subtype)) ?>
+            <span id="dynamic-breadcrumb"><?= htmlspecialchars(isset($_GET['activity']) ? $_GET['activity'] : (isset($_GET['exam']) ? $_GET['exam'] : $preselected_subtype)) ?></span>
         <?php else: ?>
-            <?= htmlspecialchars(isset($_GET['activity']) ? $_GET['activity'] : (isset($_GET['exam']) ? $_GET['exam'] : $doc_type['type_label'])) ?>
+            <span id="dynamic-breadcrumb"><?= htmlspecialchars(isset($_GET['activity']) ? $_GET['activity'] : (isset($_GET['exam']) ? $_GET['exam'] : $doc_type['type_label'])) ?></span>
         <?php endif; ?>
     <?php else: ?>
         Upload Document
@@ -165,24 +165,28 @@
                         </label>
                         <?php if ($field['type'] === 'textarea'): ?>
                             <textarea id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                      <?= $field['required'] ? 'required' : '' ?>></textarea>
+                                      <?= $field['required'] ? 'required data-required="true"' : '' ?>></textarea>
                         <?php elseif ($field['type'] === 'date'): ?>
                             <input type="date" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                   <?= $field['required'] ? 'required' : '' ?>>
+                                   <?= $field['required'] ? 'required data-required="true"' : '' ?>>
                         <?php elseif ($field['type'] === 'number'): ?>
                             <input type="number" step="any" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                   <?= $field['required'] ? 'required' : '' ?>>
+                                   <?= $field['required'] ? 'required data-required="true"' : '' ?>>
                         <?php elseif ($field['type'] === 'url'): ?>
                             <input type="url" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                   <?= $field['required'] ? 'required' : '' ?> placeholder="https://">
+                                   <?= $field['required'] ? 'required data-required="true"' : '' ?> placeholder="https://">
                         <?php elseif ($field['type'] === 'select'): ?>
-                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required' : '' ?>>
-                                <option value="">— Select —</option>
+                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required data-required="true"' : '' ?>>
+                                <?php if (!isset($field['default'])): ?>
+                                    <option value="">— Select —</option>
+                                <?php endif; ?>
                                 <?php if (!empty($field['options'])): ?>
                                     <?php foreach ($field['options'] as $opt): ?>
                                         <?php 
                                         $selected = '';
                                         if ($field['name'] === 'activity_category' && isset($_GET['activity']) && $_GET['activity'] === $opt) {
+                                            $selected = 'selected';
+                                        } elseif (isset($field['default']) && $field['default'] === $opt) {
                                             $selected = 'selected';
                                         }
                                         ?>
@@ -247,7 +251,7 @@
                                     <label class="<?= $field['required'] ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">
                                         <?= htmlspecialchars($field['label']) ?>
                                     </label>
-                                    <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required' : '' ?>>
+                                    <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required data-required="true"' : '' ?>>
                                         <option value="">— Select Category —</option>
                                         <?php
                                         $categories = ['Admin Files', 'Faculty Files', 'Student Related Files', 'Exam Section Files', 'Student Activities Files'];
@@ -260,7 +264,7 @@
                                 </div>
                             <?php endif; ?>
                         <?php elseif ($field['type'] === 'sub_file_type'): ?>
-                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required' : '' ?> onchange="handleStudentActivityChange(this)">
+                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required data-required="true"' : '' ?> onchange="handleStudentActivityChange(this)">
                                 <option value=""><?= htmlspecialchars($dynamic_label) ?></option>
                                 <?php
                                 $options = [];
@@ -292,7 +296,7 @@
                             ?>
                             <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
                                    value="<?= htmlspecialchars($default_val) ?>"
-                                   <?= $field['required'] ? 'required' : '' ?> <?= ($default_val !== '') ? 'readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;"' : '' ?>>
+                                   <?= $field['required'] ? 'required data-required="true"' : '' ?> <?= ($default_val !== '') ? 'readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;"' : '' ?>>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
@@ -459,7 +463,10 @@ document.addEventListener('DOMContentLoaded', function() {
         newEl.id = element.id;
         newEl.name = element.name;
         newEl.className = element.className;
-        if (element.hasAttribute('required')) newEl.setAttribute('required', 'required');
+        var isReq = element.hasAttribute('data-required') || element.hasAttribute('required');
+        if (isReq) {
+            newEl.setAttribute('data-required', 'true');
+        }
         element.parentNode.replaceChild(newEl, element);
         return newEl;
     }
@@ -502,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(targetAudienceGrp) targetAudienceGrp.style.display = 'block';
         if(eventTitleGrp) {
             eventTitleGrp.style.display = 'block';
-            eventTitleGrp.querySelector('label').innerText = 'Event Title';
+            eventTitleGrp.querySelector('label').innerText = 'Title of the Event';
         }
 
         // Set Labels based on Category
@@ -515,6 +522,11 @@ document.addEventListener('DOMContentLoaded', function() {
             mainHeading.innerText = 'Upload: ' + activityCat;
         }
 
+        var dynamicBreadcrumb = document.getElementById('dynamic-breadcrumb');
+        if (dynamicBreadcrumb) {
+            dynamicBreadcrumb.innerText = activityCat;
+        }
+
         // 1. Grad Talks & Expert Talks / Guest Lectures
         if (activityCat === 'Grad Talks' || activityCat === 'Expert Talks / Guest Lectures') {
             if (topicDomainGrp) {
@@ -522,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic —');
             }
             
-            if(eventTitleGrp) eventTitleGrp.querySelector('label').innerText = 'Title of the Talk';
+            if(eventTitleGrp) eventTitleGrp.querySelector('label').innerText = 'Title of the Event';
             
             resourcePersonGrp.style.display = 'block';
             if(resourceProfileGrp) resourceProfileGrp.style.display = 'block';
@@ -564,8 +576,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic / Domain —');
                 }
             }
-
-            if(targetAudienceGrp) targetAudienceGrp.style.display = 'none';
             
             // Adjust Resource Person label based on Event Type
             if (resourcePersonGrp) {
@@ -596,31 +606,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
             eventTypeGrp.style.display = 'block';
             eventTypeGrp.querySelector('label').innerText = 'Activity Type';
-            eventTypeEl = changeInputType(eventTypeEl, 'select', ['General Meeting', 'Competition / Contest', 'Audition / Selection', 'Practice / Rehearsal', 'Exhibition / Showcase', 'Awareness Campaign / Drive', 'Fest / Celebration', 'Workshop / Seminar', 'Other'], '— Select Activity Type —');
+            eventTypeEl = changeInputType(eventTypeEl, 'select', ['Awareness Campaign / Drive', 'Competition / Contest', 'Exhibition / Showcase', 'Guest Lecture / Expert Talk', 'Hackathon / Ideathon', 'Workshop / Seminar', 'Other'], '— Select Activity Type —');
             
             if (topicDomainGrp) {
                 topicDomainGrp.style.display = 'none'; // Never needed for clubs
             }
-
-            if(targetAudienceGrp) targetAudienceGrp.style.display = 'none';
             
             // Adjust Resource Person label based on Activity Type
             if (resourcePersonGrp) {
                 resourcePersonGrp.style.display = 'block';
                 var currentEventType = eventTypeEl.value;
-                if (currentEventType === 'Competition / Contest' || currentEventType === 'Audition / Selection') {
+                if (currentEventType === 'Competition / Contest' || currentEventType === 'Hackathon / Ideathon') {
                     resourcePersonGrp.querySelector('label').innerText = 'Jury / Evaluator Details (If any)';
-                } else if (currentEventType === 'Workshop / Seminar') {
+                } else if (currentEventType === 'Workshop / Seminar' || currentEventType === 'Guest Lecture / Expert Talk') {
                     resourcePersonGrp.querySelector('label').innerText = 'Resource Person Details';
                 } else {
                     resourcePersonGrp.querySelector('label').innerText = 'Chief Guest / Special Invitee (If any)';
                 }
             }
             
-            // Show Schedule for Fests, Competitions, Workshops
+            // Show Schedule for Fests, Competitions, Workshops, Hackathons
             if(scheduleGrp) {
                 var currentEventType = eventTypeEl.value;
-                if (currentEventType === 'Fest / Celebration' || currentEventType === 'Competition / Contest' || currentEventType === 'Workshop / Seminar') {
+                if (currentEventType === 'Competition / Contest' || currentEventType === 'Workshop / Seminar' || currentEventType === 'Hackathon / Ideathon') {
                     scheduleGrp.style.display = 'block';
                 } else {
                     scheduleGrp.style.display = 'none';
@@ -646,6 +654,8 @@ document.addEventListener('DOMContentLoaded', function() {
             var grp = el.closest('.form-group');
             if (grp && grp.style.display === 'none') {
                 el.removeAttribute('required');
+            } else if (grp && grp.style.display !== 'none' && el.hasAttribute('data-required')) {
+                el.setAttribute('required', 'required');
             }
         });
     }
