@@ -230,6 +230,7 @@ CREATE TABLE meta_fdp_attended (
 
 CREATE TABLE meta_fdp_organised (
     doc_id       INT PRIMARY KEY,
+    mode         VARCHAR(50),
     date_from    DATE,
     date_to      DATE,
     organised_by VARCHAR(200),
@@ -312,6 +313,7 @@ CREATE TABLE meta_exam_qual (
     reg_no      VARCHAR(50),
     exam        VARCHAR(200),
     exam_status VARCHAR(50),
+    rank        INT,
     FOREIGN KEY (doc_id) REFERENCES documents(doc_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

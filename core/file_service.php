@@ -15,6 +15,12 @@ function file_allowed_mimes(): array
 {
     return [
         'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ];
 }
 
@@ -23,7 +29,7 @@ function file_allowed_mimes(): array
  */
 function file_allowed_extensions(): array
 {
-    return ['pdf'];
+    return ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx'];
 }
 
 /**

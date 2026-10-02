@@ -128,7 +128,7 @@ include_once HEADER;
                                 <td><?= htmlspecialchars($doc['year_name'] ?: 'N/A') ?></td>
                                 <td>
                                     <?php if ($doc['file_path'] !== '#'): ?>
-                                        <a href="<?= BASE_URL ?>/<?= htmlspecialchars($doc['file_path']) ?>" target="_blank" class="download-btn">
+                                        <a href="<?= BASE_URL ?>/public/index.php?route=public/download&doc_id=<?= $doc['doc_id'] ?>" target="_blank" class="download-btn">
                                             View File
                                         </a>
                                     <?php else: ?>

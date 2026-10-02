@@ -210,6 +210,10 @@ class DocumentController {
         
         require_login();
         $auth = auth_context();
+        if (empty($auth['active_role'])) {
+            header("Location: " . BASE_URL . "/public/index.php?route=role/select");
+            exit;
+        }
         global $conn;
 
         $types = doc_get_types($conn);
@@ -282,7 +286,8 @@ class DocumentController {
 
         $success_msg = $_SESSION['success_msg'] ?? '';
         $error_msg = $_SESSION['error_msg'] ?? '';
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
+        $old_input = $_SESSION['_old_input'] ?? [];
+        unset($_SESSION['success_msg'], $_SESSION['error_msg'], $_SESSION['_old_input']);
 
         include __DIR__ . '/../Views/documents/upload.php';
     }

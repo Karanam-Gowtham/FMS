@@ -110,14 +110,20 @@ class DocumentActionController {
                     if ($mentor_per_no === '') {
                         $error_msg = 'Mentor Per No is required for student uploads.';
                     } else {
-                        $mentor_stmt = $conn->prepare("SELECT user_id FROM user_profiles WHERE per_no = ?");
-                        $mentor_stmt->bind_param("s", $mentor_per_no);
+                        // CRITICAL FIX: Ensure the resolved Mentor is actually a Faculty member (Role 4) in the same department!
+                        $mentor_stmt = $conn->prepare("
+                            SELECT up.user_id 
+                            FROM user_profiles up
+                            JOIN user_roles ur ON up.user_id = ur.user_id
+                            WHERE up.per_no = ? AND ur.role_id = 4 AND ur.dept_id = ?
+                        ");
+                        $mentor_stmt->bind_param("si", $mentor_per_no, $post_dept_id);
                         $mentor_stmt->execute();
                         $mentor_res = $mentor_stmt->get_result();
                         if ($mentor_row = $mentor_res->fetch_assoc()) {
                             $mentor_id = (int)$mentor_row['user_id'];
                         } else {
-                            $error_msg = 'Invalid Mentor Per No. No faculty found with this Per No.';
+                            $error_msg = 'Invalid Mentor Per No. No Faculty found with this Per No in your department.';
                         }
                         $mentor_stmt->close();
                     }
@@ -197,6 +203,7 @@ class DocumentActionController {
 
         if ($success_msg) {
             $_SESSION['success_msg'] = $success_msg;
+            unset($_SESSION['_old_input']);
             if ($is_student_activity) {
                 header("Location: " . BASE_URL . "/public/index.php?route=student/dashboard");
             } else {
@@ -205,6 +212,7 @@ class DocumentActionController {
             exit;
         } else {
             $_SESSION['error_msg'] = $error_msg;
+            $_SESSION['_old_input'] = $_POST;
             if ($is_student_activity) {
                 header("Location: " . BASE_URL . "/public/index.php?route=student/dashboard");
             } else {
@@ -231,9 +239,9 @@ class DocumentActionController {
 
         $doc_id = isset($_POST['doc_id']) ? (int)$_POST['doc_id'] : 0;
         $action = isset($_POST['action']) ? trim($_POST['action']) : '';
-        $comments = isset($_POST['comments']) ? trim($_POST['comments']) : '';
+        $comments = isset($_POST['remarks']) ? trim($_POST['remarks']) : '';
 
-        if ($doc_id <= 0 || !in_array($action, ['approve', 'reject'], true)) {
+        if ($doc_id <= 0 || !in_array($action, ['approve', 'reject', 'resubmit'], true)) {
             die("Invalid request parameters.");
         }
 
@@ -406,6 +414,19 @@ class DocumentActionController {
             if (!empty($files[$slot_name]) && $files[$slot_name]['error'] === UPLOAD_ERR_OK) {
                 $store_result = file_store($files[$slot_name], $type_key, $slot_name);
                 if ($store_result['success']) {
+                    // Delete physical file before deleting record
+                    $stmt_old = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = ?");
+                    $stmt_old->bind_param('is', $doc_id, $slot_name);
+                    $stmt_old->execute();
+                    $res_old = $stmt_old->get_result();
+                    while ($old_row = $res_old->fetch_assoc()) {
+                        $old_path = __DIR__ . '/../../' . $old_row['file_path'];
+                        if (file_exists($old_path) && is_file($old_path)) {
+                            unlink($old_path);
+                        }
+                    }
+                    $stmt_old->close();
+
                     // Delete old file record for this slot
                     $del_stmt = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = ?");
                     $del_stmt->bind_param('is', $doc_id, $slot_name);
@@ -455,10 +476,22 @@ class DocumentActionController {
                         $upd_stmt->execute();
                         $upd_stmt->close();
 
-                        $del_merge_stmt = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
+                        $del_merge_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
                         $del_merge_stmt->bind_param('i', $doc_id);
                         $del_merge_stmt->execute();
+                        $res_merge_old = $del_merge_stmt->get_result();
+                        while ($old_row = $res_merge_old->fetch_assoc()) {
+                            $old_path = __DIR__ . '/../../' . $old_row['file_path'];
+                            if (file_exists($old_path) && is_file($old_path)) {
+                                unlink($old_path);
+                            }
+                        }
                         $del_merge_stmt->close();
+
+                        $del_merge_stmt2 = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
+                        $del_merge_stmt2->bind_param('i', $doc_id);
+                        $del_merge_stmt2->execute();
+                        $del_merge_stmt2->close();
                         
                         $merged_data = [
                             'original_name' => 'Merged_Document.pdf',
@@ -472,10 +505,16 @@ class DocumentActionController {
                 } catch (\Exception $e) {
                     error_log("PDF Re-Merge Failed: " . $e->getMessage());
                 }
+            } elseif (count($pdfs_to_merge) === 1) {
+                $rel_merged_path = str_replace(__DIR__ . '/../../', '', $pdfs_to_merge[0]['path']);
+                $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
+                $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
+                $upd_stmt->execute();
+                $upd_stmt->close();
             }
         }
 
-        $log_stmt = $conn->prepare("INSERT INTO workflow_history (doc_id, action, actor_id, step_label, remarks, acted_at) VALUES (?, 'updated', ?, 'Document Editor', 'Author updated the document.', NOW())");
+        $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action_key, acted_by, remarks, acted_at) VALUES (?, 'updated', ?, 'Author updated the document.', NOW())");
         $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
         $log_stmt->execute();
         $log_stmt->close();

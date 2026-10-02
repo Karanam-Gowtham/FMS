@@ -125,7 +125,7 @@
             <?php endif; ?>
 
             <!-- Base meta fields -->
-            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($preselected_subtype === 'Intra College Activities') ? 'display: none;' : '' ?>">
+            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
                 
                 <?php $has_custom_title = (strpos($type_key, 'student_') === 0 || in_array($type_key, ['exam_qual', 'journal', 'conference', 'patent'])); ?>
                 <div class="form-group" <?= $has_custom_title ? 'style="display: none;"' : '' ?>>
@@ -156,7 +156,7 @@
                     <div class="form-group" <?= $isHiddenDeptCategory ? 'style="display:none;"' : '' ?>>
                         <?php 
                         $dynamic_label = $field['label'];
-                        if ($field['name'] === 'sub_file_type' && $preselected_subtype === 'Intra College Activities') {
+                        if ($field['name'] === 'sub_file_type' && $preselected_subtype === 'Student Activities Files') {
                             $dynamic_label = 'Select an Activity';
                         }
                         ?>
@@ -220,19 +220,27 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <?php 
+                                    $hasOldAuthors = !empty($old_input['meta'][$field['name']]['name']) && is_array($old_input['meta'][$field['name']]['name']);
+                                    $rowCount = $hasOldAuthors ? count($old_input['meta'][$field['name']]['name']) : 1;
+                                    for ($i = 0; $i < $rowCount; $i++): 
+                                        $oldName = $hasOldAuthors ? ($old_input['meta'][$field['name']]['name'][$i] ?? '') : '';
+                                        $oldAffil = $hasOldAuthors ? ($old_input['meta'][$field['name']]['affiliation'][$i] ?? '') : '';
+                                        $oldPos = $hasOldAuthors ? ($old_input['meta'][$field['name']]['position'][$i] ?? '') : '';
+                                    ?>
                                     <tr>
-                                        <td style="border: 1px solid #ccc; padding: 5px;"><input type="text" name="meta[<?= $field['name'] ?>][name][]" style="width:100%; border:none; padding:5px;"></td>
-                                        <td style="border: 1px solid #ccc; padding: 5px;"><input type="text" name="meta[<?= $field['name'] ?>][affiliation][]" style="width:100%; border:none; padding:5px;"></td>
+                                        <td style="border: 1px solid #ccc; padding: 5px;"><input type="text" name="meta[<?= $field['name'] ?>][name][]" value="<?= htmlspecialchars($oldName) ?>" style="width:100%; border:none; padding:5px;"></td>
+                                        <td style="border: 1px solid #ccc; padding: 5px;"><input type="text" name="meta[<?= $field['name'] ?>][affiliation][]" value="<?= htmlspecialchars($oldAffil) ?>" style="width:100%; border:none; padding:5px;"></td>
                                         <td style="border: 1px solid #ccc; padding: 5px;">
                                             <select name="meta[<?= $field['name'] ?>][position][]" style="width:100%; border:none; padding:5px;">
                                                 <?php if ($isInventor): ?>
-                                                    <option value="Main Inventor">Main Inventor</option>
-                                                    <option value="Co-Inventor">Co-Inventor</option>
+                                                    <option value="Main Inventor" <?= $oldPos === 'Main Inventor' ? 'selected' : '' ?>>Main Inventor</option>
+                                                    <option value="Co-Inventor" <?= $oldPos === 'Co-Inventor' ? 'selected' : '' ?>>Co-Inventor</option>
                                                 <?php else: ?>
-                                                    <option value="First author">First author</option>
-                                                    <option value="First author with equal contribution">First author with equal contribution</option>
-                                                    <option value="Corresponding Author">Corresponding Author</option>
-                                                    <option value="Co-author">Co-author</option>
+                                                    <option value="First author" <?= $oldPos === 'First author' ? 'selected' : '' ?>>First author</option>
+                                                    <option value="First author with equal contribution" <?= $oldPos === 'First author with equal contribution' ? 'selected' : '' ?>>First author with equal contribution</option>
+                                                    <option value="Corresponding Author" <?= $oldPos === 'Corresponding Author' ? 'selected' : '' ?>>Corresponding Author</option>
+                                                    <option value="Co-author" <?= $oldPos === 'Co-author' ? 'selected' : '' ?>>Co-author</option>
                                                 <?php endif; ?>
                                             </select>
                                         </td>
@@ -240,6 +248,7 @@
                                             <button type="button" onclick="removeAuthorRow(this)" style="background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 20px; line-height: 1;" title="Remove Row">&minus;</button>
                                         </td>
                                     </tr>
+                                    <?php endfor; ?>
                                 </tbody>
                             </table>
                             <button type="button" class="btn-sm" style="background:#e2e8f0; color:#334155; margin-bottom:1rem;" onclick="addAuthorRow(this, '<?= $field['name'] ?>')">+ Add <?= $personLabel ?></button>
@@ -304,7 +313,7 @@
             <?php endif; ?>
 
             <!-- File upload slots -->
-            <div class="file-section" style="background: transparent; border: none; padding: 0; margin-top: 0; box-shadow: none; <?= ($preselected_subtype === 'Intra College Activities') ? 'display: none;' : '' ?>">
+            <div class="file-section" style="background: transparent; border: none; padding: 0; margin-top: 0; box-shadow: none; <?= ($preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
                 <?php foreach ($file_slots as $slot): ?>
                     <div class="form-group">
                         <label class="<?= $slot['required'] ? 'required' : '' ?>" for="file_<?= $slot['name'] ?>">
@@ -317,7 +326,7 @@
                 <?php endforeach; ?>
             </div>
 
-            <button type="submit" class="btn-upload" <?= ($preselected_subtype === 'Intra College Activities') ? 'style="display: none;"' : '' ?>>Upload Document</button>
+            <button type="submit" class="btn-upload" <?= ($preselected_subtype === 'Student Activities Files') ? 'style="display: none;"' : '' ?>>Upload Document</button>
             <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload" style="margin-left: 1rem; color: #6c757d;">← Choose Different Type</a>
         </form>
     <?php endif; ?>
@@ -392,18 +401,18 @@ function handleStudentActivityChange(select) {
         subtypeParam = '&activity=' + encodeURIComponent(val);
     } else {
         // Fallbacks
-        if (val === 'Journal Papers') {
+        if (val === 'Journal Papers' || val === 'Papers Published by Students') {
             type = 'student_journal';
         } else if (val === 'Conference Papers') {
             type = 'student_conference';
         } else if (val === 'Professional Bodies') {
             type = 'student_body';
-        } else if (val === 'GATE') {
+        } else if (val === 'GATE' || val === 'Students in Competitive Exams') {
             type = 'exam_qual';
             subtypeParam = '&exam=' + encodeURIComponent(val);
         } else {
-            type = 'student_event';
-            subtypeParam = '&activity=' + encodeURIComponent(val);
+            // DO NOT redirect for standard Department Admin / Faculty files
+            return;
         }
     }
     
@@ -694,5 +703,51 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
+<script>
+// Repopulate standard fields on validation error
+document.addEventListener('DOMContentLoaded', function() {
+    var oldInput = <?= json_encode($old_input ?? []) ?>;
+    if (!oldInput || Object.keys(oldInput).length === 0) return;
+
+    // Trigger categories first so dynamic form structure builds
+    if (oldInput.meta && oldInput.meta.activity_category) {
+        var cat = document.getElementById('meta_activity_category');
+        if (cat) { cat.value = oldInput.meta.activity_category; cat.dispatchEvent(new Event('change')); }
+    }
+    if (oldInput.meta && oldInput.meta.event_type) {
+        var evt = document.getElementById('meta_event_type');
+        if (evt) { evt.value = oldInput.meta.event_type; evt.dispatchEvent(new Event('change')); }
+    }
+
+    // Populate basic fields
+    if (oldInput.title) { var t = document.getElementById('title'); if(t) t.value = oldInput.title; }
+    if (oldInput.mentor_per_no) { var m = document.getElementById('mentor_per_no'); if(m) m.value = oldInput.mentor_per_no; }
+    if (oldInput.dept_id) { var d = document.getElementById('dept_id'); if(d) d.value = oldInput.dept_id; }
+    if (oldInput.ay_id) { var a = document.getElementById('ay_id'); if(a) a.value = oldInput.ay_id; }
+
+    // Populate remaining meta fields
+    if (oldInput.meta) {
+        for (var key in oldInput.meta) {
+            var val = oldInput.meta[key];
+            if (typeof val === 'string' || typeof val === 'number') {
+                var el = document.getElementById('meta_' + key);
+                if (el) {
+                    el.value = val;
+                } else {
+                    var radios = document.getElementsByName('meta[' + key + ']');
+                    for (var i = 0; i < radios.length; i++) {
+                        if (radios[i].type === 'radio' && radios[i].value === val) {
+                            radios[i].checked = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // One final update after all meta is populated to fix UI labels
+    if (typeof updateModeLabel === 'function') updateModeLabel();
+});
+</script>
 </body>
 </html>

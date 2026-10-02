@@ -56,7 +56,7 @@ class PublicController {
         // Fetch accepted public documents
         $public_docs = [];
         $stmt = $conn->prepare("
-            SELECT dm.meta_value as original_file_name, dt.label as type_name, 
+            SELECT d.doc_id, dm.meta_value as original_file_name, dt.label as type_name, 
                    u.full_name as uploader_name, ay.year_label as year_name, 
                    d.created_at, d.file_path 
             FROM documents d
@@ -94,5 +94,42 @@ class PublicController {
         }
 
         include __DIR__ . '/../Views/public/department.php';
+    }
+
+    public function download() {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        global $conn;
+
+        $doc_id = isset($_GET['doc_id']) ? (int)$_GET['doc_id'] : 0;
+        if ($doc_id <= 0) die("Invalid document ID.");
+
+        // Only allow downloading accepted documents
+        $stmt = $conn->prepare("SELECT file_path FROM documents WHERE doc_id = ? AND status = 'accepted'");
+        $stmt->bind_param("i", $doc_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $doc = $res->fetch_assoc();
+        $stmt->close();
+
+        if (!$doc || empty($doc['file_path'])) die("File not found or not available publicly.");
+
+        $real_path = __DIR__ . '/../../' . ltrim($doc['file_path'], '/\\');
+        if (!file_exists($real_path)) die("The physical file is missing from the server.");
+
+        $mime_type = 'application/pdf';
+        if (strtolower(pathinfo($real_path, PATHINFO_EXTENSION)) === 'png') $mime_type = 'image/png';
+        if (strtolower(pathinfo($real_path, PATHINFO_EXTENSION)) === 'jpg' || strtolower(pathinfo($real_path, PATHINFO_EXTENSION)) === 'jpeg') $mime_type = 'image/jpeg';
+
+        if (ob_get_level()) ob_end_clean();
+        header('Content-Description: File Transfer');
+        header('Content-Type: ' . $mime_type);
+        header('Content-Disposition: inline; filename="' . basename($real_path) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($real_path));
+        
+        readfile($real_path);
+        exit;
     }
 }

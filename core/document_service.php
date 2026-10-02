@@ -185,6 +185,8 @@ function doc_create(
 
         // 5. Store files
         $file_slots = meta_get_file_slots($type_key);
+        $stored_paths = []; // Track physical paths to cleanup on rollback
+
         foreach ($file_slots as $slot) {
             $slot_name = $slot['name'];
 
@@ -200,6 +202,8 @@ function doc_create(
             if (!$store_result['success']) {
                 throw new RuntimeException('File upload failed for "' . $slot['label'] . '": ' . $store_result['error']);
             }
+            
+            $stored_paths[] = __DIR__ . '/../' . $store_result['data']['file_path'];
 
             $file_record_id = file_save_record($conn, $doc_id, $store_result['data'], $slot_name);
             if (!$file_record_id) {
@@ -260,6 +264,7 @@ function doc_create(
                         'file_size' => filesize($merged_path)
                     ];
                     file_save_record($conn, $doc_id, $merged_data, 'merged_pdf');
+                    $stored_paths[] = $merged_path;
                 }
             } catch (Exception $e) {
                 // Ignore merge errors and keep original files
@@ -276,6 +281,16 @@ function doc_create(
 
     } catch (Exception $e) {
         $conn->rollback();
+        
+        // Cleanup orphaned files created during the failed transaction
+        if (isset($stored_paths) && is_array($stored_paths)) {
+            foreach ($stored_paths as $path) {
+                if (file_exists($path) && is_file($path)) {
+                    unlink($path);
+                }
+            }
+        }
+        
         return ['success' => false, 'doc_id' => null, 'error' => $e->getMessage()];
     }
 }
@@ -754,6 +769,12 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
         if (in_array($role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
             return true;
         }
+        
+        // CRITICAL FIX: Students can NEVER view department-wide files (unless they uploaded them, caught above)
+        if ($role_id === ROLE_STUDENT) {
+            continue;
+        }
+
         if ($dept_id === (int)$doc['dept_id']) {
             return true;
         }
@@ -781,6 +802,14 @@ function doc_can_approve(mysqli $conn, array $auth, array $doc): bool
         return false;
     }
     
+    // CRITICAL FIX: If the document has a mentor assigned, ONLY that mentor can approve it at the Faculty step.
+    // Assuming ROLE_FACULTY is 4, we check if the required role is faculty and mentor_id is set.
+    if (!empty($doc['mentor_id']) && (int)$step['responsible_role_id'] === ROLE_FACULTY) {
+        if ((int)$auth['user_id'] !== (int)$doc['mentor_id']) {
+            return false;
+        }
+    }
+    
     return wf_can_user_act($step, $auth, (int)$doc['dept_id']);
 }
 
@@ -790,7 +819,7 @@ function doc_can_approve(mysqli $conn, array $auth, array $doc): bool
 function doc_get_history(mysqli $conn, int $doc_id): array
 {
     $stmt = $conn->prepare(
-        "SELECT a.*, u.full_name, s.step_label 
+        "SELECT a.*, a.action_key as action, u.full_name as actor_name, s.step_label 
          FROM document_actions a
          JOIN users u ON a.acted_by = u.user_id
          LEFT JOIN workflow_steps s ON a.step_id = s.step_id

@@ -227,9 +227,11 @@ function auth_logout(): void
 function auth_update_last_login(mysqli $conn, int $user_id): void
 {
     $stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $stmt->close();
+    if ($stmt) {
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $stmt->close();
+    }
 }
 
 // ──────────────────────────────────────────────

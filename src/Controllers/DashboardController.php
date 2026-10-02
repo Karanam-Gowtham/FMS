@@ -53,16 +53,16 @@ class DashboardController {
             $res = $stmt->get_result();
             
             // Prepare a statement for workflow step lookups
-            $st_stmt = $conn->prepare("SELECT label FROM workflow_steps ws JOIN document_types dt ON ws.workflow_id = dt.workflow_id WHERE dt.type_id = ? AND ws.step_order = ?");
+            $st_stmt = $conn->prepare("SELECT step_label FROM workflow_steps WHERE step_id = ?");
             
             while ($row = $res->fetch_assoc()) {
                 $row['step_label'] = '—';
-                if ($row['status'] === 'pending') {
-                    $st_stmt->bind_param('ii', $row['type_id'], $row['current_step']);
+                if ($row['status'] === 'pending' && $row['current_step']) {
+                    $st_stmt->bind_param('i', $row['current_step']);
                     $st_stmt->execute();
                     $st_res = $st_stmt->get_result();
                     if ($st_row = $st_res->fetch_assoc()) {
-                        $row['step_label'] = $st_row['label'];
+                        $row['step_label'] = $st_row['step_label'];
                     }
                 }
                 $recent_uploads[] = $row;
@@ -71,9 +71,9 @@ class DashboardController {
             $stmt->close();
         }
 
-        // Fetch pending approvals for reviewer roles
+        // Fetch pending approvals for reviewer roles (including Faculty acting as Mentors)
         $pending_approvals = [];
-        if ($active_role && in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+        if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY, ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
             require_once __DIR__ . '/../../core/document_service.php';
             $pending_res = doc_list_pending_for_user($conn, $auth, 10, 0);
             $pending_approvals = $pending_res['rows'];

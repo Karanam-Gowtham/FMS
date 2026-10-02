@@ -21,5 +21,5 @@ CREATE TABLE IF NOT EXISTS meta_student_activity_file (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 2. Insert into document_types
-INSERT INTO document_types (type_code, label, workflow_id) 
-VALUES ('student_activity_file', 'Student Activity File', 1);
+INSERT INTO document_types (type_key, type_label, category, workflow_key, meta_table, form_view) 
+VALUES ('student_activity_file', 'Student Activity File', 'student', 'department', 'meta_student_activity_file', 'form_student_activity_file');

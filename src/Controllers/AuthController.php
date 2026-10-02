@@ -241,7 +241,7 @@ class AuthController {
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             ");
                             $prof_stmt->bind_param(
-                                "issssssssddssssis", 
+                                "issssssssdsssssis", 
                                 $new_user_id, $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
                                 $doj_institution, $doj_department, $experience_years, $designation_joining,
                                 $designation_present, $date_designated_prof, $association_nature,

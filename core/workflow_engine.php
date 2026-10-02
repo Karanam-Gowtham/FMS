@@ -344,7 +344,7 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
 
         // 5. Record audit trail in document_actions
         $act_stmt = $conn->prepare(
-            "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
+            "INSERT INTO document_actions (doc_id, acted_by, action_key, step_id, remarks, acted_at)
              VALUES (?, ?, ?, ?, ?, NOW())"
         );
         $current_step_int = (int)$doc['current_step'];
@@ -399,7 +399,7 @@ function wf_initialize_document(mysqli $conn, int $doc_id, int $doc_type_id, int
 
         // Record the upload action
         $act = $conn->prepare(
-            "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
+            "INSERT INTO document_actions (doc_id, acted_by, action_key, step_id, remarks, acted_at)
              VALUES (?, ?, 'uploaded', NULL, 'Auto-accepted (zero-step workflow)', NOW())"
         );
         $act->bind_param('ii', $doc_id, $uploader_user_id);
@@ -418,7 +418,7 @@ function wf_initialize_document(mysqli $conn, int $doc_id, int $doc_type_id, int
 
     // Record the upload action
     $act = $conn->prepare(
-        "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
+        "INSERT INTO document_actions (doc_id, acted_by, action_key, step_id, remarks, acted_at)
          VALUES (?, ?, 'uploaded', ?, NULL, NOW())"
     );
     $act->bind_param('iii', $doc_id, $uploader_user_id, $step_id);
