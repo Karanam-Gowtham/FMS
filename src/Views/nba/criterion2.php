@@ -325,6 +325,7 @@
         
         const payload = { levelData: levelData };
         formData.append('json_data', JSON.stringify(payload));
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
 
         fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=2', {
             method: 'POST',

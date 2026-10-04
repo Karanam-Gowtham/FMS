@@ -180,13 +180,22 @@ function wf_get_transitions_for_step(mysqli $conn, int $step_id): array
  *
  * @param array  $step       Step record (from wf_get_step)
  * @param array  $auth       The $_SESSION['_fms_auth'] array
- * @param int    $doc_dept_id The document's dept_id
+ * @param array  $document   The document record
  * @return bool True if the user has the required role + scope
  */
-function wf_can_user_act(array $step, array $auth, int $doc_dept_id): bool
+function wf_can_user_act(array $step, array $auth, array $document): bool
 {
     $required_role = (int)$step['responsible_role_id'];
     $scope = $step['scope'];
+    $doc_dept_id = (int)($document['dept_id'] ?? 0);
+    
+    // CRITICAL AUTHORIZATION FIX: If this step requires Faculty (Mentor), 
+    // the user MUST be the assigned mentor.
+    if ($required_role === ROLE_FACULTY && !empty($document['mentor_id'])) {
+        if ((int)$auth['user_id'] !== (int)$document['mentor_id']) {
+            return false;
+        }
+    }
 
     foreach ($auth['roles'] as $user_role) {
         if ((int)$user_role['role_id'] !== $required_role) {
@@ -256,7 +265,7 @@ function wf_get_allowed_actions(mysqli $conn, array $document, array $auth): arr
     }
 
     // Check authorization: does user have the required role + scope?
-    if (!wf_can_user_act($step, $auth, $doc_dept)) {
+    if (!wf_can_user_act($step, $auth, $document)) {
         return [];
     }
 

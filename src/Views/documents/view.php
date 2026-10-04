@@ -239,5 +239,28 @@
     <?php endif; ?>
 </div>
 
+<?php if (isset($_GET['msg'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if(typeof showToast === 'function') {
+            showToast(<?= json_encode($_GET['msg']) ?>, 'success');
+        } else {
+            alert(<?= json_encode($_GET['msg']) ?>);
+        }
+    });
+</script>
+<?php endif; ?>
+<?php if (isset($_GET['err'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if(typeof showToast === 'function') {
+            showToast(<?= json_encode($_GET['err']) ?>, 'error');
+        } else {
+            alert(<?= json_encode($_GET['err']) ?>);
+        }
+    });
+</script>
+<?php endif; ?>
+
 </body>
 </html>

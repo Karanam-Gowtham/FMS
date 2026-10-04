@@ -1,4 +1,7 @@
 <?php
+require_once '../core/bootstrap.php';
+require_login();
+
 // Load FPDF and FPDI libraries from your existing libs folder
 require_once '../libs/fpdf.php';
 require_once '../libs/fpdi/FPDI-2.6.0/src/autoload.php';

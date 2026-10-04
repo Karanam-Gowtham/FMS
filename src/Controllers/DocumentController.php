@@ -309,12 +309,22 @@ class DocumentController {
             die("Document not found.");
         }
 
-        // Only uploader can edit, and only if pending or rejected
+        // Only uploader can edit
         if ((int)$document['uploaded_by'] !== (int)$auth['user_id']) {
             die("Unauthorized to edit this document.");
         }
         if (strtolower($document['status']) === 'accepted') {
             die("Cannot edit an accepted document.");
+        }
+        
+        // Workflow bypass fix: Prevent editing if the document is pending but has already been partially approved
+        if (strtolower($document['status']) === 'pending') {
+            $history = doc_get_history($conn, $doc_id);
+            foreach ($history as $h) {
+                if ($h['action_key'] === 'approve') {
+                    die("Cannot edit a document that is already partially approved. Please request a rejection first.");
+                }
+            }
         }
 
         $type_key = $document['type_key'];

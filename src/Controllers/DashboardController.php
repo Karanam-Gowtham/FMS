@@ -39,10 +39,11 @@ class DashboardController {
         if ($active_role) {
             global $conn;
             $stmt = $conn->prepare(
-                "SELECT d.doc_id, d.type_id, d.title, d.status, d.current_step, d.created_at, dt.label as type_label, dep.dept_name
+                "SELECT d.doc_id, d.type_id, d.title, d.status, d.current_step, d.created_at, dt.label as type_label, dep.dept_name, ws.step_label
                  FROM documents d
                  JOIN document_types dt ON dt.type_id = d.type_id
                  JOIN departments dep ON dep.dept_id = d.dept_id
+                 LEFT JOIN workflow_steps ws ON ws.step_id = d.current_step
                  WHERE d.uploaded_by = ? 
                  ORDER BY d.created_at DESC 
                  LIMIT 10"
@@ -52,22 +53,12 @@ class DashboardController {
             $stmt->execute();
             $res = $stmt->get_result();
             
-            // Prepare a statement for workflow step lookups
-            $st_stmt = $conn->prepare("SELECT step_label FROM workflow_steps WHERE step_id = ?");
-            
             while ($row = $res->fetch_assoc()) {
-                $row['step_label'] = '—';
-                if ($row['status'] === 'pending' && $row['current_step']) {
-                    $st_stmt->bind_param('i', $row['current_step']);
-                    $st_stmt->execute();
-                    $st_res = $st_stmt->get_result();
-                    if ($st_row = $st_res->fetch_assoc()) {
-                        $row['step_label'] = $st_row['step_label'];
-                    }
+                if ($row['status'] !== 'pending' || !$row['current_step']) {
+                    $row['step_label'] = '—';
                 }
                 $recent_uploads[] = $row;
             }
-            $st_stmt->close();
             $stmt->close();
         }
 

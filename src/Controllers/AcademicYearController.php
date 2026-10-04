@@ -23,7 +23,7 @@ class AcademicYearController {
             csrfValidate();
             $new_year = trim($_POST['academic_year'] ?? '');
             if (!empty($new_year)) {
-                $stmt = $conn->prepare("INSERT INTO academic_years (year_range) VALUES (?)");
+                $stmt = $conn->prepare("INSERT INTO academic_years (year_label) VALUES (?)");
                 $stmt->bind_param("s", $new_year);
                 $stmt->execute();
                 $stmt->close();
@@ -32,7 +32,7 @@ class AcademicYearController {
             }
         }
         
-        $sql = "SELECT * FROM academic_years ORDER BY id DESC";
+        $sql = "SELECT * FROM academic_years ORDER BY year_id DESC";
         $result = $conn->query($sql);
         $academic_years = [];
         if ($result) {

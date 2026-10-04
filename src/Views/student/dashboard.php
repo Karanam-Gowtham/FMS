@@ -87,10 +87,7 @@ require __DIR__ . '/../../../includes/header.php';
                                 <td><strong><?= htmlspecialchars($sub['activity_category']) ?></strong></td>
                                 <td>
                                     <?php
-                                        $eventName = is_array($sub['event_details']) && isset($sub['event_details']['event_name']) ? $sub['event_details']['event_name'] : 'N/A';
-                                        $level = is_array($sub['event_details']) && isset($sub['event_details']['level']) ? $sub['event_details']['level'] : '';
-                                        echo htmlspecialchars($eventName);
-                                        if ($level) echo " <small class='text-muted'>($level)</small>";
+                                        echo htmlspecialchars($sub['event_title'] ?? 'N/A');
                                     ?>
                                 </td>
                                 <td><?= date('M d, Y', strtotime($sub['created_at'])) ?></td>

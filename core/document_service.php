@@ -165,7 +165,7 @@ function doc_create(
         // 3. Insert into documents
         $stmt = $conn->prepare(
             "INSERT INTO documents (type_id, uploaded_by, dept_id, academic_year_id, mentor_id, title, file_path, status, current_step, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, '', 'pending', 1, NOW(), NOW())"
+             VALUES (?, ?, ?, ?, ?, ?, '', 'pending', NULL, NOW(), NOW())"
         );
         $type_id = (int)$doc_type['type_id'];
         $stmt->bind_param('iiiiis', $type_id, $uploaded_by, $dept_id, $year_id, $mentor_id, $title);
@@ -337,13 +337,13 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
             } elseif ($field['type'] === 'number') {
                 $types_str .= 's'; // store as string, DB will cast
                 $values[] = $val;
-            } elseif (isset($field['type']) && $field['type'] === 'json') {
+            } elseif (isset($field['type']) && ($field['type'] === 'json' || $field['type'] === 'author_table')) {
                 $types_str .= 's';
                 // Encode if it's an array or object, otherwise leave as is
                 $values[] = (is_array($val) || is_object($val)) ? json_encode($val) : $val;
             } else {
                 $types_str .= 's';
-                $values[] = $val;
+                $values[] = (is_array($val) || is_object($val)) ? json_encode($val) : $val;
             }
         }
     }
@@ -770,8 +770,8 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
             return true;
         }
         
-        // CRITICAL FIX: Students can NEVER view department-wide files (unless they uploaded them, caught above)
-        if ($role_id === ROLE_STUDENT) {
+        // CRITICAL FIX: Students and Faculty can NEVER view department-wide files (unless they uploaded them, caught above)
+        if ($role_id === ROLE_STUDENT || $role_id === ROLE_FACULTY) {
             continue;
         }
 
@@ -782,6 +782,22 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
     
     // If they have pending actions on it, they can view it
     if (doc_can_approve($conn, $auth, $doc)) {
+        return true;
+    }
+    
+    // Check if they previously took action on this document
+    $stmt = $conn->prepare("SELECT 1 FROM document_actions WHERE doc_id = ? AND acted_by = ?");
+    $stmt->bind_param("ii", $doc['doc_id'], $auth['user_id']);
+    $stmt->execute();
+    $acted = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    
+    if ($acted) {
+        return true;
+    }
+    
+    // Check if they are the assigned mentor (if applicable)
+    if (!empty($doc['mentor_id']) && $doc['mentor_id'] == $auth['user_id']) {
         return true;
     }
     
@@ -802,15 +818,13 @@ function doc_can_approve(mysqli $conn, array $auth, array $doc): bool
         return false;
     }
     
-    // CRITICAL FIX: If the document has a mentor assigned, ONLY that mentor can approve it at the Faculty step.
-    // Assuming ROLE_FACULTY is 4, we check if the required role is faculty and mentor_id is set.
     if (!empty($doc['mentor_id']) && (int)$step['responsible_role_id'] === ROLE_FACULTY) {
         if ((int)$auth['user_id'] !== (int)$doc['mentor_id']) {
             return false;
         }
     }
     
-    return wf_can_user_act($step, $auth, (int)$doc['dept_id']);
+    return wf_can_user_act($step, $auth, $doc);
 }
 
 /**

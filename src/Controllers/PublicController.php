@@ -72,7 +72,8 @@ class PublicController {
             $stmt->execute();
             $res = $stmt->get_result();
             while ($row = $res->fetch_assoc()) { 
-                if(empty($row['file_path'])) $row['file_path'] = '#';
+                // We no longer set file_path to '#' if empty, because single-file docs have empty file_path in 'documents'
+                // and the download endpoint falls back to 'document_files' table.
                 $public_docs[] = $row; 
             }
             $stmt->close();
@@ -111,9 +112,24 @@ class PublicController {
         $doc = $res->fetch_assoc();
         $stmt->close();
 
-        if (!$doc || empty($doc['file_path'])) die("File not found or not available publicly.");
+        if (!$doc) die("File not found or not available publicly.");
 
-        $real_path = __DIR__ . '/../../' . ltrim($doc['file_path'], '/\\');
+        $file_path = $doc['file_path'];
+        if (empty($file_path)) {
+            // Fallback for single-file documents which do not have a merged file_path in documents table
+            $stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? LIMIT 1");
+            $stmt->bind_param("i", $doc_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                $file_path = $row['file_path'];
+            }
+            $stmt->close();
+        }
+
+        if (empty($file_path)) die("File not found or not available publicly.");
+
+        $real_path = __DIR__ . '/../../' . ltrim($file_path, '/\\');
         if (!file_exists($real_path)) die("The physical file is missing from the server.");
 
         $mime_type = 'application/pdf';

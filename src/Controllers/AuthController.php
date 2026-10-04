@@ -59,21 +59,24 @@ class AuthController {
         require_once __DIR__ . '/../../core/bootstrap.php';
 
         if (auth_is_logged_in()) {
-            $active = auth_active_role();
-            if ($active) {
-                header("Location: " . get_role_landing_url($active));
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $user = auth_context();
             } else {
-                header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
+                $active = auth_active_role();
+                if ($active) {
+                    header("Location: " . get_role_landing_url($active));
+                } else {
+                    header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
+                }
+                exit();
             }
-            exit();
-        }
-
-        if (!isset($_SESSION['_pending_auth'])) {
+        } elseif (isset($_SESSION['_pending_auth'])) {
+            $user = $_SESSION['_pending_auth'];
+        } else {
             header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
             exit();
         }
 
-        $user = $_SESSION['_pending_auth'];
         $roles = $user['roles'];
         $error = '';
 

@@ -35,8 +35,8 @@
 
         <div class="nav-grid">
             <?php foreach ($academic_years as $year): ?>
-            <a href="<?= BASE_URL ?>/nba/dashboard.php?year_id=<?= $year['id'] ?>" class="nav-link" style="justify-content: center; text-align: center; font-size: 1.1rem; padding: 2rem;">
-                <strong><?= htmlspecialchars($year['year_range']) ?></strong>
+            <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&year=<?= urlencode($year['year_label']) ?>" class="nav-link" style="justify-content: center; text-align: center; font-size: 1.1rem; padding: 2rem;">
+                <strong><?= htmlspecialchars($year['year_label']) ?></strong>
             </a>
             <?php endforeach; ?>
         </div>

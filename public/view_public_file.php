@@ -42,10 +42,15 @@ $candidatePaths = [
     "../../" . $foundPath
 ];
 
+$allowedBaseDir = realpath(__DIR__ . "/../uploads");
+
 foreach ($candidatePaths as $cp) {
     if (file_exists($cp) && is_file($cp)) {
-        $resolvedPath = $cp;
-        break;
+        $realCp = realpath($cp);
+        if ($realCp !== false && $allowedBaseDir !== false && strpos($realCp, $allowedBaseDir) === 0) {
+            $resolvedPath = $realCp;
+            break;
+        }
     }
 }
 

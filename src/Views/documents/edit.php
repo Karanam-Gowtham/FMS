@@ -30,7 +30,7 @@ $active_role = $_SESSION['active_role'] ?? null;
     </style>
 </head>
 <body>
-<?php include __DIR__ . '/../components/navbar.php'; ?>
+<?php include __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="upload-container">
     <div class="form-title">Edit Document: <?= htmlspecialchars($document['type_label']) ?></div>
@@ -43,6 +43,7 @@ $active_role = $_SESSION['active_role'] ?? null;
     <?php endif; ?>
 
     <form action="<?= BASE_URL ?>/public/index.php?route=documents/process_update" method="POST" enctype="multipart/form-data">
+        <?php if (function_exists('csrfField')) echo csrfField(); ?>
         <input type="hidden" name="doc_id" value="<?= (int)$document['doc_id'] ?>">
 
         <div class="meta-section">

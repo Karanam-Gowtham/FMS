@@ -188,8 +188,13 @@
 
         <?php if ($total_pages > 1): ?>
         <div class="pagination">
+            <?php 
+            $page_url = "?route=documents/list&type=" . urlencode($filter_type) . "&status=" . urlencode($filter_status) . "&year=" . $filter_year . "&search=" . urlencode($filter_search);
+            if (!empty($_GET['context'])) $page_url .= "&context=" . urlencode($_GET['context']);
+            if (!empty($_GET['sub_type'])) $page_url .= "&sub_type=" . urlencode($_GET['sub_type']);
+            ?>
             <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                <a href="?page=<?= $p ?>&type=<?= urlencode($filter_type) ?>&status=<?= urlencode($filter_status) ?>&year=<?= $filter_year ?>&search=<?= urlencode($filter_search) ?>"
+                <a href="<?= $page_url ?>&page=<?= $p ?>"
                    class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
             <?php endfor; ?>
         </div>

@@ -8,6 +8,7 @@ class NBAAPIController {
 
         try {
             require_login();
+            csrfValidate();
             $auth = auth_context();
             $active_role = auth_active_role();
 
@@ -126,6 +127,7 @@ class NBAAPIController {
 
         try {
             require_login();
+            csrfValidate();
             $auth = auth_context();
             $active_role = auth_active_role();
 
@@ -183,6 +185,7 @@ class NBAAPIController {
 
         try {
             require_login();
+            csrfValidate();
             $crit_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
             if ($crit_id <= 0) {
                 throw new \Exception("Criterion number is required.");

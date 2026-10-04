@@ -184,6 +184,19 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
 <main class="main-content">
     <div class="container12">
         
+        <?php if (!empty($user_roles) && count($user_roles) > 1): ?>
+        <div style="margin-bottom: 2rem;">
+            <p style="font-weight: 600; margin-bottom: 10px; color: #475569;">Switch Role:</p>
+            <?php foreach ($user_roles as $ur): ?>
+                <?php if (!$active_role || (int)$ur['user_role_id'] !== (int)$active_role['user_role_id']): ?>
+                    <button class="switch-role-btn" onclick="activateRole(<?= $ur['user_role_id'] ?>, '<?= BASE_URL ?>', '<?= csrfToken() ?>')">
+                        Switch to <?= htmlspecialchars($ur['role_name']) ?> (<?= htmlspecialchars($ur['dept_name']) ?>)
+                    </button>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
         <?php
         $role_id = $active_role ? (int)$active_role['role_id'] : 0;
         $is_faculty = ($role_id === ROLE_FACULTY);

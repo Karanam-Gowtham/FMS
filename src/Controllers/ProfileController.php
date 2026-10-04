@@ -58,13 +58,31 @@ class ProfileController {
             if (empty($name)) {
                 $error = 'Name cannot be empty.';
             } else {
-                $stmt = $conn->prepare("SELECT user_id FROM user_profiles WHERE (per_no = ? OR pan_no = ?) AND user_id != ?");
-                $stmt->bind_param("ssi", $per_no, $pan_no, $auth['user_id']);
-                $stmt->execute();
-                if ($stmt->get_result()->num_rows > 0) {
-                    $error = 'Another user is already using this Per No or PAN No.';
+                $check_sql = "SELECT user_id FROM user_profiles WHERE user_id != ? AND (";
+                $conditions = [];
+                $params = [$auth['user_id']];
+                $types = "i";
+                if ($per_no !== '') {
+                    $conditions[] = "per_no = ?";
+                    $params[] = $per_no;
+                    $types .= "s";
                 }
-                $stmt->close();
+                if ($pan_no !== '') {
+                    $conditions[] = "pan_no = ?";
+                    $params[] = $pan_no;
+                    $types .= "s";
+                }
+                
+                if (!empty($conditions)) {
+                    $check_sql .= implode(" OR ", $conditions) . ")";
+                    $stmt = $conn->prepare($check_sql);
+                    $stmt->bind_param($types, ...$params);
+                    $stmt->execute();
+                    if ($stmt->get_result()->num_rows > 0) {
+                        $error = 'Another user is already using this Per No or PAN No.';
+                    }
+                    $stmt->close();
+                }
 
                 if (empty($error)) {
                     $conn->begin_transaction();

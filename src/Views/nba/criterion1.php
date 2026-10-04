@@ -1216,6 +1216,7 @@
         }
 
         // Send AJAX POST
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
         fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=1', {
             method: 'POST',
             body: formData

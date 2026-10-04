@@ -90,6 +90,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'public/department') {
     $controller = new \App\Controllers\PublicController();
     $controller->department();
+} elseif ($route === 'public/download') {
+    $controller = new \App\Controllers\PublicController();
+    $controller->download();
 } elseif ($route === 'auth/login') {
     $controller = new \App\Controllers\AuthController();
     $controller->login();

@@ -10,12 +10,10 @@ class StudentController {
         $user_id = (int)$auth['user_id'];
         
         global $conn;
-
-        // Fetch student's submissions
         $stmt = $conn->prepare("
-            SELECT d.doc_id, d.status, d.created_at, m.activity_category, m.event_details
+            SELECT d.doc_id, d.status, d.created_at, dt.label as activity_category, d.title as event_title
             FROM documents d
-            JOIN document_meta_student_activity m ON m.doc_id = d.doc_id
+            JOIN document_types dt ON dt.type_id = d.type_id
             WHERE d.uploaded_by = ?
             ORDER BY d.created_at DESC
         ");
@@ -26,11 +24,6 @@ class StudentController {
         $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
 
         while ($row = $res->fetch_assoc()) {
-            if ($row['event_details']) {
-                $row['event_details'] = json_decode($row['event_details'], true);
-            } else {
-                $row['event_details'] = [];
-            }
             $submissions[] = $row;
             if (isset($stats[$row['status']])) {
                 $stats[$row['status']]++;

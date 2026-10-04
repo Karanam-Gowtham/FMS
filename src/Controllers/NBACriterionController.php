@@ -16,7 +16,12 @@ class NBACriterionController {
             die("You must have an active role to access NBA criteria.");
         }
 
-        $dept_id = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : $active_role['dept_id'];
+        $requested_dept_id = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : null;
+        $dept_id = validate_dept_filter($requested_dept_id);
+        
+        if ($dept_id === null) {
+            die("Access denied. You are not authorized to view data for this department.");
+        }
         global $conn;
 
         // Fetch departments for the selector (Exclude central/admin wings)

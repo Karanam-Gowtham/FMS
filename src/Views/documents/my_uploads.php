@@ -129,8 +129,9 @@
         <!-- Pagination -->
         <?php if ($total_pages > 1): ?>
         <div class="pagination">
+            <?php $page_url = "?route=documents/my_uploads&type=" . urlencode($filter_type) . "&status=" . urlencode($filter_status) . "&year=" . $filter_year; ?>
             <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                <a href="?page=<?= $p ?>&type=<?= urlencode($filter_type) ?>&status=<?= urlencode($filter_status) ?>&year=<?= $filter_year ?>"
+                <a href="<?= $page_url ?>&page=<?= $p ?>"
                    class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
             <?php endfor; ?>
         </div>
