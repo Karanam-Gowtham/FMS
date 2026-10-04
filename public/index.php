@@ -72,6 +72,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'documents/download') {
     $controller = new \App\Controllers\DocumentActionController();
     $controller->download();
+} elseif ($route === 'documents/bulk_action') {
+    $controller = new \App\Controllers\DocumentActionController();
+    $controller->bulkAction();
 } elseif ($route === 'documents/edit') {
     $controller = new \App\Controllers\DocumentController();
     $controller->edit();

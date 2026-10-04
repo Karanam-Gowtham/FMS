@@ -450,7 +450,17 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         $types .= 'i';
     }
 
-    if (!empty($filters['dept_id'])) {
+    if (!empty($filters['dept_ids']) && is_array($filters['dept_ids'])) {
+        $clean_ids = array_filter(array_map('intval', $filters['dept_ids']));
+        if (!empty($clean_ids)) {
+            $placeholders = str_repeat('?,', count($clean_ids) - 1) . '?';
+            $where_clauses[] = 'd.dept_id IN (' . $placeholders . ')';
+            foreach ($clean_ids as $id) {
+                $params[] = $id;
+                $types .= 'i';
+            }
+        }
+    } elseif (!empty($filters['dept_id'])) {
         $where_clauses[] = 'd.dept_id = ?';
         $params[] = (int)$filters['dept_id'];
         $types .= 'i';
@@ -478,13 +488,33 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         }
     }
 
-    if (!empty($filters['status'])) {
+    if (!empty($filters['statuses']) && is_array($filters['statuses'])) {
+        $clean_statuses = array_filter(array_map('trim', $filters['statuses']));
+        if (!empty($clean_statuses)) {
+            $placeholders = str_repeat('?,', count($clean_statuses) - 1) . '?';
+            $where_clauses[] = 'd.status IN (' . $placeholders . ')';
+            foreach ($clean_statuses as $st) {
+                $params[] = $st;
+                $types .= 's';
+            }
+        }
+    } elseif (!empty($filters['status'])) {
         $where_clauses[] = 'd.status = ?';
         $params[] = $filters['status'];
         $types .= 's';
     }
 
-    if (!empty($filters['year_id'])) {
+    if (!empty($filters['year_ids']) && is_array($filters['year_ids'])) {
+        $clean_ids = array_filter(array_map('intval', $filters['year_ids']));
+        if (!empty($clean_ids)) {
+            $placeholders = str_repeat('?,', count($clean_ids) - 1) . '?';
+            $where_clauses[] = 'd.academic_year_id IN (' . $placeholders . ')';
+            foreach ($clean_ids as $id) {
+                $params[] = $id;
+                $types .= 'i';
+            }
+        }
+    } elseif (!empty($filters['year_id'])) {
         $where_clauses[] = 'd.academic_year_id = ?';
         $params[] = (int)$filters['year_id'];
         $types .= 'i';
@@ -498,11 +528,37 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
 
     $join_sql = '';
     $meta_select = '';
-    if (!empty($filters['sub_type'])) {
+    if (!empty($filters['sub_types']) && is_array($filters['sub_types'])) {
+        $clean_subtypes = array_filter(array_map('trim', $filters['sub_types']));
+        if (!empty($clean_subtypes)) {
+            $join_sql .= ' JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
+            $placeholders = str_repeat('?,', count($clean_subtypes) - 1) . '?';
+            $where_clauses[] = 'mdf.file_type IN (' . $placeholders . ')';
+            foreach ($clean_subtypes as $st) {
+                $params[] = $st;
+                $types .= 's';
+            }
+        }
+    } elseif (!empty($filters['sub_type'])) {
         $join_sql .= ' JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
         $where_clauses[] = 'mdf.file_type = ?';
         $params[] = $filters['sub_type'];
         $types .= 's';
+    }
+
+    if (!empty($filters['sub_file_types']) && is_array($filters['sub_file_types'])) {
+        $clean_subfiletypes = array_filter(array_map('trim', $filters['sub_file_types']));
+        if (!empty($clean_subfiletypes)) {
+            if (strpos($join_sql, 'meta_dept_file mdf') === false) {
+                $join_sql .= ' JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
+            }
+            $placeholders = str_repeat('?,', count($clean_subfiletypes) - 1) . '?';
+            $where_clauses[] = 'mdf.sub_file_type IN (' . $placeholders . ')';
+            foreach ($clean_subfiletypes as $st) {
+                $params[] = $st;
+                $types .= 's';
+            }
+        }
     }
 
     if (!empty($filters['type_key'])) {
@@ -833,7 +889,7 @@ function doc_can_approve(mysqli $conn, array $auth, array $doc): bool
 function doc_get_history(mysqli $conn, int $doc_id): array
 {
     $stmt = $conn->prepare(
-        "SELECT a.*, a.action_key as action, u.full_name as actor_name, s.step_label 
+        "SELECT a.*, u.full_name as actor_name, s.step_label 
          FROM document_actions a
          JOIN users u ON a.acted_by = u.user_id
          LEFT JOIN workflow_steps s ON a.step_id = s.step_id

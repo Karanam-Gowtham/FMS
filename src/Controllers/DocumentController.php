@@ -63,26 +63,41 @@ class DocumentController {
         }
 
         $filter_type   = isset($_GET['type'])   ? trim($_GET['type'])   : '';
+        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? $_GET['type_keys'] : [];
         $filter_subtype= isset($_GET['sub_type']) ? trim($_GET['sub_type']) : '';
+        $filter_sub_types = isset($_GET['sub_types']) && is_array($_GET['sub_types']) ? $_GET['sub_types'] : [];
+        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? $_GET['sub_file_types'] : [];
         
         if ($filter_subtype !== '') {
             $scope_label = htmlspecialchars($filter_subtype) . ' - ' . $scope_label;
+        } elseif (!empty($filter_sub_types)) {
+            $scope_label = 'Multiple Subtypes - ' . $scope_label;
         }
+
         $filter_status = isset($_GET['status']) ? trim($_GET['status']) : '';
+        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? $_GET['statuses'] : [];
         $filter_year   = isset($_GET['year'])   ? (int)$_GET['year']   : 0;
+        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_map('intval', $_GET['year_ids']) : [];
         $filter_search = isset($_GET['search']) ? trim($_GET['search']) : '';
         $filter_dept   = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : 0;
+        $filter_dept_ids = isset($_GET['dept_ids']) && is_array($_GET['dept_ids']) ? array_map('intval', $_GET['dept_ids']) : [];
         $page_num      = max(1, (int)($_GET['page'] ?? 1));
         $per_page      = 25;
         $offset        = ($page_num - 1) * $per_page;
 
         $filters = $forced_filters;
         if ($filter_type !== '')   $filters['type_key'] = $filter_type;
+        if (!empty($filter_type_keys)) $filters['type_keys'] = $filter_type_keys;
         if ($filter_subtype !== '') $filters['sub_type'] = $filter_subtype;
+        if (!empty($filter_sub_types)) $filters['sub_types'] = $filter_sub_types;
+        if (!empty($filter_sub_file_types)) $filters['sub_file_types'] = $filter_sub_file_types;
         if ($filter_status !== '') $filters['status'] = $filter_status;
+        if (!empty($filter_statuses)) $filters['statuses'] = $filter_statuses;
         if ($filter_year > 0)     $filters['year_id'] = $filter_year;
+        if (!empty($filter_year_ids)) $filters['year_ids'] = $filter_year_ids;
         if ($filter_search !== '') $filters['search'] = $filter_search;
         if ($filter_dept > 0)      $filters['dept_id'] = $filter_dept;
+        if (!empty($filter_dept_ids)) $filters['dept_ids'] = $filter_dept_ids;
         
         // Fetch all departments for filtering if central role
         $all_departments = [];
@@ -149,6 +164,19 @@ class DocumentController {
             }
         }
 
+        $available_sub_file_types = [];
+        if (!empty($_GET['context']) && $_GET['context'] === 'dept_file') {
+            $sf_res = $conn->query("SELECT DISTINCT file_type, sub_file_type FROM meta_dept_file WHERE sub_file_type IS NOT NULL AND sub_file_type != '' ORDER BY sub_file_type ASC");
+            if ($sf_res) {
+                while($row = $sf_res->fetch_assoc()) {
+                    if (!isset($available_sub_file_types[$row['file_type']])) {
+                        $available_sub_file_types[$row['file_type']] = [];
+                    }
+                    $available_sub_file_types[$row['file_type']][] = $row['sub_file_type'];
+                }
+            }
+        }
+
         $academic_years = doc_get_academic_years($conn);
 
         $meta_fields = [];
@@ -171,8 +199,12 @@ class DocumentController {
         global $conn;
 
         $filter_type   = isset($_GET['type'])   ? trim($_GET['type'])   : '';
+        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? $_GET['type_keys'] : [];
         $filter_status = isset($_GET['status']) ? trim($_GET['status']) : '';
+        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? $_GET['statuses'] : [];
         $filter_year   = isset($_GET['year'])   ? (int)$_GET['year']   : 0;
+        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_map('intval', $_GET['year_ids']) : [];
+        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? $_GET['sub_file_types'] : [];
 
         $page_num = max(1, (int)($_GET['page'] ?? 1));
         $per_page = 20;
@@ -180,8 +212,12 @@ class DocumentController {
 
         $filters = ['uploaded_by' => $user_id];
         if ($filter_type !== '')   $filters['type_key'] = $filter_type;
+        if (!empty($filter_type_keys)) $filters['type_keys'] = $filter_type_keys;
         if ($filter_status !== '') $filters['status'] = $filter_status;
+        if (!empty($filter_statuses)) $filters['statuses'] = $filter_statuses;
         if ($filter_year > 0)     $filters['year_id'] = $filter_year;
+        if (!empty($filter_year_ids)) $filters['year_ids'] = $filter_year_ids;
+        if (!empty($filter_sub_file_types)) $filters['sub_file_types'] = $filter_sub_file_types;
 
         $result = doc_list($conn, $filters, $per_page, $offset);
         $documents = $result['rows'];
@@ -321,7 +357,7 @@ class DocumentController {
         if (strtolower($document['status']) === 'pending') {
             $history = doc_get_history($conn, $doc_id);
             foreach ($history as $h) {
-                if ($h['action_key'] === 'approve') {
+                if ($h['action'] === 'approve') {
                     die("Cannot edit a document that is already partially approved. Please request a rejection first.");
                 }
             }

@@ -136,6 +136,145 @@
     </style>
 </head>
 <body>
+    <style>
+        :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(rgba(244, 247, 246, 0.9), rgba(226, 232, 240, 0.9)), url('<?= BASE_URL ?>/assets/img/gmr_landing_page.jpg') center/cover;
+            background-attachment: fixed;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 100px 20px 40px;
+        }
+
+        /* Top Nav inside Login to match */
+        .main-nav { background: #fff; padding: 15px 40px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; }
+        .nav-brand { font-size: 1.1rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-brand span { font-size: 0.75rem; color: #64748b; font-weight: normal; }
+
+        .card {
+            background: #ffffff;
+            border-top: 4px solid var(--primary);
+            padding: 40px;
+            border-radius: 8px;
+            color: #333;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card h1 { font-size: 1.8rem; margin-bottom: 5px; color: var(--primary); text-align: center; }
+        .card .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 24px; text-align: center; font-weight: 500; letter-spacing: 1px; }
+
+        .role-note {
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        h3.section-title {
+            color: var(--primary);
+            font-size: 1.1rem;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group.full-width { grid-column: 1 / -1; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            color: #333;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-group select option { background: #fff; color: #333; }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.15);
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 30px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .btn-register:hover { background: #138496; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(23,162,184,0.3); }
+
+        .error-msg { background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 12px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; }
+        .success-msg { background: #d1fae5; border: 1px solid #6ee7b7; color: #047857; padding: 12px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; text-align: center; }
+
+        .footer-links { margin-top: 30px; text-align: center; font-size: 0.9rem; color: #64748b; }
+        .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
+        .footer-links a:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <a href="<?= BASE_URL ?>/" class="nav-brand">
+            <i class="fas fa-university" style="font-size: 1.5rem;"></i>
+            <div>
+                GMR Institute of Technology<br>
+                <span>Return to Master Dashboard</span>
+            </div>
+        </a>
+    </nav>
     <div class="card">
         <h1>FMS Registration</h1>
         <p class="subtitle">Create your Student or Faculty account</p>

@@ -307,7 +307,7 @@ class DocumentActionController {
         if (strtolower($doc['status']) === 'pending') {
             $history = doc_get_history($conn, $doc_id);
             foreach ($history as $h) {
-                if ($h['action_key'] === 'approve') {
+                if ($h['action'] === 'approve') {
                     die("Cannot edit a document that is already partially approved. Please request a rejection first.");
                 }
             }
@@ -477,7 +477,7 @@ class DocumentActionController {
             }
         }
 
-        $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action_key, acted_by, remarks, acted_at) VALUES (?, 'updated', ?, 'Author updated the document.', NOW())");
+        $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'resubmitted', ?, 'Author updated the document.', NOW())");
         $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
         $log_stmt->execute();
         $log_stmt->close();
@@ -485,5 +485,148 @@ class DocumentActionController {
         $_SESSION['success_msg'] = "Document updated successfully.";
         header("Location: " . BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
         exit;
+    }
+
+    public function bulkAction() {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
+        csrfValidate();
+        
+        $auth = auth_context();
+        global $conn;
+
+        $action_type = $_POST['action_type'] ?? '';
+        $doc_ids = $_POST['doc_ids'] ?? [];
+
+        if (empty($doc_ids) || !is_array($doc_ids)) {
+            $_SESSION['error_msg'] = "No documents selected for bulk action.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+
+        // Validate permissions for all selected documents
+        $valid_docs = [];
+        foreach ($doc_ids as $id) {
+            $doc = doc_get($conn, (int)$id);
+            if ($doc && doc_can_view($conn, $auth, $doc)) {
+                $valid_docs[] = $doc;
+            }
+        }
+
+        if (empty($valid_docs)) {
+            $_SESSION['error_msg'] = "You do not have permission to download the selected documents.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+
+        if ($action_type === 'zip') {
+            $this->downloadAsZip($valid_docs, $conn);
+        } elseif ($action_type === 'merge_pdf') {
+            $this->mergeAsPdf($valid_docs, $conn);
+        } else {
+            $_SESSION['error_msg'] = "Invalid bulk action.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+    }
+
+    private function downloadAsZip($valid_docs, $conn) {
+        $zip = new \ZipArchive();
+        $zipName = sys_get_temp_dir() . '/FMS_Bulk_Download_' . time() . '.zip';
+
+        if ($zip->open($zipName, \ZipArchive::CREATE) !== TRUE) {
+            die("Could not create ZIP file.");
+        }
+
+        $hasFiles = false;
+        foreach ($valid_docs as $doc) {
+            $stmt = $conn->prepare("SELECT file_path, original_name FROM document_files WHERE doc_id = ?");
+            $doc_id = $doc['doc_id'];
+            $stmt->bind_param('i', $doc_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            
+            $doc_folder = preg_replace('/[^a-zA-Z0-9]/', '_', $doc['title']) . '_' . $doc_id;
+
+            while ($row = $res->fetch_assoc()) {
+                $path = __DIR__ . '/../../' . $row['file_path'];
+                if (file_exists($path) && is_file($path)) {
+                    $zip->addFile($path, $doc_folder . '/' . $row['original_name']);
+                    $hasFiles = true;
+                }
+            }
+            $stmt->close();
+        }
+
+        $zip->close();
+
+        if (!$hasFiles) {
+            unlink($zipName);
+            die("None of the selected documents have valid files attached.");
+        }
+
+        header('Content-Type: application/zip');
+        header('Content-disposition: attachment; filename=FMS_Bulk_Download.zip');
+        header('Content-Length: ' . filesize($zipName));
+        readfile($zipName);
+        unlink($zipName);
+        exit;
+    }
+
+    private function mergeAsPdf($valid_docs, $conn) {
+        require_once __DIR__ . '/../../core/pdf_merger_service.php';
+        
+        $pdfs_to_merge = [];
+        foreach ($valid_docs as $doc) {
+            // Prefer the main merged/compiled PDF for the document if available
+            $main_file_path = $doc['file_path'] ?? '';
+            $full_path = __DIR__ . '/../../' . $main_file_path;
+            
+            if (!empty($main_file_path) && file_exists($full_path) && strtolower(pathinfo($full_path, PATHINFO_EXTENSION)) === 'pdf') {
+                $pdfs_to_merge[] = [
+                    'path' => $full_path,
+                    'title' => $doc['title'] ?: $doc['type_label']
+                ];
+            } else {
+                // Fallback: Check individual PDF files if main file is not PDF
+                $stmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_label != 'merged_pdf'");
+                $doc_id = $doc['doc_id'];
+                $stmt->bind_param('i', $doc_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                while ($row = $res->fetch_assoc()) {
+                    $path = __DIR__ . '/../../' . $row['file_path'];
+                    if (file_exists($path) && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'pdf') {
+                        $pdfs_to_merge[] = [
+                            'path' => $path,
+                            'title' => ($doc['title'] ?: $doc['type_label']) . ' - ' . ucfirst(str_replace('_', ' ', $row['file_label']))
+                        ];
+                    }
+                }
+                $stmt->close();
+            }
+        }
+
+        if (empty($pdfs_to_merge)) {
+            die("None of the selected documents contain valid PDF files to merge.");
+        }
+
+        $merged_filename = 'Bulk_Merged_' . uniqid() . '.pdf';
+        $merged_path = sys_get_temp_dir() . '/' . $merged_filename;
+
+        try {
+            if (merge_pdfs_with_headings($pdfs_to_merge, $merged_path)) {
+                header('Content-Type: application/pdf');
+                header('Content-disposition: attachment; filename=FMS_Bulk_Merged.pdf');
+                header('Content-Length: ' . filesize($merged_path));
+                readfile($merged_path);
+                unlink($merged_path);
+                exit;
+            } else {
+                die("Failed to merge PDFs.");
+            }
+        } catch (\Exception $e) {
+            die("PDF Merge Error: " . $e->getMessage());
+        }
     }
 }

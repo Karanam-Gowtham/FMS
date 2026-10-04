@@ -11,49 +11,170 @@ require __DIR__ . '/../../../includes/header.php';
     /* Scope some Bootstrap resets so they don't break the global header */
     .main-header-navbar { box-sizing: border-box; }
     .student-dashboard-wrapper { padding: 30px; font-family: 'Segoe UI', sans-serif; }
+    /* Hide double arrows caused by Bootstrap CSS conflicting with our custom header icons */
+    .dropdown-toggle::after { display: none !important; }
 </style>
 
 <div class="student-dashboard-wrapper container-fluid">
 
 
-<div class="row mb-4 align-items-center">
-    <div class="col-md-6">
-        <h1 class="h3 mb-0 text-gray-800">My Activities</h1>
-        <p class="text-muted">Upload and track your Inter-College activity proofs.</p>
+    <!-- 1. HERO PROFILE SECTION -->
+    <div style="background: linear-gradient(135deg, #0b1c3b 0%, #1e3a8a 100%); color: white; border-radius: 12px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); position: relative; overflow: hidden;">
+        <!-- Decorative background elements -->
+        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -80px; right: 10%; width: 300px; height: 300px; background: rgba(255,255,255,0.03); border-radius: 50%;"></div>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; position: relative; z-index: 2;">
+            <!-- Avatar -->
+            <div style="width: 130px; height: 130px; border-radius: 50%; background: white; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['name'] ?? 'Student') ?>&background=random&size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
+            </div>
+            
+            <!-- Info -->
+            <div style="flex-grow: 1;">
+                <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= htmlspecialchars($auth['name'] ?? 'Student Name') ?></h1>
+                <h3 style="font-size: 1.1rem; font-weight: 400; margin: 0 0 0.2rem 0; color: #93c5fd;"><i class="fas fa-user-graduate me-2"></i>Student</h3>
+                <p style="font-size: 1rem; margin: 0 0 1.2rem 0; color: #cbd5e1;"><i class="fas fa-id-card me-2"></i><?= htmlspecialchars($auth['username'] ?? 'Roll Number') ?></p>
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#uploadActivityModal" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                        <i class="fas fa-plus-circle me-1"></i> Submit New Activity
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Hero Stats -->
+            <div style="display: flex; gap: 1.5rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05);">
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #60a5fa; line-height: 1;"><?= array_sum($stats) ?></div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 0.5rem;">Total Submissions</div>
+                </div>
+                <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #34d399; line-height: 1;"><?= $stats['accepted'] ?? 0 ?></div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 0.5rem;">Approved</div>
+                </div>
+                <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #fbbf24; line-height: 1;"><?= $stats['pending'] ?? 0 ?></div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 0.5rem;">In Review</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-6 text-md-end">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadActivityModal">
-            <i class="fas fa-plus-circle me-1"></i> Upload Activity Proof
-        </button>
-    </div>
-</div>
 
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 border-start border-warning border-4">
-            <div class="card-body">
-                <h6 class="text-muted text-uppercase mb-1">Pending Approval</h6>
-                <h3 class="mb-0 font-weight-bold text-gray-800"><?= $stats['pending'] ?></h3>
+    <!-- 2. MAIN DASHBOARD CHARTS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        
+        <!-- Chart 1: Categories -->
+        <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="background: #f8fafc; padding: 1.2rem 1.5rem; border-bottom: 1px solid #e2e8f0;">
+                <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 700; display: flex; align-items: center;"><i class="fas fa-chart-pie me-2" style="color: #3b82f6;"></i> Activities by Category</h3>
+            </div>
+            <div style="padding: 1.5rem; height: 350px; display: flex; justify-content: center; align-items: center;">
+                <?php if (empty($chart_categories)): ?>
+                    <div style="text-align: center; color: #94a2b8;">
+                        <i class="fas fa-folder-open mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                        <p>No data available to visualize.</p>
+                    </div>
+                <?php else: ?>
+                    <canvas id="studentCategoryChart"></canvas>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Chart 2: Timeline -->
+        <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="background: #f8fafc; padding: 1.2rem 1.5rem; border-bottom: 1px solid #e2e8f0;">
+                <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 700; display: flex; align-items: center;"><i class="fas fa-chart-bar me-2" style="color: #3b82f6;"></i> Submission Timeline</h3>
+            </div>
+            <div style="padding: 1.5rem; height: 350px;">
+                <?php if (empty($chart_timeline)): ?>
+                    <div style="text-align: center; color: #94a2b8; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <i class="fas fa-chart-line mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                        <p>No data available to visualize.</p>
+                    </div>
+                <?php else: ?>
+                    <canvas id="studentTimelineChart"></canvas>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 border-start border-success border-4">
-            <div class="card-body">
-                <h6 class="text-muted text-uppercase mb-1">Accepted Activities</h6>
-                <h3 class="mb-0 font-weight-bold text-gray-800"><?= $stats['accepted'] ?></h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 border-start border-danger border-4">
-            <div class="card-body">
-                <h6 class="text-muted text-uppercase mb-1">Rejected (Needs Edit)</h6>
-                <h3 class="mb-0 font-weight-bold text-gray-800"><?= $stats['rejected'] ?></h3>
-            </div>
-        </div>
-    </div>
-</div>
+
+    <!-- Chart.js Setup -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const colors = ['#1e40af', '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
+
+            // Category Chart
+            const catData = <?= json_encode($chart_categories ?? []) ?>;
+            if (Object.keys(catData).length > 0) {
+                const ctxCat = document.getElementById('studentCategoryChart').getContext('2d');
+                new Chart(ctxCat, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(catData),
+                        datasets: [{
+                            data: Object.values(catData),
+                            backgroundColor: colors,
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { 
+                                position: 'right', 
+                                labels: { font: { family: "'Segoe UI', sans-serif", size: 13 }, padding: 20, usePointStyle: true, pointStyle: 'circle' } 
+                            },
+                            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8 }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            // Timeline Chart
+            const timeData = <?= json_encode($chart_timeline ?? []) ?>;
+            if (Object.keys(timeData).length > 0) {
+                const ctxTime = document.getElementById('studentTimelineChart').getContext('2d');
+                let gradient = ctxTime.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, '#3b82f6');
+                gradient.addColorStop(1, '#1e3a8a');
+
+                new Chart(ctxTime, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(timeData).map(d => {
+                            const [y, m] = d.split('-');
+                            return new Date(y, m-1).toLocaleString('default', { month: 'short', year: 'numeric' });
+                        }),
+                        datasets: [{
+                            label: 'Uploads',
+                            data: Object.values(timeData),
+                            backgroundColor: gradient,
+                            borderRadius: 6,
+                            barThickness: 'flex',
+                            maxBarThickness: 40
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8 } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { drawBorder: false } },
+                            x: { grid: { display: false, drawBorder: false } }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 
 <div class="card shadow-sm border-0">
     <div class="card-header bg-white border-0 pt-4 pb-0">
@@ -63,10 +184,18 @@ require __DIR__ . '/../../../includes/header.php';
         <?php if (empty($submissions)): ?>
             <p class="text-muted">You have not uploaded any activities yet.</p>
         <?php else: ?>
+            <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/bulk_action" id="bulkActionFormStudent">
+                <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
+                <div class="mb-3 d-flex gap-2 align-items-center">
+                    <span class="fw-bold text-muted small">Bulk Actions:</span>
+                    <button type="submit" name="action_type" value="zip" class="btn btn-sm btn-secondary">Download as ZIP</button>
+                    <button type="submit" name="action_type" value="merge_pdf" class="btn btn-sm btn-primary">Merge to Single PDF</button>
+                </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
+                            <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllStudentDocs"></th>
                             <th>ID</th>
                             <th>Category</th>
                             <th>Event Details</th>
@@ -83,6 +212,7 @@ require __DIR__ . '/../../../includes/header.php';
                             if ($sub['status'] === 'rejected') $badge_class = 'bg-danger';
                         ?>
                             <tr>
+                                <td class="text-center"><input type="checkbox" name="doc_ids[]" value="<?= $sub['doc_id'] ?>" class="student-doc-checkbox"></td>
                                 <td>#<?= $sub['doc_id'] ?></td>
                                 <td><strong><?= htmlspecialchars($sub['activity_category']) ?></strong></td>
                                 <td>
@@ -103,6 +233,16 @@ require __DIR__ . '/../../../includes/header.php';
                     </tbody>
                 </table>
             </div>
+            </form>
+
+            <script>
+                document.getElementById('selectAllStudentDocs').addEventListener('change', function() {
+                    let checkboxes = document.querySelectorAll('.student-doc-checkbox');
+                    for (let cb of checkboxes) {
+                        cb.checked = this.checked;
+                    }
+                });
+            </script>
         <?php endif; ?>
     </div>
 </div>

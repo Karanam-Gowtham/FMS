@@ -60,14 +60,93 @@ class DashboardController {
                 $recent_uploads[] = $row;
             }
             $stmt->close();
+
+            // Fetch chart data for Faculty/User Dashboard
+            $chart_categories = [];
+            $chart_timeline = [];
+            $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
+
+            $chart_stmt = $conn->prepare("
+                SELECT dt.label as type_label, d.status, d.created_at
+                FROM documents d
+                JOIN document_types dt ON dt.type_id = d.type_id
+                WHERE d.uploaded_by = ?
+            ");
+            $chart_stmt->bind_param('i', $user_id);
+            $chart_stmt->execute();
+            $chart_res = $chart_stmt->get_result();
+            
+            while ($c_row = $chart_res->fetch_assoc()) {
+                if (isset($stats[$c_row['status']])) {
+                    $stats[$c_row['status']]++;
+                }
+                
+                $cat = $c_row['type_label'];
+                if (!isset($chart_categories[$cat])) {
+                    $chart_categories[$cat] = 0;
+                }
+                $chart_categories[$cat]++;
+                
+                $date = date('Y-m', strtotime($c_row['created_at']));
+                if (!isset($chart_timeline[$date])) {
+                    $chart_timeline[$date] = 0;
+                }
+                $chart_timeline[$date]++;
+            }
+            $chart_stmt->close();
+            ksort($chart_timeline);
         }
 
         // Fetch pending approvals for reviewer roles (including Faculty acting as Mentors)
         $pending_approvals = [];
+        $dept_stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
+        $dept_categories = [];
+        $dept_timeline = [];
+
         if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY, ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
             require_once __DIR__ . '/../../core/document_service.php';
             $pending_res = doc_list_pending_for_user($conn, $auth, 10, 0);
             $pending_approvals = $pending_res['rows'];
+
+            // Reviewer Analytics (Department / College level)
+            if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC])) {
+                $is_college_wide = in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC]);
+                $dept_query = "
+                    SELECT dt.label as type_label, d.status, d.created_at
+                    FROM documents d
+                    JOIN document_types dt ON dt.type_id = d.type_id
+                ";
+                
+                if (!$is_college_wide) {
+                    $dept_query .= " WHERE d.dept_id = ?";
+                    $d_stmt = $conn->prepare($dept_query);
+                    $d_stmt->bind_param('i', $active_role['dept_id']);
+                } else {
+                    $d_stmt = $conn->prepare($dept_query);
+                }
+                
+                $d_stmt->execute();
+                $d_res = $d_stmt->get_result();
+                while ($c_row = $d_res->fetch_assoc()) {
+                    if (isset($dept_stats[$c_row['status']])) {
+                        $dept_stats[$c_row['status']]++;
+                    }
+                    
+                    $cat = $c_row['type_label'];
+                    if (!isset($dept_categories[$cat])) {
+                        $dept_categories[$cat] = 0;
+                    }
+                    $dept_categories[$cat]++;
+                    
+                    $date = date('Y-m', strtotime($c_row['created_at']));
+                    if (!isset($dept_timeline[$date])) {
+                        $dept_timeline[$date] = 0;
+                    }
+                    $dept_timeline[$date]++;
+                }
+                $d_stmt->close();
+                ksort($dept_timeline);
+            }
         }
 
         // Render the view
