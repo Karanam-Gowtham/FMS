@@ -56,15 +56,16 @@ class PublicController {
         // Fetch accepted public documents
         $public_docs = [];
         $stmt = $conn->prepare("
-            SELECT d.doc_id, dm.meta_value as original_file_name, dt.label as type_name, 
-                   u.full_name as uploader_name, ay.year_label as year_name, 
+            SELECT d.doc_id, dm.meta_value as original_file_name, dt.label as type_name, dt.type_code,
+                   u.full_name as uploader_name, u.user_id, ay.year_label as year_name, 
                    d.created_at, d.file_path 
             FROM documents d
             LEFT JOIN document_types dt ON d.type_id = dt.type_id
             LEFT JOIN users u ON d.uploaded_by = u.user_id
             LEFT JOIN academic_years ay ON d.academic_year_id = ay.year_id
             LEFT JOIN document_metadata dm ON d.doc_id = dm.doc_id AND dm.meta_key = 'title'
-            WHERE d.dept_id = ? AND d.status = 'accepted'
+            WHERE d.dept_id = ? AND d.status = 'accepted' 
+            AND dt.type_code IN ('journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference')
             ORDER BY d.created_at DESC
         ");
         if ($stmt) {
@@ -79,20 +80,68 @@ class PublicController {
             $stmt->close();
         }
 
-        // Calculate research stats
+        // Calculate research stats and Faculty Aggregation
         $papers_count = 0;
         $patents_count = 0;
         $fdps_count = 0;
 
+        $faculty_performance = [];
+        // Pre-fill with active faculty
+        foreach($faculty as $fac) {
+            $faculty_performance[$fac['full_name']] = [
+                'name' => $fac['full_name'],
+                'role' => $fac['role_name'],
+                'total' => 0,
+                'papers' => 0,
+                'patents' => 0,
+                'fdps' => 0,
+                'others' => 0
+            ];
+        }
+
         foreach ($public_docs as $doc) {
-            if (stripos($doc['type_name'], 'Paper') !== false || stripos($doc['type_name'], 'Conference') !== false) {
+            $uploader = $doc['uploader_name'] ?: 'Unknown';
+            if (!isset($faculty_performance[$uploader])) {
+                $faculty_performance[$uploader] = [
+                    'name' => $uploader,
+                    'role' => 'Unknown',
+                    'total' => 0,
+                    'papers' => 0,
+                    'patents' => 0,
+                    'fdps' => 0,
+                    'others' => 0
+                ];
+            }
+            
+            $faculty_performance[$uploader]['total']++;
+            $tCode = $doc['type_code'] ?? '';
+            
+            if (in_array($tCode, ['journal', 'conference', 'student_journal', 'student_conference'])) {
+                $faculty_performance[$uploader]['papers']++;
                 $papers_count++;
-            } elseif (stripos($doc['type_name'], 'Patent') !== false) {
+            } elseif ($tCode === 'patent') {
+                $faculty_performance[$uploader]['patents']++;
                 $patents_count++;
-            } elseif (stripos($doc['type_name'], 'FDP') !== false) {
+            } elseif (stripos($tCode, 'fdp') !== false) {
+                $faculty_performance[$uploader]['fdps']++;
                 $fdps_count++;
+            } else {
+                $faculty_performance[$uploader]['others']++;
             }
         }
+
+        // Calculate Points (Score)
+        foreach ($faculty_performance as &$perf) {
+            $perf['points'] = ($perf['patents'] * 10) + ($perf['papers'] * 5) + ($perf['fdps'] * 2) + ($perf['others'] * 1);
+        }
+        unset($perf);
+
+        // Sort by points descending
+        usort($faculty_performance, function($a, $b) {
+            return $b['points'] <=> $a['points'];
+        });
+        
+        $top_faculty = array_slice($faculty_performance, 0, 3);
 
         include __DIR__ . '/../Views/public/department.php';
     }

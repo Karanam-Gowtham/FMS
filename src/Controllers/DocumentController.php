@@ -187,6 +187,79 @@ class DocumentController {
         $pending_result = doc_list_pending_for_user($conn, $auth, 100, 0);
         $pending_count = $pending_result['total'];
 
+        // Handle CSV Export for Filtered Lists
+        if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+            $export_result = doc_list($conn, $filters, 999999, 0);
+            $export_docs = $export_result['rows'];
+            
+            $filename = "FMS_Export_" . date('Ymd_His') . ".csv";
+            header("Content-Type: text/csv; charset=utf-8");
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+            
+            $output = fopen("php://output", "w");
+            
+            // Define standard columns
+            $columns = ['ID', 'Title', 'Type', 'Uploader', 'Department', 'Academic Year', 'Status', 'Date'];
+            
+            // Collect all unique meta keys across the result set
+            $all_meta_keys = [];
+            foreach ($export_docs as $doc) {
+                $doc_id = $doc['doc_id'];
+                $stmt = $conn->prepare("SELECT meta_key FROM document_metadata WHERE doc_id = ?");
+                $stmt->bind_param('i', $doc_id);
+                $stmt->execute();
+                $mres = $stmt->get_result();
+                while ($row = $mres->fetch_assoc()) {
+                    if (!in_array($row['meta_key'], $all_meta_keys)) {
+                        $all_meta_keys[] = $row['meta_key'];
+                    }
+                }
+                $stmt->close();
+            }
+            
+            // Append meta columns to headers
+            foreach ($all_meta_keys as $key) {
+                $columns[] = 'Meta: ' . ucfirst(str_replace('_', ' ', $key));
+            }
+            
+            fputcsv($output, $columns);
+            
+            foreach ($export_docs as $doc) {
+                $doc_id = $doc['doc_id'];
+                
+                // Fetch metadata for this doc
+                $meta_values = [];
+                $stmt = $conn->prepare("SELECT meta_key, meta_value FROM document_metadata WHERE doc_id = ?");
+                $stmt->bind_param('i', $doc_id);
+                $stmt->execute();
+                $mres = $stmt->get_result();
+                while($row = $mres->fetch_assoc()) {
+                    $meta_values[$row['meta_key']] = $row['meta_value'];
+                }
+                $stmt->close();
+                
+                $row_data = [
+                    $doc['doc_id'],
+                    $doc['title'],
+                    $doc['type_label'] ?? $doc['type_name'] ?? 'Unknown',
+                    $doc['uploader_name'] ?? 'Unknown',
+                    $doc['dept_name'] ?? 'Unknown',
+                    $doc['year_label'] ?? 'Unknown',
+                    ucfirst($doc['status']),
+                    $doc['created_at']
+                ];
+                
+                foreach ($all_meta_keys as $key) {
+                    $row_data[] = $meta_values[$key] ?? '';
+                }
+                
+                fputcsv($output, $row_data);
+            }
+            
+            fclose($output);
+            exit;
+        }
+
         include __DIR__ . '/../Views/documents/list.php';
     }
 

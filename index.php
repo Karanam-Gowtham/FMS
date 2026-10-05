@@ -24,16 +24,16 @@ if($s_res) $stats['researchers'] = $s_res->fetch_assoc()['cnt'];
 
 $stats['depts'] = count($depts);
 
-$p_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.label LIKE '%Patent%'");
+$p_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code = 'patent'");
 if($p_res) $stats['patents'] = $p_res->fetch_assoc()['cnt'];
 
-$pub_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND (dt.label LIKE '%Journal%' OR dt.label LIKE '%Conference%')");
+$pub_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code IN ('journal', 'conference')");
 if($pub_res) $stats['pubs'] = $pub_res->fetch_assoc()['cnt'];
 
-$f_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.label LIKE '%FDP%'");
+$f_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code LIKE '%fdp%'");
 if($f_res) $stats['fdps'] = $f_res->fetch_assoc()['cnt'];
 
-$all_res = $conn->query("SELECT count(*) as cnt FROM documents WHERE status='accepted'");
+$all_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code IN ($whitelist)");
 if($all_res) $stats['total_docs'] = $all_res->fetch_assoc()['cnt'];
 
 // 2. Initial Top Researchers
@@ -44,7 +44,9 @@ $tr_res = $conn->query("
     JOIN user_roles ur ON u.user_id = ur.user_id
     JOIN departments d ON ur.dept_id = d.dept_id
     JOIN documents doc ON u.user_id = doc.uploaded_by
+    JOIN document_types dt ON doc.type_id = dt.type_id
     WHERE u.status = 'active' AND doc.status = 'accepted' AND d.is_academic = 1
+    AND dt.type_code IN ($whitelist)
     GROUP BY u.user_id
     ORDER BY total_pubs DESC
     LIMIT 4
@@ -386,18 +388,20 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             });
 
             // Distribution Chart (Bar/Doughnut)
-            document.getElementById('dist-title').innerHTML = `<i class="fas fa-chart-pie" style="color: var(--accent);"></i> ` + data.distribution_label;
+            document.getElementById('dist-title').innerHTML = `<i class="fas fa-chart-pie" style="color: var(--accent);"></i> ` + (state.dept_id !== 'all' ? 'Documents by Category' : 'Documents by Department');
             if (distChartInst) distChartInst.destroy();
             
             const chartType = state.dept_id !== 'all' ? 'doughnut' : 'bar';
             const bgColors = ['#17a2b8', '#0b353d', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
             
+            const distData = state.dept_id !== 'all' ? data.category_distribution : data.dept_distribution;
+
             distChartInst = new Chart(document.getElementById('distributionChart').getContext('2d'), {
                 type: chartType,
                 data: {
-                    labels: Object.keys(data.distribution),
+                    labels: Object.keys(distData),
                     datasets: [{
-                        data: Object.values(data.distribution),
+                        data: Object.values(distData),
                         backgroundColor: chartType === 'doughnut' ? bgColors : '#0b353d',
                         borderRadius: chartType === 'bar' ? 6 : 0,
                         borderWidth: chartType === 'doughnut' ? 2 : 0,
@@ -411,15 +415,15 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
                 }
             });
 
-            // Radar Chart (Departmental Focus)
+            // Radar Chart (Category Focus)
             if (radarChartInst) radarChartInst.destroy();
             radarChartInst = new Chart(document.getElementById('radarChart').getContext('2d'), {
                 type: 'radar',
                 data: {
-                    labels: Object.keys(data.distribution),
+                    labels: Object.keys(data.category_distribution),
                     datasets: [{
-                        label: 'Impact Density',
-                        data: Object.values(data.distribution),
+                        label: 'Document Focus',
+                        data: Object.values(data.category_distribution),
                         backgroundColor: 'rgba(23, 162, 184, 0.2)',
                         borderColor: '#17a2b8',
                         pointBackgroundColor: '#0b353d',
@@ -436,14 +440,14 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
                 }
             });
 
-            // Polar Area Chart
+            // Polar Area Chart (Departmental Spread)
             if (polarChartInst) polarChartInst.destroy();
             polarChartInst = new Chart(document.getElementById('polarChart').getContext('2d'), {
                 type: 'polarArea',
                 data: {
-                    labels: Object.keys(data.distribution),
+                    labels: Object.keys(data.dept_distribution),
                     datasets: [{
-                        data: Object.values(data.distribution),
+                        data: Object.values(data.dept_distribution),
                         backgroundColor: bgColors.map(c => c + 'CC'), // Add transparency
                         borderColor: '#fff',
                         borderWidth: 2

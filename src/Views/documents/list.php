@@ -191,9 +191,14 @@
 
     <!-- MAIN CONTENT -->
     <main style="flex-grow: 1; min-width: 0; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <div class="header-row" style="margin-bottom: 1.5rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">
-            <h1 style="margin: 0; font-size: 1.5rem; color: #111827;"><?= $scope_label ?></h1>
-            <p style="margin: 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;"><?= count($documents) ?> of <?= $total ?> documents</p>
+        <div class="header-row" style="margin-bottom: 1.5rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: #111827;"><?= $scope_label ?></h1>
+                <p style="margin: 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;"><?= count($documents) ?> of <?= $total ?> documents</p>
+            </div>
+            <a href="<?= BASE_URL ?>/public/index.php?<?= http_build_query(array_merge($_GET, ['export' => 'csv'])) ?>" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                <i class="fas fa-file-csv"></i> Export Filtered to CSV
+            </a>
         </div>
 
     <?php if (empty($documents)): ?>
