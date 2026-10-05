@@ -271,7 +271,7 @@
             <i class="fas fa-university" style="font-size: 1.5rem;"></i>
             <div>
                 GMR Institute of Technology<br>
-                <span>Return to Master Dashboard</span>
+                <span>Return to Analytics Portal</span>
             </div>
         </a>
     </nav>

@@ -12,6 +12,11 @@ $years = [];
 $y_res = $conn->query("SELECT DISTINCT YEAR(created_at) as yr FROM documents WHERE status='accepted' ORDER BY yr DESC");
 if($y_res) { while($row = $y_res->fetch_assoc()) { $years[] = $row['yr']; } }
 
+$doc_types = [];
+$whitelist = "'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference'";
+$dt_res = $conn->query("SELECT type_code, label FROM document_types WHERE type_code IN ($whitelist) ORDER BY label");
+if($dt_res) { while($row = $dt_res->fetch_assoc()) { $doc_types[] = $row; } }
+
 // 1. Initial Hero Stats (All Time, All Depts)
 $stats = ['researchers' => 0, 'depts' => 0, 'patents' => 0, 'pubs' => 0, 'fdps' => 0, 'total_docs' => 0];
 $s_res = $conn->query("SELECT count(*) as cnt FROM users WHERE status='active' AND user_id IN (SELECT user_id FROM user_roles WHERE role_id IN (SELECT role_id FROM roles WHERE role_name IN ('Faculty', 'HOD', 'R&D Dean')))");
@@ -51,12 +56,13 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMR Institute of Technology - Master Analytics</title>
+    <title>GMR Institute of Technology - Research Analytics</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: #fff; color: var(--text); }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: #fff; color: var(--text); overflow-x: hidden; }
         
         /* Utility Header */
         .utility-bar { background: var(--primary); color: #fff; padding: 8px 40px; display: flex; justify-content: flex-end; font-size: 0.85rem; }
@@ -76,12 +82,16 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         .hero-left h1 { font-size: 2.8rem; margin: 0 0 20px 0; line-height: 1.2; }
         .hero-left p { font-size: 1.1rem; color: #cbd5e1; max-width: 600px; margin-bottom: 30px; }
         
-        /* Master Filters */
-        .master-filters { display: flex; gap: 15px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); max-width: 800px; }
-        .filter-group { flex: 1; display: flex; flex-direction: column; }
-        .filter-group label { font-size: 0.75rem; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .filter-group select { background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 10px; border-radius: 4px; font-size: 0.9rem; outline: none; }
-        .filter-group select option { background: var(--secondary); color: #fff; }
+        /* Amazon-style Layout */
+        .amazon-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 30px; max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .amazon-main { min-width: 0; }
+        .amazon-sidebar { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); height: fit-content; position: sticky; top: 90px; }
+        .amazon-sidebar h3 { font-size: 1.2rem; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .facet-group { margin-bottom: 25px; }
+        .facet-group h4 { font-size: 0.9rem; color: var(--secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .facet-label { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569; cursor: pointer; transition: color 0.2s; }
+        .facet-label:hover { color: var(--primary); }
+        .facet-label input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
 
         .hero-right { flex: 1.2; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         .hero-stat-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 20px; text-align: center; color: #fff; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
@@ -100,11 +110,12 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         .section-header h2 { margin: 0; font-size: 1.8rem; color: var(--primary); }
         
         /* Analytics Area */
-        .analytics-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
-        .chart-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; }
-        .chart-header h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1.1rem; }
+        .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px; }
+        .chart-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; transition: transform 0.3s; display: flex; flex-direction: column; }
+        .chart-card:hover { transform: translateY(-5px); }
+        .chart-header h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1.2rem; font-weight: 700; }
         .chart-header p { margin: 0 0 20px 0; color: #64748b; font-size: 0.85rem; }
-        .chart-wrapper { height: 350px; width: 100%; display: flex; justify-content: center; }
+        .chart-wrapper { flex: 1; height: 350px; width: 100%; position: relative; }
 
         /* Researchers Grid */
         .researchers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
@@ -153,7 +164,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             </div>
         </div>
         <div class="nav-links">
-            <a href="#" class="active">Master Dashboard</a>
+            <a href="#" class="active">Analytics Dashboard</a>
             <a href="#profiles">Top Profiles</a>
         </div>
     </nav>
@@ -162,43 +173,9 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
     <section class="hero">
         <div class="hero-left">
             <span class="tagline">— DYNAMIC RESEARCH INTELLIGENCE</span>
-            <h1>GMRIT Master Analytics</h1>
+            <h1>Research & Analytics Portal</h1>
             <p>Select an academic year, isolate a department, or click a metric card to instantly drill down into specific research outputs.</p>
-            
-            <div class="master-filters">
-                <div class="filter-group">
-                    <label><i class="fas fa-calendar-alt"></i> Academic Year</label>
-                    <select id="filter-year">
-                        <option value="all">All Time History</option>
-                        <?php foreach($years as $yr): ?>
-                            <option value="<?= $yr ?>"><?= $yr ?>-<?= $yr+1 ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label><i class="fas fa-university"></i> Department Isolation</label>
-                    <select id="filter-dept">
-                        <option value="all">Entire Institution</option>
-                        <?php foreach($depts as $d): ?>
-                            <option value="<?= $d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label><i class="fas fa-layer-group"></i> Analytics Focus</label>
-                    <select id="filter-type">
-                        <option value="all">All Activities (Master)</option>
-                        <option value="publications">Research Publications</option>
-                        <option value="patents">Patents & IPR</option>
-                        <option value="guest_lectures">Guest Lectures</option>
-                        <option value="fdps">FDPs (Attended/Org)</option>
-                        <option value="workshops">Workshops/Seminars</option>
-                        <option value="books">Books & Chapters</option>
-                        <option value="certifications">Certificate Courses</option>
-                    </select>
-                </div>
-            </div>
-            <div style="margin-top: 15px; font-size: 0.8rem; color: var(--accent);"><i class="fas fa-hand-pointer"></i> Tip: Select an Analytics Focus or click the cards on the right to pivot the data.</div>
+            <div style="margin-top: 15px; font-size: 0.9rem; color: #cbd5e1;"><i class="fas fa-arrow-down"></i> Scroll down to explore the dynamic analytics dashboard.</div>
         </div>
         <div class="hero-right">
             <div class="hero-stat-card active" data-category="all">
@@ -229,27 +206,73 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
     </section>
 
     <!-- Interactive Analytics -->
-    <section class="section light" id="analytics">
-        <div class="section-header">
-            <h2><i class="fas fa-chart-line" style="color: var(--accent);"></i> Dynamic Visualization</h2>
-            <span style="color: #64748b; font-weight: 500;" id="current-view-label">Currently Viewing: Entire Institution - All Documents</span>
-        </div>
-        <div class="analytics-grid">
+    <section class="section light" id="analytics" style="padding: 20px 0;">
+        <div class="amazon-layout">
+            <aside class="amazon-sidebar">
+                <h3><i class="fas fa-filter"></i> Refine Results</h3>
+                
+                <div class="facet-group">
+                    <h4>Analytics Focus</h4>
+                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-type"> Select All</label>
+                    <?php foreach($doc_types as $dt): ?>
+                        <label class="facet-label"><input type="checkbox" class="cb-type" value="<?= $dt['type_code'] ?>"> <?= htmlspecialchars($dt['label']) ?></label>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="facet-group">
+                    <h4>Academic Year</h4>
+                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-year"> Select All</label>
+                    <?php foreach($years as $yr): ?>
+                        <label class="facet-label"><input type="checkbox" class="cb-year" value="<?= $yr ?>"> <?= $yr ?>-<?= $yr+1 ?></label>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="facet-group">
+                    <h4>Department</h4>
+                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-dept"> Select All</label>
+                    <?php foreach($depts as $d): ?>
+                        <label class="facet-label"><input type="checkbox" class="cb-dept" value="<?= $d['dept_id'] ?>"> <?= htmlspecialchars($d['dept_name']) ?></label>
+                    <?php endforeach; ?>
+                </div>
+            </aside>
+
+            <div class="amazon-main">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line" style="color: var(--accent);"></i> Dynamic Visualization</h2>
+                    <span style="color: #64748b; font-weight: 500;" id="current-view-label">Currently Viewing: Filtered Results</span>
+                </div>
+                <div class="analytics-grid">
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3>Research Trajectory</h3>
+                    <h3><i class="fas fa-chart-area" style="color: var(--accent);"></i> Institutional Trajectory</h3>
                     <p>Timeline of scholarly outputs based on your active filters</p>
                 </div>
                 <div class="chart-wrapper"><canvas id="timelineChart"></canvas></div>
             </div>
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3 id="dist-title">Structural Breakdown</h3>
+                    <h3 id="dist-title"><i class="fas fa-chart-pie" style="color: var(--accent);"></i> Structural Breakdown</h3>
                     <p>Distribution analysis across the institution</p>
                 </div>
                 <div class="chart-wrapper"><canvas id="distributionChart"></canvas></div>
             </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-spider" style="color: var(--accent);"></i> Departmental Radar Focus</h3>
+                    <p>Multi-dimensional comparison of current focus areas</p>
+                </div>
+                <div class="chart-wrapper"><canvas id="radarChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-circle-notch" style="color: var(--accent);"></i> Proportional Impact Map</h3>
+                    <p>Polar area visualization of density</p>
+                </div>
+                <div class="chart-wrapper"><canvas id="polarChart"></canvas></div>
+            </div>
         </div>
+            </div> <!-- End amazon-main -->
+        </div> <!-- End amazon-layout -->
     </section>
 
     <!-- Top Researchers (Static display for initial load) -->
@@ -283,10 +306,12 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         // Chart Instances
         let timelineChartInst = null;
         let distChartInst = null;
+        let radarChartInst = null;
+        let polarChartInst = null;
 
-        const selectYear = document.getElementById('filter-year');
-        const selectDept = document.getElementById('filter-dept');
-        const selectType = document.getElementById('filter-type');
+        const cbYears = document.querySelectorAll('.cb-year');
+        const cbDepts = document.querySelectorAll('.cb-dept');
+        const cbTypes = document.querySelectorAll('.cb-type');
         const metricCards = document.querySelectorAll('.hero-stat-card[data-category]');
         const loader = document.getElementById('loader');
         
@@ -316,13 +341,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
 
         function updateUI(data) {
             // Update Label
-            const deptName = selectDept.options[selectDept.selectedIndex].text;
-            let typeName = selectType.options[selectType.selectedIndex].text;
-            let catName = "";
-            if(state.category !== 'all') {
-                catName = ` | Card: ${state.category.toUpperCase()}`;
-            }
-            document.getElementById('current-view-label').innerText = `Currently Viewing: ${deptName} - ${typeName}${catName}`;
+            document.getElementById('current-view-label').innerText = `Currently Viewing: Filtered Results`;
 
             // Update Metrics
             const mData = data.stats;
@@ -332,7 +351,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             animateValue(document.getElementById('val-fdps'), 0, mData.fdps, 800);
             animateValue(document.getElementById('val-researchers'), 0, mData.researchers, 800);
 
-            // Timeline Chart
+            // Timeline Chart (Smooth Area)
             const tLabels = Object.keys(data.timeline).map(d => {
                 const [y, m] = d.split('-'); return new Date(y, m-1).toLocaleString('default', { month: 'short', year: '2-digit' });
             });
@@ -342,28 +361,36 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             const ctxT = document.getElementById('timelineChart').getContext('2d');
             
             let grad = ctxT.createLinearGradient(0, 0, 0, 400);
-            grad.addColorStop(0, 'rgba(11, 53, 61, 0.6)'); // Primary var
-            grad.addColorStop(1, 'rgba(11, 53, 61, 0.0)');
+            grad.addColorStop(0, 'rgba(23, 162, 184, 0.6)'); // Accent cyan
+            grad.addColorStop(1, 'rgba(23, 162, 184, 0.0)');
 
             timelineChartInst = new Chart(ctxT, {
                 type: 'line',
                 data: {
                     labels: tLabels,
                     datasets: [{
-                        label: 'Documents', data: tValues,
-                        borderColor: '#0b353d', backgroundColor: grad,
+                        label: 'Activities', data: tValues,
+                        borderColor: '#17a2b8', backgroundColor: grad,
                         borderWidth: 3, fill: true, tension: 0.4,
-                        pointBackgroundColor: '#17a2b8', pointBorderColor: '#0b353d', pointBorderWidth: 2, pointRadius: 4
+                        pointBackgroundColor: '#fff', pointBorderColor: '#17a2b8', pointBorderWidth: 3, pointRadius: 5, pointHoverRadius: 7
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(11, 53, 61, 0.9)', titleFont: { size: 14 }, bodyFont: { size: 14, weight: 'bold' }, padding: 12, cornerRadius: 8 } }, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#e2e8f0' } },
+                        x: { grid: { display: false } }
+                    } 
+                }
             });
 
-            // Distribution Chart
-            document.getElementById('dist-title').innerText = data.distribution_label;
+            // Distribution Chart (Bar/Doughnut)
+            document.getElementById('dist-title').innerHTML = `<i class="fas fa-chart-pie" style="color: var(--accent);"></i> ` + data.distribution_label;
             if (distChartInst) distChartInst.destroy();
             
             const chartType = state.dept_id !== 'all' ? 'doughnut' : 'bar';
+            const bgColors = ['#17a2b8', '#0b353d', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
             
             distChartInst = new Chart(document.getElementById('distributionChart').getContext('2d'), {
                 type: chartType,
@@ -371,22 +398,100 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
                     labels: Object.keys(data.distribution),
                     datasets: [{
                         data: Object.values(data.distribution),
-                        backgroundColor: chartType === 'doughnut' ? ['#0b353d', '#0e454f', '#17a2b8', '#3b82f6', '#10b981'] : '#0b353d',
-                        borderRadius: chartType === 'bar' ? 4 : 0
+                        backgroundColor: chartType === 'doughnut' ? bgColors : '#0b353d',
+                        borderRadius: chartType === 'bar' ? 6 : 0,
+                        borderWidth: chartType === 'doughnut' ? 2 : 0,
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: { 
                     responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: chartType === 'doughnut', position: 'bottom' } },
-                    scales: chartType === 'bar' ? { x: { ticks: { maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true } } : {}
+                    plugins: { legend: { display: chartType === 'doughnut', position: 'right', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } } },
+                    scales: chartType === 'bar' ? { x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, grid: { borderDash: [5, 5] } } } : {}
+                }
+            });
+
+            // Radar Chart (Departmental Focus)
+            if (radarChartInst) radarChartInst.destroy();
+            radarChartInst = new Chart(document.getElementById('radarChart').getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(data.distribution),
+                    datasets: [{
+                        label: 'Impact Density',
+                        data: Object.values(data.distribution),
+                        backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                        borderColor: '#17a2b8',
+                        pointBackgroundColor: '#0b353d',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#17a2b8',
+                        borderWidth: 2
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { r: { angleLines: { display: true, color: '#e2e8f0' }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 11, family: 'Inter, sans-serif' }, color: '#64748b' } } }
+                }
+            });
+
+            // Polar Area Chart
+            if (polarChartInst) polarChartInst.destroy();
+            polarChartInst = new Chart(document.getElementById('polarChart').getContext('2d'), {
+                type: 'polarArea',
+                data: {
+                    labels: Object.keys(data.distribution),
+                    datasets: [{
+                        data: Object.values(data.distribution),
+                        backgroundColor: bgColors.map(c => c + 'CC'), // Add transparency
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 10, padding: 10, font: { size: 10 } } } },
+                    scales: { r: { ticks: { display: false }, grid: { color: '#e2e8f0' } } }
                 }
             });
         }
 
         // Listeners
-        selectYear.addEventListener('change', (e) => { state.year = e.target.value; fetchDashboardData(); });
-        selectDept.addEventListener('change', (e) => { state.dept_id = e.target.value; fetchDashboardData(); });
-        selectType.addEventListener('change', (e) => { state.type = e.target.value; fetchDashboardData(); });
+        function syncFiltersAndFetch() {
+            state.year = Array.from(cbYears).filter(cb => cb.checked).map(cb => cb.value).join(',') || 'all';
+            state.dept_id = Array.from(cbDepts).filter(cb => cb.checked).map(cb => cb.value).join(',') || 'all';
+            state.type = Array.from(cbTypes).filter(cb => cb.checked).map(cb => cb.value).join(',') || 'all';
+            fetchDashboardData();
+        }
+
+        const selectAllBoxes = document.querySelectorAll('.cb-select-all');
+        selectAllBoxes.forEach(sa => {
+            sa.addEventListener('change', (e) => {
+                const targets = document.querySelectorAll(e.target.dataset.target);
+                targets.forEach(t => t.checked = e.target.checked);
+                syncFiltersAndFetch();
+            });
+        });
+
+        function enhancedSync(e) {
+            const group = e.target.closest('.facet-group');
+            if(group) {
+                const sa = group.querySelector('.cb-select-all');
+                if(sa) {
+                    const targets = document.querySelectorAll(sa.dataset.target);
+                    const allChecked = Array.from(targets).every(t => t.checked);
+                    const someChecked = Array.from(targets).some(t => t.checked);
+                    sa.checked = allChecked && targets.length > 0;
+                    sa.indeterminate = someChecked && !allChecked;
+                }
+            }
+            syncFiltersAndFetch();
+        }
+
+        cbYears.forEach(cb => cb.addEventListener('change', enhancedSync));
+        cbDepts.forEach(cb => cb.addEventListener('change', enhancedSync));
+        cbTypes.forEach(cb => cb.addEventListener('change', enhancedSync));
         
         metricCards.forEach(card => {
             card.addEventListener('click', () => {

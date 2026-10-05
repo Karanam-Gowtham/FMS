@@ -27,22 +27,25 @@ $doc_joins = "
 $doc_where = "d.status = 'accepted'";
 
 if ($year_filter) {
-    $yr = (int)substr($year_filter, 0, 4);
-    $doc_where .= " AND YEAR(d.created_at) = $yr";
+    $years = explode(',', $year_filter);
+    $year_sql = implode(',', array_map(function($y) { return (int)substr(trim($y), 0, 4); }, $years));
+    if (!empty($year_sql)) $doc_where .= " AND YEAR(d.created_at) IN ($year_sql)";
 }
 
 if ($dept_filter) {
-    $doc_where .= " AND ur.dept_id = $dept_filter";
+    $depts = explode(',', $dept_filter);
+    $dept_sql = implode(',', array_map('intval', $depts));
+    if (!empty($dept_sql)) $doc_where .= " AND ur.dept_id IN ($dept_sql)";
 }
 
-// 1. Apply Focus Filter (Master Dropdown)
-if ($focus_filter === 'publications') $doc_where .= " AND (dt.type_code IN ('journal', 'conference'))";
-if ($focus_filter === 'patents') $doc_where .= " AND dt.type_code = 'patent'";
-if ($focus_filter === 'guest_lectures') $doc_where .= " AND dt.type_code = 'guest_lecture'";
-if ($focus_filter === 'fdps') $doc_where .= " AND (dt.type_code LIKE '%fdp%')";
-if ($focus_filter === 'workshops') $doc_where .= " AND (dt.type_code LIKE '%workshop%')";
-if ($focus_filter === 'books') $doc_where .= " AND (dt.type_code LIKE '%book%')";
-if ($focus_filter === 'certifications') $doc_where .= " AND dt.type_code = 'certificate_course'";
+// 1. Apply Focus Filter (Multi-Select)
+if ($focus_filter) {
+    $foci = explode(',', $focus_filter);
+    $foci_sql = implode(',', array_map(function($f) { global $conn; return "'" . $conn->real_escape_string(trim($f)) . "'"; }, $foci));
+    if (!empty($foci_sql)) {
+        $doc_where .= " AND dt.type_code IN ($foci_sql)";
+    }
+}
 
 // 2. Apply Category Filter (Card Click)
 if ($cat_filter === 'patents') {

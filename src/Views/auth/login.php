@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — GMRIT Master Analytics</title>
+    <title>Login — Research Analytics Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
@@ -112,7 +112,7 @@
             <i class="fas fa-university"></i>
             <div>
                 GMR Institute of Technology<br>
-                <span>Return to Master Dashboard</span>
+                <span>Return to Analytics Portal</span>
             </div>
         </a>
     </nav>
