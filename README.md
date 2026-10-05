@@ -18,9 +18,9 @@ A premium, role-based document management solution designed for **GMRIT** and hi
 | Layer | Technologies |
 | :--- | :--- |
 | **Backend** | PHP 8.x (MVC-inspired architecture, `mysqli` with prepared statements) |
-| **Database** | MySQL / MariaDB (`gmritfms` schema) |
+| **Database** | MySQL / MariaDB (`gmrdufms` schema) |
 | **Frontend** | Vanilla JS, CSS3, Modern UI/UX (Glassmorphism, Gradients), Google Fonts (Inter) |
-| **Libraries** | `pdf-lib` (client-side PDF merge), `PHPMailer` (email notifications) |
+| **Libraries** | Chart.js (Interactive Data Visualizations) |
 | **Deployment** | Apache (XAMPP) / any PHP-capable host |
 
 ---
@@ -96,8 +96,8 @@ FMS/
 │       ├── documents/        # Unified List, Upload, and View templates
 │       └── dashboard.php     # Dynamic Role-Based Dashboard
 │
-├── includes/                 # Legacy Helpers (Email, PDF Merger)
-├── database/                 # Schema Definitions & Master SQL
+├── includes/                 # Legacy Header, Breadcrumbs & Utilities
+├── database/                 # Schema Definitions & Migrations
 └── uploads/                  # User-uploaded files (organized by doc_id)
 ```
 
@@ -105,7 +105,7 @@ FMS/
 
 ## 💾 Database Schema
 
-**Database name:** `gmritfms`
+**Database name:** `gmrdufms`
 
 ### Unified Architecture Tables
 
@@ -124,7 +124,7 @@ FMS/
 
 ## 🔐 Roles & Access Control
 
-FMS uses a **Role-Based Access Control (RBAC)** system with 8 core roles:
+FMS uses a **Role-Based Access Control (RBAC)** system with 9 core roles:
 
 | Role ID | Role | Key Capabilities |
 | :---: | :--- | :--- |
@@ -136,6 +136,7 @@ FMS uses a **Role-Based Access Control (RBAC)** system with 8 core roles:
 | 6 | Central Coordinator | Central event management |
 | 7 | Junior Assistant | Academic year data entry |
 | 8 | RND Dean | Research document oversight (FDP, Journals, Patents) |
+| 9 | Student | Upload student proofs and activities |
 
 - **Multi-Role Support:** Users can hold multiple roles. The dashboard auto-redirects single-role users and provides a sleek role-switcher for multi-role users.
 - **Smart Fencing:** Document lists and dropdown filters are dynamically scoped. For example, the `RND Dean` automatically has their dashboard and lists filtered to only show `Research` documents, while `HODs` are securely fenced to their specific `Department`.
@@ -159,11 +160,11 @@ FMS uses a **Role-Based Access Control (RBAC)** system with 8 core roles:
 
 2. **Database**:
    ```sql
-   CREATE DATABASE gmritfms;
+   CREATE DATABASE gmrdufms;
    ```
    Import the schema via phpMyAdmin or CLI:
    ```bash
-   mysql -u root gmritfms < database/master.sql
+   mysql -u root gmrdufms < database/migrations/003_create_gmrdufms.sql
    ```
 
 3. **Configuration**:
@@ -186,6 +187,8 @@ FMS uses a **Role-Based Access Control (RBAC)** system with 8 core roles:
 
 ## 📝 Recent "FMS 2.0" Changes
 
+- **God-Level Analytics Dashboard**: A brand new interactive visualization portal using `Chart.js` for plotting Institutional Trajectories, Radar Maps, and Departmental Impact charts.
+- **Dynamic Data Export**: Integrated a robust CSV extraction engine allowing HODs and Admins to seamlessly export perfectly structured document metadata directly from their filtered views.
 - **Massive UI Overhaul**: Replaced the outdated HTML interfaces with a stunning, premium frontend featuring modern gradients, hover states, and dynamic Glassmorphism.
 - **Unified Document Service**: Consolidated 20+ legacy tables into a single `documents` architecture with dynamic metadata.
 - **Dynamic Workflow Engine**: Implemented a state machine that handles multi-tier approvals (`Pending -> Dept Coord -> HOD -> Accepted`) without hardcoded logic.
@@ -194,17 +197,6 @@ FMS uses a **Role-Based Access Control (RBAC)** system with 8 core roles:
 
 ---
 
-## ✅ CI Note: SonarCloud Decommissioned
-
-This repository no longer contains SonarCloud workflow/configuration files (`.github/workflows` Sonar steps, `sonar-project.properties`, or Sonar-related build script settings).
-
-If you still see a stale **SonarCloud Code Analysis** check on old commits/PRs, update GitHub repository settings (outside the codebase):
-
-- Remove SonarCloud required checks from **Settings → Branches → Branch protection rules**.
-- Remove SonarCloud secrets/variables from **Settings → Secrets and variables → Actions** (for example `SONAR_TOKEN`).
-- Ensure the SonarCloud GitHub App is removed/uninstalled for this repository.
-
----
 
 ## ⚖️ License
 
