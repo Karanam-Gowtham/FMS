@@ -96,6 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_files'])) {
 
     // 2. Loop through events and merge their PDFs
     $finalPageCounter = 2; // We are now on page 2
+    
+    // Disable automatic page breaks so stamping near the bottom doesn't trigger an empty page
+    $pdf->SetAutoPageBreak(false);
 
     foreach ($events as $event) {
         $pdf->setSourceFile($event['path']);
