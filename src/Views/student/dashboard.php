@@ -27,12 +27,12 @@ require __DIR__ . '/../../../includes/header.php';
         <div style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; position: relative; z-index: 2;">
             <!-- Avatar -->
             <div style="width: 130px; height: 130px; border-radius: 50%; background: white; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['name'] ?? 'Student') ?>&background=random&size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
+                <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['full_name'] ?? 'Student') ?>&background=random&size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
             </div>
             
             <!-- Info -->
             <div style="flex-grow: 1;">
-                <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= htmlspecialchars($auth['name'] ?? 'Student Name') ?></h1>
+                <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= htmlspecialchars($auth['full_name'] ?? 'Student Name') ?></h1>
                 <h3 style="font-size: 1.1rem; font-weight: 400; margin: 0 0 0.2rem 0; color: #93c5fd;"><i class="fas fa-user-graduate me-2"></i>Student</h3>
                 <p style="font-size: 1rem; margin: 0 0 1.2rem 0; color: #cbd5e1;"><i class="fas fa-id-card me-2"></i><?= htmlspecialchars($auth['username'] ?? 'Roll Number') ?></p>
                 

@@ -216,9 +216,9 @@ function meta_get_fields(string $type_key): array
         ],
         'student_activity_file' => [
             ['name' => 'activity_category', 'label' => 'Category', 'type' => 'select', 'options' => ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'], 'required' => true],
-            ['name' => 'sub_category', 'label' => 'Organization / Club Name', 'type' => 'text', 'required' => true],
-            ['name' => 'event_type', 'label' => 'Event Type', 'type' => 'select', 'options' => ['Workshop', 'Hackathon', 'Conference', 'Competition', 'Other'], 'required' => true],
-            ['name' => 'topic_domain', 'label' => 'Topic / Domain', 'type' => 'select', 'options' => ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Cultural / Arts', 'Social / Community Service', 'Other'], 'required' => true],
+            ['name' => 'sub_category', 'label' => 'Organization / Club Name', 'type' => 'text', 'required' => false],
+            ['name' => 'event_type', 'label' => 'Event Type', 'type' => 'select', 'options' => ['Workshop', 'Hackathon', 'Conference', 'Competition', 'Other'], 'required' => false],
+            ['name' => 'topic_domain', 'label' => 'Topic / Domain', 'type' => 'select', 'options' => ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Cultural / Arts', 'Social / Community Service', 'Other'], 'required' => false],
             ['name' => 'event_title', 'label' => 'Title of the Event', 'type' => 'text', 'required' => true],
             ['name' => 'date_from', 'label' => 'From Date', 'type' => 'date', 'required' => true],
             ['name' => 'date_to', 'label' => 'To Date', 'type' => 'date', 'required' => false],

@@ -125,7 +125,7 @@
             <?php endif; ?>
 
             <!-- Base meta fields -->
-            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
+            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none;">
                 
                 <?php $has_custom_title = (strpos($type_key, 'student_') === 0 || in_array($type_key, ['exam_qual', 'journal', 'conference', 'patent'])); ?>
                 <div class="form-group" <?= $has_custom_title ? 'style="display: none;"' : '' ?>>
@@ -313,7 +313,7 @@
             <?php endif; ?>
 
             <!-- File upload slots -->
-            <div class="file-section" style="background: transparent; border: none; padding: 0; margin-top: 0; box-shadow: none; <?= ($preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
+            <div class="file-section" style="background: transparent; border: none; padding: 0; margin-top: 0; box-shadow: none; <?= ($type_key === 'dept_file' && $preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
                 <?php foreach ($file_slots as $slot): ?>
                     <div class="form-group">
                         <label class="<?= $slot['required'] ? 'required' : '' ?>" for="file_<?= $slot['name'] ?>">
@@ -326,7 +326,7 @@
                 <?php endforeach; ?>
             </div>
 
-            <button type="submit" class="btn-upload" <?= ($preselected_subtype === 'Student Activities Files') ? 'style="display: none;"' : '' ?>>Upload Document</button>
+            <button type="submit" class="btn-upload" <?= ($type_key === 'dept_file' && $preselected_subtype === 'Student Activities Files') ? 'style="display: none;"' : '' ?>>Upload Document</button>
             <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload" style="margin-left: 1rem; color: #6c757d;">← Choose Different Type</a>
         </form>
     <?php endif; ?>

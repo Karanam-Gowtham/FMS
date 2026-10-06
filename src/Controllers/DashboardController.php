@@ -11,7 +11,20 @@ class DashboardController {
         $active_role = auth_active_role();
         $user_roles = $auth['roles'] ?? [];
 
-
+        // Fetch profile photo
+        global $conn;
+        $profile_photo = null;
+        $user_id = $auth['user_id'];
+        $photo_stmt = $conn->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
+        if ($photo_stmt) {
+            $photo_stmt->bind_param("i", $user_id);
+            $photo_stmt->execute();
+            $photo_res = $photo_stmt->get_result();
+            if ($photo_row = $photo_res->fetch_assoc()) {
+                $profile_photo = $photo_row['profile_photo'];
+            }
+            $photo_stmt->close();
+        }
 
         // If the active role is Student, redirect to student dashboard.
         if ($active_role && (int)$active_role['role_id'] === ROLE_STUDENT) {

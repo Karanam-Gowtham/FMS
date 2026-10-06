@@ -1,10 +1,15 @@
 <?php
-$conn = new mysqli('localhost', 'root', '', 'gmritfms');
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+require_once __DIR__ . '/../core/bootstrap.php';
+global $conn;
 
-$result = $conn->query("SHOW TABLES");
-$tables = [];
-while ($row = $result->fetch_row()) {
-    $tables[] = $row[0];
-}
-echo "Tables:\n" . implode("\n", $tables) . "\n";
+echo "Workflows:\n";
+$res = $conn->query("SELECT * FROM workflows");
+while($row = $res->fetch_assoc()) { print_r($row); }
+
+echo "\nDocument Types:\n";
+$res = $conn->query("SELECT type_id, type_code, workflow_id FROM document_types");
+while($row = $res->fetch_assoc()) { print_r($row); }
+
+echo "\nSteps:\n";
+$res = $conn->query("SELECT * FROM workflow_steps");
+while($row = $res->fetch_assoc()) { print_r($row); }

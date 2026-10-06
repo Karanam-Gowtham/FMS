@@ -28,6 +28,8 @@ class DocumentActionController {
             if ($post_title === '') {
                 if (!empty($_POST['meta']['event_name'])) {
                     $post_title = trim($_POST['meta']['event_name']);
+                } elseif (!empty($_POST['meta']['event_title'])) {
+                    $post_title = trim($_POST['meta']['event_title']);
                 } elseif (!empty($_POST['meta']['paper_title'])) {
                     $post_title = trim($_POST['meta']['paper_title']);
                 } elseif (!empty($_POST['meta']['patent_title'])) {
