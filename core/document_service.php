@@ -630,6 +630,9 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     $types .= 'i';
 
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error . "\nSQL: " . $sql);
+    }
     if ($types && $params) {
         $stmt->bind_param($types, ...$params);
     }

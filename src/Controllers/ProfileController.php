@@ -92,39 +92,56 @@ class ProfileController {
                     $stmt->execute();
                     $stmt->close();
 
-                    $stmt = $conn->prepare("
-                        INSERT INTO user_profiles (
-                            user_id, per_no, pan_no, apaar_id, highest_degree, university, specialization, 
-                            doj_institution, doj_department, experience_years, designation_joining, 
-                            designation_present, date_designated_prof, association_nature, 
-                            contract_type, is_currently_associated, date_of_leaving
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
-                        ON DUPLICATE KEY UPDATE 
-                            per_no = VALUES(per_no),
-                            pan_no = VALUES(pan_no),
-                            apaar_id = VALUES(apaar_id),
-                            highest_degree = VALUES(highest_degree), 
-                            university = VALUES(university), 
-                            specialization = VALUES(specialization),
-                            doj_institution = VALUES(doj_institution),
-                            doj_department = VALUES(doj_department),
-                            experience_years = VALUES(experience_years),
-                            designation_joining = VALUES(designation_joining),
-                            designation_present = VALUES(designation_present),
-                            date_designated_prof = VALUES(date_designated_prof),
-                            association_nature = VALUES(association_nature),
-                            contract_type = VALUES(contract_type),
-                            is_currently_associated = VALUES(is_currently_associated),
-                            date_of_leaving = VALUES(date_of_leaving)
-                    ");
-                    
-                    $stmt->bind_param(
-                        "issssssssddssssis", 
-                        $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
-                        $doj_institution, $doj_department, $experience_years, $designation_joining,
-                        $designation_present, $date_designated_prof, $association_nature,
-                        $contract_type, $is_currently_associated, $date_of_leaving
-                    );
+                    $update_photo = false;
+                    $profile_photo_path = null;
+                    if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+                        require_once __DIR__ . '/../../core/file_service.php';
+                        $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
+                        if ($upload_result['success']) {
+                            $profile_photo_path = $upload_result['data']['file_path'];
+                            $update_photo = true;
+                        }
+                    }
+
+                    if ($update_photo) {
+                        $stmt = $conn->prepare("
+                            INSERT INTO user_profiles (
+                                user_id, per_no, pan_no, apaar_id, highest_degree, university, specialization, 
+                                doj_institution, doj_department, experience_years, designation_joining, 
+                                designation_present, date_designated_prof, association_nature, 
+                                contract_type, is_currently_associated, date_of_leaving, profile_photo
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                            ON DUPLICATE KEY UPDATE 
+                                per_no = VALUES(per_no), pan_no = VALUES(pan_no), apaar_id = VALUES(apaar_id),
+                                highest_degree = VALUES(highest_degree), university = VALUES(university), 
+                                specialization = VALUES(specialization), doj_institution = VALUES(doj_institution),
+                                doj_department = VALUES(doj_department), experience_years = VALUES(experience_years),
+                                designation_joining = VALUES(designation_joining), designation_present = VALUES(designation_present),
+                                date_designated_prof = VALUES(date_designated_prof), association_nature = VALUES(association_nature),
+                                contract_type = VALUES(contract_type), is_currently_associated = VALUES(is_currently_associated),
+                                date_of_leaving = VALUES(date_of_leaving), profile_photo = VALUES(profile_photo)
+                        ");
+                        $stmt->bind_param("issssssssddssssiss", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving, $profile_photo_path);
+                    } else {
+                        $stmt = $conn->prepare("
+                            INSERT INTO user_profiles (
+                                user_id, per_no, pan_no, apaar_id, highest_degree, university, specialization, 
+                                doj_institution, doj_department, experience_years, designation_joining, 
+                                designation_present, date_designated_prof, association_nature, 
+                                contract_type, is_currently_associated, date_of_leaving
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                            ON DUPLICATE KEY UPDATE 
+                                per_no = VALUES(per_no), pan_no = VALUES(pan_no), apaar_id = VALUES(apaar_id),
+                                highest_degree = VALUES(highest_degree), university = VALUES(university), 
+                                specialization = VALUES(specialization), doj_institution = VALUES(doj_institution),
+                                doj_department = VALUES(doj_department), experience_years = VALUES(experience_years),
+                                designation_joining = VALUES(designation_joining), designation_present = VALUES(designation_present),
+                                date_designated_prof = VALUES(date_designated_prof), association_nature = VALUES(association_nature),
+                                contract_type = VALUES(contract_type), is_currently_associated = VALUES(is_currently_associated),
+                                date_of_leaving = VALUES(date_of_leaving)
+                        ");
+                        $stmt->bind_param("issssssssddssssis", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving);
+                    }
                     
                     $stmt->execute();
                     $stmt->close();

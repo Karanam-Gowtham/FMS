@@ -38,9 +38,19 @@
             <div class="error-msg"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
-        <form action="" method="POST" class="form-grid">
+        <form action="" method="POST" class="form-grid" enctype="multipart/form-data">
             <?= csrfField() ?>
             
+            <div class="form-group full-width">
+                <label for="profile_photo">Profile Photo (Leave blank to keep existing)</label>
+                <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
+                <?php if (!empty($profile['profile_photo'])): ?>
+                    <div style="margin-top: 10px;">
+                        <img src="<?= BASE_URL ?>/<?= htmlspecialchars($profile['profile_photo']) ?>" alt="Current Photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                    </div>
+                <?php endif; ?>
+            </div>
+
             <div class="form-group full-width">
                 <label for="name">Full Name *</label>
                 <input type="text" id="name" name="name" value="<?= htmlspecialchars($profile['name'] ?? '') ?>" required placeholder="e.g. Dr. John Doe">

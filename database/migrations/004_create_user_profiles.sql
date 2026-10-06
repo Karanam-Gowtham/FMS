@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `user_profiles` (
     `contract_type` ENUM('Full time', 'Part time', 'Hourly based') DEFAULT NULL,
     `is_currently_associated` TINYINT(1) NOT NULL DEFAULT 1,
     `date_of_leaving` DATE DEFAULT NULL,
+    `profile_photo` VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (`profile_id`),
     UNIQUE KEY `uk_user_id` (`user_id`),
     CONSTRAINT `fk_profile_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE

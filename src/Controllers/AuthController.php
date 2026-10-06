@@ -235,20 +235,29 @@ class AuthController {
                         $role_stmt->close();
 
                         if ($role_id === ROLE_FACULTY) {
+                            $profile_photo_path = null;
+                            if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+                                require_once __DIR__ . '/../../core/file_service.php';
+                                $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
+                                if ($upload_result['success']) {
+                                    $profile_photo_path = $upload_result['data']['file_path'];
+                                }
+                            }
+
                             $prof_stmt = $conn->prepare("
                                 INSERT INTO user_profiles (
                                     user_id, per_no, pan_no, apaar_id, highest_degree, university, specialization, 
                                     doj_institution, doj_department, experience_years, designation_joining, 
                                     designation_present, date_designated_prof, association_nature, 
-                                    contract_type, is_currently_associated, date_of_leaving
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    contract_type, is_currently_associated, date_of_leaving, profile_photo
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             ");
                             $prof_stmt->bind_param(
-                                "issssssssdsssssis", 
+                                "issssssssdsssssiss", 
                                 $new_user_id, $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
                                 $doj_institution, $doj_department, $experience_years, $designation_joining,
                                 $designation_present, $date_designated_prof, $association_nature,
-                                $contract_type, $is_currently_associated, $date_of_leaving
+                                $contract_type, $is_currently_associated, $date_of_leaving, $profile_photo_path
                             );
                             $prof_stmt->execute();
                             $prof_stmt->close();

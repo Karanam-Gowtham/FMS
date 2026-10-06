@@ -293,7 +293,7 @@
             </div>
         <?php else: ?>
 
-        <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=auth/register" id="regForm">
+        <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=auth/register" id="regForm" enctype="multipart/form-data">
             <?= csrfField() ?>
 
             <h3 class="section-title">1. Account Credentials</h3>
@@ -360,6 +360,10 @@
                 <div class="form-group full-width">
                     <label for="specialization">Area of Specialization *</label>
                     <input type="text" id="specialization" name="specialization" value="<?= htmlspecialchars($_POST['specialization'] ?? '') ?>" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="profile_photo">Profile Photo</label>
+                    <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
                 </div>
             </div>
 
