@@ -61,8 +61,7 @@ function doc_get_type_by_id(mysqli $conn, int $type_id): ?array
 /**
  * Lists all active document types, optionally filtered by category.
  *
- * @param mysqli      $conn
- * @param string|null $category  Optional filter (e.g. 'research', 'student', 'criteria')
+ * @param mysqli $conn
  * @return array
  */
 function doc_get_types(mysqli $conn): array

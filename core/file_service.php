@@ -74,10 +74,9 @@ function file_validate(array $file): array
     }
 
     // Check MIME type (using finfo for reliability)
-    if (function_exists('finfo_open')) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+    if (class_exists('finfo')) {
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
         if (!in_array($mime, file_allowed_mimes(), true)) {
             return ['valid' => false, 'error' => 'File MIME type ' . $mime . ' is not allowed.'];
         }
@@ -128,10 +127,9 @@ function file_store(array $file, string $type_key, string $file_label): array
 
     // Detect MIME type
     $mime = 'application/octet-stream';
-    if (function_exists('finfo_open')) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $full_path);
-        finfo_close($finfo);
+    if (class_exists('finfo')) {
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($full_path);
     }
 
     return [

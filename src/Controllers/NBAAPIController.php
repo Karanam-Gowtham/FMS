@@ -110,8 +110,12 @@ class NBAAPIController {
             ]);
 
         } catch (\Exception $e) {
-            if (isset($conn) && $conn->ping()) {
-                $conn->rollback();
+            if (isset($conn)) {
+                try {
+                    $conn->rollback();
+                } catch (\Throwable $t) {
+                    // Ignore rollback failures
+                }
             }
             echo json_encode([
                 'status' => 'error',
@@ -142,9 +146,8 @@ class NBAAPIController {
 
             $file = $_FILES['pdf_file'];
             
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime = finfo_file($finfo, $file['tmp_name']);
-            finfo_close($finfo);
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->file($file['tmp_name']);
             
             if ($mime !== 'application/pdf') {
                 throw new \Exception("Invalid file format. Only PDF files are allowed.");
