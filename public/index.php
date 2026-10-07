@@ -52,6 +52,15 @@ if ($route === 'dashboard') {
 } elseif ($route === 'api/nba/generate_pdf') {
     $controller = new \App\Controllers\NBAAPIController();
     $controller->generate_pdf();
+} elseif ($route === 'api/naac/save') {
+    $controller = new \App\Controllers\NAACAPIController();
+    $controller->save();
+} elseif ($route === 'api/naac/upload_pdf') {
+    $controller = new \App\Controllers\NAACAPIController();
+    $controller->upload_pdf();
+} elseif ($route === 'api/naac/generate_pdf') {
+    $controller = new \App\Controllers\NAACAPIController();
+    $controller->generate_pdf();
 } elseif ($route === 'documents/list') {
     $controller = new \App\Controllers\DocumentController();
     $controller->index();
