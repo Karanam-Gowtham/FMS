@@ -40,6 +40,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'naac/criterion') {
     $controller = new \App\Controllers\NAACCriterionController();
     $controller->show();
+} elseif ($route === 'student_activities/dashboard') {
+    $controller = new \App\Controllers\StudentActivityDashboardController();
+    $controller->index();
 } elseif ($route === 'api/nba/save') {
     $controller = new \App\Controllers\NBAAPIController();
     $controller->save();

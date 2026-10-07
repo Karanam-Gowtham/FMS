@@ -167,6 +167,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         </div>
         <div class="nav-links">
             <a href="#" class="active">Analytics Dashboard</a>
+            <a href="<?= BASE_URL ?>/public/index.php?route=student_activities/dashboard">Student Activities</a>
             <a href="#profiles">Top Profiles</a>
         </div>
     </nav>

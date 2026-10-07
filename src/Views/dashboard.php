@@ -234,6 +234,9 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                             <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
                                 <i class="fas fa-list" style="margin-right: 8px;"></i> View Publications & Achievements
                             </a>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                                <i class="fas fa-folder-open" style="margin-right: 8px;"></i> My Department Files
+                            </a>
                         </div>
                     </div>
                     
