@@ -9,11 +9,11 @@ $d_res = $conn->query("SELECT dept_id, dept_name FROM departments WHERE is_acade
 if($d_res) { while($row = $d_res->fetch_assoc()) { $depts[] = $row; } }
 
 $years = [];
-$y_res = $conn->query("SELECT DISTINCT YEAR(created_at) as yr FROM documents WHERE status='accepted' ORDER BY yr DESC");
+$y_res = $conn->query("SELECT year_label as yr FROM academic_years ORDER BY year_label DESC");
 if($y_res) { while($row = $y_res->fetch_assoc()) { $years[] = $row['yr']; } }
 
 $doc_types = [];
-$whitelist = "'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference'";
+$whitelist = "'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised'";
 $dt_res = $conn->query("SELECT type_code, label FROM document_types WHERE type_code IN ($whitelist) ORDER BY label");
 if($dt_res) { while($row = $dt_res->fetch_assoc()) { $doc_types[] = $row; } }
 
@@ -225,7 +225,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
                     <h4>Academic Year</h4>
                     <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-year"> Select All</label>
                     <?php foreach($years as $yr): ?>
-                        <label class="facet-label"><input type="checkbox" class="cb-year" value="<?= $yr ?>"> <?= $yr ?>-<?= $yr+1 ?></label>
+                        <label class="facet-label"><input type="checkbox" class="cb-year" value="<?= htmlspecialchars($yr) ?>"> <?= htmlspecialchars($yr) ?></label>
                     <?php endforeach; ?>
                 </div>
 
@@ -354,9 +354,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             animateValue(document.getElementById('val-researchers'), 0, mData.researchers, 800);
 
             // Timeline Chart (Smooth Area)
-            const tLabels = Object.keys(data.timeline).map(d => {
-                const [y, m] = d.split('-'); return new Date(y, m-1).toLocaleString('default', { month: 'short', year: '2-digit' });
-            });
+            const tLabels = Object.keys(data.timeline); // Use academic year string directly
             const tValues = Object.values(data.timeline);
             
             if (timelineChartInst) timelineChartInst.destroy();
@@ -436,7 +434,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
                 options: { 
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { r: { angleLines: { display: true, color: '#e2e8f0' }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 11, family: 'Inter, sans-serif' }, color: '#64748b' } } }
+                    scales: { r: { min: 0, ticks: { stepSize: 1, precision: 0 }, angleLines: { display: true, color: '#e2e8f0' }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 11, family: 'Inter, sans-serif' }, color: '#64748b' } } }
                 }
             });
 

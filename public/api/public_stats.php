@@ -23,7 +23,7 @@ $doc_joins = "
 ";
 
 // Base WHERE condition for accepted documents
-$whitelist = "'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference'";
+$whitelist = "'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised'";
 $doc_where = "d.status = 'accepted' AND dt.type_code IN ($whitelist)";
 
 if ($year_filter) {
