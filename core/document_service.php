@@ -530,32 +530,116 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     if (!empty($filters['sub_types']) && is_array($filters['sub_types'])) {
         $clean_subtypes = array_filter(array_map('trim', $filters['sub_types']));
         if (!empty($clean_subtypes)) {
-            $join_sql .= ' JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
-            $placeholders = str_repeat('?,', count($clean_subtypes) - 1) . '?';
-            $where_clauses[] = 'mdf.file_type IN (' . $placeholders . ')';
+            $subtype_conditions = [];
+            $has_dept_file_subtypes = false;
+            $dept_file_subtypes = [];
+
             foreach ($clean_subtypes as $st) {
-                $params[] = $st;
-                $types .= 's';
+                if ($st === 'Student Activities Files') {
+                    $subtype_conditions[] = "dt.type_code = 'student_activity_file'";
+                } else {
+                    $has_dept_file_subtypes = true;
+                    $dept_file_subtypes[] = $st;
+                    if ($st === 'Student Related Files') {
+                        $subtype_conditions[] = "dt.type_code IN ('student_journal', 'student_conference', 'student_body', 'exam_qual')";
+                    }
+                }
+            }
+
+            $or_clauses = [];
+            if (!empty($subtype_conditions)) {
+                $or_clauses[] = implode(' OR ', $subtype_conditions);
+            }
+            if ($has_dept_file_subtypes) {
+                if (strpos($join_sql, 'meta_dept_file mdf') === false) {
+                    $join_sql .= ' LEFT JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
+                }
+                $placeholders = str_repeat('?,', count($dept_file_subtypes) - 1) . '?';
+                $or_clauses[] = "(dt.type_code = 'dept_file' AND mdf.file_type IN ($placeholders))";
+                foreach ($dept_file_subtypes as $st) {
+                    $params[] = $st;
+                    $types .= 's';
+                }
+            }
+            
+            if (!empty($or_clauses)) {
+                $where_clauses[] = '(' . implode(' OR ', $or_clauses) . ')';
             }
         }
     } elseif (!empty($filters['sub_type'])) {
-        $join_sql .= ' JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
-        $where_clauses[] = 'mdf.file_type = ?';
-        $params[] = $filters['sub_type'];
-        $types .= 's';
+        $st = trim($filters['sub_type']);
+        if ($st === 'Student Activities Files') {
+            $where_clauses[] = "dt.type_code = 'student_activity_file'";
+        } else {
+            if (strpos($join_sql, 'meta_dept_file mdf') === false) {
+                $join_sql .= ' LEFT JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
+            }
+            if ($st === 'Student Related Files') {
+                $where_clauses[] = "(dt.type_code IN ('student_journal', 'student_conference', 'student_body', 'exam_qual') OR (dt.type_code = 'dept_file' AND mdf.file_type = ?))";
+            } else {
+                $where_clauses[] = "(dt.type_code = 'dept_file' AND mdf.file_type = ?)";
+            }
+            $params[] = $st;
+            $types .= 's';
+        }
     }
 
     if (!empty($filters['sub_file_types']) && is_array($filters['sub_file_types'])) {
         $clean_subfiletypes = array_filter(array_map('trim', $filters['sub_file_types']));
         if (!empty($clean_subfiletypes)) {
-            if (strpos($join_sql, 'meta_dept_file mdf') === false) {
-                $join_sql .= ' JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
-            }
-            $placeholders = str_repeat('?,', count($clean_subfiletypes) - 1) . '?';
-            $where_clauses[] = 'mdf.sub_file_type IN (' . $placeholders . ')';
+            $or_clauses = [];
+            $mdf_types = [];
+            $saf_types = [];
+            
+            $type_code_mappings = [
+                'Papers Published by Students' => 'student_journal',
+                'Co-Curricular/Extra-Curricular Activities' => 'student_conference',
+                'Professional Societies' => 'student_body',
+                'Students in Competitive Exams' => 'exam_qual',
+            ];
+            
+            $saf_known_types = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'];
+            
             foreach ($clean_subfiletypes as $st) {
-                $params[] = $st;
-                $types .= 's';
+                if (isset($type_code_mappings[$st])) {
+                    $or_clauses[] = "dt.type_code = '" . $type_code_mappings[$st] . "'";
+                }
+                
+                if (in_array($st, $saf_known_types)) {
+                    $saf_types[] = $st;
+                }
+                
+                if (!isset($type_code_mappings[$st]) && !in_array($st, $saf_known_types)) {
+                    $mdf_types[] = $st;
+                }
+            }
+
+            if (!empty($mdf_types)) {
+                if (strpos($join_sql, 'meta_dept_file mdf') === false) {
+                    $join_sql .= ' LEFT JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
+                }
+                $placeholders = str_repeat('?,', count($mdf_types) - 1) . '?';
+                $or_clauses[] = "(dt.type_code = 'dept_file' AND mdf.sub_file_type IN ($placeholders))";
+                foreach ($mdf_types as $st) {
+                    $params[] = $st;
+                    $types .= 's';
+                }
+            }
+            
+            if (!empty($saf_types)) {
+                if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
+                    $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
+                }
+                $placeholders = str_repeat('?,', count($saf_types) - 1) . '?';
+                $or_clauses[] = "(dt.type_code = 'student_activity_file' AND msaf.activity_category IN ($placeholders))";
+                foreach ($saf_types as $st) {
+                    $params[] = $st;
+                    $types .= 's';
+                }
+            }
+
+            if (!empty($or_clauses)) {
+                $where_clauses[] = '(' . implode(' OR ', $or_clauses) . ')';
             }
         }
     }

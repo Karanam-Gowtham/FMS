@@ -53,7 +53,7 @@ class DocumentController {
                 // If they specifically requested dept_file from the dashboard, show Dept Files.
                 // Otherwise, the default context for Faculty list views is ALWAYS 'My Achievements'.
                 if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
-                    $forced_filters['type_key'] = 'dept_file';
+                    $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
                     $scope_label = 'My Dept Files';
                 } else {
                     $forced_filters['category'] = 'research';
@@ -166,13 +166,54 @@ class DocumentController {
 
         $available_sub_file_types = [];
         if (!empty($_GET['context']) && $_GET['context'] === 'dept_file') {
+            // 1. Fetch generic dept files (Admin, Faculty, Exam)
             $sf_res = $conn->query("SELECT DISTINCT file_type, sub_file_type FROM meta_dept_file WHERE sub_file_type IS NOT NULL AND sub_file_type != '' ORDER BY sub_file_type ASC");
             if ($sf_res) {
                 while($row = $sf_res->fetch_assoc()) {
                     if (!isset($available_sub_file_types[$row['file_type']])) {
                         $available_sub_file_types[$row['file_type']] = [];
                     }
-                    $available_sub_file_types[$row['file_type']][] = $row['sub_file_type'];
+                    if (!in_array($row['sub_file_type'], $available_sub_file_types[$row['file_type']])) {
+                        $available_sub_file_types[$row['file_type']][] = $row['sub_file_type'];
+                    }
+                }
+            }
+
+            // 2. Fetch Student Activities Files (from its own advanced table)
+            $saf_res = $conn->query("SELECT DISTINCT activity_category FROM meta_student_activity_file WHERE activity_category IS NOT NULL AND activity_category != '' ORDER BY activity_category ASC");
+            if ($saf_res) {
+                while($row = $saf_res->fetch_assoc()) {
+                    if (!isset($available_sub_file_types['Student Activities Files'])) {
+                        $available_sub_file_types['Student Activities Files'] = [];
+                    }
+                    if (!in_array($row['activity_category'], $available_sub_file_types['Student Activities Files'])) {
+                        $available_sub_file_types['Student Activities Files'][] = $row['activity_category'];
+                    }
+                }
+            }
+
+            // 3. Fetch advanced Student Related Files (Journals, Conferences, etc) by checking if documents exist
+            $type_check_query = "SELECT DISTINCT dt.type_code FROM documents d JOIN document_types dt ON d.doc_type_id = dt.id WHERE dt.type_code IN ('student_journal', 'student_conference', 'student_body', 'exam_qual')";
+            $tc_res = $conn->query($type_check_query);
+            if ($tc_res) {
+                if (!isset($available_sub_file_types['Student Related Files'])) {
+                    $available_sub_file_types['Student Related Files'] = [];
+                }
+                while($row = $tc_res->fetch_assoc()) {
+                    $tc = $row['type_code'];
+                    $mapped_name = '';
+                    if ($tc === 'student_journal') $mapped_name = 'Papers Published by Students';
+                    elseif ($tc === 'student_conference') $mapped_name = 'Co-Curricular/Extra-Curricular Activities';
+                    elseif ($tc === 'student_body') $mapped_name = 'Professional Societies';
+                    elseif ($tc === 'exam_qual') $mapped_name = 'Students in Competitive Exams';
+                    
+                    if ($mapped_name && !in_array($mapped_name, $available_sub_file_types['Student Related Files'])) {
+                        $available_sub_file_types['Student Related Files'][] = $mapped_name;
+                    }
+                }
+                // If it's empty after all checks, remove the key so it doesn't show an empty group
+                if (empty($available_sub_file_types['Student Related Files'])) {
+                    unset($available_sub_file_types['Student Related Files']);
                 }
             }
         }

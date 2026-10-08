@@ -478,7 +478,7 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Exam Section Files</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Student Activities Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=student_activity_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-futbol" style="color: #64748b; font-size: 1.2rem;"></i>
                     </div>
@@ -525,7 +525,7 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                         </div>
                         <div style="font-weight: 600; font-size: 0.95rem;">Exam Section Files</div>
                     </a>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Student Activities Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=student_activity_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-futbol" style="color: #64748b; font-size: 1.2rem;"></i>
                         </div>
@@ -795,10 +795,12 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                             </span>
                         </td>
                         <td style="padding: 12px 16px;">
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">View</a>
-                            <?php if ($status_lower === 'pending' || $status_lower === 'rejected'): ?>
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; margin-left: 5px;">Update</a>
-                            <?php endif; ?>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap;">View</a>
+                                <?php if ($status_lower === 'pending' || $status_lower === 'rejected'): ?>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap;">Update</a>
+                                <?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>

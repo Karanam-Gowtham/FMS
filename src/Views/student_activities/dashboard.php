@@ -94,7 +94,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                     <small class="text-muted">Total students participating across months</small>
                 </div>
                 <div class="card-body">
-                    <div style="height: 300px;"><canvas id="timelineChart"></canvas></div>
+                    <div style="position: relative; height: 320px; width: 100%;"><canvas id="timelineChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -103,8 +103,8 @@ require_once __DIR__ . '/../../../includes/header.php';
                 <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
                     <h5 class="mb-0"><i class="fas fa-chart-pie text-info"></i> Event Categories</h5>
                 </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <div style="height: 250px; width: 100%;"><canvas id="categoryChart"></canvas></div>
+                <div class="card-body">
+                    <div style="position: relative; height: 320px; width: 100%;"><canvas id="categoryChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -118,7 +118,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                     <h5 class="mb-0"><i class="fas fa-bullseye text-danger"></i> Topic Focus Area</h5>
                 </div>
                 <div class="card-body">
-                    <div style="height: 300px;"><canvas id="topicRadarChart"></canvas></div>
+                    <div style="position: relative; height: 300px; width: 100%;"><canvas id="topicRadarChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -127,8 +127,8 @@ require_once __DIR__ . '/../../../includes/header.php';
                 <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
                     <h5 class="mb-0"><i class="fas fa-laptop-house text-warning"></i> Delivery Mode</h5>
                 </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <div style="height: 250px; width: 100%;"><canvas id="modeChart"></canvas></div>
+                <div class="card-body">
+                    <div style="position: relative; height: 300px; width: 100%;"><canvas id="modeChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -153,6 +153,19 @@ require_once __DIR__ . '/../../../includes/header.php';
                             </li>
                         <?php endforeach; endif; ?>
                     </ul>
+                </div>
+            </div>
+        </div>
+    <!-- Charts Row 3 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
+                    <h5 class="mb-0"><i class="fas fa-university text-primary"></i> University Level Department Comparison</h5>
+                    <small class="text-muted">Comparing total events and student participation across departments</small>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 350px; width: 100%;"><canvas id="deptCompareChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -189,7 +202,10 @@ document.addEventListener("DOMContentLoaded", function() {
         options: { 
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            scales: { 
+                x: { offset: true },
+                y: { beginAtZero: true, ticks: { precision: 0 } } 
+            }
         }
     });
 
@@ -211,25 +227,24 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // 3. Topic Radar Chart
+    // 3. Topic Bar Chart
     const topicData = <?= json_encode($stats['topic_dist']) ?>;
     new Chart(document.getElementById('topicRadarChart'), {
-        type: 'radar',
+        type: 'bar',
         data: {
             labels: Object.keys(topicData),
             datasets: [{
                 label: 'Events Count',
                 data: Object.values(topicData),
-                backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                backgroundColor: 'rgba(220, 53, 69, 0.7)',
                 borderColor: '#dc3545',
-                pointBackgroundColor: '#dc3545',
-                borderWidth: 2
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { r: { min: 0, ticks: { stepSize: 1, precision: 0 } } }
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }
         }
     });
 
@@ -248,6 +263,38 @@ document.addEventListener("DOMContentLoaded", function() {
         options: { 
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+        }
+    });
+
+    // 5. Department Comparison Bar Chart
+    const deptData = <?= json_encode($stats['dept_compare']) ?>;
+    const deptLabels = Object.keys(deptData);
+    const deptEvents = deptLabels.map(dept => deptData[dept].events);
+    const deptParticipants = deptLabels.map(dept => deptData[dept].participants);
+
+    new Chart(document.getElementById('deptCompareChart'), {
+        type: 'bar',
+        data: {
+            labels: deptLabels,
+            datasets: [
+                {
+                    label: 'Total Events',
+                    data: deptEvents,
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Total Participants',
+                    data: deptParticipants,
+                    backgroundColor: '#20c997',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
         }
     });
 });

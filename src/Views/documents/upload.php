@@ -101,7 +101,7 @@
 
 
             <?php if (count($user_depts) > 1): ?>
-                <div class="form-group">
+                <div class="form-group" <?= ($type_key === 'dept_file' && $preselected_subtype === 'Student Activities Files') ? 'style="display: none;"' : '' ?>>
                     <label class="required" for="dept_id">Department</label>
                     <select id="dept_id" name="dept_id" required>
                         <option value="">— Select Department —</option>
@@ -125,7 +125,7 @@
             <?php endif; ?>
 
             <!-- Base meta fields -->
-            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none;">
+            <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($type_key === 'dept_file' && $preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
                 
                 <?php $has_custom_title = (strpos($type_key, 'student_') === 0 || in_array($type_key, ['exam_qual', 'journal', 'conference', 'patent'])); ?>
                 <div class="form-group" <?= $has_custom_title ? 'style="display: none;"' : '' ?>>
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (activityCat === 'Grad Talks' || activityCat === 'Expert Talks / Guest Lectures') {
             if (topicDomainGrp) {
                 topicDomainGrp.style.display = 'block';
-                topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic —');
+                topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counselling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic —');
             }
             
             if(eventTitleGrp) eventTitleGrp.querySelector('label').innerText = 'Title of the Event';
@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     topicDomainGrp.style.display = 'none';
                 } else {
                     topicDomainGrp.style.display = 'block';
-                    topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counseling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic / Domain —');
+                    topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counselling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '— Select Topic / Domain —');
                 }
             }
             

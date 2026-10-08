@@ -93,7 +93,7 @@
             <!-- SubType Checkboxes -->
             <?php if (!empty($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Sub-Type</label>
+                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Types</label>
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php 
                     $sub_types = ['Admin Files', 'Faculty Files', 'Student Related Files', 'Exam Section Files', 'Student Activities Files'];

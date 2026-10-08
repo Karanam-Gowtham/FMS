@@ -29,14 +29,14 @@ $schema_c5 = [
                 ],
                 [
                     "id" => "5.1.2",
-                    "title" => "5.1.2: Career Counseling and Guidance",
-                    "description" => "Average percentage of students benefited by career counseling and guidance for competitive examinations.",
+                    "title" => "5.1.2: Career Counselling and Guidance",
+                    "description" => "Average percentage of students benefited by career counselling and guidance for competitive examinations.",
                     "fields" => [
                         ["name" => "qnm_5_1_2_benefited", "label" => "Number of students benefited (Numerator)", "type" => "number"],
                         ["name" => "qnm_5_1_2_total", "label" => "Total number of students (Denominator)", "type" => "number"],
                         [
                             "name" => "table_5_1_2",
-                            "label" => "Data Template: Career Counseling",
+                            "label" => "Data Template: Career Counselling",
                             "type" => "table",
                             "columns" => [
                                 ["name" => "year", "label" => "Year", "type" => "number"],

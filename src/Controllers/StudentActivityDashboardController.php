@@ -6,6 +6,7 @@ class StudentActivityDashboardController
     public function index()
     {
         require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
         
         global $conn;
         
@@ -42,10 +43,12 @@ class StudentActivityDashboardController
 
         // Fetch all relevant documents metadata
         $sql = "
-            SELECT d.doc_id, d.title, d.created_at, dm.meta_key, dm.meta_value 
+            SELECT d.doc_id, d.title, d.created_at, dp.dept_name,
+                   msaf.activity_category, msaf.event_mode, msaf.topic_domain, msaf.target_audience, msaf.sub_category, msaf.participant_count 
             FROM documents d
             JOIN document_types dt ON d.type_id = dt.type_id
-            LEFT JOIN document_metadata dm ON d.doc_id = dm.doc_id
+            JOIN departments dp ON d.dept_id = dp.dept_id
+            LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
             WHERE $where
         ";
         
@@ -61,11 +64,16 @@ class StudentActivityDashboardController
                         'doc_id' => $id,
                         'title' => $row['title'],
                         'created_at' => $row['created_at'],
-                        'meta' => []
+                        'dept_name' => $row['dept_name'],
+                        'meta' => [
+                            'activity_category' => $row['activity_category'],
+                            'event_mode' => $row['event_mode'],
+                            'topic_domain' => $row['topic_domain'],
+                            'target_audience' => $row['target_audience'],
+                            'sub_category' => $row['sub_category'],
+                            'participant_count' => $row['participant_count']
+                        ]
                     ];
-                }
-                if ($row['meta_key']) {
-                    $docs[$id]['meta'][$row['meta_key']] = $row['meta_value'];
                 }
             }
         }
@@ -79,7 +87,8 @@ class StudentActivityDashboardController
             'topic_dist' => [],
             'audience_dist' => [],
             'club_activity' => [],
-            'timeline' => []
+            'timeline' => [],
+            'dept_compare' => []
         ];
 
         foreach ($docs as $doc) {
@@ -89,24 +98,32 @@ class StudentActivityDashboardController
             $count = (int)($meta['participant_count'] ?? 0);
             $stats['total_participants'] += $count;
 
+            // Department Comparison
+            $dept = $doc['dept_name'];
+            if (!isset($stats['dept_compare'][$dept])) {
+                $stats['dept_compare'][$dept] = ['events' => 0, 'participants' => 0];
+            }
+            $stats['dept_compare'][$dept]['events'] += 1;
+            $stats['dept_compare'][$dept]['participants'] += $count;
+
             // Category Distribution
-            $cat = $meta['activity_category'] ?? 'Uncategorized';
+            $cat = !empty($meta['activity_category']) ? $meta['activity_category'] : 'Uncategorized';
             $stats['category_dist'][$cat] = ($stats['category_dist'][$cat] ?? 0) + 1;
 
             // Mode Distribution
-            $mode = $meta['event_mode'] ?? 'Unknown';
+            $mode = !empty($meta['event_mode']) ? $meta['event_mode'] : 'Unknown';
             $stats['mode_dist'][$mode] = ($stats['mode_dist'][$mode] ?? 0) + 1;
 
             // Topic Domain
-            $topic = $meta['topic_domain'] ?? 'Other';
+            $topic = !empty($meta['topic_domain']) ? $meta['topic_domain'] : 'Other';
             $stats['topic_dist'][$topic] = ($stats['topic_dist'][$topic] ?? 0) + 1;
 
             // Target Audience
-            $audience = $meta['target_audience'] ?? 'Internal';
+            $audience = !empty($meta['target_audience']) ? $meta['target_audience'] : 'Internal';
             $stats['audience_dist'][$audience] = ($stats['audience_dist'][$audience] ?? 0) + 1;
 
             // Club Activity
-            $club = $meta['sub_category'] ?? '';
+            $club = !empty($meta['sub_category']) ? trim($meta['sub_category']) : '';
             if (!empty($club)) {
                 $stats['club_activity'][$club] = ($stats['club_activity'][$club] ?? 0) + 1;
             }
