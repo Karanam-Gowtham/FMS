@@ -121,7 +121,7 @@ class ProfileController {
                                 contract_type = VALUES(contract_type), is_currently_associated = VALUES(is_currently_associated),
                                 date_of_leaving = VALUES(date_of_leaving), profile_photo = VALUES(profile_photo)
                         ");
-                        $stmt->bind_param("issssssssddssssiss", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving, $profile_photo_path);
+                        $stmt->bind_param("issssssssdsssssiss", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving, $profile_photo_path);
                     } else {
                         $stmt = $conn->prepare("
                             INSERT INTO user_profiles (
@@ -140,7 +140,7 @@ class ProfileController {
                                 contract_type = VALUES(contract_type), is_currently_associated = VALUES(is_currently_associated),
                                 date_of_leaving = VALUES(date_of_leaving)
                         ");
-                        $stmt->bind_param("issssssssddssssis", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving);
+                        $stmt->bind_param("issssssssdsssssis", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving);
                     }
                     
                     $stmt->execute();

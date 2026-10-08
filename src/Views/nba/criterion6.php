@@ -148,8 +148,8 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto; margin-bottom: 20px;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th colspan="3">6.1.3 Courses Developed (Swayam/e-PG, etc.)</th></tr>
-                        <tr><th>Name of Faculty</th><th>Course Developed (Platform)</th><th>Action</th></tr>
+                        <tr><th colspan="4">6.1.3 Courses Developed (Swayam/e-PG, etc.)</th></tr>
+                        <tr><th>S.N.</th><th>Name of Faculty</th><th>Course Developed (Platform)</th><th>Action</th></tr>
                     </thead>
                     <tbody id="tbody-mooc_dev"></tbody>
                 </table>
@@ -159,8 +159,8 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th colspan="5">6.1.4 Courses Certified</th></tr>
-                        <tr><th>Name of Faculty</th><th>Course Passed</th><th>Course Offered By</th><th>Grade</th><th>Action</th></tr>
+                        <tr><th colspan="6">6.1.4 Courses Certified</th></tr>
+                        <tr><th>S.N.</th><th>Name of Faculty</th><th>Course Passed</th><th>Course Offered By</th><th>Grade</th><th>Action</th></tr>
                     </thead>
                     <tbody id="tbody-mooc_cert"></tbody>
                 </table>
@@ -308,12 +308,12 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto; margin-bottom:20px;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th>Year</th><th>PI Name</th><th>Co-PI</th><th>Dept</th><th>Title</th><th>Agency</th><th>Duration</th><th>Amount (Lacs)</th><th>Action</th></tr>
+                        <tr><th>S.N.</th><th>Year</th><th>PI Name</th><th>Co-PI</th><th>Dept</th><th>Title</th><th>Agency</th><th>Duration</th><th>Amount (Lacs)</th><th>Action</th></tr>
                     </thead>
                     <tbody id="tbody-sponsored"></tbody>
                     <tfoot>
                         <tr style="background:#e9ecef; font-weight:bold;">
-                            <td colspan="7" style="text-align:right;">Total Amount Received for Past 3 Years (Lacs):</td>
+                            <td colspan="8" style="text-align:right;">Total Amount Received for Past 3 Years (Lacs):</td>
                             <td id="t624_tot_lacs" style="text-align:center;">0</td><td></td>
                         </tr>
                     </tfoot>
@@ -324,12 +324,12 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th>Year</th><th>PI Name</th><th>Co-PI</th><th>Dept</th><th>Title</th><th>Agency</th><th>Duration</th><th>Amount (Lacs)</th><th>Action</th></tr>
+                        <tr><th>S.N.</th><th>Year</th><th>PI Name</th><th>Co-PI</th><th>Dept</th><th>Title</th><th>Agency</th><th>Duration</th><th>Amount (Lacs)</th><th>Action</th></tr>
                     </thead>
                     <tbody id="tbody-consultancy"></tbody>
                     <tfoot>
                         <tr style="background:#e9ecef; font-weight:bold;">
-                            <td colspan="7" style="text-align:right;">Total Amount Received for Past 3 Years (Lacs):</td>
+                            <td colspan="8" style="text-align:right;">Total Amount Received for Past 3 Years (Lacs):</td>
                             <td id="t625_tot_lacs" style="text-align:center;">0</td><td></td>
                         </tr>
                     </tfoot>
@@ -358,7 +358,7 @@ if (!isset($criteria_data)) {
                     <tbody id="tbody-seed_money"></tbody>
                     <tfoot>
                         <tr style="background:#e9ecef; font-weight:bold;">
-                            <td colspan="4" style="text-align:right;">Total Received (Lacs):</td>
+                            <td colspan="5" style="text-align:right;">Total Received (Lacs):</td>
                             <td id="t626_tot_recv" style="text-align:center;">0</td>
                             <td colspan="3"></td>
                         </tr>
@@ -477,7 +477,7 @@ if (!isset($criteria_data)) {
         const rows = levelData[currentLevel][listName];
         rows.forEach((row, idx) => {
             const tr = document.createElement('tr');
-            let html = '';
+            let html = `<td>${idx + 1}</td>`;
             lists[listName].keys.forEach(k => {
                 if (k === 'year') {
                     html += `<td><select onchange="updateRow('${listName}', ${idx}, '${k}', this.value); renderTable('${listName}'); calcSums();">
@@ -549,7 +549,7 @@ if (!isset($criteria_data)) {
         const payload = { levelData: levelData };
         const formData = new FormData(document.getElementById('nbaForm'));
         formData.append('json_data', JSON.stringify(payload));
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
 
         const btn = document.querySelector('.btn-save');
         const oldText = btn.innerText;
@@ -579,3 +579,5 @@ if (!isset($criteria_data)) {
 </script>
 </body>
 </html>
+
+

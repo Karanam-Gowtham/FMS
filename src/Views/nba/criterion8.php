@@ -217,7 +217,7 @@ if (!isset($criteria_data)) {
         const payload = { levelData: levelData };
         const formData = new FormData(document.getElementById('nbaForm'));
         formData.append('json_data', JSON.stringify(payload));
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
 
         const btn = document.querySelector('.btn-save');
         const oldText = btn.innerText;
@@ -247,3 +247,4 @@ if (!isset($criteria_data)) {
 </script>
 </body>
 </html>
+

@@ -43,7 +43,7 @@ if ($route === 'dashboard') {
 } elseif ($route === 'student_activities/dashboard') {
     $controller = new \App\Controllers\StudentActivityDashboardController();
     $controller->index();
-} elseif ($route === 'api/nba/save') {
+} elseif ($route === 'api/nba/save' || $route === 'api/nba/save_criterion') {
     $controller = new \App\Controllers\NBAAPIController();
     $controller->save();
 } elseif ($route === 'api/nba/upload_pdf') {

@@ -283,6 +283,7 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead style="background: #fff3cd;">
                         <tr>
+                            <th>S.N.</th>
                             <th>Year</th>
                             <th>Name of the Person</th>
                             <th>Designation & Organization</th>
@@ -296,15 +297,15 @@ if (!isset($criteria_data)) {
                     </tbody>
                     <tfoot>
                         <tr style="background:#e9ecef; font-weight:bold;">
-                            <td colspan="4" style="text-align:right;">Total CAYm1 Hours:</td>
+                            <td colspan="5" style="text-align:right;">Total CAYm1 Hours:</td>
                             <td id="t54_tot_caym1" style="text-align:center;">0</td><td></td>
                         </tr>
                         <tr style="background:#e9ecef; font-weight:bold;">
-                            <td colspan="4" style="text-align:right;">Total CAYm2 Hours:</td>
+                            <td colspan="5" style="text-align:right;">Total CAYm2 Hours:</td>
                             <td id="t54_tot_caym2" style="text-align:center;">0</td><td></td>
                         </tr>
                         <tr style="background:#e9ecef; font-weight:bold;">
-                            <td colspan="4" style="text-align:right;">Total CAYm3 Hours:</td>
+                            <td colspan="5" style="text-align:right;">Total CAYm3 Hours:</td>
                             <td id="t54_tot_caym3" style="text-align:center;">0</td><td></td>
                         </tr>
                     </tfoot>
@@ -479,6 +480,7 @@ if (!isset($criteria_data)) {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
+                <td style="text-align:center; font-weight:bold;">${idx + 1}</td>
                 <td>
                     <select onchange="updateVisiting(${idx}, 'year', this.value); renderVisitingFaculty();">
                         <option value="CAYm1" ${vf.year==='CAYm1'?'selected':''}>CAYm1</option>
@@ -605,7 +607,7 @@ if (!isset($criteria_data)) {
         const payload = { levelData: levelData };
         const formData = new FormData(document.getElementById('nbaForm'));
         formData.append('json_data', JSON.stringify(payload));
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
 
         const btn = document.querySelector('.btn-save');
         const oldText = btn.innerText;
@@ -635,3 +637,4 @@ if (!isset($criteria_data)) {
 </script>
 </body>
 </html>
+

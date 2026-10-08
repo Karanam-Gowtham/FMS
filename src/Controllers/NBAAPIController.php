@@ -12,9 +12,10 @@ class NBAAPIController {
             $auth = auth_context();
             $active_role = auth_active_role();
 
-            $dept_id = (int)($active_role['dept_id'] ?? 0);
-            if ($dept_id <= 0) {
-                throw new \Exception("You must have a department assigned to save NBA data.");
+            $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
+            $dept_id = validate_dept_filter($requested_dept_id);
+            if ($dept_id === null || $dept_id <= 0) {
+                throw new \Exception("Access denied. You are not authorized to save NBA data for this department.");
             }
 
             $year = trim($_POST['year'] ?? '');
@@ -81,16 +82,56 @@ class NBAAPIController {
             }
             $sub_stmt->close();
 
-            // 2. Check/Create Criteria Data
-            $final_json = json_encode($payload);
-            
-            $crit_stmt = $conn->prepare("SELECT id FROM nba_criteria_data WHERE submission_id = ? AND criterion_number = ?");
+            // 2. Check existing criteria data for uploaded files
+            $crit_stmt = $conn->prepare("SELECT id, data_json FROM nba_criteria_data WHERE submission_id = ? AND criterion_number = ?");
             $crit_stmt->bind_param("ii", $sub_id, $crit_id);
             $crit_stmt->execute();
+            $crit_res = $crit_stmt->get_result();
             
-            if ($crit_stmt->get_result()->num_rows > 0) {
-                $update = $conn->prepare("UPDATE nba_criteria_data SET data_json = ? WHERE submission_id = ? AND criterion_number = ?");
-                $update->bind_param("sii", $final_json, $sub_id, $crit_id);
+            $existing_files = [];
+            $crit_id_db = null;
+            if ($crit_res->num_rows > 0) {
+                $row = $crit_res->fetch_assoc();
+                $crit_id_db = $row['id'];
+                $existing_data = json_decode($row['data_json'], true) ?: [];
+                if (isset($existing_data['uploaded_files'])) {
+                    $existing_files = $existing_data['uploaded_files'];
+                }
+            }
+            $crit_stmt->close();
+
+            if (!isset($payload['uploaded_files'])) {
+                $payload['uploaded_files'] = $existing_files;
+            } else {
+                $payload['uploaded_files'] = array_merge($existing_files, $payload['uploaded_files']);
+            }
+
+            // Generic PDF File Uploader for Criteria 5-9
+            $upload_dir = __DIR__ . '/../../uploads/nba_pdfs/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+
+            foreach ($_FILES as $input_name => $file) {
+                if ($input_name === 'csv_file' || $file['error'] !== UPLOAD_ERR_OK) continue;
+                
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $mime = $finfo->file($file['tmp_name']);
+                if ($mime === 'application/pdf') {
+                    $section = preg_replace('/[^a-zA-Z0-9_]/', '', $input_name);
+                    $new_filename = sprintf('dept_%d_crit%d_%s_%s.pdf', $dept_id, $crit_id, $section, uniqid());
+                    $destination = $upload_dir . $new_filename;
+                    if (move_uploaded_file($file['tmp_name'], $destination)) {
+                        $payload['uploaded_files'][$input_name] = 'uploads/nba_pdfs/' . $new_filename;
+                    }
+                }
+            }
+
+            $final_json = json_encode($payload);
+            
+            if ($crit_id_db) {
+                $update = $conn->prepare("UPDATE nba_criteria_data SET data_json = ? WHERE id = ?");
+                $update->bind_param("si", $final_json, $crit_id_db);
                 $update->execute();
                 $update->close();
             } else {
@@ -99,7 +140,6 @@ class NBAAPIController {
                 $insert->execute();
                 $insert->close();
             }
-            $crit_stmt->close();
 
             $conn->commit();
 
@@ -135,9 +175,10 @@ class NBAAPIController {
             $auth = auth_context();
             $active_role = auth_active_role();
 
-            $dept_id = (int)($active_role['dept_id'] ?? 0);
-            if ($dept_id <= 0) {
-                throw new \Exception("You must have a department assigned to upload NBA data.");
+            $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
+            $dept_id = validate_dept_filter($requested_dept_id);
+            if ($dept_id === null || $dept_id <= 0) {
+                throw new \Exception("Access denied. You are not authorized to upload NBA data for this department.");
             }
 
             if (!isset($_FILES['pdf_file']) || $_FILES['pdf_file']['error'] !== UPLOAD_ERR_OK) {
@@ -194,11 +235,26 @@ class NBAAPIController {
                 throw new \Exception("Criterion number is required.");
             }
             
-            // For now, this is a placeholder returning a dummy URL. 
-            // In a real scenario, this would call FPDF.
+            require_once __DIR__ . '/../../libs/fpdf.php';
+            
+            $pdf = new \FPDF();
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell(0, 10, 'GMR Institute of Technology', 0, 1, 'C');
+            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->Cell(0, 10, "NBA Accreditation - Criterion {$crit_id} Report", 0, 1, 'C');
+            $pdf->Ln(10);
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->MultiCell(0, 7, "This is an auto-generated draft report for Criterion {$crit_id}. In production, this document will compile all saved data and mapped attachments dynamically.");
+            
+            $filename = "dummy_criterion{$crit_id}_" . time() . ".pdf";
+            $filepath = __DIR__ . "/../../uploads/nba_pdfs/" . $filename;
+            
+            $pdf->Output('F', $filepath);
+
             echo json_encode([
                 'success' => true,
-                'pdf_url' => BASE_URL . "/uploads/nba_pdfs/dummy_criterion{$crit_id}.pdf"
+                'pdf_url' => BASE_URL . "/uploads/nba_pdfs/" . $filename
             ]);
         } catch (\Exception $e) {
             echo json_encode([

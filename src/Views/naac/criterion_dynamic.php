@@ -315,7 +315,7 @@
 
         // Save JSON data
         const formData = new FormData();
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('criterion_number', '<?= $crit_id ?>');
         formData.append('json_data', JSON.stringify(payload));
         
@@ -341,3 +341,4 @@
 </script>
 </body>
 </html>
+

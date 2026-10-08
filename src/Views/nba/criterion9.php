@@ -150,6 +150,7 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
+                            <th>S.N.</th>
                             <th>Year</th>
                             <th>Total Income (Fee/Gov/Grant/Other)</th>
                             <th>Actual Expenditure</th>
@@ -167,6 +168,7 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
+                            <th>S.N.</th>
                             <th>Item Name (e.g. Library, Lab, Salaries)</th>
                             <th>Budgeted CAY</th>
                             <th>Actual CAY</th>
@@ -194,6 +196,7 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
+                            <th>S.N.</th>
                             <th>Year</th>
                             <th>Total Budget (Demanded | Allocated)</th>
                             <th>Actual Expenditure</th>
@@ -212,6 +215,7 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
+                            <th>S.N.</th>
                             <th>Item Name</th>
                             <th>Budget CAY</th>
                             <th>Actual CAY</th>
@@ -361,7 +365,7 @@ if (!isset($criteria_data)) {
         const rows = levelData[currentLevel][listName];
         rows.forEach((row, idx) => {
             const tr = document.createElement('tr');
-            let html = '';
+            let html = `<td>${idx + 1}</td>`;
             lists[listName].keys.forEach(k => {
                 if (k === 'year') {
                     html += `<td><select style="width:100%" onchange="updateRow('${listName}', ${idx}, '${k}', this.value)">
@@ -386,7 +390,7 @@ if (!isset($criteria_data)) {
         const payload = { levelData: levelData };
         const formData = new FormData(document.getElementById('nbaForm'));
         formData.append('json_data', JSON.stringify(payload));
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
 
         const btn = document.querySelector('.btn-save');
         const oldText = btn.innerText;
@@ -416,3 +420,4 @@ if (!isset($criteria_data)) {
 </script>
 </body>
 </html>
+

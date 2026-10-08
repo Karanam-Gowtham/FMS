@@ -12,9 +12,10 @@ class NAACAPIController {
             $auth = auth_context();
             $active_role = auth_active_role();
 
-            $dept_id = (int)($active_role['dept_id'] ?? 0);
-            if ($dept_id <= 0) {
-                throw new \Exception("You must have a department assigned to save NAAC data.");
+            $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
+            $dept_id = validate_dept_filter($requested_dept_id);
+            if ($dept_id === null || $dept_id <= 0) {
+                throw new \Exception("Access denied. You are not authorized to save NAAC data for this department.");
             }
 
             $year = trim($_POST['year'] ?? '');
@@ -101,9 +102,10 @@ class NAACAPIController {
             $auth = auth_context();
             $active_role = auth_active_role();
 
-            $dept_id = (int)($active_role['dept_id'] ?? 0);
-            if ($dept_id <= 0) {
-                throw new \Exception("You must have a department assigned to upload NAAC data.");
+            $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
+            $dept_id = validate_dept_filter($requested_dept_id);
+            if ($dept_id === null || $dept_id <= 0) {
+                throw new \Exception("Access denied. You are not authorized to upload NAAC data for this department.");
             }
 
             if (!isset($_FILES['pdf_file']) || $_FILES['pdf_file']['error'] !== UPLOAD_ERR_OK) {
@@ -160,9 +162,26 @@ class NAACAPIController {
                 throw new \Exception("Criterion number is required.");
             }
             
+            require_once __DIR__ . '/../../libs/fpdf.php';
+            
+            $pdf = new \FPDF();
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell(0, 10, 'GMR Institute of Technology', 0, 1, 'C');
+            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->Cell(0, 10, "NAAC Accreditation - Criterion {$crit_id} Report", 0, 1, 'C');
+            $pdf->Ln(10);
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->MultiCell(0, 7, "This is an auto-generated draft report for NAAC Criterion {$crit_id}. In production, this document will compile all saved data and mapped attachments dynamically.");
+            
+            $filename = "dummy_criterion{$crit_id}_" . time() . ".pdf";
+            $filepath = __DIR__ . "/../../uploads/naac_pdfs/" . $filename;
+            
+            $pdf->Output('F', $filepath);
+
             echo json_encode([
                 'success' => true,
-                'pdf_url' => BASE_URL . "/uploads/naac_pdfs/dummy_criterion{$crit_id}.pdf"
+                'pdf_url' => BASE_URL . "/uploads/naac_pdfs/" . $filename
             ]);
         } catch (\Exception $e) {
             echo json_encode([

@@ -82,7 +82,7 @@
                 // Currently Criteria 1 through 9 are built in the new system.
                 // Others will show as pending configuration.
                 $is_built = in_array($num, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
-                $link = $is_built ? "?route=nba/criterion&id={$num}&year={$filter_year}" : "#";
+                $link = $is_built ? BASE_URL . "/public/index.php?route=nba/criterion&id={$num}&year={$filter_year}" : "#";
                 $status_class = $is_built ? "in-progress" : "pending";
                 $status_text = $is_built ? "In Progress" : "Pending Config";
                 ?>

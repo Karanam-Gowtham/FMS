@@ -1073,7 +1073,7 @@
 
     function saveData(silent = false) {
         const formData = new URLSearchParams();
-        formData.append('year', year);
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', year);
         
         const payload = { levelData: levelData };
         formData.append('json_data', JSON.stringify(payload));
@@ -1108,3 +1108,4 @@
 </script>
 </body>
 </html>
+

@@ -359,7 +359,7 @@
         };
 
         const formData = new FormData();
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('json_data', JSON.stringify(payload));
         
         fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/generate_pdf&id=1', {
@@ -1197,7 +1197,7 @@
         };
 
         const formData = new FormData();
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('json_data', JSON.stringify(payload));
 
         // Append files if they exist
@@ -1242,3 +1242,4 @@
 </script>
 </body>
 </html>
+

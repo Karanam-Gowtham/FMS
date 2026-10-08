@@ -320,7 +320,7 @@ class DocumentController {
         require_login();
         $auth = auth_context();
         if (empty($auth['active_role'])) {
-            header("Location: " . BASE_URL . "/public/index.php?route=role/select");
+            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
             exit;
         }
         global $conn;
