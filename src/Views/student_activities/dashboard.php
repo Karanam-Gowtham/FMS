@@ -10,7 +10,6 @@ require_once __DIR__ . '/../../../includes/header.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { padding-top: 90px; background-color: #f8f9fa; }
-        select.form-select { background-image: none !important; -webkit-appearance: auto !important; -moz-appearance: auto !important; appearance: auto !important; }
     </style>
 </head>
 <body>
@@ -29,7 +28,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                 <input type="hidden" name="route" value="student_activities/dashboard">
                 <div class="col-md-4">
                     <label class="form-label fw-bold">Academic Year</label>
-                    <select name="year_id" class="form-select">
+                    <select name="year_id" class="form-control">
                         <option value="all">All Years</option>
                         <?php foreach($years as $yr): ?>
                             <option value="<?= $yr['year_id'] ?>" <?= ($year_filter == $yr['year_id']) ? 'selected' : '' ?>>
@@ -40,7 +39,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                 </div>
                 <div class="col-md-4">
                     <label class="form-label fw-bold">Department</label>
-                    <select name="dept_id" class="form-select">
+                    <select name="dept_id" class="form-control">
                         <option value="all">All Departments</option>
                         <?php foreach($depts as $d): ?>
                             <option value="<?= $d['dept_id'] ?>" <?= ($dept_filter == $d['dept_id']) ? 'selected' : '' ?>>

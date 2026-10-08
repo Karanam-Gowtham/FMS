@@ -884,7 +884,6 @@ if (isset($extra_head)) {
             <div class="dropdown">
                 <button type="button" class="dropdown-toggle">
                     Departments
-                    <span class="arrow">▼</span>
                 </button>
                 <div class="dropdown-content">
                     <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=CSE">CSE</a>
@@ -909,7 +908,6 @@ if (isset($extra_head)) {
             <div class="dropdown">
                 <button type="button" class="dropdown-toggle">
                     More
-                    <span class="arrow">▼</span>
                 </button>
                 <div class="dropdown-content">
                     <a href="<?= $app_url ?>/public/index.php?route=nba/dashboard">NBA</a>
