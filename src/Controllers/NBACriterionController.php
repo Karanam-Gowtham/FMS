@@ -64,6 +64,11 @@ class NBACriterionController {
             2 => 'Criterion 2: Outcome-Based Teaching Learning',
             3 => 'Criterion 3: Outcome-Based Assessment',
             4 => 'Criterion 4: Students’ Performance',
+            5 => 'Criterion 5: Faculty Information',
+            6 => 'Criterion 6: Faculty Contributions',
+            7 => 'Criterion 7: Facilities and Technical Support',
+            8 => 'Criterion 8: Continuous Improvement',
+            9 => 'Criterion 9: Student Support Systems and Governance',
         ];
         $page_title = $titles[$crit_id] ?? "Criterion {$crit_id}";
 
