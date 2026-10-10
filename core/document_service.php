@@ -644,6 +644,56 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         }
     }
 
+    if (!empty($filters['global_event_mode']) && is_array($filters['global_event_mode'])) {
+        $clean_modes = array_filter(array_map('trim', $filters['global_event_mode']));
+        if (!empty($clean_modes)) {
+            if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
+                $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
+            }
+            $placeholders = str_repeat('?,', count($clean_modes) - 1) . '?';
+            $where_clauses[] = "msaf.event_mode IN ($placeholders)";
+            foreach ($clean_modes as $md) {
+                $params[] = $md;
+                $types .= 's';
+            }
+        }
+    }
+
+    if (!empty($filters['global_topic_domain']) && is_array($filters['global_topic_domain'])) {
+        $clean_domains = array_filter(array_map('trim', $filters['global_topic_domain']));
+        if (!empty($clean_domains)) {
+            if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
+                $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
+            }
+            $placeholders = str_repeat('?,', count($clean_domains) - 1) . '?';
+            $where_clauses[] = "msaf.topic_domain IN ($placeholders)";
+            foreach ($clean_domains as $td) {
+                $params[] = $td;
+                $types .= 's';
+            }
+        }
+    }
+
+    if (!empty($filters['global_event_type']) && is_array($filters['global_event_type'])) {
+        $clean_etypes = array_filter(array_map('trim', $filters['global_event_type']));
+        if (!empty($clean_etypes)) {
+            if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
+                $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
+            }
+            if (strpos($join_sql, 'meta_dept_file mdf') === false) {
+                $join_sql .= ' LEFT JOIN meta_dept_file mdf ON mdf.doc_id = d.doc_id ';
+            }
+            $placeholders = str_repeat('?,', count($clean_etypes) - 1) . '?';
+            $where_clauses[] = "(msaf.event_type IN ($placeholders) OR msaf.activity_category IN ($placeholders) OR mdf.sub_file_type IN ($placeholders))";
+            for ($i = 0; $i < 3; $i++) {
+                foreach ($clean_etypes as $et) {
+                    $params[] = $et;
+                    $types .= 's';
+                }
+            }
+        }
+    }
+
     if (!empty($filters['type_key'])) {
         $meta_table = meta_get_table($filters['type_key']);
         $meta_fields = meta_get_fields($filters['type_key']);
@@ -652,8 +702,13 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
             if (strpos($join_sql, $meta_table) === false) {
                  $join_sql .= " LEFT JOIN `$meta_table` mt ON mt.doc_id = d.doc_id ";
             } else {
-                 // if it's meta_dept_file, we alias to mdf
-                 $meta_table_alias = 'mdf';
+                 if ($meta_table === 'meta_dept_file') {
+                     $meta_table_alias = 'mdf';
+                 } elseif ($meta_table === 'meta_student_activity_file') {
+                     $meta_table_alias = 'msaf';
+                 } else {
+                     $meta_table_alias = 'mt';
+                 }
             }
             $alias = isset($meta_table_alias) ? $meta_table_alias : 'mt';
             foreach ($meta_fields as $mf) {

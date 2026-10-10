@@ -67,6 +67,9 @@ class DocumentController {
         $filter_subtype= isset($_GET['sub_type']) ? trim($_GET['sub_type']) : '';
         $filter_sub_types = isset($_GET['sub_types']) && is_array($_GET['sub_types']) ? $_GET['sub_types'] : [];
         $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? $_GET['sub_file_types'] : [];
+        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? $_GET['global_modes'] : [];
+        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? $_GET['global_domains'] : [];
+        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? $_GET['global_event_types'] : [];
         
         if ($filter_subtype !== '') {
             $scope_label = htmlspecialchars($filter_subtype) . ' - ' . $scope_label;
@@ -91,6 +94,9 @@ class DocumentController {
         if ($filter_subtype !== '') $filters['sub_type'] = $filter_subtype;
         if (!empty($filter_sub_types)) $filters['sub_types'] = $filter_sub_types;
         if (!empty($filter_sub_file_types)) $filters['sub_file_types'] = $filter_sub_file_types;
+        if (!empty($filter_global_modes)) $filters['global_event_mode'] = $filter_global_modes;
+        if (!empty($filter_global_domains)) $filters['global_topic_domain'] = $filter_global_domains;
+        if (!empty($filter_global_event_types)) $filters['global_event_type'] = $filter_global_event_types;
         if ($filter_status !== '') $filters['status'] = $filter_status;
         if (!empty($filter_statuses)) $filters['statuses'] = $filter_statuses;
         if ($filter_year > 0)     $filters['year_id'] = $filter_year;
@@ -165,57 +171,33 @@ class DocumentController {
         }
 
         $available_sub_file_types = [];
+        $global_filter_options = ['modes' => [], 'domains' => [], 'event_types' => []];
         if (!empty($_GET['context']) && $_GET['context'] === 'dept_file') {
-            // 1. Fetch generic dept files (Admin, Faculty, Exam)
-            $sf_res = $conn->query("SELECT DISTINCT file_type, sub_file_type FROM meta_dept_file WHERE sub_file_type IS NOT NULL AND sub_file_type != '' ORDER BY sub_file_type ASC");
-            if ($sf_res) {
-                while($row = $sf_res->fetch_assoc()) {
-                    if (!isset($available_sub_file_types[$row['file_type']])) {
-                        $available_sub_file_types[$row['file_type']] = [];
-                    }
-                    if (!in_array($row['sub_file_type'], $available_sub_file_types[$row['file_type']])) {
-                        $available_sub_file_types[$row['file_type']][] = $row['sub_file_type'];
-                    }
-                }
-            }
+            $available_sub_file_types = [
+                'Admin Files' => ['Course Structure', 'Result Analysis', 'Course Schedule', "Faculty's Feedback by Students", 'Feedback from Parents', 'Employer Feedback', 'Department Area Details', 'Departmental Laboratory Details', 'Major Equipment in the Laboratories', 'List of Experiments', 'Major Equipment Utilization Record', 'Equipment Maintenance Record', 'Courses Linked with Employability', 'Financial Statement/Budget Status', 'Departmental Library Details', 'Seminars/Workshops/Conferences Organized', 'Industrial Visits', 'Guest Lectures', 'List of Projects', 'Add-on Course/Training Conducted', 'Consultancy-New', 'External Sports and Projects', 'Transferrable and Life Skills Courses', 'Remedial Classes', 'Course End Feedback Form', 'Class Time Table', 'Faculty Time Table', 'Classroom Time Table', 'Lab Time Table', 'Student Progression to Higher Education', 'Feedback from Students/Alumni/Academic Peer', 'Course File-Index', 'Feedback on Curriculum from Students/Employer/Alumni', 'Workshops-Seminars on Research Methodology', 'Intellectual Property Rights (IPR)', 'Entrepreneurship-New', 'Professional Societies Chapters', 'Engineering Events Organized', 'Product Development Activities', 'Collaborative Activities', 'Functional MoUs with Ongoing Activities', 'Mini Project Work', 'Term Paper Work', 'Mentoring'],
+                'Faculty Files' => ['Faculty List', 'Faculty Profile', 'Academic Research', 'Books and Chapters Published', 'Faculty in Inter-Departmental/Institutional Activities', 'Faculty for Higher Studies', 'Faculty Attended Seminars/Internships', 'Faculty Self-Appraisal', 'Non-Teaching Staff Skill Upgradation', 'Observations on Student Feedback', 'Full-Time Teachers with PhD Guidance', 'Consultancy and Corporate Training', 'Financial Support to Faculty', 'Publication of Technical Magazines/Newsletters'],
+                'Student Related Files' => ['List of Forms', 'Student Addresses', 'Cumulative Monthly Attendance', 'Semester End Attendance', 'Condonation List', 'Detention List', 'Papers Published by Students', 'Students in Competitive Exams', 'Co-Curricular/Extra-Curricular Activities', 'Placement Record', 'Alumni Interaction', 'Field Projects/Internships', 'List of Seminars/Workshops Attended', 'Online Courses Completed', 'Coding/Hardware Competitions', 'Capacity Development Activities', 'Guidance for Competitive Exams', 'Career Counselling'],
+                'Exam Section Files' => ['Notice for Internal Lab Exams', 'Invigilation Schedule', 'Absentee Statement', 'Sessional Marks Record', 'Final Sessional Marks'],
+                'Student Activities Files' => ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC']
+            ];
 
-            // 2. Fetch Student Activities Files (from its own advanced table)
-            $saf_res = $conn->query("SELECT DISTINCT activity_category FROM meta_student_activity_file WHERE activity_category IS NOT NULL AND activity_category != '' ORDER BY activity_category ASC");
-            if ($saf_res) {
-                while($row = $saf_res->fetch_assoc()) {
-                    if (!isset($available_sub_file_types['Student Activities Files'])) {
-                        $available_sub_file_types['Student Activities Files'] = [];
-                    }
-                    if (!in_array($row['activity_category'], $available_sub_file_types['Student Activities Files'])) {
-                        $available_sub_file_types['Student Activities Files'][] = $row['activity_category'];
-                    }
+            // Fetch dynamic global options
+            $res = $conn->query("SELECT DISTINCT event_mode FROM meta_student_activity_file WHERE event_mode IS NOT NULL AND event_mode != '' ORDER BY event_mode ASC");
+            if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['modes'][] = $row['event_mode']; } }
+            
+            $res = $conn->query("SELECT DISTINCT topic_domain FROM meta_student_activity_file WHERE topic_domain IS NOT NULL AND topic_domain != '' ORDER BY topic_domain ASC");
+            if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['domains'][] = $row['topic_domain']; } }
+            
+            $res = $conn->query("SELECT DISTINCT event_type FROM meta_student_activity_file WHERE event_type IS NOT NULL AND event_type != '' ORDER BY event_type ASC");
+            if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['event_types'][] = $row['event_type']; } }
+            
+            $saf_cats = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Workshop', 'Seminar', 'Conference', 'Hackathon'];
+            foreach ($saf_cats as $cat) {
+                if (!in_array($cat, $global_filter_options['event_types'])) {
+                    $global_filter_options['event_types'][] = $cat;
                 }
             }
-
-            // 3. Fetch advanced Student Related Files (Journals, Conferences, etc) by checking if documents exist
-            $type_check_query = "SELECT DISTINCT dt.type_code FROM documents d JOIN document_types dt ON d.doc_type_id = dt.id WHERE dt.type_code IN ('student_journal', 'student_conference', 'student_body', 'exam_qual')";
-            $tc_res = $conn->query($type_check_query);
-            if ($tc_res) {
-                if (!isset($available_sub_file_types['Student Related Files'])) {
-                    $available_sub_file_types['Student Related Files'] = [];
-                }
-                while($row = $tc_res->fetch_assoc()) {
-                    $tc = $row['type_code'];
-                    $mapped_name = '';
-                    if ($tc === 'student_journal') $mapped_name = 'Papers Published by Students';
-                    elseif ($tc === 'student_conference') $mapped_name = 'Co-Curricular/Extra-Curricular Activities';
-                    elseif ($tc === 'student_body') $mapped_name = 'Professional Societies';
-                    elseif ($tc === 'exam_qual') $mapped_name = 'Students in Competitive Exams';
-                    
-                    if ($mapped_name && !in_array($mapped_name, $available_sub_file_types['Student Related Files'])) {
-                        $available_sub_file_types['Student Related Files'][] = $mapped_name;
-                    }
-                }
-                // If it's empty after all checks, remove the key so it doesn't show an empty group
-                if (empty($available_sub_file_types['Student Related Files'])) {
-                    unset($available_sub_file_types['Student Related Files']);
-                }
-            }
+            sort($global_filter_options['event_types']);
         }
 
         $academic_years = doc_get_academic_years($conn);

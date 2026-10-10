@@ -90,73 +90,151 @@
             </div>
             <?php endif; ?>
 
-            <!-- SubType Checkboxes -->
+            <!-- Merged Types & Categories -->
             <?php if (!empty($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Types</label>
-                <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
+                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Categories</label>
+                
+                <input type="text" id="category-search" placeholder="Filter categories..." style="width: 100%; padding: 0.4rem; margin-bottom: 0.8rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 0.85rem;">
+
+                <div id="category-tree" style="max-height: 400px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php 
                     $sub_types = ['Admin Files', 'Faculty Files', 'Student Related Files', 'Exam Section Files', 'Student Activities Files'];
                     foreach ($sub_types as $st): 
+                        $has_children = isset($available_sub_file_types[$st]) && !empty($available_sub_file_types[$st]);
+                        $st_id = md5($st);
+                        $is_checked = in_array($st, $filter_sub_types);
                     ?>
-                        <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <input type="checkbox" name="sub_types[]" value="<?= htmlspecialchars($st) ?>" id="st_<?= md5($st) ?>" <?= in_array($st, $filter_sub_types) ? 'checked' : '' ?>>
-                            <label for="st_<?= md5($st) ?>" style="margin: 0; font-weight: normal; cursor: pointer;"><?= htmlspecialchars($st) ?></label>
+                        <div class="category-parent-node" style="margin-bottom: 0.6rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="sub_types[]" value="<?= htmlspecialchars($st) ?>" id="st_<?= $st_id ?>" class="parent-checkbox" <?= $is_checked ? 'checked' : '' ?>>
+                                <label for="st_<?= $st_id ?>" class="parent-label" style="margin: 0; font-weight: 600; cursor: pointer; color: #111827;"><?= htmlspecialchars($st) ?></label>
+                            </div>
+                            
+                            <?php if ($has_children): ?>
+                            <div class="category-children-node" data-parent="<?= htmlspecialchars($st) ?>" style="margin-left: 1.2rem; margin-top: 0.3rem; padding-left: 0.6rem; border-left: 2px solid #e5e7eb; display: <?= $is_checked ? 'block' : 'none' ?>; max-height: 180px; overflow-y: auto;">
+                                <?php foreach ($available_sub_file_types[$st] as $sft): ?>
+                                    <div class="child-item" style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="sub_file_types[]" value="<?= htmlspecialchars($sft) ?>" id="sft_<?= md5($sft) ?>" class="child-checkbox" <?= in_array($sft, $filter_sub_file_types) ? 'checked' : '' ?>>
+                                        <label for="sft_<?= md5($sft) ?>" class="child-label" style="margin: 0; font-weight: normal; cursor: pointer; font-size: 0.85rem;"><?= htmlspecialchars($sft) ?></label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
             </div>
-            <?php endif; ?>
 
-            <!-- Specific Category Checkboxes (sub_file_types) -->
-            <?php if (!empty($_GET['context']) && $_GET['context'] === 'dept_file' && !empty($available_sub_file_types)): ?>
-            <div style="margin-bottom: 1.5rem;" id="specific-category-block">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Specific Category</label>
-                <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
-                    <?php foreach ($available_sub_file_types as $parent_type => $sfts): ?>
-                        <div class="specific-category-group" data-parent-type="<?= htmlspecialchars($parent_type) ?>" style="margin-bottom: 0.8rem; display: none;">
-                            <strong style="display:block; margin-bottom: 0.4rem; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;"><?= htmlspecialchars($parent_type) ?></strong>
-                            <?php foreach ($sfts as $sft): ?>
-                                <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="checkbox" name="sub_file_types[]" value="<?= htmlspecialchars($sft) ?>" id="sft_<?= md5($sft) ?>" <?= in_array($sft, $filter_sub_file_types) ? 'checked' : '' ?>>
-                                    <label for="sft_<?= md5($sft) ?>" style="margin: 0; font-weight: normal; cursor: pointer;"><?= htmlspecialchars($sft) ?></label>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const subTypeCheckboxes = document.querySelectorAll('input[name="sub_types[]"]');
-                    const specificCategoryGroups = document.querySelectorAll('.specific-category-group');
-                    const specificCategoryBlock = document.getElementById('specific-category-block');
+                    const parentCheckboxes = document.querySelectorAll('.parent-checkbox');
+                    const searchInput = document.getElementById('category-search');
                     
-                    function updateSpecificCategories() {
-                        let anyVisible = false;
-                        const checkedSubTypes = Array.from(subTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
-                        
-                        specificCategoryGroups.forEach(group => {
-                            if (checkedSubTypes.includes(group.getAttribute('data-parent-type'))) {
-                                group.style.display = 'block';
-                                anyVisible = true;
-                            } else {
-                                group.style.display = 'none';
-                                // Uncheck hidden ones
-                                group.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    // Toggle visibility of children based on parent checkbox
+                    parentCheckboxes.forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            const parentNode = this.closest('.category-parent-node');
+                            const childrenNode = parentNode.querySelector('.category-children-node');
+                            if (childrenNode) {
+                                if (this.checked) {
+                                    childrenNode.style.display = 'block';
+                                } else {
+                                    childrenNode.style.display = 'none';
+                                }
                             }
                         });
-                        
-                        if (specificCategoryBlock) {
-                            specificCategoryBlock.style.display = anyVisible ? 'block' : 'none';
-                        }
+                    });
+
+                    // Search filtering
+                    if (searchInput) {
+                        searchInput.addEventListener('input', function() {
+                            const term = this.value.toLowerCase().trim();
+                            const parentNodes = document.querySelectorAll('.category-parent-node');
+                            
+                            parentNodes.forEach(parentNode => {
+                                const parentLabel = parentNode.querySelector('.parent-label').textContent.toLowerCase();
+                                const childrenNode = parentNode.querySelector('.category-children-node');
+                                const childItems = parentNode.querySelectorAll('.child-item');
+                                const parentCheckbox = parentNode.querySelector('.parent-checkbox');
+                                
+                                let parentMatches = parentLabel.includes(term);
+                                let anyChildMatches = false;
+                                
+                                childItems.forEach(child => {
+                                    const childLabel = child.querySelector('.child-label').textContent.toLowerCase();
+                                    if (childLabel.includes(term) || parentMatches) {
+                                        child.style.display = 'flex';
+                                        anyChildMatches = true;
+                                    } else {
+                                        child.style.display = 'none';
+                                    }
+                                });
+                                
+                                if (parentMatches || anyChildMatches) {
+                                    parentNode.style.display = 'block';
+                                    if (term !== '' && anyChildMatches && childrenNode) {
+                                        childrenNode.style.display = 'block';
+                                    } else if (term === '' && childrenNode && !parentCheckbox.checked) {
+                                        childrenNode.style.display = 'none';
+                                    }
+                                } else {
+                                    parentNode.style.display = 'none';
+                                }
+                            });
+                        });
                     }
-                    
-                    subTypeCheckboxes.forEach(cb => cb.addEventListener('change', updateSpecificCategories));
-                    updateSpecificCategories(); // Run on load
                 });
             </script>
+            <?php endif; ?>
+
+            <!-- Global Event Filters -->
+            <?php if (!empty($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
+            <div style="margin-bottom: 1.5rem; border-top: 1px solid #e5e7eb; padding-top: 1.5rem;">
+                <h3 style="font-size: 0.95rem; margin-top: 0; margin-bottom: 1rem; color: #111827; text-transform: uppercase; letter-spacing: 0.05em;">Global Attributes</h3>
+
+                <?php if (!empty($global_filter_options['event_types'])): ?>
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Event Type</label>
+                    <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
+                        <?php foreach ($global_filter_options['event_types'] as $et): ?>
+                            <div style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" id="get_<?= md5($et) ?>" <?= in_array($et, $filter_global_event_types ?? []) ? 'checked' : '' ?>>
+                                <label for="get_<?= md5($et) ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($et) ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($global_filter_options['domains'])): ?>
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Domain / Topic</label>
+                    <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
+                        <?php foreach ($global_filter_options['domains'] as $dom): ?>
+                            <div style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" id="gdom_<?= md5($dom) ?>" <?= in_array($dom, $filter_global_domains ?? []) ? 'checked' : '' ?>>
+                                <label for="gdom_<?= md5($dom) ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($dom) ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($global_filter_options['modes'])): ?>
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Mode of Conduct</label>
+                    <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
+                        <?php foreach ($global_filter_options['modes'] as $md): ?>
+                            <div style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" id="gmd_<?= md5($md) ?>" <?= in_array($md, $filter_global_modes ?? []) ? 'checked' : '' ?>>
+                                <label for="gmd_<?= md5($md) ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($md) ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
             <?php endif; ?>
 
             <!-- Status Checkboxes -->
