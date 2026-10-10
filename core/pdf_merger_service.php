@@ -24,14 +24,7 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
         $path = $file['path'];
         $title = $file['title'];
 
-        // Add a title page
-        $pdf->AddPage();
-        $pdf->SetFont('Arial', 'B', 24);
-        
-        // Vertically center the text
-        $pageHeight = $pdf->GetPageHeight();
-        $pdf->SetY($pageHeight / 2 - 10);
-        $pdf->Cell(0, 20, $title, 0, 1, 'C');
+        // Title page creation removed as per user request
 
         // Check if file exists and is a valid PDF
         if (!file_exists($path)) {
