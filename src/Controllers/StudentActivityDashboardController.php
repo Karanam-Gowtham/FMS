@@ -11,7 +11,7 @@ class StudentActivityDashboardController
         
         // Fetch Academic Years for filter
         $years = [];
-        $y_res = $conn->query("SELECT year_id, year_label FROM academic_years ORDER BY year_id DESC");
+        $y_res = $conn->query("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
         if ($y_res) {
             while ($row = $y_res->fetch_assoc()) {
                 $years[] = $row;
@@ -30,6 +30,29 @@ class StudentActivityDashboardController
         // Default Filters
         $year_filter = $_GET['year_id'] ?? 'all';
         $dept_filter = $_GET['dept_id'] ?? 'all';
+        
+        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? $_GET['global_modes'] : [];
+        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? $_GET['global_domains'] : [];
+        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? $_GET['global_event_types'] : [];
+
+        // Fetch dynamic global filter options
+        $global_filter_options = ['modes' => [], 'domains' => [], 'event_types' => []];
+        $res = $conn->query("SELECT DISTINCT event_mode FROM meta_student_activity_file WHERE event_mode IS NOT NULL AND event_mode != '' ORDER BY event_mode ASC");
+        if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['modes'][] = $row['event_mode']; } }
+
+        $res = $conn->query("SELECT DISTINCT topic_domain FROM meta_student_activity_file WHERE topic_domain IS NOT NULL AND topic_domain != '' ORDER BY topic_domain ASC");
+        if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['domains'][] = $row['topic_domain']; } }
+
+        $res = $conn->query("SELECT DISTINCT event_type FROM meta_student_activity_file WHERE event_type IS NOT NULL AND event_type != '' ORDER BY event_type ASC");
+        if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['event_types'][] = $row['event_type']; } }
+        
+        $saf_cats = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Workshop', 'Seminar', 'Conference', 'Hackathon'];
+        foreach ($saf_cats as $cat) {
+            if (!in_array($cat, $global_filter_options['event_types'])) {
+                $global_filter_options['event_types'][] = $cat;
+            }
+        }
+        sort($global_filter_options['event_types']);
 
         // Query conditions
         $where = "dt.type_code = 'student_activity_file' AND d.status = 'accepted'";
@@ -38,6 +61,19 @@ class StudentActivityDashboardController
         }
         if ($dept_filter !== 'all') {
             $where .= " AND d.dept_id = " . (int)$dept_filter;
+        }
+        
+        if (!empty($filter_global_modes)) {
+            $modes_escaped = array_map(function($v) use ($conn) { return "'" . $conn->real_escape_string($v) . "'"; }, $filter_global_modes);
+            $where .= " AND msaf.event_mode IN (" . implode(',', $modes_escaped) . ")";
+        }
+        if (!empty($filter_global_domains)) {
+            $domains_escaped = array_map(function($v) use ($conn) { return "'" . $conn->real_escape_string($v) . "'"; }, $filter_global_domains);
+            $where .= " AND msaf.topic_domain IN (" . implode(',', $domains_escaped) . ")";
+        }
+        if (!empty($filter_global_event_types)) {
+            $types_escaped = array_map(function($v) use ($conn) { return "'" . $conn->real_escape_string($v) . "'"; }, $filter_global_event_types);
+            $where .= " AND (msaf.event_type IN (" . implode(',', $types_escaped) . ") OR msaf.activity_category IN (" . implode(',', $types_escaped) . "))";
         }
 
         // Fetch all relevant documents metadata
