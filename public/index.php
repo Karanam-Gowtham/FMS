@@ -123,6 +123,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'student/dashboard') {
     $controller = new \App\Controllers\StudentController();
     $controller->dashboard();
+} elseif ($route === 'reports/download') {
+    $controller = new \App\Controllers\ReportDownloadController();
+    $controller->download();
 } else {
     // 404 Route
     http_response_code(404);
