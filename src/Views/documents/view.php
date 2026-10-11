@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?> — FMS</title>
+    <title><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?> — FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
@@ -60,7 +60,7 @@
 <div class="container">
 
     <div class="doc-header">
-        <h1><?= $page_title ?></h1>
+        <h1><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></h1>
         <span class="status-badge status-<?= htmlspecialchars($document['status']) ?>">
             <?= htmlspecialchars($status_label) ?>
         </span>
@@ -78,7 +78,7 @@
         <h3>Actions Available</h3>
         <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/approve" id="actionForm">
             <?php if (function_exists('csrfField')) echo csrfField(); ?>
-            <input type="hidden" name="doc_id" value="<?= $doc_id ?>">
+            <input type="hidden" name="doc_id" value="<?= (int)$doc_id ?>">
 
             <?php if (in_array('approve', $allowed_actions) || in_array('reject', $allowed_actions)): ?>
                 <label for="remarks" style="font-weight: 600; display: block; margin-bottom: 0.3rem;">Remarks (required for rejection):</label>

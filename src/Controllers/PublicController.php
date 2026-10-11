@@ -151,17 +151,36 @@ class PublicController {
         global $conn;
 
         $doc_id = isset($_GET['doc_id']) ? (int)$_GET['doc_id'] : 0;
-        if ($doc_id <= 0) die("Invalid document ID.");
+        if ($doc_id <= 0) {
+            if (ob_get_level()) ob_end_clean();
+            header("HTTP/1.1 400 Bad Request");
+            exit("Invalid document ID.");
+        }
 
-        // Only allow downloading accepted documents
-        $stmt = $conn->prepare("SELECT file_path FROM documents WHERE doc_id = ? AND status = 'accepted'");
+        // Only allow downloading accepted documents belonging to publicly visible document types
+        $public_types = [
+            'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 
+            'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 
+            'student_event', 'student_body', 'student_journal', 'student_conference'
+        ];
+
+        $stmt = $conn->prepare("
+            SELECT d.file_path, dt.type_code 
+            FROM documents d
+            JOIN document_types dt ON d.type_id = dt.type_id
+            WHERE d.doc_id = ? AND d.status = 'accepted'
+        ");
         $stmt->bind_param("i", $doc_id);
         $stmt->execute();
         $res = $stmt->get_result();
         $doc = $res->fetch_assoc();
         $stmt->close();
 
-        if (!$doc) die("File not found or not available publicly.");
+        if (!$doc || !in_array($doc['type_code'], $public_types, true)) {
+            if (ob_get_level()) ob_end_clean();
+            header("HTTP/1.1 404 Not Found");
+            exit("File not found or not available publicly.");
+        }
 
         $file_path = $doc['file_path'];
         if (empty($file_path)) {
@@ -176,25 +195,48 @@ class PublicController {
             $stmt->close();
         }
 
-        if (empty($file_path)) die("File not found or not available publicly.");
+        if (empty($file_path)) {
+            if (ob_get_level()) ob_end_clean();
+            header("HTTP/1.1 404 Not Found");
+            exit("File not found or not available publicly.");
+        }
 
-        $real_path = __DIR__ . '/../../' . ltrim($file_path, '/\\');
-        if (!file_exists($real_path)) die("The physical file is missing from the server.");
+        $allowed_base = realpath(__DIR__ . '/../../uploads');
+        $raw_target = __DIR__ . '/../../' . ltrim($file_path, '/\\');
+        $canonical_path = realpath($raw_target);
 
-        $mime_type = 'application/pdf';
-        if (strtolower(pathinfo($real_path, PATHINFO_EXTENSION)) === 'png') $mime_type = 'image/png';
-        if (strtolower(pathinfo($real_path, PATHINFO_EXTENSION)) === 'jpg' || strtolower(pathinfo($real_path, PATHINFO_EXTENSION)) === 'jpeg') $mime_type = 'image/jpeg';
+        if (!$canonical_path || !$allowed_base || strpos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
+            if (ob_get_level()) ob_end_clean();
+            header("HTTP/1.1 404 Not Found");
+            exit("File not found or not available publicly.");
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime_type = $finfo->file($canonical_path) ?: 'application/octet-stream';
+        $allowed_mimes = [
+            'application/pdf',
+            'image/png',
+            'image/jpeg',
+            'image/jpg',
+            'image/gif'
+        ];
+        if (!in_array($mime_type, $allowed_mimes, true)) {
+            $mime_type = 'application/octet-stream';
+        }
+
+        $filename = basename($canonical_path);
 
         if (ob_get_level()) ob_end_clean();
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $mime_type);
-        header('Content-Disposition: inline; filename="' . basename($real_path) . '"');
+        header('Content-Disposition: inline; filename="' . $filename . '"');
+        header('X-Content-Type-Options: nosniff');
         header('Expires: 0');
-        header('Cache-Control: must-revalidate');
+        header('Cache-Control: public, must-revalidate, max-age=3600');
         header('Pragma: public');
-        header('Content-Length: ' . filesize($real_path));
+        header('Content-Length: ' . filesize($canonical_path));
         
-        readfile($real_path);
+        readfile($canonical_path);
         exit;
     }
 }

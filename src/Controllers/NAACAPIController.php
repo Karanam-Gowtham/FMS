@@ -12,6 +12,11 @@ class NAACAPIController {
             $auth = auth_context();
             $active_role = auth_active_role();
 
+            $active_role_id = auth_active_role_id();
+            if (!$active_role_id || $active_role_id === ROLE_STUDENT || !auth_has_role($active_role_id)) {
+                throw new \Exception("Access denied. You do not have permission to modify NAAC accreditation data.");
+            }
+
             $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
             $dept_id = validate_dept_filter($requested_dept_id);
             if ($dept_id === null || $dept_id <= 0) {
@@ -102,6 +107,11 @@ class NAACAPIController {
             $auth = auth_context();
             $active_role = auth_active_role();
 
+            $active_role_id = auth_active_role_id();
+            if (!$active_role_id || $active_role_id === ROLE_STUDENT || !auth_has_role($active_role_id)) {
+                throw new \Exception("Access denied. You do not have permission to upload NAAC accreditation files.");
+            }
+
             $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
             $dept_id = validate_dept_filter($requested_dept_id);
             if ($dept_id === null || $dept_id <= 0) {
@@ -157,6 +167,12 @@ class NAACAPIController {
         try {
             require_login();
             csrfValidate();
+
+            $active_role_id = auth_active_role_id();
+            if (!$active_role_id || $active_role_id === ROLE_STUDENT || !auth_has_role($active_role_id)) {
+                throw new \Exception("Access denied. You do not have permission to generate NAAC accreditation reports.");
+            }
+
             $crit_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
             if ($crit_id <= 0) {
                 throw new \Exception("Criterion number is required.");

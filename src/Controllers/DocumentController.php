@@ -102,8 +102,20 @@ class DocumentController {
         if ($filter_year > 0)     $filters['year_id'] = $filter_year;
         if (!empty($filter_year_ids)) $filters['year_ids'] = $filter_year_ids;
         if ($filter_search !== '') $filters['search'] = $filter_search;
-        if ($filter_dept > 0)      $filters['dept_id'] = $filter_dept;
-        if (!empty($filter_dept_ids)) $filters['dept_ids'] = $filter_dept_ids;
+        // RBAC enforcement: Only central roles can filter across departments
+        $can_filter_dept = in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+        if ($can_filter_dept) {
+            if ($filter_dept > 0)         $filters['dept_id'] = $filter_dept;
+            if (!empty($filter_dept_ids)) $filters['dept_ids'] = $filter_dept_ids;
+        } else {
+            // Strictly disallow department filtering and array injection for non-central roles
+            unset($filters['dept_ids']);
+        }
+
+        // Re-enforce forced role-based filters so user GET parameters cannot bypass scoping
+        foreach ($forced_filters as $fKey => $fVal) {
+            $filters[$fKey] = $fVal;
+        }
         
         // Fetch all departments for filtering if central role
         $all_departments = [];
@@ -224,20 +236,42 @@ class DocumentController {
             // Define standard columns
             $columns = ['ID', 'Title', 'Type', 'Uploader', 'Department', 'Academic Year', 'Status', 'Date'];
             
-            // Collect all unique meta keys across the result set
-            $all_meta_keys = [];
-            foreach ($export_docs as $doc) {
-                $doc_id = $doc['doc_id'];
-                $stmt = $conn->prepare("SELECT meta_key FROM document_metadata WHERE doc_id = ?");
-                $stmt->bind_param('i', $doc_id);
-                $stmt->execute();
-                $mres = $stmt->get_result();
-                while ($row = $mres->fetch_assoc()) {
-                    if (!in_array($row['meta_key'], $all_meta_keys)) {
-                        $all_meta_keys[] = $row['meta_key'];
-                    }
+            // Helper to sanitize CSV cells against formula injection (CWE-1236)
+            $sanitize_csv = function($value) {
+                if ($value === null) {
+                    return '';
                 }
-                $stmt->close();
+                $str = (string)$value;
+                if (isset($str[0]) && in_array($str[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+                    return "'" . $str;
+                }
+                return $str;
+            };
+
+            // Optimize 2N+1 query bottleneck: Batch fetch all metadata in one query
+            $doc_ids = array_map('intval', array_column($export_docs, 'doc_id'));
+            $doc_meta_map = [];
+            $all_meta_keys = [];
+
+            if (!empty($doc_ids)) {
+                $chunks = array_chunk($doc_ids, 500);
+                foreach ($chunks as $chunk) {
+                    $placeholders = implode(',', array_fill(0, count($chunk), '?'));
+                    $types = str_repeat('i', count($chunk));
+                    $stmt = $conn->prepare("SELECT doc_id, meta_key, meta_value FROM document_metadata WHERE doc_id IN ($placeholders)");
+                    $stmt->bind_param($types, ...$chunk);
+                    $stmt->execute();
+                    $mres = $stmt->get_result();
+                    while ($row = $mres->fetch_assoc()) {
+                        $dId = (int)$row['doc_id'];
+                        $mKey = $row['meta_key'];
+                        $doc_meta_map[$dId][$mKey] = $row['meta_value'];
+                        if (!in_array($mKey, $all_meta_keys, true)) {
+                            $all_meta_keys[] = $mKey;
+                        }
+                    }
+                    $stmt->close();
+                }
             }
             
             // Append meta columns to headers
@@ -248,32 +282,21 @@ class DocumentController {
             fputcsv($output, $columns);
             
             foreach ($export_docs as $doc) {
-                $doc_id = $doc['doc_id'];
-                
-                // Fetch metadata for this doc
-                $meta_values = [];
-                $stmt = $conn->prepare("SELECT meta_key, meta_value FROM document_metadata WHERE doc_id = ?");
-                $stmt->bind_param('i', $doc_id);
-                $stmt->execute();
-                $mres = $stmt->get_result();
-                while($row = $mres->fetch_assoc()) {
-                    $meta_values[$row['meta_key']] = $row['meta_value'];
-                }
-                $stmt->close();
+                $doc_id = (int)$doc['doc_id'];
                 
                 $row_data = [
-                    $doc['doc_id'],
-                    $doc['title'],
-                    $doc['type_label'] ?? $doc['type_name'] ?? 'Unknown',
-                    $doc['uploader_name'] ?? 'Unknown',
-                    $doc['dept_name'] ?? 'Unknown',
-                    $doc['year_label'] ?? 'Unknown',
-                    ucfirst($doc['status']),
-                    $doc['created_at']
+                    $sanitize_csv($doc_id),
+                    $sanitize_csv($doc['title'] ?? ''),
+                    $sanitize_csv($doc['type_label'] ?? $doc['type_name'] ?? 'Unknown'),
+                    $sanitize_csv($doc['uploader_name'] ?? 'Unknown'),
+                    $sanitize_csv($doc['dept_name'] ?? 'Unknown'),
+                    $sanitize_csv($doc['year_label'] ?? 'Unknown'),
+                    $sanitize_csv(ucfirst($doc['status'] ?? '')),
+                    $sanitize_csv($doc['created_at'] ?? '')
                 ];
                 
                 foreach ($all_meta_keys as $key) {
-                    $row_data[] = $meta_values[$key] ?? '';
+                    $row_data[] = $sanitize_csv($doc_meta_map[$doc_id][$key] ?? '');
                 }
                 
                 fputcsv($output, $row_data);

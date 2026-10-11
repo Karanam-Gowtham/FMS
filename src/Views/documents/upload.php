@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?> — FMS</title>
+    <title><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?> — FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .upload-container { max-width: 800px; margin: 2rem auto; padding: 2rem; }
@@ -61,7 +61,7 @@
 </div>
 
 <div class="upload-container">
-    <h1 id="page_main_heading"><?= $page_title ?></h1>
+    <h1 id="page_main_heading"><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></h1>
 
     <?php if ($success_msg): ?>
         <div class="alert alert-success"><?= htmlspecialchars($success_msg) ?></div>

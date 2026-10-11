@@ -303,8 +303,13 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
 {
     // Validate table name to prevent SQL injection
     $allowed_tables = ['documents', 'patents_table', 'published_tab', 'conference_tab', 'fdps_tab', 'conf_org_tab', 'fdps_org_tab', 'dept_files', 's_journal_tab', 's_conference_tab', 's_bodies', 's_events'];
-    if (!in_array($table_name, $allowed_tables)) {
+    if (!in_array($table_name, $allowed_tables, true)) {
         return ['success' => false, 'error' => 'Invalid table name.', 'new_status' => null];
+    }
+
+    $allowed_id_cols = ['doc_id', 'id'];
+    if (!in_array($id_col, $allowed_id_cols, true)) {
+        return ['success' => false, 'error' => 'Invalid ID column.', 'new_status' => null];
     }
 
     // 1. Load the document
@@ -322,12 +327,13 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
         return ['success' => false, 'error' => 'Document not found.', 'new_status' => null];
     }
 
-    if ($doc['current_step'] === null) {
+    $current_step = $doc['current_step'] ?? null;
+    if ($current_step === null) {
         return ['success' => false, 'error' => 'Document has no active workflow step.', 'new_status' => null];
     }
 
     // 2. Look up the transition
-    $transition = wf_get_transition($conn, (int)$doc['current_step'], $action_key);
+    $transition = wf_get_transition($conn, (int)$current_step, $action_key);
     if (!$transition) {
         return ['success' => false, 'error' => 'No valid transition for this action.', 'new_status' => null];
     }
@@ -342,24 +348,36 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
         // 4. Update document status and current_step
         $rejection_reason = ($action_key === 'reject') ? $remarks : null;
 
-        $upd = $conn->prepare(
-            "UPDATE documents
-             SET status = ?, current_step = ?, rejection_reason = ?, updated_at = NOW()
-             WHERE doc_id = ?"
-        );
-        $upd->bind_param('sisi', $new_status, $new_step, $rejection_reason, $doc_id);
-        $upd->execute();
-        $upd->close();
+        if ($table_name === 'documents') {
+            $upd = $conn->prepare(
+                "UPDATE `documents`
+                 SET status = ?, current_step = ?, rejection_reason = ?, updated_at = NOW()
+                 WHERE `doc_id` = ?"
+            );
+            $upd->bind_param('sisi', $new_status, $new_step, $rejection_reason, $doc_id);
+            $upd->execute();
+            $upd->close();
 
-        // 5. Record audit trail in document_actions
-        $act_stmt = $conn->prepare(
-            "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
-             VALUES (?, ?, ?, ?, ?, NOW())"
-        );
-        $current_step_int = (int)$doc['current_step'];
-        $act_stmt->bind_param('iisis', $doc_id, $actor_user_id, $action_key, $current_step_int, $remarks);
-        $act_stmt->execute();
-        $act_stmt->close();
+            // 5. Record audit trail in document_actions
+            $act_stmt = $conn->prepare(
+                "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
+                 VALUES (?, ?, ?, ?, ?, NOW())"
+            );
+            $current_step_int = (int)$current_step;
+            $act_stmt->bind_param('iisis', $doc_id, $actor_user_id, $action_key, $current_step_int, $remarks);
+            $act_stmt->execute();
+            $act_stmt->close();
+        } else {
+            // Update specialized/legacy table using its validated table name and id column
+            $upd = $conn->prepare(
+                "UPDATE `$table_name`
+                 SET status = ?, rejection_reason = ?
+                 WHERE `$id_col` = ?"
+            );
+            $upd->bind_param('ssi', $new_status, $rejection_reason, $doc_id);
+            $upd->execute();
+            $upd->close();
+        }
 
         $conn->commit();
 
