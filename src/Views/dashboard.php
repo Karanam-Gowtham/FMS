@@ -189,9 +189,13 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
         <div style="margin-bottom: 2rem;">
             <p style="font-weight: 600; margin-bottom: 10px; color: #475569;">Switch Role:</p>
             <?php foreach ($user_roles as $ur): ?>
-                <?php if (!$active_role || (int)$ur['user_role_id'] !== (int)$active_role['user_role_id']): ?>
-                    <button class="switch-role-btn" onclick="activateRole(<?= $ur['user_role_id'] ?>, '<?= BASE_URL ?>', '<?= csrfToken() ?>')">
-                        Switch to <?= htmlspecialchars($ur['role_name']) ?> (<?= htmlspecialchars($ur['dept_name']) ?>)
+                <?php 
+                    $ur_id = (int)($ur['user_role_id'] ?? $ur['role_id'] ?? 0);
+                    $curr_id = (int)($active_role['user_role_id'] ?? $active_role['role_id'] ?? 0);
+                    if (!$active_role || $ur_id !== $curr_id): 
+                ?>
+                    <button class="switch-role-btn" onclick="activateRole(<?= $ur_id ?>, '<?= BASE_URL ?>', '<?= csrfToken() ?>')">
+                        Switch to <?= htmlspecialchars($ur['role_name'] ?? '') ?> (<?= htmlspecialchars($ur['dept_name'] ?? '') ?>)
                     </button>
                 <?php endif; ?>
             <?php endforeach; ?>

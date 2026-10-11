@@ -499,7 +499,18 @@
                         body: formData
                     });
 
-                    const json = await res.json();
+                    if (!res.ok) {
+                        throw new Error(`Server returned HTTP ${res.status}: ${res.statusText}`);
+                    }
+
+                    const rawText = await res.text();
+                    let json;
+                    try {
+                        json = JSON.parse(rawText);
+                    } catch (e) {
+                        throw new Error(`Server returned invalid response: ${rawText.substring(0, 150)}`);
+                    }
+
                     if (!json.success) {
                         alert(json.error || 'Failed to retrieve documents for accreditation preview.');
                         return;

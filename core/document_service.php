@@ -59,23 +59,6 @@ function doc_get_type_by_id(mysqli $conn, int $type_id): ?array
 }
 
 /**
- * Lists all active document types, optionally filtered by category.
- *
- * @param mysqli $conn
- * @return array
- */
-function doc_get_types(mysqli $conn): array
-{
-    $stmt = $conn->prepare(
-        "SELECT type_id, type_code, label AS type_label, workflow_id
-         FROM document_types
-         ORDER BY label"
-    );
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $types = [];
-    
-/**
  * Central mapping of type_code to category.
  */
 function doc_get_category_map(): array
@@ -103,6 +86,23 @@ function doc_get_category_map(): array
     ];
 }
 
+/**
+ * Lists all active document types, optionally filtered by category.
+ *
+ * @param mysqli $conn
+ * @return array
+ */
+function doc_get_types(mysqli $conn): array
+{
+    $stmt = $conn->prepare(
+        "SELECT type_id, type_code, label AS type_label, workflow_id
+         FROM document_types
+         ORDER BY label"
+    );
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $types = [];
+    
     $category_map = doc_get_category_map();
 
     while ($row = $result->fetch_assoc()) {

@@ -27,7 +27,7 @@ class ProfileController {
         $error = '';
         $success = '';
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             csrfValidate();
             
             $name = trim($_POST['name'] ?? '');

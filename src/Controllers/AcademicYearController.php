@@ -19,7 +19,7 @@ class AcademicYearController {
         // Only Admin and HOD can manage academic years globally
         $can_manage = in_array($active_role['role_id'], [ROLE_ADMIN, ROLE_HOD]);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $can_manage) {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && $can_manage) {
             csrfValidate();
             $new_year = trim($_POST['academic_year'] ?? '');
             if (!empty($new_year)) {
