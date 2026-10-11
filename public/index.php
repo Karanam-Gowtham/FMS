@@ -61,6 +61,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'api/naac/generate_pdf') {
     $controller = new \App\Controllers\NAACAPIController();
     $controller->generate_pdf();
+} elseif ($route === 'api/documents/accreditation_preview') {
+    $controller = new \App\Controllers\DocumentController();
+    $controller->accreditationPreview();
 } elseif ($route === 'documents/list') {
     $controller = new \App\Controllers\DocumentController();
     $controller->index();

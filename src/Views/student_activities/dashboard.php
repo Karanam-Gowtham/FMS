@@ -13,10 +13,15 @@
 <?php require_once __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="container-fluid mt-4 mb-5 px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h2 class="mb-1"><i class="fas fa-users-cog text-primary me-2"></i>Student Activities Dashboard</h2>
             <p class="text-muted mb-0">Analytics and engagement tracking for all student-driven initiatives and events.</p>
+        </div>
+        <div>
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type_keys[]=student_activity_file" class="btn text-white fw-semibold shadow-sm" style="background: #003366;">
+                <i class="fas fa-file-pdf me-2"></i> Generate NAAC Report PDF
+            </a>
         </div>
     </div>
 

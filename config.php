@@ -36,15 +36,19 @@ if (!defined('DB_PORT')) {
    ========================================================= */
 
 if (!defined('BASE_URL')) {
-   $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-   $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+   if (getenv('BASE_URL')) {
+       define('BASE_URL', rtrim(getenv('BASE_URL'), '/'));
+   } else {
+       $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+       $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-   $root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
-   $path = str_replace('\\', '/', __DIR__);
+       $root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+       $path = str_replace('\\', '/', __DIR__);
 
-   $projectPath = str_replace($root, '', $path);
+       $projectPath = str_replace($root, '', $path);
 
-   define('BASE_URL', rtrim($protocol . '://' . $host . $projectPath, '/'));
+       define('BASE_URL', rtrim($protocol . '://' . $host . $projectPath, '/'));
+   }
 }
 /* =========================================================
    INCLUDES

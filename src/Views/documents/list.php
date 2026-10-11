@@ -286,10 +286,13 @@
     <?php else: ?>
         <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/bulk_action" id="bulkActionForm">
             <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
-            <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center;">
+            <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                 <span style="font-size: 0.85rem; color: #555; font-weight: 600;">Bulk Actions:</span>
                 <button type="submit" name="action_type" value="zip" class="btn-sm" style="background: #6c757d; color: white;">Download as ZIP</button>
                 <button type="submit" name="action_type" value="merge_pdf" class="btn-sm btn-primary">Merge to Single PDF</button>
+                <button type="button" id="btnOpenAccreditationModal" class="btn-sm" style="background: #003366; color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-file-pdf"></i> Generate NAAC Accreditation PDF
+                </button>
             </div>
         <table>
             <thead>
@@ -335,6 +338,134 @@
         </table>
         </form>
 
+        <!-- Accreditation Report Configuration Modal -->
+        <div id="accreditationModal" style="display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); overflow-y: auto; padding: 20px 10px; box-sizing: border-box;">
+            <div style="background: #ffffff; max-width: 950px; margin: 20px auto; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; overflow: hidden; animation: modalSlideIn 0.25s ease-out;">
+                
+                <!-- Modal Header -->
+                <div style="background: #003366; color: #ffffff; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-file-invoice" style="font-size: 1.4rem; color: #f6ad55;"></i>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em;">NAAC / Accreditation Merged Report Generator</h3>
+                            <p style="margin: 2px 0 0; font-size: 0.82rem; color: #cbd5e1;">Configure official criterion headings, select table columns, and review extracted database records.</p>
+                        </div>
+                    </div>
+                    <button type="button" id="btnCloseAccreditationModal" style="background: none; border: none; color: #cbd5e1; font-size: 1.6rem; cursor: pointer; line-height: 1; padding: 0 4px;" title="Close">&times;</button>
+                </div>
+
+                <!-- Modal Body Form -->
+                <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/bulk_action" id="accreditationPdfForm" target="_blank" style="padding: 1.5rem;">
+                    <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
+                    <input type="hidden" name="action_type" value="merge_accreditation_pdf">
+                    <div id="modalHiddenDocIds"></div>
+
+                    <!-- STEP 1: Accreditation Heading Presets & Customization -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
+                            <label style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
+                                <i class="fas fa-heading text-primary me-1"></i> 1. Document Headings Hierarchy
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Load Standard Preset:</span>
+                                <select id="accreditationPresetSelect" style="padding: 0.4rem 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; font-weight: 500; background: #fff; cursor: pointer;">
+                                    <option value="">— Select Standard Metric Preset —</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.8rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Criterion Title (Centered, Bold)</label>
+                                <input type="text" name="criterion" id="inputCriterion" value="Criterion V - Student Support and Progression" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box;" required>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Key Indicator (Centered, Bold)</label>
+                                <input type="text" name="key_indicator" id="inputKeyIndicator" value="Key Indicator - 5.1 Student Support" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box;" required>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 0.8rem;">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Metric Statement (Left-aligned, Bold)</label>
+                            <textarea name="metric" id="inputMetric" rows="2" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box; resize: vertical;" required>5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY 2023-24</textarea>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Sub-Indicator / Domain Heading (Left-aligned, Bold)</label>
+                            <input type="text" name="sub_heading" id="inputSubHeading" value="5.1.3.4 Awareness of trends in technology" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box;" required>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Table Column Selection -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem;">
+                        <label style="font-weight: 700; color: #1e293b; font-size: 0.95rem; display: block; margin-bottom: 0.6rem;">
+                            <i class="fas fa-columns text-primary me-1"></i> 2. Table Columns to Include in Generated PDF
+                        </label>
+                        <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;" id="columnCheckboxesContainer">
+                            <input type="hidden" name="columns[]" value="sno">
+                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: default;">
+                                <input type="checkbox" checked disabled> <strong>S.No</strong>
+                            </label>
+                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                <input type="checkbox" name="columns[]" value="event_name" checked> Name of Programme
+                            </label>
+                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                <input type="checkbox" name="columns[]" value="year" checked> Year of implementation
+                            </label>
+                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                <input type="checkbox" name="columns[]" value="student_count" checked> Number of students enrolled
+                            </label>
+                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                <input type="checkbox" name="columns[]" value="agency" checked> Agencies / Consultants & Contact
+                            </label>
+                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                <input type="checkbox" name="columns[]" value="event_date"> Date of event
+                            </label>
+                            <input type="hidden" name="columns[]" value="page_no">
+                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: default;">
+                                <input type="checkbox" checked disabled> <strong>Page No. (Auto)</strong>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Data Verification & Inline Edit Table -->
+                    <div style="margin-bottom: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                            <label style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
+                                <i class="fas fa-table text-primary me-1"></i> 3. Data Retrieved from Database (<span id="previewRecordCount">0</span> Activities)
+                            </label>
+                            <small style="color: #64748b; font-size: 0.8rem;">You may fine-tune credentials or contact details before generating.</small>
+                        </div>
+
+                        <div style="max-height: 280px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;" id="modalPreviewTable">
+                                <thead style="background: #f1f5f9; position: sticky; top: 0; z-index: 10;">
+                                    <tr>
+                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 40px; text-align: center;">#</th>
+                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Programme / Activity Name</th>
+                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 100px;">AY</th>
+                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 80px;">Students</th>
+                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Agencies / Consultants & Contact Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalPreviewTbody">
+                                    <!-- Populated via AJAX -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div style="border-top: 1px solid #e2e8f0; padding-top: 1.2rem; display: flex; justify-content: flex-end; gap: 0.8rem;">
+                        <button type="button" id="btnCancelAccreditationModal" style="padding: 0.6rem 1.2rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; color: #475569; font-weight: 600; cursor: pointer;">Cancel</button>
+                        <button type="submit" style="padding: 0.6rem 1.6rem; border: none; border-radius: 6px; background: #003366; color: #ffffff; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0,51,102,0.3);">
+                            <i class="fas fa-file-pdf"></i> Generate & Download Official PDF
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <script>
             document.getElementById('selectAllDocs').addEventListener('change', function() {
                 let checkboxes = document.querySelectorAll('.doc-checkbox');
@@ -342,6 +473,142 @@
                     cb.checked = this.checked;
                 }
             });
+
+            // Accreditation Modal Handling
+            let loadedPresets = {};
+
+            document.getElementById('btnOpenAccreditationModal').addEventListener('click', async function() {
+                const checkedBoxes = Array.from(document.querySelectorAll('.doc-checkbox:checked'));
+                if (checkedBoxes.length === 0) {
+                    alert('Please select at least one document from the table using the checkboxes.');
+                    return;
+                }
+
+                const docIds = checkedBoxes.map(cb => cb.value);
+                const originalBtnText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading data...';
+                this.disabled = true;
+
+                try {
+                    const formData = new FormData();
+                    formData.append('_csrf_token', '<?= csrfToken() ?>');
+                    docIds.forEach(id => formData.append('doc_ids[]', id));
+
+                    const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/documents/accreditation_preview', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const json = await res.json();
+                    if (!json.success) {
+                        alert(json.error || 'Failed to retrieve documents for accreditation preview.');
+                        return;
+                    }
+
+                    // Populate Hidden Inputs
+                    const hiddenContainer = document.getElementById('modalHiddenDocIds');
+                    hiddenContainer.innerHTML = '';
+                    docIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'doc_ids[]';
+                        input.value = id;
+                        hiddenContainer.appendChild(input);
+                    });
+
+                    // Populate Presets
+                    loadedPresets = json.presets || {};
+                    const presetSelect = document.getElementById('accreditationPresetSelect');
+                    presetSelect.innerHTML = '<option value="">— Select Standard Metric Preset —</option>';
+                    for (const [key, p] of Object.entries(loadedPresets)) {
+                        const opt = document.createElement('option');
+                        opt.value = key;
+                        opt.textContent = p.label;
+                        presetSelect.appendChild(opt);
+                    }
+
+                    // Auto-select 5.1.3.4 or first preset if available
+                    if (loadedPresets['5.1.3.4_tech']) {
+                        presetSelect.value = '5.1.3.4_tech';
+                        applyPreset('5.1.3.4_tech');
+                    } else if (Object.keys(loadedPresets).length > 0) {
+                        const firstKey = Object.keys(loadedPresets)[0];
+                        presetSelect.value = firstKey;
+                        applyPreset(firstKey);
+                    }
+
+                    // Render Preview Rows
+                    document.getElementById('previewRecordCount').textContent = json.documents.length;
+                    const tbody = document.getElementById('modalPreviewTbody');
+                    tbody.innerHTML = '';
+
+                    json.documents.forEach((doc, idx) => {
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid #e2e8f0';
+                        tr.innerHTML = `
+                            <td style="padding: 8px; text-align: center; font-weight: 600; color: #64748b;">${idx + 1}</td>
+                            <td style="padding: 6px;">
+                                <input type="text" name="doc_data[${doc.doc_id}][event_name]" value="${escapeHtml(doc.event_name)}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;" required>
+                            </td>
+                            <td style="padding: 6px;">
+                                <input type="text" name="doc_data[${doc.doc_id}][year]" value="${escapeHtml(doc.year || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;">
+                            </td>
+                            <td style="padding: 6px;">
+                                <input type="number" name="doc_data[${doc.doc_id}][student_count]" value="${doc.student_count || 0}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;">
+                            </td>
+                            <td style="padding: 6px;">
+                                <textarea name="doc_data[${doc.doc_id}][agency]" rows="1" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; resize: vertical;" placeholder="e.g. Er. T. Harrish, Proprietor of Aki Groups...">${escapeHtml(doc.agency || '')}</textarea>
+                                <input type="hidden" name="doc_data[${doc.doc_id}][event_date]" value="${escapeHtml(doc.event_date || '')}">
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Open Modal
+                    document.getElementById('accreditationModal').style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+
+                } catch (err) {
+                    alert('Error loading accreditation data: ' + err.message);
+                } finally {
+                    this.innerHTML = originalBtnText;
+                    this.disabled = false;
+                }
+            });
+
+            function applyPreset(key) {
+                if (loadedPresets[key]) {
+                    const p = loadedPresets[key];
+                    document.getElementById('inputCriterion').value = p.criterion || '';
+                    document.getElementById('inputKeyIndicator').value = p.key_indicator || '';
+                    document.getElementById('inputMetric').value = p.metric || '';
+                    document.getElementById('inputSubHeading').value = p.sub_heading || '';
+                }
+            }
+
+            document.getElementById('accreditationPresetSelect').addEventListener('change', function() {
+                if (this.value) {
+                    applyPreset(this.value);
+                }
+            });
+
+            function closeAccreditationModal() {
+                document.getElementById('accreditationModal').style.display = 'none';
+                document.body.style.overflow = '';
+            }
+
+            document.getElementById('btnCloseAccreditationModal').addEventListener('click', closeAccreditationModal);
+            document.getElementById('btnCancelAccreditationModal').addEventListener('click', closeAccreditationModal);
+
+            document.getElementById('accreditationPdfForm').addEventListener('submit', function() {
+                setTimeout(closeAccreditationModal, 1200);
+            });
+
+            function escapeHtml(str) {
+                return (str || '').replace(/[&<>"']/g, function(m) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+                });
+            }
         </script>
 
         <?php if ($total_pages > 1): ?>

@@ -954,14 +954,16 @@ function doc_get_departments(mysqli $conn): array
 function doc_can_view(mysqli $conn, array $auth, array $doc): bool
 {
     // Uploader can always view
-    if ($doc['uploaded_by'] == $auth['user_id']) {
+    $uploader_id = $doc['uploaded_by'] ?? ($doc['created_by'] ?? null);
+    if ($uploader_id !== null && (int)$uploader_id === (int)($auth['user_id'] ?? 0)) {
         return true;
     }
     
     // Check role-based access
-    foreach ($auth['roles'] as $role) {
-        $role_id = (int)$role['role_id'];
-        $dept_id = (int)$role['dept_id'];
+    $roles = $auth['roles'] ?? [];
+    foreach ($roles as $role) {
+        $role_id = is_array($role) ? (int)($role['role_id'] ?? 0) : (int)$role;
+        $dept_id = is_array($role) ? (int)($role['dept_id'] ?? 0) : (int)($auth['dept_id'] ?? 0);
         
         if (in_array($role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
             return true;
@@ -972,7 +974,7 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
             continue;
         }
 
-        if ($dept_id === (int)$doc['dept_id']) {
+        if (isset($doc['dept_id']) && $dept_id === (int)$doc['dept_id']) {
             return true;
         }
     }

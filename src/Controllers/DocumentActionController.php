@@ -525,6 +525,8 @@ class DocumentActionController {
             $this->downloadAsZip($valid_docs, $conn);
         } elseif ($action_type === 'merge_pdf') {
             $this->mergeAsPdf($valid_docs, $conn);
+        } elseif ($action_type === 'merge_accreditation_pdf') {
+            $this->mergeAsAccreditationPdf($valid_docs, $conn);
         } else {
             $_SESSION['error_msg'] = "Invalid bulk action.";
             header("Location: " . $_SERVER['HTTP_REFERER']);
@@ -629,6 +631,116 @@ class DocumentActionController {
             }
         } catch (\Exception $e) {
             die("PDF Merge Error: " . $e->getMessage());
+        }
+    }
+
+    private function mergeAsAccreditationPdf($valid_docs, $conn) {
+        require_once __DIR__ . '/../../core/accreditation_pdf_service.php';
+
+        $headings = [
+            'criterion' => trim($_POST['criterion'] ?? 'Criterion V - Student Support and Progression'),
+            'key_indicator' => trim($_POST['key_indicator'] ?? 'Key Indicator - 5.1 Student Support'),
+            'metric' => trim($_POST['metric'] ?? ''),
+            'sub_heading' => trim($_POST['sub_heading'] ?? '')
+        ];
+
+        $selected_columns = $_POST['columns'] ?? ['sno', 'event_name', 'year', 'student_count', 'agency', 'page_no'];
+        if (!is_array($selected_columns)) {
+            $selected_columns = explode(',', $selected_columns);
+        }
+
+        $doc_custom_data = $_POST['doc_data'] ?? [];
+
+        $docs_to_merge = [];
+        foreach ($valid_docs as $doc) {
+            $id = (int)$doc['doc_id'];
+
+            // Query DB for complete metadata
+            $stmt = $conn->prepare("
+                SELECT msaf.*, y.year_label 
+                FROM documents d
+                LEFT JOIN academic_years y ON d.academic_year_id = y.year_id
+                LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
+                WHERE d.doc_id = ?
+            ");
+            $stmt->bind_param('i', $id);
+            $stmt->execute();
+            $meta = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            // Override with custom user inputs from modal preview if present
+            $custom = $doc_custom_data[$id] ?? [];
+            $eventName = !empty($custom['event_name']) ? trim($custom['event_name']) : (!empty($meta['event_title']) ? $meta['event_title'] : $doc['title']);
+            $year = !empty($custom['year']) ? trim($custom['year']) : ($meta['year_label'] ?? ($doc['academic_year'] ?? ''));
+            $studentCount = isset($custom['student_count']) && $custom['student_count'] !== '' ? (int)$custom['student_count'] : (!empty($meta['participant_count']) ? (int)$meta['participant_count'] : 0);
+            $agency = isset($custom['agency']) ? trim($custom['agency']) : (!empty($meta['resource_person']) ? $meta['resource_person'] : '');
+            $eventDate = !empty($custom['event_date']) ? trim($custom['event_date']) : (!empty($meta['date_from']) ? $meta['date_from'] : '');
+
+            // Find associated PDF file
+            $resolvedFilePath = '';
+            
+            // 1. Try document's main file_path
+            $rawDocPath = ltrim($doc['file_path'] ?? '', '/\\');
+            $mainPath = __DIR__ . '/../../' . $rawDocPath;
+            if (!empty($rawDocPath) && file_exists($mainPath) && strtolower(pathinfo($mainPath, PATHINFO_EXTENSION)) === 'pdf') {
+                $resolvedFilePath = $mainPath;
+            } else {
+                // 2. Try report or first PDF in document_files
+                $fstmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_path LIKE '%.pdf' ORDER BY (file_label = 'report') DESC LIMIT 1");
+                $fstmt->bind_param('i', $id);
+                $fstmt->execute();
+                $fres = $fstmt->get_result()->fetch_assoc();
+                $fstmt->close();
+                if ($fres && !empty($fres['file_path'])) {
+                    $rawFilePath = ltrim($fres['file_path'], '/\\');
+                    $p = __DIR__ . '/../../' . $rawFilePath;
+                    if (file_exists($p)) {
+                        $resolvedFilePath = $p;
+                    }
+                }
+            }
+
+            $docs_to_merge[] = [
+                'doc_id' => $id,
+                'event_name' => $eventName,
+                'year' => $year,
+                'student_count' => $studentCount,
+                'agency' => $agency,
+                'event_date' => $eventDate,
+                'file_path' => $resolvedFilePath
+            ];
+        }
+
+        if (empty($docs_to_merge)) {
+            $_SESSION['error_msg'] = "No valid documents found to merge.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+
+        $service = new \AccreditationPdfService();
+        $merged_filename = 'Accreditation_Report_' . date('Ymd_His') . '.pdf';
+        $merged_path = sys_get_temp_dir() . '/' . $merged_filename;
+
+        try {
+            $service->generateReport($headings, $selected_columns, $docs_to_merge, $merged_path);
+
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
+
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $merged_filename . '"');
+            header('Content-Length: ' . filesize($merged_path));
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+            
+            readfile($merged_path);
+            unlink($merged_path);
+            exit;
+        } catch (\Throwable $e) {
+            $_SESSION['error_msg'] = "Accreditation PDF Generation Error: " . $e->getMessage();
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit;
         }
     }
 }

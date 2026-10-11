@@ -222,7 +222,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'event_title', 'label' => 'Title of the Event', 'type' => 'text', 'required' => true],
             ['name' => 'date_from', 'label' => 'From Date', 'type' => 'date', 'required' => true],
             ['name' => 'date_to', 'label' => 'To Date', 'type' => 'date', 'required' => false],
-            ['name' => 'resource_person', 'label' => 'Resource Person Name & Details', 'type' => 'textarea', 'required' => false],
+            ['name' => 'resource_person', 'label' => 'Agencies / Consultants / Resource Persons (with contact details)', 'type' => 'textarea', 'required' => false],
             ['name' => 'target_audience', 'label' => 'Target Audience', 'type' => 'select', 'options' => ['Internal', 'External'], 'default' => 'Internal', 'required' => false],
             ['name' => 'participant_count', 'label' => 'Number of Participants / Volunteers', 'type' => 'number', 'required' => true],
             ['name' => 'event_mode', 'label' => 'Mode of Conduct', 'type' => 'radio', 'options' => ['Online', 'Offline', 'Hybrid'], 'required' => true],

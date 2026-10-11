@@ -538,4 +538,90 @@ class DocumentController {
 
         include __DIR__ . '/../Views/documents/view.php';
     }
+
+    public function accreditationPreview() {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
+        global $conn;
+        require_once __DIR__ . '/../../core/accreditation_pdf_service.php';
+
+        header('Content-Type: application/json');
+
+        $doc_ids = $_POST['doc_ids'] ?? [];
+        if (empty($doc_ids) && isset($_GET['doc_ids'])) {
+            $doc_ids = is_array($_GET['doc_ids']) ? $_GET['doc_ids'] : explode(',', $_GET['doc_ids']);
+        }
+
+        if (empty($doc_ids)) {
+            echo json_encode(['success' => false, 'error' => 'No documents selected.']);
+            exit;
+        }
+
+        $auth = auth_context();
+
+        $documents = [];
+        $detected_year = '';
+
+        foreach ($doc_ids as $id) {
+            $id = (int)$id;
+            if ($id <= 0) continue;
+
+            $doc = doc_get($conn, $id);
+            if (!$doc || !doc_can_view($conn, $auth, $doc)) {
+                continue;
+            }
+
+            // Fetch extra student activity metadata if exists
+            $stmt = $conn->prepare("
+                SELECT msaf.*, y.year_label 
+                FROM documents d
+                LEFT JOIN academic_years y ON d.academic_year_id = y.year_id
+                LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
+                WHERE d.doc_id = ?
+            ");
+            $stmt->bind_param('i', $id);
+            $stmt->execute();
+            $meta = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            $year_label = $meta['year_label'] ?? ($doc['academic_year'] ?? '');
+            if (empty($detected_year) && !empty($year_label)) {
+                $detected_year = $year_label;
+            }
+
+            $event_title = !empty($meta['event_title']) ? $meta['event_title'] : $doc['title'];
+            $agency = !empty($meta['resource_person']) ? $meta['resource_person'] : '';
+            $student_count = !empty($meta['participant_count']) ? (int)$meta['participant_count'] : 0;
+            $event_date = !empty($meta['date_from']) ? $meta['date_from'] : '';
+
+            $documents[] = [
+                'doc_id' => $id,
+                'event_name' => $event_title,
+                'year' => $year_label,
+                'student_count' => $student_count,
+                'agency' => $agency,
+                'event_date' => $event_date,
+                'activity_category' => $meta['activity_category'] ?? '',
+                'topic_domain' => $meta['topic_domain'] ?? ''
+            ];
+        }
+
+        if (empty($documents)) {
+            echo json_encode(['success' => false, 'error' => 'You do not have permission to view the selected documents.']);
+            exit;
+        }
+
+        $presets = \AccreditationPdfService::getHeadingPresets($detected_year);
+        $available_columns = \AccreditationPdfService::getAvailableColumns();
+
+        echo json_encode([
+            'success' => true,
+            'documents' => $documents,
+            'presets' => $presets,
+            'columns' => $available_columns,
+            'detected_year' => $detected_year
+        ]);
+        exit;
+    }
 }
+
