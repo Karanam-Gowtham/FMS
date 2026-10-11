@@ -17,6 +17,26 @@ class AccreditationFpdi extends Fpdi {
     public $tableWidths = [];
     public $isIndexPage = false;
 
+    public function setupFonts(): void {
+        $fontDir = __DIR__ . '/../libs/font/';
+        if (file_exists($fontDir . 'cambria.php')) {
+            $this->AddFont('Cambria', '', 'cambria.php');
+            if (file_exists($fontDir . 'cambriab.php')) {
+                $this->AddFont('Cambria', 'B', 'cambriab.php');
+            }
+            if (file_exists($fontDir . 'cambriai.php')) {
+                $this->AddFont('Cambria', 'I', 'cambriai.php');
+            }
+            if (file_exists($fontDir . 'cambriaz.php')) {
+                $this->AddFont('Cambria', 'BI', 'cambriaz.php');
+            }
+        }
+    }
+
+    public function getPrimaryFont(): string {
+        return isset($this->fonts['cambria']) ? 'Cambria' : 'Times';
+    }
+
     // Helper: calculate number of lines a text will occupy in a cell of width $w
     public function NbLines($w, $txt) {
         $cw = &$this->CurrentFont['cw'];
@@ -108,51 +128,58 @@ class AccreditationPdfService {
         return [
             'sno' => [
                 'key' => 'sno',
-                'label' => 'S.No',
+                'label' => "S.No",
                 'align' => 'C',
+                'header_align' => 'C',
                 'weight' => 12,
                 'fixed' => true
             ],
             'event_name' => [
                 'key' => 'event_name',
-                'label' => 'Name of the Capacity Development and Skill Enhancement programme',
-                'align' => 'L',
-                'weight' => 55,
+                'label' => "Name of the Capacity\nDevelopment and Skill\nEnhancement programme",
+                'align' => 'J',
+                'header_align' => 'C',
+                'weight' => 58,
                 'fixed' => false
             ],
             'year' => [
                 'key' => 'year',
-                'label' => 'Year of implementation',
+                'label' => "Year of\nimplementation",
                 'align' => 'C',
-                'weight' => 22,
+                'header_align' => 'C',
+                'weight' => 33.5,
                 'fixed' => false
             ],
             'event_date' => [
                 'key' => 'event_date',
-                'label' => 'Date of event',
+                'label' => "Date of\nevent",
                 'align' => 'C',
-                'weight' => 22,
+                'header_align' => 'C',
+                'weight' => 24,
                 'fixed' => false
             ],
             'student_count' => [
                 'key' => 'student_count',
-                'label' => 'Number of students enrolled',
+                'label' => "Number of\nstudents\nenrolled",
                 'align' => 'C',
-                'weight' => 24,
+                'header_align' => 'C',
+                'weight' => 23.5,
                 'fixed' => false
             ],
             'agency' => [
                 'key' => 'agency',
-                'label' => 'Name of the agencies/consultants involved with contact details, if any',
-                'align' => 'L',
-                'weight' => 55,
+                'label' => "Name of the\nagencies/consultants\ninvolved with contact\ndetails, if any",
+                'align' => 'J',
+                'header_align' => 'C',
+                'weight' => 44,
                 'fixed' => false
             ],
             'page_no' => [
                 'key' => 'page_no',
-                'label' => 'Page No.',
+                'label' => "Page No.",
                 'align' => 'C',
-                'weight' => 16,
+                'header_align' => 'C',
+                'weight' => 19,
                 'fixed' => true
             ]
         ];
@@ -257,6 +284,16 @@ class AccreditationPdfService {
             }
         }
 
+        // Context-aware column heading for event_name based on selected metric/sub-heading
+        if (isset($colsToRender['event_name'])) {
+            $contextText = ($headings['metric'] ?? '') . ' ' . ($headings['sub_heading'] ?? '');
+            if (stripos($contextText, 'Career') !== false || stripos($contextText, 'Competitive') !== false || stripos($contextText, '5.1.4') !== false) {
+                $colsToRender['event_name']['label'] = "Name of the Activity / Programme\nfor Guidance & Career Counselling";
+            } elseif (stripos($contextText, 'Sports') !== false || stripos($contextText, 'Cultural') !== false || stripos($contextText, '5.3.3') !== false) {
+                $colsToRender['event_name']['label'] = "Name of the Sports / Cultural\nevent / competition organised";
+            }
+        }
+
         $printableWidth = 190; // mm
         $colWidths = [];
         $runningWidth = 0;
@@ -275,6 +312,7 @@ class AccreditationPdfService {
         // Phase 1: Count pages in attached PDFs and calculate starting page numbers
         // We first simulate rendering the index table to get exact index page count
         $tempPdf = new AccreditationFpdi('P', 'mm', 'A4');
+        $tempPdf->setupFonts();
         $tempPdf->SetMargins(10, 10, 10);
         $tempPdf->SetAutoPageBreak(true, 15);
         $tempPdf->AddPage();
@@ -312,6 +350,7 @@ class AccreditationPdfService {
 
         // Phase 2: Create real Index page(s)
         $pdf = new AccreditationFpdi('P', 'mm', 'A4');
+        $pdf->setupFonts();
         $pdf->SetMargins(10, 10, 10);
         $pdf->SetAutoPageBreak(true, 15);
         $pdf->AddPage();
@@ -326,6 +365,7 @@ class AccreditationPdfService {
         // Phase 3: Merge attached document PDFs and stamp page numbers
         $pdf->SetAutoPageBreak(false); // Crucial for accurate bottom stamping without extra blank pages
         $finalPageNumber = $indexPageCount + 1;
+        $primaryFont = $pdf->getPrimaryFont();
 
         foreach ($documents as $idx => $doc) {
             $filePath = $doc['file_path'] ?? '';
@@ -346,7 +386,7 @@ class AccreditationPdfService {
                         $pdf->useTemplate($templateId);
 
                         // Stamp page number at bottom center
-                        $pdf->SetFont('Times', '', 9);
+                        $pdf->SetFont($primaryFont, '', 9);
                         $pdf->SetTextColor(0, 0, 0);
                         $pdf->SetXY(0, $size['height'] - 12);
                         $pdf->Cell($size['width'], 8, 'Page ' . $finalPageNumber, 0, 0, 'C');
@@ -361,20 +401,20 @@ class AccreditationPdfService {
             // Fallback: If no valid PDF could be read, create clean notice page
             if (!$hasValidPdf) {
                 $pdf->AddPage('P', [210, 297]);
-                $pdf->SetFont('Times', 'B', 14);
+                $pdf->SetFont($primaryFont, 'B', 14);
                 $pdf->SetTextColor(0, 51, 102);
                 $pdf->SetXY(15, 60);
                 $pdf->Cell(180, 10, 'Annexure Document', 0, 1, 'C');
-                $pdf->SetFont('Times', '', 12);
+                $pdf->SetFont($primaryFont, '', 12);
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetXY(15, 75);
                 $pdf->MultiCell(180, 6, self::sanitizeText($eventTitle), 0, 'C');
                 $pdf->Ln(5);
-                $pdf->SetFont('Times', 'I', 10);
+                $pdf->SetFont($primaryFont, 'I', 10);
                 $pdf->SetTextColor(120, 120, 120);
                 $pdf->Cell(180, 8, '(Digital copy on file in GMRIT Academic Repository)', 0, 1, 'C');
 
-                $pdf->SetFont('Times', '', 9);
+                $pdf->SetFont($primaryFont, '', 9);
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetXY(0, 297 - 12);
                 $pdf->Cell(210, 8, 'Page ' . $finalPageNumber, 0, 0, 'C');
@@ -394,78 +434,94 @@ class AccreditationPdfService {
     protected function renderHeaderAndHeadings(AccreditationFpdi $pdf, array $headings): void {
         $startY = $pdf->GetY();
         $logoPath = realpath(__DIR__ . '/../assets/img/gmr_logo.png') ?: realpath(__DIR__ . '/../assets/img/logo.png');
+        $font = $pdf->getPrimaryFont();
 
-        // Left Institution Text
-        $pdf->SetXY(10, $startY);
-        $pdf->SetFont('Times', 'B', 15);
-        $pdf->SetTextColor(0, 51, 102); // GMRIT Navy
-        $pdf->Cell(135, 7, 'GMR Institute of Technology', 0, 1, 'L');
+        // Centering composite header block on 210mm page:
+        // Left text: 84mm, Divider gap: 5mm, Logo: 38mm -> total width: 127mm
+        // Centered startX on A4 (210mm width): (210 - 127) / 2 = 41.5mm
+        $startX = 41.5;
+
+        // 1. Institution Name (Left)
+        $pdf->SetXY($startX, $startY);
+        $pdf->SetFont($font, 'B', 16);
+        $pdf->SetTextColor(0, 51, 102); // GMR Navy
+        $pdf->Cell(84, 7, 'GMR Institute of Technology', 0, 1, 'L');
         
-        $pdf->SetFont('Times', '', 9.5);
-        $pdf->Cell(135, 5, 'An Autonomous Institute Affiliated to JNTU-GV', 0, 1, 'L');
+        // Sub-text
+        $pdf->SetX($startX);
+        $pdf->SetFont($font, '', 9.5);
+        $pdf->Cell(84, 5, 'An Autonomous Institute Affiliated to JNTU-GV', 0, 1, 'L');
 
-        // Vertical divider rule
-        $dividerX = 148;
+        // 2. Vertical Divider Rule
+        $dividerX = $startX + 85;
         $pdf->SetDrawColor(180, 180, 180);
-        $pdf->SetLineWidth(0.3);
+        $pdf->SetLineWidth(0.4);
         $pdf->Line($dividerX, $startY, $dividerX, $startY + 15);
 
-        // Right Logo
+        // 3. Right Logo
+        $logoX = $dividerX + 3.5;
         if ($logoPath && file_exists($logoPath)) {
-            // Place logo image at X=151, Y=startY, width=48mm
-            $pdf->Image($logoPath, 151, $startY - 1, 48);
+            $pdf->Image($logoPath, $logoX, $startY, 38);
         } else {
-            $pdf->SetXY(151, $startY);
-            $pdf->SetFont('Times', 'B', 14);
+            $pdf->SetXY($logoX, $startY);
+            $pdf->SetFont($font, 'B', 14);
             $pdf->SetTextColor(0, 51, 102);
-            $pdf->Cell(48, 6, 'GMRIT', 0, 1, 'C');
-            $pdf->SetFont('Times', 'I', 7.5);
+            $pdf->Cell(38, 6, 'GMRIT', 0, 1, 'C');
+            $pdf->SetFont($font, 'I', 7.5);
             $pdf->SetTextColor(80, 80, 80);
-            $pdf->Cell(48, 4, "Training Tomorrow's Engineers Today", 0, 1, 'C');
+            $pdf->Cell(38, 4, "Training Tomorrow's Engineers Today", 0, 1, 'C');
         }
 
-        $pdf->SetY($startY + 20);
+        $pdf->SetY($startY + 22);
 
-        // Headings Hierarchy
+        // Headings Hierarchy:
+        // - Criterion Title (Centered, Bold, Size 12)
+        // - Key Indicator (Centered, Bold, Size 12)
+        // - Metric Statement (Left-aligned, Bold, Size 12)
+        // - Sub-Indicator / Domain Heading (Left-aligned, Bold, Size 12)
         $pdf->SetTextColor(0, 0, 0);
 
         // 1. Criterion Title (Centered, Bold, 12pt)
         if (!empty($headings['criterion'])) {
-            $pdf->SetFont('Times', 'B', 12);
+            $pdf->SetFont($font, 'B', 12);
             $pdf->Cell(190, 6, self::sanitizeText($headings['criterion']), 0, 1, 'C');
         }
 
-        // 2. Key Indicator (Centered, Bold, 11pt)
+        // 2. Key Indicator (Centered, Bold, 12pt)
         if (!empty($headings['key_indicator'])) {
-            $pdf->SetFont('Times', 'B', 11);
+            $pdf->SetFont($font, 'B', 12);
             $pdf->Cell(190, 6, self::sanitizeText($headings['key_indicator']), 0, 1, 'C');
         }
 
+        // 3. Metric Statement & Sub-heading (Left-aligned, Bold, 12pt)
+        $heading3 = trim($headings['metric'] ?? '');
+        $heading4 = trim($headings['sub_heading'] ?? '');
+
+        if (!empty($heading3) && !empty($heading4) && $heading3 !== $heading4) {
+            $pdf->SetFont($font, 'B', 12);
+            $pdf->MultiCell(190, 5.5, self::sanitizeText($heading3), 0, 'L');
+            $pdf->SetFont($font, 'B', 12);
+            $pdf->MultiCell(190, 5.5, self::sanitizeText($heading4), 0, 'L');
+        } else {
+            $actLine = !empty($heading4) ? $heading4 : $heading3;
+            if (!empty($actLine)) {
+                $pdf->SetFont($font, 'B', 12);
+                $pdf->MultiCell(190, 5.5, self::sanitizeText($actLine), 0, 'L');
+            }
+        }
         $pdf->Ln(2);
-
-        // 3. Metric Statement (Left-aligned, Bold, 10.5pt)
-        if (!empty($headings['metric'])) {
-            $pdf->SetFont('Times', 'B', 10.5);
-            $pdf->MultiCell(190, 5.5, self::sanitizeText($headings['metric']), 0, 'L');
-            $pdf->Ln(2);
-        }
-
-        // 4. Sub-heading / Specific Domain (Left-aligned, Bold, 10pt)
-        if (!empty($headings['sub_heading'])) {
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->MultiCell(190, 5, self::sanitizeText($headings['sub_heading']), 0, 'L');
-            $pdf->Ln(3);
-        }
     }
 
     /**
-     * Render the table column headers
+     * Render the table column headers (Center, Bold, Size 12)
      */
     protected function renderTableHeader(AccreditationFpdi $pdf, array $cols, array $widths): void {
-        $pdf->SetFont('Times', 'B', 9);
+        $font = $pdf->getPrimaryFont();
+        $pdf->SetFont($font, 'B', 12);
         $pdf->SetFillColor(255, 255, 255);
         $pdf->SetDrawColor(0, 0, 0);
         $pdf->SetLineWidth(0.3);
+        $headerLineHeight = 5.0;
 
         // Measure max lines needed across all headers
         $maxLines = 1;
@@ -476,7 +532,7 @@ class AccreditationPdfService {
             }
         }
 
-        $headerHeight = max(10, $maxLines * 4.5);
+        $headerHeight = max(12, ($maxLines * $headerLineHeight) + 4);
         $x = 10;
         $y = $pdf->GetY();
 
@@ -486,11 +542,12 @@ class AccreditationPdfService {
             
             // Vertically center text in cell
             $lines = $pdf->NbLines($w, $c['label']);
-            $textHeight = $lines * 4;
-            $yOffset = ($headerHeight - $textHeight) / 2;
+            $textHeight = $lines * $headerLineHeight;
+            $yOffset = max(1.5, ($headerHeight - $textHeight) / 2);
             
+            $headerAlign = $c['header_align'] ?? 'C';
             $pdf->SetXY($x, $y + $yOffset);
-            $pdf->MultiCell($w, 4, $c['label'], 0, 'C');
+            $pdf->MultiCell($w, $headerLineHeight, $c['label'], 0, $headerAlign);
             $x += $w;
         }
 
@@ -501,8 +558,9 @@ class AccreditationPdfService {
      * Render a single data row with auto-expanding multiline heights
      */
     protected function renderTableRow(AccreditationFpdi $pdf, array $cols, array $widths, array $doc, int $sno, bool $realOutput): void {
-        $pdf->SetFont('Times', '', 9.5);
-        $lineHeight = 4.5;
+        $font = $pdf->getPrimaryFont();
+        $pdf->SetFont($font, '', 11);
+        $lineHeight = 5.2;
 
         // Map data values
         $cellValues = [];
@@ -544,7 +602,7 @@ class AccreditationPdfService {
             }
         }
 
-        $rowHeight = max(8, $maxLines * $lineHeight);
+        $rowHeight = max(10, ($maxLines * $lineHeight) + 4);
 
         // Check page break trigger
         $pageLimit = method_exists($pdf, 'GetPageHeight') ? ($pdf->GetPageHeight() - 15) : ($pdf->h - 15);
@@ -568,15 +626,19 @@ class AccreditationPdfService {
 
         foreach ($cols as $k => $c) {
             $w = $widths[$k];
-            $align = $c['align'] ?? 'L';
+            $align = $c['align'] ?? 'J';
             $val = $cellValues[$k];
 
             // Outer cell border box
             $pdf->Rect($x, $y, $w, $rowHeight);
 
-            // Print content with top padding
-            $pdf->SetXY($x + 1, $y + 1.5);
-            $pdf->MultiCell($w - 2, $lineHeight, self::sanitizeText($val), 0, $align);
+            // Print content vertically centered in cell with padding
+            $lines = $pdf->NbLines($w, $val);
+            $textHeight = $lines * $lineHeight;
+            $yOffset = max(1.5, ($rowHeight - $textHeight) / 2);
+
+            $pdf->SetXY($x, $y + $yOffset);
+            $pdf->MultiCell($w, $lineHeight, self::sanitizeText($val), 0, $align);
 
             $x += $w;
         }
