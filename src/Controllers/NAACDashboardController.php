@@ -15,8 +15,18 @@ class NAACDashboardController {
         }
 
         // Filters
-        $filter_year = isset($_GET['year']) ? trim($_GET['year']) : '2025-26';
-        $academic_years = ['2023-24', '2024-25', '2025-26'];
+        global $conn;
+        $academic_years = [];
+        $ay_res = $conn->query("SELECT year_label FROM academic_years ORDER BY year_label DESC");
+        if ($ay_res) {
+            while ($ay_row = $ay_res->fetch_assoc()) {
+                $academic_years[] = $ay_row['year_label'];
+            }
+        }
+        if (empty($academic_years)) {
+            $academic_years = ['2023-24', '2024-25', '2025-26'];
+        }
+        $filter_year = isset($_GET['year']) ? trim($_GET['year']) : ($academic_years[0] ?? '2025-26');
 
         $page_title = 'NAAC Dashboard';
 

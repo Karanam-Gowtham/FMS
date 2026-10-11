@@ -502,8 +502,7 @@ class DocumentActionController {
 
         if (empty($doc_ids) || !is_array($doc_ids)) {
             $_SESSION['error_msg'] = "No documents selected for bulk action.";
-            header("Location: " . $_SERVER['HTTP_REFERER']);
-            exit;
+            $this->safeRedirectBack();
         }
 
         // Validate permissions for all selected documents
@@ -517,8 +516,7 @@ class DocumentActionController {
 
         if (empty($valid_docs)) {
             $_SESSION['error_msg'] = "You do not have permission to download the selected documents.";
-            header("Location: " . $_SERVER['HTTP_REFERER']);
-            exit;
+            $this->safeRedirectBack();
         }
 
         if ($action_type === 'zip') {
@@ -529,8 +527,7 @@ class DocumentActionController {
             $this->mergeAsAccreditationPdf($valid_docs, $conn);
         } else {
             $_SESSION['error_msg'] = "Invalid bulk action.";
-            header("Location: " . $_SERVER['HTTP_REFERER']);
-            exit;
+            $this->safeRedirectBack();
         }
     }
 
@@ -555,7 +552,8 @@ class DocumentActionController {
             while ($row = $res->fetch_assoc()) {
                 $path = __DIR__ . '/../../' . $row['file_path'];
                 if (file_exists($path) && is_file($path)) {
-                    $zip->addFile($path, $doc_folder . '/' . $row['original_name']);
+                    $safe_orig_name = basename($row['original_name']);
+                    $zip->addFile($path, $doc_folder . '/' . $safe_orig_name);
                     $hasFiles = true;
                 }
             }
@@ -567,6 +565,10 @@ class DocumentActionController {
         if (!$hasFiles) {
             unlink($zipName);
             die("None of the selected documents have valid files attached.");
+        }
+
+        if (ob_get_level()) {
+            ob_end_clean();
         }
 
         header('Content-Type: application/zip');
@@ -713,8 +715,7 @@ class DocumentActionController {
 
         if (empty($docs_to_merge)) {
             $_SESSION['error_msg'] = "No valid documents found to merge.";
-            header("Location: " . $_SERVER['HTTP_REFERER']);
-            exit;
+            $this->safeRedirectBack();
         }
 
         $service = new \AccreditationPdfService();
@@ -739,8 +740,23 @@ class DocumentActionController {
             exit;
         } catch (\Throwable $e) {
             $_SESSION['error_msg'] = "Accreditation PDF Generation Error: " . $e->getMessage();
-            header("Location: " . $_SERVER['HTTP_REFERER']);
-            exit;
+            $this->safeRedirectBack();
         }
+    }
+
+    private function safeRedirectBack(string $default = '/documents'): void {
+        $target = $default;
+        if (!empty($_SERVER['HTTP_REFERER'])) {
+            $referer = $_SERVER['HTTP_REFERER'];
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            $parsed = parse_url($referer);
+            if (!empty($parsed['host']) && $parsed['host'] === $host) {
+                $target = $referer;
+            } elseif (empty($parsed['host']) && str_starts_with($referer, '/')) {
+                $target = $referer;
+            }
+        }
+        header("Location: " . $target);
+        exit;
     }
 }

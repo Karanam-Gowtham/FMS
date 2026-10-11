@@ -100,6 +100,8 @@ class ProfileController {
                         if ($upload_result['success']) {
                             $profile_photo_path = $upload_result['data']['file_path'];
                             $update_photo = true;
+                        } else {
+                            throw new \Exception('Profile photo upload failed: ' . ($upload_result['error'] ?? 'Invalid file format or size.'));
                         }
                     }
 

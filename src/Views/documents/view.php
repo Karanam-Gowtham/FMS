@@ -119,7 +119,7 @@
             </div>
             <div class="detail-item">
                 <div class="detail-label">Category</div>
-                <div class="detail-value"><?= ucfirst(htmlspecialchars($document['category'])) ?></div>
+                <div class="detail-value"><?= ucfirst(htmlspecialchars($document['category'] ?? 'other')) ?></div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Uploaded By</div>

@@ -34,7 +34,7 @@ require __DIR__ . '/../../../includes/header.php';
             <div style="flex-grow: 1;">
                 <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= htmlspecialchars($auth['full_name'] ?? 'Student Name') ?></h1>
                 <h3 style="font-size: 1.1rem; font-weight: 400; margin: 0 0 0.2rem 0; color: #93c5fd;"><i class="fas fa-user-graduate me-2"></i>Student</h3>
-                <p style="font-size: 1rem; margin: 0 0 1.2rem 0; color: #cbd5e1;"><i class="fas fa-id-card me-2"></i><?= htmlspecialchars($auth['username'] ?? 'Roll Number') ?></p>
+                <p style="font-size: 1rem; margin: 0 0 1.2rem 0; color: #cbd5e1;"><i class="fas fa-id-card me-2"></i><?= htmlspecialchars($roll_number ?? ($auth['username'] ?? (!empty($auth['email']) ? strtoupper(explode('@', $auth['email'])[0]) : 'Student'))) ?></p>
                 
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button type="button" data-bs-toggle="modal" data-bs-target="#uploadActivityModal" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">

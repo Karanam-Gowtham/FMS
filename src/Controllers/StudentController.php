@@ -8,6 +8,7 @@ class StudentController {
 
         $auth = $_SESSION[SESSION_AUTH_KEY];
         $user_id = (int)$auth['user_id'];
+        $roll_number = !empty($auth['email']) ? strtoupper(explode('@', $auth['email'])[0]) : 'Student';
         
         global $conn;
         $stmt = $conn->prepare("

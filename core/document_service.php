@@ -75,8 +75,12 @@ function doc_get_types(mysqli $conn): array
     $result = $stmt->get_result();
     $types = [];
     
-    // Hardcoded mapping of type_code to category (since DB schema is outdated and missing the category column)
-    $category_map = [
+/**
+ * Central mapping of type_code to category.
+ */
+function doc_get_category_map(): array
+{
+    return [
         'journal' => 'research',
         'conference' => 'research',
         'patent' => 'research',
@@ -94,8 +98,12 @@ function doc_get_types(mysqli $conn): array
         'student_event' => 'student',
         'student_body' => 'student',
         'student_journal' => 'student',
-        'student_conference' => 'student'
+        'student_conference' => 'student',
+        'student_activity_file' => 'student'
     ];
+}
+
+    $category_map = doc_get_category_map();
 
     while ($row = $result->fetch_assoc()) {
         $type_code = $row['type_code'];
@@ -393,7 +401,12 @@ function doc_get(mysqli $conn, int $doc_id): ?array
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-    return $row ?: null;
+    if ($row) {
+        $category_map = doc_get_category_map();
+        $row['category'] = $category_map[$row['type_key']] ?? 'other';
+        return $row;
+    }
+    return null;
 }
 
 /**

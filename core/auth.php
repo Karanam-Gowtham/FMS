@@ -318,9 +318,9 @@ function validate_dept_filter(?int $requested_dept_id): ?int
         return auth_active_dept_id();
     }
 
-    // Admin and RnD_Dean can see all departments
+    // College-wide oversight roles can see all departments
     $active_role_id = auth_active_role_id();
-    if (in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN], true)) {
+    if (in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
         return $requested_dept_id;
     }
 

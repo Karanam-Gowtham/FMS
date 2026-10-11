@@ -122,8 +122,8 @@ class DashboardController {
             $pending_approvals = $pending_res['rows'];
 
             // Reviewer Analytics (Department / College level)
-            if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC])) {
-                $is_college_wide = in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC]);
+            if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+                $is_college_wide = in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR]);
                 $dept_query = "
                     SELECT dt.label as type_label, d.status, d.created_at
                     FROM documents d
@@ -133,7 +133,8 @@ class DashboardController {
                 if (!$is_college_wide) {
                     $dept_query .= " WHERE d.dept_id = ?";
                     $d_stmt = $conn->prepare($dept_query);
-                    $d_stmt->bind_param('i', $active_role['dept_id']);
+                    $dept_id_param = (int)($active_role['dept_id'] ?? 0);
+                    $d_stmt->bind_param('i', $dept_id_param);
                 } else {
                     $d_stmt = $conn->prepare($dept_query);
                 }

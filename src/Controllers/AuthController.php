@@ -268,7 +268,8 @@ class AuthController {
                         $_POST = [];
                     } catch (\Exception $e) {
                         $conn->rollback();
-                        $error = 'Registration failed due to a database error. ' . $e->getMessage();
+                        error_log("Registration failed DB error: " . $e->getMessage());
+                        $error = 'Registration could not be completed due to a system error. Please verify your details or contact support.';
                     }
                 }
             }
