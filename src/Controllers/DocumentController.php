@@ -20,6 +20,10 @@ class DocumentController {
         switch ($active_role_id) {
             case ROLE_ADMIN:
                 $scope_label = 'All Documents';
+                if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
+                    $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
+                    $scope_label = 'All Department Files';
+                }
                 break;
             case ROLE_RND_DEAN:
                 $scope_label = 'Research Documents';
@@ -27,6 +31,10 @@ class DocumentController {
                 break;
             case ROLE_IQAC:
                 $scope_label = 'All Documents (IQAC)';
+                if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
+                    $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
+                    $scope_label = 'All Department Files (IQAC)';
+                }
                 break;
             case ROLE_HOD:
             case ROLE_DEPT_COORDINATOR:
@@ -39,13 +47,18 @@ class DocumentController {
                 $dept_stmt->close();
                 $scope_label = htmlspecialchars($dept_name) . ' Documents';
                 if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
-                    $forced_filters['type_key'] = 'dept_file';
+                    $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
                     $scope_label = htmlspecialchars($dept_name) . ' Department Files';
                 }
                 break;
             case ROLE_CENTRAL_COORDINATOR:
                 $forced_filters['category'] = 'central';
                 $scope_label = 'Central Documents';
+                if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
+                    unset($forced_filters['category']);
+                    $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
+                    $scope_label = 'Central Department Files';
+                }
                 break;
             case ROLE_FACULTY:
             default:
