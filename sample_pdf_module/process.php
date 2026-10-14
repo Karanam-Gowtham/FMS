@@ -22,10 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_files'])) {
     
     // We create a temporary FPDI instance just to count pages
     $counterPdf = new Fpdi();
-    
-    // Assuming the Index table itself will take up 1 page
-    // (In a real scenario, you'd calculate this dynamically if it spans multiple pages)
-    $currentPage = 2; // Event 1 starts on page 2
+    $validEvents = [];
 
     for ($i = 0; $i < $totalFiles; $i++) {
         $tmpName = $files['tmp_name'][$i];
@@ -41,25 +38,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_files'])) {
                 $eventName = strtoupper(str_replace('.pdf', '', $fileName));
                 $eventName = str_replace(['_', '-'], ' ', $eventName);
 
-                $events[] = [
+                $validEvents[] = [
                     'name' => $eventName,
                     'path' => $tmpName,
-                    'pages' => $pageCount,
-                    'start_page' => $currentPage
+                    'pages' => $pageCount
                 ];
-
-                // Increment for the next event
-                $currentPage += $pageCount;
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 // Skip if there's an issue reading the PDF
                 continue;
             }
         }
     }
     
-    if (empty($events)) {
+    if (empty($validEvents)) {
         die("No valid PDFs were uploaded.");
     }
+
+    // Dynamically calculate index table pages (Page 1 fits ~18 rows; subsequent pages fit ~24 rows)
+    $numEvents = count($validEvents);
+    $indexPageCount = $numEvents > 18 ? 1 + (int)ceil(($numEvents - 18) / 24) : 1;
+    $currentPage = $indexPageCount + 1;
+
+    foreach ($validEvents as &$ev) {
+        $ev['start_page'] = $currentPage;
+        $currentPage += $ev['pages'];
+    }
+    unset($ev);
+    $events = $validEvents;
 
     // --- PHASE 2: GENERATE THE INDEX AND MERGE ---
 
@@ -88,6 +93,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_files'])) {
     // Table Rows
     $pdf->SetFont('Arial', '', 10);
     foreach ($events as $index => $event) {
+        if ($pdf->GetY() + 10 > 280) {
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(15, 10, 'S. No.', 1, 0, 'C');
+            $pdf->Cell(95, 10, 'Name of the event/competition', 1, 0, 'C');
+            $pdf->Cell(45, 10, 'Date of event', 1, 0, 'C');
+            $pdf->Cell(30, 10, 'Page No.', 1, 1, 'C');
+            $pdf->SetFont('Arial', '', 10);
+        }
         $pdf->Cell(15, 10, $index + 1, 1, 0, 'C');
         $pdf->Cell(95, 10, '  ' . $event['name'], 1, 0, 'L');
         $pdf->Cell(45, 10, date('d.m.Y'), 1, 0, 'C'); // Dummy date for sample
@@ -95,33 +109,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_files'])) {
     }
 
     // 2. Loop through events and merge their PDFs
-    $finalPageCounter = 2; // We are now on page 2
+    $finalPageCounter = $indexPageCount + 1; // Start right after the index page(s)
     
     // Disable automatic page breaks so stamping near the bottom doesn't trigger an empty page
     $pdf->SetAutoPageBreak(false);
 
     foreach ($events as $event) {
-        $pdf->setSourceFile($event['path']);
-        
-        for ($pageNo = 1; $pageNo <= $event['pages']; $pageNo++) {
-            // Import the page
-            $templateId = $pdf->importPage($pageNo);
-            
-            // Get the size of the imported page
-            $size = $pdf->getTemplateSize($templateId);
-            
-            // Add a new page to the final PDF with the imported page's orientation and size
-            $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
-            
-            // Apply the imported page
-            $pdf->useTemplate($templateId);
+        try {
+            $pageCount = $pdf->setSourceFile($event['path']);
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                // Import the page
+                $templateId = $pdf->importPage($pageNo);
+                
+                // Get the size of the imported page
+                $size = $pdf->getTemplateSize($templateId);
+                
+                // Add a new page to the final PDF with the imported page's orientation and size
+                $orientation = $size['orientation'] ?? ($size['width'] > $size['height'] ? 'L' : 'P');
+                $pdf->AddPage($orientation, $size);
+                
+                // Apply the imported page
+                $pdf->useTemplate($templateId);
 
-            // Stamp the page number at the bottom center
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetXY(0, $size['height'] - 15);
-            $pdf->Cell($size['width'], 10, 'Page ' . $finalPageCounter, 0, 0, 'C');
-            
-            $finalPageCounter++;
+                // Stamp the page number at the bottom center
+                $pdf->SetFont('Arial', '', 9);
+                $pdf->SetXY(0, $size['height'] - 15);
+                $pdf->Cell($size['width'], 10, 'Page ' . $finalPageCounter, 0, 0, 'C');
+                
+                $finalPageCounter++;
+            }
+        } catch (\Throwable $e) {
+            error_log("Sample PDF merge error: " . $e->getMessage());
         }
     }
 

@@ -37,6 +37,14 @@ class AccreditationFpdi extends Fpdi {
         return isset($this->fonts['cambria']) ? 'Cambria' : 'Times';
     }
 
+    public function getPageHeight(): float {
+        return (float)$this->h;
+    }
+
+    public function getPageWidth(): float {
+        return (float)$this->w;
+    }
+
     // Helper: calculate number of lines a text will occupy in a cell of width $w
     public function NbLines($w, $txt) {
         $cw = &$this->CurrentFont['cw'];
@@ -118,7 +126,10 @@ class AccreditationPdfService {
                 return $conv;
             }
         }
-        return utf8_decode($str);
+        if (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($str, 'windows-1252', 'UTF-8');
+        }
+        return $str;
     }
 
     /**
@@ -314,13 +325,13 @@ class AccreditationPdfService {
         $tempPdf = new AccreditationFpdi('P', 'mm', 'A4');
         $tempPdf->setupFonts();
         $tempPdf->SetMargins(10, 10, 10);
-        $tempPdf->SetAutoPageBreak(true, 15);
+        $tempPdf->SetAutoPageBreak(false); // Controlled via explicit pageLimit checks
         $tempPdf->AddPage();
         
         $this->renderHeaderAndHeadings($tempPdf, $headings);
-        $this->renderTableHeader($tempPdf, $colsToRender, $colWidths);
-        foreach ($documents as $doc) {
-            $this->renderTableRow($tempPdf, $colsToRender, $colWidths, $doc, 1, false);
+        $this->renderTableHeader($tempPdf, $colsToRender, $colWidths, false);
+        foreach ($documents as $idx => $doc) {
+            $this->renderTableRow($tempPdf, $colsToRender, $colWidths, $doc, $idx + 1, false);
         }
         $indexPageCount = $tempPdf->PageNo();
         unset($tempPdf);
@@ -344,6 +355,9 @@ class AccreditationPdfService {
             }
             $docPageCounts[$idx] = $pageCount;
             $doc['start_page'] = $currentPage;
+            $doc['page_count'] = $pageCount;
+            $endPage = $currentPage + $pageCount - 1;
+            $doc['page_range'] = ($pageCount > 1) ? "{$currentPage} - {$endPage}" : (string)$currentPage;
             $currentPage += $pageCount;
         }
         unset($doc);
@@ -352,11 +366,11 @@ class AccreditationPdfService {
         $pdf = new AccreditationFpdi('P', 'mm', 'A4');
         $pdf->setupFonts();
         $pdf->SetMargins(10, 10, 10);
-        $pdf->SetAutoPageBreak(true, 15);
+        $pdf->SetAutoPageBreak(false); // Controlled via explicit pageLimit checks
         $pdf->AddPage();
 
         $this->renderHeaderAndHeadings($pdf, $headings);
-        $this->renderTableHeader($pdf, $colsToRender, $colWidths);
+        $this->renderTableHeader($pdf, $colsToRender, $colWidths, true);
 
         foreach ($documents as $idx => $doc) {
             $this->renderTableRow($pdf, $colsToRender, $colWidths, $doc, $idx + 1, true);
@@ -370,19 +384,18 @@ class AccreditationPdfService {
         foreach ($documents as $idx => $doc) {
             $filePath = $doc['file_path'] ?? '';
             $eventTitle = $doc['event_name'] ?? ($doc['title'] ?? 'Event Document');
-            $hasValidPdf = false;
+            $pagesImported = 0;
 
             if (!empty($filePath) && file_exists($filePath)) {
                 try {
                     $pageCount = $pdf->setSourceFile($filePath);
-                    $hasValidPdf = true;
 
                     for ($p = 1; $p <= $pageCount; $p++) {
                         $templateId = $pdf->importPage($p);
                         $size = $pdf->getTemplateSize($templateId);
 
-                        $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
-                        $pdf->AddPage($orientation, [$size['width'], $size['height']]);
+                        $orientation = $size['orientation'] ?? ($size['width'] > $size['height'] ? 'L' : 'P');
+                        $pdf->AddPage($orientation, $size);
                         $pdf->useTemplate($templateId);
 
                         // Stamp page number at bottom center
@@ -392,14 +405,15 @@ class AccreditationPdfService {
                         $pdf->Cell($size['width'], 8, 'Page ' . $finalPageNumber, 0, 0, 'C');
 
                         $finalPageNumber++;
+                        $pagesImported++;
                     }
                 } catch (\Throwable $e) {
-                    $hasValidPdf = false;
+                    error_log("Accreditation PDF merge error for [{$filePath}]: " . $e->getMessage());
                 }
             }
 
-            // Fallback: If no valid PDF could be read, create clean notice page
-            if (!$hasValidPdf) {
+            // Fallback: If no pages could be read/imported, create clean notice page
+            if ($pagesImported === 0) {
                 $pdf->AddPage('P', [210, 297]);
                 $pdf->SetFont($primaryFont, 'B', 14);
                 $pdf->SetTextColor(0, 51, 102);
@@ -515,12 +529,9 @@ class AccreditationPdfService {
     /**
      * Render the table column headers (Center, Bold, Size 12)
      */
-    protected function renderTableHeader(AccreditationFpdi $pdf, array $cols, array $widths): void {
+    protected function renderTableHeader(AccreditationFpdi $pdf, array $cols, array $widths, bool $realOutput = true): void {
         $font = $pdf->getPrimaryFont();
         $pdf->SetFont($font, 'B', 12);
-        $pdf->SetFillColor(255, 255, 255);
-        $pdf->SetDrawColor(0, 0, 0);
-        $pdf->SetLineWidth(0.3);
         $headerLineHeight = 5.0;
 
         // Measure max lines needed across all headers
@@ -533,9 +544,19 @@ class AccreditationPdfService {
         }
 
         $headerHeight = max(12, ($maxLines * $headerLineHeight) + 4);
-        $x = 10;
         $y = $pdf->GetY();
 
+        if (!$realOutput) {
+            // Keep Y-coordinate strictly synchronized during simulation
+            $pdf->SetXY(10, $y + $headerHeight);
+            return;
+        }
+
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->SetDrawColor(0, 0, 0);
+        $pdf->SetLineWidth(0.3);
+
+        $x = 10;
         foreach ($cols as $k => $c) {
             $w = $widths[$k];
             $pdf->Rect($x, $y, $w, $headerHeight);
@@ -586,7 +607,7 @@ class AccreditationPdfService {
                     $cellValues[$k] = (string)($doc['agency'] ?? ($doc['resource_person'] ?? 'Internal Faculty / Department'));
                     break;
                 case 'page_no':
-                    $cellValues[$k] = (string)($doc['start_page'] ?? '1');
+                    $cellValues[$k] = (string)($doc['page_range'] ?? ($doc['start_page'] ?? '1'));
                     break;
                 default:
                     $cellValues[$k] = (string)($doc[$k] ?? '');
@@ -605,16 +626,14 @@ class AccreditationPdfService {
         $rowHeight = max(10, ($maxLines * $lineHeight) + 4);
 
         // Check page break trigger
-        $pageLimit = method_exists($pdf, 'GetPageHeight') ? ($pdf->GetPageHeight() - 15) : ($pdf->h - 15);
+        $pageLimit = method_exists($pdf, 'getPageHeight') ? ($pdf->getPageHeight() - 15) : 282.0;
         if ($pdf->GetY() + $rowHeight > $pageLimit) {
             $pdf->AddPage();
-            if ($realOutput) {
-                $this->renderTableHeader($pdf, $cols, $widths);
-            }
+            $this->renderTableHeader($pdf, $cols, $widths, $realOutput);
         }
 
         if (!$realOutput) {
-            // Just advance Y for simulation
+            // Advance Y for simulation
             $pdf->SetY($pdf->GetY() + $rowHeight);
             return;
         }

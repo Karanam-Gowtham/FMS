@@ -687,17 +687,39 @@ class DocumentActionController {
             if (!empty($rawDocPath) && file_exists($mainPath) && strtolower(pathinfo($mainPath, PATHINFO_EXTENSION)) === 'pdf') {
                 $resolvedFilePath = $mainPath;
             } else {
-                // 2. Try report or first PDF in document_files
-                $fstmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_path LIKE '%.pdf' ORDER BY (file_label = 'report') DESC LIMIT 1");
+                // 2. Check document_files for pre-merged PDF or all attached PDF files
+                $fstmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_path LIKE '%.pdf' ORDER BY (file_label = 'merged_pdf') DESC, file_id ASC");
                 $fstmt->bind_param('i', $id);
                 $fstmt->execute();
-                $fres = $fstmt->get_result()->fetch_assoc();
-                $fstmt->close();
-                if ($fres && !empty($fres['file_path'])) {
-                    $rawFilePath = ltrim($fres['file_path'], '/\\');
+                $fres = $fstmt->get_result();
+                $doc_pdfs = [];
+                while ($frow = $fres->fetch_assoc()) {
+                    $rawFilePath = ltrim($frow['file_path'], '/\\');
                     $p = __DIR__ . '/../../' . $rawFilePath;
                     if (file_exists($p)) {
-                        $resolvedFilePath = $p;
+                        if ($frow['file_label'] === 'merged_pdf') {
+                            $resolvedFilePath = $p;
+                            $doc_pdfs = [];
+                            break;
+                        }
+                        $doc_pdfs[] = ['path' => $p, 'title' => $frow['file_label']];
+                    }
+                }
+                $fstmt->close();
+
+                if (empty($resolvedFilePath)) {
+                    if (count($doc_pdfs) > 1) {
+                        require_once __DIR__ . '/../../core/pdf_merger_service.php';
+                        $tempMerged = sys_get_temp_dir() . '/doc_' . $id . '_compiled_' . uniqid() . '.pdf';
+                        try {
+                            if (merge_pdfs_with_headings($doc_pdfs, $tempMerged)) {
+                                $resolvedFilePath = $tempMerged;
+                            }
+                        } catch (\Throwable $e) {
+                            $resolvedFilePath = $doc_pdfs[0]['path'] ?? '';
+                        }
+                    } elseif (count($doc_pdfs) === 1) {
+                        $resolvedFilePath = $doc_pdfs[0]['path'];
                     }
                 }
             }
