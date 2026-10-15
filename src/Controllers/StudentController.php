@@ -12,9 +12,22 @@ class StudentController {
         
         global $conn;
         $stmt = $conn->prepare("
-            SELECT d.doc_id, d.status, d.created_at, dt.label as activity_category, d.title as event_title
+            SELECT d.doc_id, d.status, d.created_at, dt.label as activity_category, d.title as event_title,
+                   COALESCE(
+                       msaf.date_from,
+                       mse.from_date,
+                       msb.from_date,
+                       msc.from_date,
+                       msj.date_of_submission,
+                       d.created_at
+                   ) as event_date
             FROM documents d
             JOIN document_types dt ON dt.type_id = d.type_id
+            LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id
+            LEFT JOIN meta_student_event mse ON mse.doc_id = d.doc_id
+            LEFT JOIN meta_student_body msb ON msb.doc_id = d.doc_id
+            LEFT JOIN meta_student_conference msc ON msc.doc_id = d.doc_id
+            LEFT JOIN meta_student_journal msj ON msj.doc_id = d.doc_id
             WHERE d.uploaded_by = ?
             ORDER BY d.created_at DESC
         ");
@@ -40,8 +53,9 @@ class StudentController {
             }
             $chart_categories[$cat]++;
             
-            // For Timeline Chart (Group by Month-Year)
-            $date = date('Y-m', strtotime($row['created_at']));
+            // For Timeline Chart (Group by Month-Year based on event start date)
+            $event_dt = (!empty($row['event_date']) && $row['event_date'] !== '0000-00-00') ? $row['event_date'] : $row['created_at'];
+            $date = date('Y-m', strtotime($event_dt));
             if (!isset($chart_timeline[$date])) {
                 $chart_timeline[$date] = 0;
             }

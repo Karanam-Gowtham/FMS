@@ -223,7 +223,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'date_from', 'label' => 'From Date', 'type' => 'date', 'required' => true],
             ['name' => 'date_to', 'label' => 'To Date', 'type' => 'date', 'required' => false],
             ['name' => 'resource_person', 'label' => 'Agencies / Consultants / Resource Persons (with contact details)', 'type' => 'textarea', 'required' => false],
-            ['name' => 'target_audience', 'label' => 'Target Audience', 'type' => 'select', 'options' => ['Internal', 'External'], 'default' => 'Internal', 'required' => false],
+            ['name' => 'target_audience', 'label' => 'Event Scope / Level', 'type' => 'select', 'options' => ['Department Wise', 'Central / University Wide', 'Inter-College / External'], 'default' => 'Department Wise', 'required' => true],
             ['name' => 'participant_count', 'label' => 'Number of Participants / Volunteers', 'type' => 'number', 'required' => true],
             ['name' => 'event_mode', 'label' => 'Mode of Conduct', 'type' => 'radio', 'options' => ['Online', 'Offline', 'Hybrid'], 'required' => true],
             ['name' => 'location', 'label' => 'Location / Platform Link', 'type' => 'text', 'required' => false],

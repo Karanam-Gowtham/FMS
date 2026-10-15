@@ -20,21 +20,21 @@ class PublicController {
 
             if (!$dept_info) {
                 $aliases = [
-                    'AIML' => 'CSE-AI&ML',
-                    'AIDS' => 'CSE-AI&DS',
+                    'CSE-AI&ML' => 'AIML',
+                    'CSE-AI&DS' => 'AIDS',
+                    'CSE-AIML'  => 'AIML',
+                    'CSE-AIDS'  => 'AIDS',
                     'MATHEMATICS' => 'MatheMatics',
-                    'PHYSICS' => 'Physics',
-                    'CHEMISTRY' => 'Chemistry',
+                    'PHYSICS'     => 'Physics',
+                    'CHEMISTRY'   => 'Chemistry',
                 ];
-                if (isset($aliases[strtoupper($dept_param)])) {
-                    $alt_name = $aliases[strtoupper($dept_param)];
-                    $stmt = $conn->prepare("SELECT * FROM departments WHERE dept_name = ?");
-                    if ($stmt) {
-                        $stmt->bind_param("s", $alt_name);
-                        $stmt->execute();
-                        $dept_info = $stmt->get_result()->fetch_assoc();
-                        $stmt->close();
-                    }
+                $normalized = $aliases[strtoupper($dept_param)] ?? $dept_param;
+                $stmt = $conn->prepare("SELECT * FROM departments WHERE LOWER(dept_name) = LOWER(?)");
+                if ($stmt) {
+                    $stmt->bind_param("s", $normalized);
+                    $stmt->execute();
+                    $dept_info = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
                 }
             }
         }

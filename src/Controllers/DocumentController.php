@@ -247,7 +247,7 @@ class DocumentController {
             $output = fopen("php://output", "w");
             
             // Define standard columns
-            $columns = ['ID', 'Title', 'Type', 'Uploader', 'Department', 'Academic Year', 'Status', 'Date'];
+            $columns = ['ID', 'Title', 'Type', 'Uploader', 'Department', 'Academic Year', 'Status', 'Event Date', 'Uploaded Date'];
             
             // Helper to sanitize CSV cells against formula injection (CWE-1236)
             $sanitize_csv = function($value) {
@@ -296,6 +296,7 @@ class DocumentController {
             
             foreach ($export_docs as $doc) {
                 $doc_id = (int)$doc['doc_id'];
+                $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : $doc['created_at'];
                 
                 $row_data = [
                     $sanitize_csv($doc_id),
@@ -305,6 +306,7 @@ class DocumentController {
                     $sanitize_csv($doc['dept_name'] ?? 'Unknown'),
                     $sanitize_csv($doc['year_label'] ?? 'Unknown'),
                     $sanitize_csv(ucfirst($doc['status'] ?? '')),
+                    $sanitize_csv($event_dt),
                     $sanitize_csv($doc['created_at'] ?? '')
                 ];
                 

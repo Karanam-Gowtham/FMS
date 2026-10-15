@@ -52,11 +52,36 @@ class DashboardController {
         if ($active_role) {
             global $conn;
             $stmt = $conn->prepare(
-                "SELECT d.doc_id, d.type_id, d.title, d.status, d.current_step, d.created_at, dt.label as type_label, dep.dept_name, ws.step_label
+                "SELECT d.doc_id, d.type_id, d.title, d.status, d.current_step, d.created_at, dt.label as type_label, dep.dept_name, ws.step_label,
+                        COALESCE(
+                            msaf.date_from,
+                            mc.from_date,
+                            mj.date_of_publication,
+                            mp.date_of_issue,
+                            mfa.date_from,
+                            mfo.date_from,
+                            mco.date_from,
+                            mse.from_date,
+                            msb.from_date,
+                            msc.from_date,
+                            msj.date_of_submission,
+                            d.created_at
+                        ) as event_date
                  FROM documents d
                  JOIN document_types dt ON dt.type_id = d.type_id
                  JOIN departments dep ON dep.dept_id = d.dept_id
                  LEFT JOIN workflow_steps ws ON ws.step_id = d.current_step
+                 LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id
+                 LEFT JOIN meta_conference mc ON mc.doc_id = d.doc_id
+                 LEFT JOIN meta_journal mj ON mj.doc_id = d.doc_id
+                 LEFT JOIN meta_patent mp ON mp.doc_id = d.doc_id
+                 LEFT JOIN meta_fdp_attended mfa ON mfa.doc_id = d.doc_id
+                 LEFT JOIN meta_fdp_organised mfo ON mfo.doc_id = d.doc_id
+                 LEFT JOIN meta_conf_organised mco ON mco.doc_id = d.doc_id
+                 LEFT JOIN meta_student_event mse ON mse.doc_id = d.doc_id
+                 LEFT JOIN meta_student_body msb ON msb.doc_id = d.doc_id
+                 LEFT JOIN meta_student_conference msc ON msc.doc_id = d.doc_id
+                 LEFT JOIN meta_student_journal msj ON msj.doc_id = d.doc_id
                  WHERE d.uploaded_by = ? 
                  ORDER BY d.created_at DESC 
                  LIMIT 10"
@@ -80,9 +105,34 @@ class DashboardController {
             $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
 
             $chart_stmt = $conn->prepare("
-                SELECT dt.label as type_label, d.status, d.created_at
+                SELECT dt.label as type_label, d.status, d.created_at,
+                       COALESCE(
+                           msaf.date_from,
+                           mc.from_date,
+                           mj.date_of_publication,
+                           mp.date_of_issue,
+                           mfa.date_from,
+                           mfo.date_from,
+                           mco.date_from,
+                           mse.from_date,
+                           msb.from_date,
+                           msc.from_date,
+                           msj.date_of_submission,
+                           d.created_at
+                       ) as event_date
                 FROM documents d
                 JOIN document_types dt ON dt.type_id = d.type_id
+                LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id
+                LEFT JOIN meta_conference mc ON mc.doc_id = d.doc_id
+                LEFT JOIN meta_journal mj ON mj.doc_id = d.doc_id
+                LEFT JOIN meta_patent mp ON mp.doc_id = d.doc_id
+                LEFT JOIN meta_fdp_attended mfa ON mfa.doc_id = d.doc_id
+                LEFT JOIN meta_fdp_organised mfo ON mfo.doc_id = d.doc_id
+                LEFT JOIN meta_conf_organised mco ON mco.doc_id = d.doc_id
+                LEFT JOIN meta_student_event mse ON mse.doc_id = d.doc_id
+                LEFT JOIN meta_student_body msb ON msb.doc_id = d.doc_id
+                LEFT JOIN meta_student_conference msc ON msc.doc_id = d.doc_id
+                LEFT JOIN meta_student_journal msj ON msj.doc_id = d.doc_id
                 WHERE d.uploaded_by = ?
             ");
             $chart_stmt->bind_param('i', $user_id);
@@ -100,7 +150,8 @@ class DashboardController {
                 }
                 $chart_categories[$cat]++;
                 
-                $date = date('Y-m', strtotime($c_row['created_at']));
+                $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
+                $date = date('Y-m', strtotime($event_dt));
                 if (!isset($chart_timeline[$date])) {
                     $chart_timeline[$date] = 0;
                 }
@@ -125,9 +176,34 @@ class DashboardController {
             if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
                 $is_college_wide = in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR]);
                 $dept_query = "
-                    SELECT dt.label as type_label, d.status, d.created_at
+                    SELECT dt.label as type_label, d.status, d.created_at,
+                           COALESCE(
+                               msaf.date_from,
+                               mc.from_date,
+                               mj.date_of_publication,
+                               mp.date_of_issue,
+                               mfa.date_from,
+                               mfo.date_from,
+                               mco.date_from,
+                               mse.from_date,
+                               msb.from_date,
+                               msc.from_date,
+                               msj.date_of_submission,
+                               d.created_at
+                           ) as event_date
                     FROM documents d
                     JOIN document_types dt ON dt.type_id = d.type_id
+                    LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id
+                    LEFT JOIN meta_conference mc ON mc.doc_id = d.doc_id
+                    LEFT JOIN meta_journal mj ON mj.doc_id = d.doc_id
+                    LEFT JOIN meta_patent mp ON mp.doc_id = d.doc_id
+                    LEFT JOIN meta_fdp_attended mfa ON mfa.doc_id = d.doc_id
+                    LEFT JOIN meta_fdp_organised mfo ON mfo.doc_id = d.doc_id
+                    LEFT JOIN meta_conf_organised mco ON mco.doc_id = d.doc_id
+                    LEFT JOIN meta_student_event mse ON mse.doc_id = d.doc_id
+                    LEFT JOIN meta_student_body msb ON msb.doc_id = d.doc_id
+                    LEFT JOIN meta_student_conference msc ON msc.doc_id = d.doc_id
+                    LEFT JOIN meta_student_journal msj ON msj.doc_id = d.doc_id
                 ";
                 
                 if (!$is_college_wide) {
@@ -152,7 +228,8 @@ class DashboardController {
                     }
                     $dept_categories[$cat]++;
                     
-                    $date = date('Y-m', strtotime($c_row['created_at']));
+                    $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
+                    $date = date('Y-m', strtotime($event_dt));
                     if (!isset($dept_timeline[$date])) {
                         $dept_timeline[$date] = 0;
                     }

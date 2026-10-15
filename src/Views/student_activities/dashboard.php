@@ -31,7 +31,7 @@
             <form method="GET" action="<?= BASE_URL ?>/public/index.php" class="row g-3 align-items-end">
                 <input type="hidden" name="route" value="student_activities/dashboard">
                 
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label fw-bold">Academic Year</label>
                     <select name="year_id" class="form-select">
                         <option value="all">All Years</option>
@@ -43,7 +43,7 @@
                     </select>
                 </div>
                 
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label fw-bold">Department</label>
                     <select name="dept_id" class="form-select">
                         <option value="all">All Departments</option>
@@ -55,8 +55,18 @@
                     </select>
                 </div>
 
+                <div class="col-lg-2 col-md-4 col-sm-6">
+                    <label class="form-label fw-bold">Event Scope</label>
+                    <select name="scope" class="form-select">
+                        <option value="all" <?= ($scope_filter === 'all') ? 'selected' : '' ?>>All Scopes</option>
+                        <option value="department" <?= ($scope_filter === 'department') ? 'selected' : '' ?>>Department Wise</option>
+                        <option value="central" <?= ($scope_filter === 'central') ? 'selected' : '' ?>>Central / Campus Wide</option>
+                        <option value="external" <?= ($scope_filter === 'external') ? 'selected' : '' ?>>Inter-College / External</option>
+                    </select>
+                </div>
+
                 <!-- Global Attributes Dropdowns -->
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label fw-bold">Event Type</label>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -75,7 +85,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label fw-bold">Domain / Topic</label>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -94,7 +104,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label fw-bold">Event Mode</label>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -113,37 +123,60 @@
                     </div>
                 </div>
 
-                <div class="col-md-2">
-                    <label class="form-label fw-bold d-none d-md-block">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-filter me-1"></i> Apply</button>
-                        <a href="<?= BASE_URL ?>/public/index.php?route=student_activities/dashboard" class="btn btn-outline-secondary"><i class="fas fa-undo me-1"></i> Reset</a>
-                    </div>
+                <div class="col-12 mt-3 d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-filter me-1"></i> Apply Filters</button>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=student_activities/dashboard" class="btn btn-outline-secondary px-4"><i class="fas fa-undo me-1"></i> Reset</a>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Top KPI Cards -->
-    <div class="row mb-4">
-        <div class="col-md-6">
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
             <div class="card text-white bg-primary h-100 shadow-sm border-0">
                 <div class="card-body d-flex align-items-center">
-                    <div class="display-4 me-3"><i class="fas fa-calendar-check"></i></div>
+                    <div class="display-5 me-3"><i class="fas fa-calendar-check"></i></div>
                     <div>
-                        <h5 class="card-title mb-0">Total Events Hosted</h5>
+                        <h6 class="card-title text-white-50 text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Events</h6>
                         <h2 class="mb-0 fw-bold"><?= number_format($stats['total_events']) ?></h2>
+                        <small class="text-white-50">All registered events</small>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-xl-3 col-md-6">
+            <div class="card text-white h-100 shadow-sm border-0" style="background: #4f46e5;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="display-5 me-3"><i class="fas fa-building-columns"></i></div>
+                    <div>
+                        <h6 class="card-title text-white-50 text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Department-Wise</h6>
+                        <h2 class="mb-0 fw-bold"><?= number_format($stats['department_events']) ?></h2>
+                        <small class="text-white-50">Branch-specific initiatives</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card text-white h-100 shadow-sm border-0" style="background: #0284c7;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="display-5 me-3"><i class="fas fa-users-rays"></i></div>
+                    <div>
+                        <h6 class="card-title text-white-50 text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Central / Campus</h6>
+                        <h2 class="mb-0 fw-bold"><?= number_format($stats['central_events']) ?></h2>
+                        <small class="text-white-50">Clubs, SAC & Stepcone</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
             <div class="card text-white bg-success h-100 shadow-sm border-0">
                 <div class="card-body d-flex align-items-center">
-                    <div class="display-4 me-3"><i class="fas fa-users"></i></div>
+                    <div class="display-5 me-3"><i class="fas fa-user-graduate"></i></div>
                     <div>
-                        <h5 class="card-title mb-0">Total Student Participation</h5>
+                        <h6 class="card-title text-white-50 text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Participation</h6>
                         <h2 class="mb-0 fw-bold"><?= number_format($stats['total_participants']) ?></h2>
+                        <small class="text-white-50">Student attendees recorded</small>
                     </div>
                 </div>
             </div>
@@ -167,6 +200,7 @@
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
                     <h5 class="mb-0"><i class="fas fa-chart-pie text-info me-2"></i>Event Categories</h5>
+                    <small class="text-muted">Distribution across student activity streams</small>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <div style="position: relative; height: 350px; width: 100%;"><canvas id="categoryChart"></canvas></div>
@@ -180,10 +214,11 @@
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
-                    <h5 class="mb-0"><i class="fas fa-bullseye text-danger me-2"></i>Topic Focus Area</h5>
+                    <h5 class="mb-0"><i class="fas fa-layer-group text-primary me-2"></i>Event Scope Breakdown</h5>
+                    <small class="text-muted">Departmental vs Campus vs External</small>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
-                    <div style="position: relative; height: 300px; width: 100%;"><canvas id="topicRadarChart"></canvas></div>
+                    <div style="position: relative; height: 300px; width: 100%;"><canvas id="scopeChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -191,6 +226,7 @@
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
                     <h5 class="mb-0"><i class="fas fa-laptop-house text-warning me-2"></i>Delivery Mode</h5>
+                    <small class="text-muted">Online, Offline and Hybrid distribution</small>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <div style="position: relative; height: 300px; width: 100%;"><canvas id="modeChart"></canvas></div>
@@ -201,6 +237,7 @@
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
                     <h5 class="mb-0"><i class="fas fa-crown text-secondary me-2"></i>Most Active Clubs</h5>
+                    <small class="text-muted">Top campus-wide clubs by events</small>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush mt-3">
@@ -213,7 +250,7 @@
                         <?php else: 
                             foreach($top_clubs as $club => $count): ?>
                             <li class="list-group-item border-0 d-flex justify-content-between align-items-center">
-                                <?= htmlspecialchars($club) ?>
+                                <span><i class="fas fa-shield-alt text-primary me-2"></i><?= htmlspecialchars($club) ?></span>
                                 <span class="badge bg-primary rounded-pill"><?= $count ?> Events</span>
                             </li>
                         <?php endforeach; endif; ?>
@@ -225,14 +262,36 @@
 
     <!-- Charts Row 3 -->
     <div class="row mb-4">
-        <div class="col-md-12">
+        <div class="col-lg-4 mb-4 mb-lg-0">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
-                    <h5 class="mb-0"><i class="fas fa-university text-primary me-2"></i>University Level Department Comparison</h5>
-                    <small class="text-muted">Comparing total events and student participation across departments</small>
+                    <h5 class="mb-0"><i class="fas fa-bullseye text-danger me-2"></i>Topic Focus Area</h5>
+                    <small class="text-muted">Technical domain and skillset tracks</small>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div style="position: relative; height: 350px; width: 100%;"><canvas id="topicRadarChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0 pt-3 pb-0 d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h5 class="mb-0"><i class="fas fa-university text-primary me-2"></i>Department-Wise Initiatives Comparison</h5>
+                        <small class="text-muted">Comparing branch-specific events and participant engagement across academic departments (central clubs & campus-wide fests excluded for fair ranking)</small>
+                    </div>
+                    <span class="badge bg-light text-dark border px-2 py-1"><i class="fas fa-filter me-1 text-primary"></i>Department Scope Only</span>
                 </div>
                 <div class="card-body">
-                    <div style="position: relative; height: 400px; width: 100%;"><canvas id="deptCompareChart"></canvas></div>
+                    <?php if (empty($stats['dept_compare'])): ?>
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-info-circle fa-2x mb-2 text-secondary"></i>
+                            <p class="mb-0">No department-specific events found for the active filter selection.</p>
+                            <small>Central club and campus-wide events are tracked in their dedicated campus metrics above.</small>
+                        </div>
+                    <?php else: ?>
+                        <div style="position: relative; height: 350px; width: 100%;"><canvas id="deptCompareChart"></canvas></div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -249,139 +308,177 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 1. Timeline Chart
     const tlData = <?= json_encode($stats['timeline']) ?>;
-    const ctxTL = document.getElementById('timelineChart').getContext('2d');
+    const ctxTL = document.getElementById('timelineChart')?.getContext('2d');
     
-    new Chart(ctxTL, {
-        type: 'line',
-        data: {
-            labels: Object.keys(tlData).map(d => {
-                const parts = d.split('-');
-                return new Date(parts[0], parts[1]-1).toLocaleString('default', { month: 'short', year: 'numeric' });
-            }),
-            datasets: [{
-                label: 'Student Participants',
-                data: Object.values(tlData),
-                borderColor: '#2B6CB0',
-                backgroundColor: 'rgba(43, 108, 176, 0.1)',
-                fill: true,
-                tension: 0.3,
-                pointRadius: 4,
-                pointBackgroundColor: '#FFFFFF',
-                pointBorderColor: '#2B6CB0',
-                pointBorderWidth: 2,
-                borderWidth: 2
-            }]
-        },
-        options: { 
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { 
-                x: { grid: { display: false, drawBorder: false } },
-                y: { grid: { borderDash: [4, 4], color: '#E2E8F0', drawBorder: false }, beginAtZero: true, ticks: { precision: 0 } } 
+    if (ctxTL) {
+        new Chart(ctxTL, {
+            type: 'line',
+            data: {
+                labels: Object.keys(tlData).map(d => {
+                    const parts = d.split('-');
+                    return new Date(parts[0], parts[1]-1).toLocaleString('default', { month: 'short', year: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Student Participants',
+                    data: Object.values(tlData),
+                    borderColor: '#2B6CB0',
+                    backgroundColor: 'rgba(43, 108, 176, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#FFFFFF',
+                    pointBorderColor: '#2B6CB0',
+                    pointBorderWidth: 2,
+                    borderWidth: 2
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { grid: { display: false, drawBorder: false } },
+                    y: { grid: { borderDash: [4, 4], color: '#E2E8F0', drawBorder: false }, beginAtZero: true, ticks: { precision: 0 } } 
+                }
             }
-        }
-    });
+        });
+    }
 
     // 2. Category Doughnut Chart
     const catData = <?= json_encode($stats['category_dist']) ?>;
-    new Chart(document.getElementById('categoryChart'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(catData),
-            datasets: [{
-                data: Object.values(catData),
-                backgroundColor: palette,
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: { 
-            responsive: true, maintainAspectRatio: false,
-            cutout: '75%',
-            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: { size: 12 } } } }
-        }
-    });
-
-    // 3. Topic Bar Chart
-    const topicData = <?= json_encode($stats['topic_dist']) ?>;
-    new Chart(document.getElementById('topicRadarChart'), {
-        type: 'bar',
-        data: {
-            labels: Object.keys(topicData),
-            datasets: [{
-                label: 'Events Count',
-                data: Object.values(topicData),
-                backgroundColor: '#2B6CB0',
-                borderRadius: 4,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { 
-                x: { grid: { display: false } },
-                y: { grid: { borderDash: [4, 4], color: '#E2E8F0' }, beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } 
+    const catEl = document.getElementById('categoryChart');
+    if (catEl) {
+        new Chart(catEl, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(catData),
+                datasets: [{
+                    data: Object.values(catData),
+                    backgroundColor: palette,
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: { size: 12 } } } }
             }
-        }
-    });
+        });
+    }
+
+    // 3. Event Scope Doughnut Chart
+    const scopeData = <?= json_encode($stats['scope_dist']) ?>;
+    const scopeEl = document.getElementById('scopeChart');
+    if (scopeEl) {
+        new Chart(scopeEl, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(scopeData),
+                datasets: [{
+                    data: Object.values(scopeData),
+                    backgroundColor: ['#4F46E5', '#0284C7', '#10B981'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: { size: 12 } } } }
+            }
+        });
+    }
 
     // 4. Delivery Mode Doughnut
     const modeData = <?= json_encode($stats['mode_dist']) ?>;
-    new Chart(document.getElementById('modeChart'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(modeData),
-            datasets: [{
-                data: Object.values(modeData),
-                backgroundColor: ['#1A365D', '#2B6CB0', '#2F855A', '#D69E2E'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: { 
-            responsive: true, maintainAspectRatio: false,
-            cutout: '75%',
-            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: { size: 12 } } } }
-        }
-    });
-
-    // 5. Department Comparison Bar Chart
-    const deptData = <?= json_encode($stats['dept_compare']) ?>;
-    const deptLabels = Object.keys(deptData);
-    const deptEvents = deptLabels.map(dept => deptData[dept].events);
-    const deptParticipants = deptLabels.map(dept => deptData[dept].participants);
-
-    new Chart(document.getElementById('deptCompareChart'), {
-        type: 'bar',
-        data: {
-            labels: deptLabels,
-            datasets: [
-                {
-                    label: 'Total Events',
-                    data: deptEvents,
-                    backgroundColor: '#1A365D',
-                    borderRadius: 4,
-                    borderSkipped: false
-                },
-                {
-                    label: 'Total Participants',
-                    data: deptParticipants,
-                    backgroundColor: '#2F855A',
-                    borderRadius: 4,
-                    borderSkipped: false
-                }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
-            scales: { 
-                x: { grid: { display: false } },
-                y: { grid: { borderDash: [4, 4], color: '#E2E8F0' }, beginAtZero: true, ticks: { precision: 0 } } 
+    const modeEl = document.getElementById('modeChart');
+    if (modeEl) {
+        new Chart(modeEl, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(modeData),
+                datasets: [{
+                    data: Object.values(modeData),
+                    backgroundColor: ['#1A365D', '#2B6CB0', '#2F855A', '#D69E2E'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: { size: 12 } } } }
             }
-        }
-    });
+        });
+    }
+
+    // 5. Topic Bar Chart
+    const topicData = <?= json_encode($stats['topic_dist']) ?>;
+    const topicEl = document.getElementById('topicRadarChart');
+    if (topicEl) {
+        new Chart(topicEl, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(topicData),
+                datasets: [{
+                    label: 'Events Count',
+                    data: Object.values(topicData),
+                    backgroundColor: '#2B6CB0',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: { 
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { grid: { borderDash: [4, 4], color: '#E2E8F0' }, beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 6. Department Comparison Bar Chart
+    const deptData = <?= json_encode($stats['dept_compare']) ?>;
+    const deptEl = document.getElementById('deptCompareChart');
+    if (deptEl) {
+        const deptLabels = Object.keys(deptData);
+        const deptEvents = deptLabels.map(dept => deptData[dept].events);
+        const deptParticipants = deptLabels.map(dept => deptData[dept].participants);
+
+        new Chart(deptEl, {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [
+                    {
+                        label: 'Departmental Events',
+                        data: deptEvents,
+                        backgroundColor: '#4F46E5',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    },
+                    {
+                        label: 'Student Participants',
+                        data: deptParticipants,
+                        backgroundColor: '#10B981',
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
+                scales: { 
+                    x: { grid: { display: false } },
+                    y: { grid: { borderDash: [4, 4], color: '#E2E8F0' }, beginAtZero: true, ticks: { precision: 0 } } 
+                }
+            }
+        });
+    }
 });
 </script>
 

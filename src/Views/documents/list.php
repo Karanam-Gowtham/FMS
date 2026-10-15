@@ -328,7 +328,15 @@
                         <?php endforeach; ?>
                     <?php endif; ?>
                     <td><span class="status-badge status-<?= htmlspecialchars($doc['status']) ?>"><?= ucfirst(htmlspecialchars($doc['status'])) ?></span></td>
-                    <td><?= date('d M Y', strtotime($doc['created_at'])) ?></td>
+                    <?php 
+                    $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : $doc['created_at'];
+                    ?>
+                    <td>
+                        <div style="font-weight: 600; color: #1e293b;"><?= date('d M Y', strtotime($event_dt)) ?></div>
+                        <?php if (!empty($doc['event_date']) && date('Y-m-d', strtotime($doc['event_date'])) !== date('Y-m-d', strtotime($doc['created_at']))): ?>
+                            <div style="font-size: 0.72rem; color: #94a3b8;" title="Uploaded on <?= date('d M Y, h:i A', strtotime($doc['created_at'])) ?>">Up: <?= date('d M Y', strtotime($doc['created_at'])) ?></div>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #007bff; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-block; cursor: pointer; text-align: center;">View</a>
                     </td>

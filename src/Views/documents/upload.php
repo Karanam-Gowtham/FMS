@@ -522,6 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
         eventTypeEl = document.getElementById('meta_event_type');
         topicDomainEl = document.getElementById('meta_topic_domain');
         subCatEl = document.getElementById('meta_sub_category');
+        targetAudienceEl = document.getElementById('meta_target_audience');
         
         eventTypeGrp.style.display = 'none';
         if (topicDomainGrp) topicDomainGrp.style.display = 'none';
@@ -530,8 +531,26 @@ document.addEventListener('DOMContentLoaded', function() {
         if(scheduleGrp) scheduleGrp.style.display = 'none';
         if(resourceProfileGrp) resourceProfileGrp.style.display = 'none';
         
-        // Default visibility for static fields
-        if(targetAudienceGrp) targetAudienceGrp.style.display = 'block';
+        // Default visibility and clean state for Event Scope
+        if(targetAudienceGrp && targetAudienceEl) {
+            targetAudienceGrp.style.display = 'block';
+            var audLabel = targetAudienceGrp.querySelector('label');
+            if (audLabel) audLabel.innerText = 'Event Scope / Level';
+            var existingHelp = targetAudienceGrp.querySelector('.scope-help-text');
+            if (existingHelp) existingHelp.remove();
+
+            // Re-enable all options by default
+            Array.from(targetAudienceEl.options).forEach(function(opt) {
+                opt.disabled = false;
+            });
+
+            // If switching away from Clubs/Stepcone to departmental streams, restore Department Wise
+            if (activityCat !== 'Clubs' && activityCat !== 'Stepcone' && activityCat !== 'Professional Societies') {
+                if (targetAudienceEl.value === 'Central / University Wide') {
+                    targetAudienceEl.value = 'Department Wise';
+                }
+            }
+        }
         if(eventTitleGrp) {
             eventTitleGrp.style.display = 'block';
             eventTitleGrp.querySelector('label').innerText = 'Title of the Event';
@@ -584,6 +603,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // 4. Professional Societies
         else if (activityCat === 'Professional Societies') {
+            if (targetAudienceGrp) {
+                var audHelp = document.createElement('small');
+                audHelp.className = 'scope-help-text text-muted d-block mt-1';
+                audHelp.innerHTML = '<i class="fas fa-info-circle me-1 text-primary"></i>Societies conduct both Department-Wise (branch specific) and Central (campus wide) events. Select accordingly.';
+                targetAudienceGrp.appendChild(audHelp);
+            }
+            if (targetAudienceEl && !targetAudienceEl.value) {
+                targetAudienceEl.value = 'Department Wise';
+            }
+
             subCatGrp.style.display = 'block';
             subCatGrp.querySelector('label').innerText = 'Society Name';
             subCatEl = changeInputType(subCatEl, 'select', ['ACM', 'CSI', 'IEEE', 'IEI', 'IETE', 'IICHE', 'ISTE', 'SAE'], '— Select Society —');
@@ -619,6 +648,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // 5. Clubs
         else if (activityCat === 'Clubs') {
+            if (targetAudienceEl) {
+                targetAudienceEl.value = 'Central / University Wide';
+                Array.from(targetAudienceEl.options).forEach(function(opt) {
+                    if (opt.value === 'Department Wise') {
+                        opt.disabled = true;
+                    }
+                });
+            }
+            if (targetAudienceGrp) {
+                var audHelp = document.createElement('small');
+                audHelp.className = 'scope-help-text text-muted d-block mt-1';
+                audHelp.innerHTML = '<i class="fas fa-university me-1 text-primary"></i>Clubs are campus-wide centralized initiatives under SAC / Student Affairs.';
+                targetAudienceGrp.appendChild(audHelp);
+            }
+
             subCatGrp.style.display = 'block';
             subCatGrp.querySelector('label').innerText = 'Club Name';
             subCatEl = changeInputType(subCatEl, 'text', [], 'Enter Club Name');
@@ -674,6 +718,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // 7. Stepcone
         else if (activityCat === 'Stepcone') {
+            if (targetAudienceEl && (!targetAudienceEl.value || targetAudienceEl.value === 'Department Wise')) {
+                targetAudienceEl.value = 'Central / University Wide';
+            }
+            if (targetAudienceGrp) {
+                var audHelp = document.createElement('small');
+                audHelp.className = 'scope-help-text text-muted d-block mt-1';
+                audHelp.innerHTML = '<i class="fas fa-globe me-1 text-primary"></i>Stepcone is a central / national level technical fest.';
+                targetAudienceGrp.appendChild(audHelp);
+            }
+
             eventTypeGrp.style.display = 'block';
             eventTypeGrp.querySelector('label').innerText = 'Event Type';
             eventTypeEl = changeInputType(eventTypeEl, 'select', ['Workshop', 'Technical Event', 'Paper Presentation', 'Project Expo', 'Hackathon / Coding Contest', 'Competition', 'Guest Lecture / Keynote', 'Other'], '— Select Event Type —');

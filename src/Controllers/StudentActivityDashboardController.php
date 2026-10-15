@@ -30,6 +30,7 @@ class StudentActivityDashboardController
         // Default Filters
         $year_filter = $_GET['year_id'] ?? 'all';
         $dept_filter = $_GET['dept_id'] ?? 'all';
+        $scope_filter = $_GET['scope'] ?? 'all';
         
         $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? $_GET['global_modes'] : [];
         $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? $_GET['global_domains'] : [];
@@ -62,6 +63,13 @@ class StudentActivityDashboardController
         if ($dept_filter !== 'all') {
             $where .= " AND d.dept_id = " . (int)$dept_filter;
         }
+        if ($scope_filter === 'department') {
+            $where .= " AND (msaf.target_audience = 'Department Wise' OR (msaf.target_audience IS NULL AND msaf.activity_category != 'Clubs' AND msaf.activity_category != 'Stepcone'))";
+        } elseif ($scope_filter === 'central') {
+            $where .= " AND (msaf.target_audience = 'Central / University Wide' OR msaf.activity_category = 'Clubs' OR msaf.activity_category = 'Stepcone')";
+        } elseif ($scope_filter === 'external') {
+            $where .= " AND msaf.target_audience = 'Inter-College / External'";
+        }
         
         if (!empty($filter_global_modes)) {
             $modes_escaped = array_map(function($v) use ($conn) { return "'" . $conn->real_escape_string($v) . "'"; }, $filter_global_modes);
@@ -79,7 +87,8 @@ class StudentActivityDashboardController
         // Fetch all relevant documents metadata
         $sql = "
             SELECT d.doc_id, d.title, d.created_at, dp.dept_name,
-                   msaf.activity_category, msaf.event_mode, msaf.topic_domain, msaf.target_audience, msaf.sub_category, msaf.participant_count 
+                   msaf.activity_category, msaf.event_mode, msaf.topic_domain, msaf.target_audience, msaf.sub_category, msaf.participant_count,
+                   msaf.date_from, msaf.date_to
             FROM documents d
             JOIN document_types dt ON d.type_id = dt.type_id
             JOIN departments dp ON d.dept_id = dp.dept_id
@@ -106,7 +115,9 @@ class StudentActivityDashboardController
                             'topic_domain' => $row['topic_domain'],
                             'target_audience' => $row['target_audience'],
                             'sub_category' => $row['sub_category'],
-                            'participant_count' => $row['participant_count']
+                            'participant_count' => $row['participant_count'],
+                            'date_from' => $row['date_from'],
+                            'date_to' => $row['date_to']
                         ]
                     ];
                 }
@@ -117,10 +128,17 @@ class StudentActivityDashboardController
         $stats = [
             'total_events' => count($docs),
             'total_participants' => 0,
+            'department_events' => 0,
+            'central_events' => 0,
+            'external_events' => 0,
             'category_dist' => [],
             'mode_dist' => [],
             'topic_dist' => [],
-            'audience_dist' => [],
+            'scope_dist' => [
+                'Department Wise' => 0,
+                'Central / University Wide' => 0,
+                'Inter-College / External' => 0
+            ],
             'club_activity' => [],
             'timeline' => [],
             'dept_compare' => []
@@ -128,21 +146,45 @@ class StudentActivityDashboardController
 
         foreach ($docs as $doc) {
             $meta = $doc['meta'];
+            $cat = !empty($meta['activity_category']) ? $meta['activity_category'] : 'Uncategorized';
+            $raw_audience = !empty($meta['target_audience']) ? trim($meta['target_audience']) : '';
             
+            // Normalize Event Scope
+            if ($cat === 'Clubs' || $cat === 'Stepcone') {
+                $scope = ($raw_audience === 'Inter-College / External') ? 'Inter-College / External' : 'Central / University Wide';
+            } elseif ($raw_audience === 'Central / University Wide') {
+                $scope = 'Central / University Wide';
+            } elseif ($raw_audience === 'Inter-College / External') {
+                $scope = 'Inter-College / External';
+            } else {
+                $scope = 'Department Wise';
+            }
+
+            if ($scope === 'Central / University Wide') {
+                $stats['central_events']++;
+            } elseif ($scope === 'Department Wise') {
+                $stats['department_events']++;
+            } elseif ($scope === 'Inter-College / External') {
+                $stats['external_events']++;
+            }
+            $stats['scope_dist'][$scope] = ($stats['scope_dist'][$scope] ?? 0) + 1;
+
             // Participants
             $count = (int)($meta['participant_count'] ?? 0);
             $stats['total_participants'] += $count;
 
-            // Department Comparison
-            $dept = $doc['dept_name'];
-            if (!isset($stats['dept_compare'][$dept])) {
-                $stats['dept_compare'][$dept] = ['events' => 0, 'participants' => 0];
+            // Department Comparison: Only include departmental initiatives
+            // Central clubs & campus-wide fests belong centrally to SAC, not an individual department comparison
+            if ($scope === 'Department Wise') {
+                $dept = $doc['dept_name'];
+                if (!isset($stats['dept_compare'][$dept])) {
+                    $stats['dept_compare'][$dept] = ['events' => 0, 'participants' => 0];
+                }
+                $stats['dept_compare'][$dept]['events'] += 1;
+                $stats['dept_compare'][$dept]['participants'] += $count;
             }
-            $stats['dept_compare'][$dept]['events'] += 1;
-            $stats['dept_compare'][$dept]['participants'] += $count;
 
             // Category Distribution
-            $cat = !empty($meta['activity_category']) ? $meta['activity_category'] : 'Uncategorized';
             $stats['category_dist'][$cat] = ($stats['category_dist'][$cat] ?? 0) + 1;
 
             // Mode Distribution
@@ -153,24 +195,21 @@ class StudentActivityDashboardController
             $topic = !empty($meta['topic_domain']) ? $meta['topic_domain'] : 'Other';
             $stats['topic_dist'][$topic] = ($stats['topic_dist'][$topic] ?? 0) + 1;
 
-            // Target Audience
-            $audience = !empty($meta['target_audience']) ? $meta['target_audience'] : 'Internal';
-            $stats['audience_dist'][$audience] = ($stats['audience_dist'][$audience] ?? 0) + 1;
-
             // Club Activity
             $club = !empty($meta['sub_category']) ? trim($meta['sub_category']) : '';
             if (!empty($club)) {
                 $stats['club_activity'][$club] = ($stats['club_activity'][$club] ?? 0) + 1;
             }
 
-            // Timeline (by month)
-            $month = date('Y-m', strtotime($doc['created_at']));
+            // Timeline (by month based on form's event start date)
+            $event_start_date = (!empty($meta['date_from']) && $meta['date_from'] !== '0000-00-00') ? $meta['date_from'] : $doc['created_at'];
+            $month = date('Y-m', strtotime($event_start_date));
             $stats['timeline'][$month] = ($stats['timeline'][$month] ?? 0) + $count;
         }
 
         ksort($stats['timeline']); // Sort timeline chronologically
 
         // Render View
-        require_once __DIR__ . '/../Views/student_activities/dashboard.php';
+        include __DIR__ . '/../Views/student_activities/dashboard.php';
     }
 }

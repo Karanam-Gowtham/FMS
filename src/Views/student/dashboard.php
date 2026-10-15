@@ -199,7 +199,7 @@ require __DIR__ . '/../../../includes/header.php';
                             <th>ID</th>
                             <th>Category</th>
                             <th>Event Details</th>
-                            <th>Date Submitted</th>
+                            <th>Event Date</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -210,6 +210,7 @@ require __DIR__ . '/../../../includes/header.php';
                             if ($sub['status'] === 'pending') $badge_class = 'bg-warning text-dark';
                             if ($sub['status'] === 'accepted') $badge_class = 'bg-success';
                             if ($sub['status'] === 'rejected') $badge_class = 'bg-danger';
+                            $sub_event_date = (!empty($sub['event_date']) && $sub['event_date'] !== '0000-00-00') ? $sub['event_date'] : $sub['created_at'];
                         ?>
                             <tr>
                                 <td class="text-center"><input type="checkbox" name="doc_ids[]" value="<?= $sub['doc_id'] ?>" class="student-doc-checkbox"></td>
@@ -220,7 +221,12 @@ require __DIR__ . '/../../../includes/header.php';
                                         echo htmlspecialchars($sub['event_title'] ?? 'N/A');
                                     ?>
                                 </td>
-                                <td><?= date('M d, Y', strtotime($sub['created_at'])) ?></td>
+                                <td>
+                                    <div class="fw-semibold"><?= date('M d, Y', strtotime($sub_event_date)) ?></div>
+                                    <?php if (!empty($sub['event_date']) && date('Y-m-d', strtotime($sub['event_date'])) !== date('Y-m-d', strtotime($sub['created_at']))): ?>
+                                        <small class="text-muted" title="Uploaded on <?= date('M d, Y', strtotime($sub['created_at'])) ?>">Uploaded: <?= date('M d, Y', strtotime($sub['created_at'])) ?></small>
+                                    <?php endif; ?>
+                                </td>
                                 <td><span class="badge <?= $badge_class ?> text-uppercase"><?= $sub['status'] ?></span></td>
                                 <td>
                                     <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $sub['doc_id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>

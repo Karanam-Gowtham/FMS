@@ -720,8 +720,14 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                         <td style="padding: 12px 16px; color: #64748b;">
                             <?= htmlspecialchars($doc['uploader_name'] ?? 'Unknown') ?>
                         </td>
+                        <?php 
+                        $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : $doc['created_at'];
+                        ?>
                         <td style="padding: 12px 16px; color: #64748b;">
-                            <?= date('M d, Y', strtotime($doc['created_at'])) ?>
+                            <div style="font-weight: 600; color: #1e293b;"><?= date('M d, Y', strtotime($event_dt)) ?></div>
+                            <?php if (!empty($doc['event_date']) && date('Y-m-d', strtotime($doc['event_date'])) !== date('Y-m-d', strtotime($doc['created_at']))): ?>
+                                <div style="font-size: 0.72rem; color: #94a3b8;" title="Uploaded on <?= date('M d, Y', strtotime($doc['created_at'])) ?>">Up: <?= date('M d, Y', strtotime($doc['created_at'])) ?></div>
+                            <?php endif; ?>
                         </td>
                         <td style="padding: 12px 16px;">
                             <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">Review</a>
@@ -780,8 +786,14 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                         <td style="padding: 12px 16px; color: #64748b;">
                             <?= htmlspecialchars($doc['type_label']) ?>
                         </td>
+                        <?php 
+                        $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : $doc['created_at'];
+                        ?>
                         <td style="padding: 12px 16px; color: #64748b;">
-                            <?= date('M d, Y', strtotime($doc['created_at'])) ?>
+                            <div style="font-weight: 600; color: #1e293b;"><?= date('M d, Y', strtotime($event_dt)) ?></div>
+                            <?php if (!empty($doc['event_date']) && date('Y-m-d', strtotime($doc['event_date'])) !== date('Y-m-d', strtotime($doc['created_at']))): ?>
+                                <div style="font-size: 0.72rem; color: #94a3b8;" title="Uploaded on <?= date('M d, Y', strtotime($doc['created_at'])) ?>">Up: <?= date('M d, Y', strtotime($doc['created_at'])) ?></div>
+                            <?php endif; ?>
                         </td>
                         <td style="padding: 12px 16px;">
                             <?php

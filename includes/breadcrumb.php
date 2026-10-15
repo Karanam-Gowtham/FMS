@@ -34,7 +34,7 @@ if ($role === 'Dashboard') {
     // Determine $dept from legacy sources
     if (!empty($_GET['dept'])) {
         $dept = $_GET['dept'];
-    } elseif (!empty($_GET['event']) && in_array(strtoupper($_GET['event']), ['CSE', 'CSE-CS', 'CSE-AI&ML', 'CSE-AI&DS', 'IT', 'ECE', 'EEE', 'MECH', 'CIVIL', 'BSH', 'MATHEMATICS', 'PHYSICS', 'CHEMISTRY', 'NAAC', 'NBA', 'NCC', 'SPORTS', 'CLUBS'])) {
+    } elseif (!empty($_GET['event']) && in_array(strtoupper($_GET['event']), ['CSE', 'CSE-CS', 'CSE-AI&ML', 'CSE-AI&DS', 'AIML', 'AIDS', 'IT', 'ECE', 'EEE', 'MECH', 'CIVIL', 'BSH', 'MATHEMATICS', 'PHYSICS', 'CHEMISTRY', 'NAAC', 'NBA', 'NCC', 'SPORTS', 'CLUBS'])) {
         $dept = $_GET['event'];
     } elseif (!empty($_SESSION['dept'])) {
         $dept = $_SESSION['dept'];
@@ -121,7 +121,17 @@ if ($dept !== '') {
     }
 }
 
-$breadcrumbs[] = ['label' => $role_label, 'url' => $role_url];
+// Campus-wide institutional pages link directly from Home without injecting a personal role/dept
+$institutional_routes = [
+    'student_activities/dashboard',
+    'nba/dashboard',
+    'naac/dashboard',
+    'public/department',
+];
+
+if (!in_array($route, $institutional_routes)) {
+    $breadcrumbs[] = ['label' => $role_label, 'url' => $role_url];
+}
 
 // File Map
 $file_map = [

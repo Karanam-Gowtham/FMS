@@ -178,10 +178,11 @@ function doc_create(
         $stmt->bind_param('iiiiis', $type_id, $uploaded_by, $dept_id, $year_id, $mentor_id, $title);
         $stmt->execute();
         $doc_id = $stmt->insert_id;
+        $error = $stmt->error;
         $stmt->close();
 
         if (!$doc_id) {
-            throw new RuntimeException('Failed to insert document record.');
+            throw new RuntimeException('Failed to insert document record: ' . ($error ?: 'Unknown error'));
         }
 
         // 4. Insert meta data
@@ -337,6 +338,22 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
         $meta_data['event_title'] = !empty($meta_data['activity_category']) ? $meta_data['activity_category'] . ' Event' : 'Event';
     }
 
+    // Ensure target_audience (Event Scope) defaults safely for student_activity_file
+    if ($type_key === 'student_activity_file') {
+        if (empty($meta_data['target_audience'])) {
+            if (($meta_data['activity_category'] ?? '') === 'Clubs' || ($meta_data['activity_category'] ?? '') === 'Stepcone') {
+                $meta_data['target_audience'] = 'Central / University Wide';
+            } else {
+                $meta_data['target_audience'] = 'Department Wise';
+            }
+        } elseif (($meta_data['activity_category'] ?? '') === 'Clubs') {
+            // Clubs are inherently college/university-wide
+            if ($meta_data['target_audience'] === 'Department Wise') {
+                $meta_data['target_audience'] = 'Central / University Wide';
+            }
+        }
+    }
+
     foreach ($field_defs as $field) {
         $name = $field['name'];
         if (array_key_exists($name, $meta_data)) {
@@ -400,7 +417,21 @@ function doc_get(mysqli $conn, int $doc_id): ?array
                 dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,
                 u.full_name AS uploader_name,
                 dep.dept_name,
-                ay.year_label
+                ay.year_label,
+                (CASE 
+                    WHEN dt.type_code = 'student_activity_file' THEN (SELECT date_from FROM meta_student_activity_file WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'conference' THEN (SELECT from_date FROM meta_conference WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'journal' THEN (SELECT date_of_publication FROM meta_journal WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'patent' THEN (SELECT date_of_issue FROM meta_patent WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'fdp_attended' THEN (SELECT date_from FROM meta_fdp_attended WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'fdp_organised' THEN (SELECT date_from FROM meta_fdp_organised WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'conf_organised' THEN (SELECT date_from FROM meta_conf_organised WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'student_event' THEN (SELECT from_date FROM meta_student_event WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'student_body' THEN (SELECT from_date FROM meta_student_body WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'student_conference' THEN (SELECT from_date FROM meta_student_conference WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code = 'student_journal' THEN (SELECT date_of_submission FROM meta_student_journal WHERE doc_id = d.doc_id LIMIT 1)
+                    ELSE NULL
+                END) AS event_date
          FROM documents d
          JOIN document_types dt ON dt.type_id = d.type_id
          JOIN users u ON u.user_id = d.uploaded_by
@@ -746,6 +777,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     // Whitelist order column to prevent injection
     $allowed_orders = [
         'd.created_at DESC', 'd.created_at ASC',
+        'event_date DESC', 'event_date ASC',
         'd.updated_at DESC', 'd.updated_at ASC',
         'd.title ASC', 'd.title DESC',
         'dt.label ASC', 'dt.label DESC',
@@ -774,7 +806,21 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
                    dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,
                    u.full_name AS uploader_name,
                    dep.dept_name,
-                   ay.year_label
+                   ay.year_label,
+                   (CASE 
+                       WHEN dt.type_code = 'student_activity_file' THEN (SELECT date_from FROM meta_student_activity_file WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'conference' THEN (SELECT from_date FROM meta_conference WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'journal' THEN (SELECT date_of_publication FROM meta_journal WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'patent' THEN (SELECT date_of_issue FROM meta_patent WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'fdp_attended' THEN (SELECT date_from FROM meta_fdp_attended WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'fdp_organised' THEN (SELECT date_from FROM meta_fdp_organised WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'conf_organised' THEN (SELECT date_from FROM meta_conf_organised WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_event' THEN (SELECT from_date FROM meta_student_event WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_body' THEN (SELECT from_date FROM meta_student_body WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_conference' THEN (SELECT from_date FROM meta_student_conference WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_journal' THEN (SELECT date_of_submission FROM meta_student_journal WHERE doc_id = d.doc_id LIMIT 1)
+                       ELSE NULL
+                   END) AS event_date
                    $meta_select
             FROM documents d
             JOIN document_types dt ON dt.type_id = d.type_id
@@ -876,7 +922,21 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
                    u.full_name AS uploader_name,
                    dep.dept_name,
                    ay.year_label,
-                   ws.step_label
+                   ws.step_label,
+                   (CASE 
+                       WHEN dt.type_code = 'student_activity_file' THEN (SELECT date_from FROM meta_student_activity_file WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'conference' THEN (SELECT from_date FROM meta_conference WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'journal' THEN (SELECT date_of_publication FROM meta_journal WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'patent' THEN (SELECT date_of_issue FROM meta_patent WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'fdp_attended' THEN (SELECT date_from FROM meta_fdp_attended WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'fdp_organised' THEN (SELECT date_from FROM meta_fdp_organised WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'conf_organised' THEN (SELECT date_from FROM meta_conf_organised WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_event' THEN (SELECT from_date FROM meta_student_event WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_body' THEN (SELECT from_date FROM meta_student_body WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_conference' THEN (SELECT from_date FROM meta_student_conference WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code = 'student_journal' THEN (SELECT date_of_submission FROM meta_student_journal WHERE doc_id = d.doc_id LIMIT 1)
+                       ELSE NULL
+                   END) AS event_date
             FROM documents d
             JOIN document_types dt ON dt.type_id = d.type_id
             JOIN users u ON u.user_id = d.uploaded_by
