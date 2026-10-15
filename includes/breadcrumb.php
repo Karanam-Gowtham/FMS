@@ -3,14 +3,35 @@
 // Fits inline inside the global header navigation bar.
 
 $current_script = basename($_SERVER['SCRIPT_NAME']);
-if ($current_script === 'index.php' || strpos($current_script, 'login') !== false || $current_script === 'reg.php') {
-    return; // Do not render breadcrumbs on home/login/registration screens
+$route = $_GET['route'] ?? '';
+
+// Do not render breadcrumbs on home/login/registration screens
+if ($current_script === 'reg.php' || strpos($current_script, 'login') !== false || ($current_script === 'index.php' && empty($route)) || in_array($route, ['auth/login', 'auth/register', 'auth/select_role'])) {
+    return;
 }
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-// Determine $dept
-if (!isset($dept) || empty($dept)) {
+$dir_name = basename(dirname($_SERVER['SCRIPT_NAME']));
+$bc_base_url = (defined('BASE_URL') ? BASE_URL : '/mini/FMS');
+
+$role = 'Dashboard';
+$role_url = $bc_base_url . '/index.php';
+$dept = '';
+
+// Check modern unified auth first
+if (function_exists('auth_is_logged_in') && auth_is_logged_in()) {
+    $active_role = function_exists('auth_active_role') ? auth_active_role() : null;
+    if ($active_role) {
+        $role = ($active_role['role_name'] ?? 'User') . ' Dashboard';
+        $role_url = function_exists('get_role_landing_url') ? get_role_landing_url($active_role) : ($bc_base_url . '/public/index.php?route=dashboard');
+        $dept = $active_role['dept_name'] ?? '';
+    }
+}
+
+// Fallback to legacy session detection if modern auth is not active
+if ($role === 'Dashboard') {
+    // Determine $dept from legacy sources
     if (!empty($_GET['dept'])) {
         $dept = $_GET['dept'];
     } elseif (!empty($_GET['event']) && in_array(strtoupper($_GET['event']), ['CSE', 'CSE-CS', 'CSE-AI&ML', 'CSE-AI&DS', 'IT', 'ECE', 'EEE', 'MECH', 'CIVIL', 'BSH', 'MATHEMATICS', 'PHYSICS', 'CHEMISTRY', 'NAAC', 'NBA', 'NCC', 'SPORTS', 'CLUBS'])) {
@@ -32,11 +53,56 @@ if (!isset($dept) || empty($dept)) {
             }
         }
     }
-}
-$dept = isset($dept) ? trim($dept) : '';
+    $dept = trim($dept);
 
-$dir_name = basename(dirname($_SERVER['SCRIPT_NAME']));
-$bc_base_url = (defined('BASE_URL') ? BASE_URL : '/mini/FMS');
+    if (isset($_SESSION['a_username']) && !empty($_SESSION['a_username'])) {
+        $role = 'Dept Coordinator Dashboard';
+        $role_url = $bc_base_url . '/modules/dept_coordinator/dc_acd_year.php';
+    } elseif (isset($_SESSION['h_username']) && !empty($_SESSION['h_username'])) {
+        $role = 'HOD Dashboard';
+        $role_url = $bc_base_url . '/HOD/hod_acd_year.php';
+    } elseif (isset($_SESSION['admin']) && !empty($_SESSION['admin'])) {
+        $role = 'Admin Dashboard';
+        $role_url = $bc_base_url . '/HOD/acd_year_aa.php';
+    } elseif (isset($_SESSION['cri_username']) && !empty($_SESSION['cri_username'])) {
+        $role = 'Criteria Dashboard';
+        $role_url = $bc_base_url . '/modules/central/c_aqar_files.php?designation=criteria_coordinator' . (!empty($dept) ? '&event=' . urlencode($dept) : '');
+    } elseif (isset($_SESSION['c_cord']) && !empty($_SESSION['c_cord'])) {
+        $role = 'Central Dashboard';
+        $role_url = $bc_base_url . '/modules/central/c_upload.php' . (!empty($dept) ? '?event=' . urlencode($dept) : '');
+    } elseif (isset($_SESSION['j_username']) && !empty($_SESSION['j_username'])) {
+        $role = 'Jr Assistant Dashboard';
+        $role_url = $bc_base_url . '/modules/jr_assistant/jr_acd_year.php';
+    } elseif (isset($_SESSION['username']) && !empty($_SESSION['username'])) {
+        $role = 'Faculty Dashboard';
+        $role_url = $bc_base_url . '/modules/faculty/acd_year.php';
+    } else {
+        if ($dir_name === 'faculty') {
+            $role = 'Faculty Dashboard';
+            $role_url = $bc_base_url . '/modules/faculty/acd_year.php';
+        } elseif ($dir_name === 'dept_coordinator') {
+            $role = 'Dept Coordinator Dashboard';
+            $role_url = $bc_base_url . '/modules/dept_coordinator/dc_acd_year.php';
+        } elseif ($dir_name === 'HOD') {
+            $role = 'HOD Dashboard';
+            $role_url = $bc_base_url . '/HOD/hod_acd_year.php'; 
+        } elseif ($dir_name === 'admin') {
+            $role = 'Admin Dashboard';
+            $role_url = $bc_base_url . '/HOD/acd_year_aa.php';
+        } elseif ($dir_name === 'central') {
+            $role = 'Central Dashboard';
+            $role_url = $bc_base_url . '/modules/central/cc_acd_year.php';
+        } elseif ($dir_name === 'jr_assistant') {
+            $role = 'Jr Assistant Dashboard';
+            $role_url = $bc_base_url . '/modules/jr_assistant/jr_acd_year.php';
+        } elseif ($dir_name === 'public') {
+            $role = 'Public View';
+            $role_url = $bc_base_url . '/index.php';
+        } else {
+            $role = ucfirst(str_replace('_', ' ', $dir_name));
+        }
+    }
+}
 
 $breadcrumbs = [];
 // Home link
@@ -46,58 +112,6 @@ $breadcrumbs[] = [
     'url' => $bc_base_url . '/index.php',
     'title' => 'Home'
 ];
-
-// Map active session or directory to role & dashboard URL
-$role = 'Dashboard';
-$role_url = $bc_base_url . '/index.php';
-
-if (isset($_SESSION['a_username']) && !empty($_SESSION['a_username'])) {
-    $role = 'Dept Coordinator Dashboard';
-    $role_url = $bc_base_url . '/modules/dept_coordinator/dc_acd_year.php';
-} elseif (isset($_SESSION['h_username']) && !empty($_SESSION['h_username'])) {
-    $role = 'HOD Dashboard';
-    $role_url = $bc_base_url . '/HOD/hod_acd_year.php';
-} elseif (isset($_SESSION['admin']) && !empty($_SESSION['admin'])) {
-    $role = 'Admin Dashboard';
-    $role_url = $bc_base_url . '/HOD/acd_year_aa.php';
-} elseif (isset($_SESSION['cri_username']) && !empty($_SESSION['cri_username'])) {
-    $role = 'Criteria Dashboard';
-    $role_url = $bc_base_url . '/modules/central/c_aqar_files.php?designation=criteria_coordinator' . (!empty($dept) ? '&event=' . urlencode($dept) : '');
-} elseif (isset($_SESSION['c_cord']) && !empty($_SESSION['c_cord'])) {
-    $role = 'Central Dashboard';
-    $role_url = $bc_base_url . '/modules/central/c_upload.php' . (!empty($dept) ? '?event=' . urlencode($dept) : '');
-} elseif (isset($_SESSION['j_username']) && !empty($_SESSION['j_username'])) {
-    $role = 'Jr Assistant Dashboard';
-    $role_url = $bc_base_url . '/modules/jr_assistant/jr_acd_year.php';
-} elseif (isset($_SESSION['username']) && !empty($_SESSION['username'])) {
-    $role = 'Faculty Dashboard';
-    $role_url = $bc_base_url . '/modules/faculty/acd_year.php';
-} else {
-    if ($dir_name === 'faculty') {
-        $role = 'Faculty Dashboard';
-        $role_url = $bc_base_url . '/modules/faculty/acd_year.php';
-    } elseif ($dir_name === 'dept_coordinator') {
-        $role = 'Dept Coordinator Dashboard';
-        $role_url = $bc_base_url . '/modules/dept_coordinator/dc_acd_year.php';
-    } elseif ($dir_name === 'HOD') {
-        $role = 'HOD Dashboard';
-        $role_url = $bc_base_url . '/HOD/hod_acd_year.php'; 
-    } elseif ($dir_name === 'admin') {
-        $role = 'Admin Dashboard';
-        $role_url = $bc_base_url . '/HOD/acd_year_aa.php';
-    } elseif ($dir_name === 'central') {
-        $role = 'Central Dashboard';
-        $role_url = $bc_base_url . '/modules/central/cc_acd_year.php';
-    } elseif ($dir_name === 'jr_assistant') {
-        $role = 'Jr Assistant Dashboard';
-        $role_url = $bc_base_url . '/modules/jr_assistant/jr_acd_year.php';
-    } elseif ($dir_name === 'public') {
-        $role = 'Public View';
-        $role_url = $bc_base_url . '/index.php';
-    } else {
-        $role = ucfirst(str_replace('_', ' ', $dir_name));
-    }
-}
 
 $role_label = $role;
 if ($dept !== '') {
@@ -193,16 +207,46 @@ $file_map = [
 
 if (isset($custom_breadcrumb_title)) {
     $page_name = $custom_breadcrumb_title;
+} elseif (!empty($route)) {
+    $route_map = [
+        'dashboard'                     => 'Main Dashboard',
+        'documents/list'                => 'Documents',
+        'documents/upload'              => 'Upload Document',
+        'documents/view'                => 'View Document',
+        'documents/edit'                => 'Edit Document',
+        'documents/my_uploads'          => 'My Uploads',
+        'student/dashboard'             => 'Student Dashboard',
+        'student_activities/dashboard'  => 'Student Activities Dashboard',
+        'nba/dashboard'                 => 'NBA Dashboard',
+        'naac/dashboard'                => 'NAAC Dashboard',
+        'public/department'             => 'Department Overview',
+        'profile/edit'                  => 'Edit Profile',
+        'academic_years/list'           => 'Academic Years',
+    ];
+
+    if ($route === 'documents/upload' && !empty($_GET['activity'])) {
+        $page_name = 'Upload: ' . htmlspecialchars($_GET['activity']);
+    } elseif ($route === 'documents/list' && isset($_GET['context']) && $_GET['context'] === 'dept_file') {
+        $page_name = 'Department Files';
+    } elseif ($route === 'public/department' && !empty($_GET['dept'])) {
+        $page_name = htmlspecialchars($_GET['dept']) . ' Department';
+    } elseif (isset($route_map[$route])) {
+        $page_name = $route_map[$route];
+    } else {
+        $page_name = ucwords(str_replace(['/', '_'], ' ', $route));
+    }
 } elseif (isset($file_map[$current_script])) {
     $page_name = $file_map[$current_script];
 } else {
     $page_name = ucwords(str_replace(['_', '.php'], [' ', ''], $current_script));
 }
 
-// Only append page_name if current script is not the role dashboard file itself
+// Only append page_name if current script/route is not the role dashboard itself
 $role_path = parse_url($role_url, PHP_URL_PATH);
-$role_script = basename($role_path);
-if ($role_script !== $current_script) {
+$role_query = parse_url($role_url, PHP_URL_QUERY);
+$is_dashboard_page = ($current_script === basename($role_path) && (empty($route) || (isset($role_query) && strpos($role_query, 'route=' . $route) !== false)));
+
+if (!$is_dashboard_page) {
     $breadcrumbs[] = ['label' => $page_name, 'url' => '#'];
 }
 ?>

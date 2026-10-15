@@ -174,7 +174,18 @@ class DocumentActionController {
             if ($is_student_activity) {
                 header("Location: " . BASE_URL . "/public/index.php?route=student/dashboard");
             } else {
-                header("Location: " . BASE_URL . "/public/index.php?route=documents/upload&type=" . urlencode($post_type_key));
+                $redirect_url = BASE_URL . "/public/index.php?route=documents/upload&type=" . urlencode($post_type_key);
+                if (!empty($_POST['meta']['activity_category'])) {
+                    $redirect_url .= "&activity=" . urlencode($_POST['meta']['activity_category']);
+                } elseif (!empty($_GET['activity'])) {
+                    $redirect_url .= "&activity=" . urlencode($_GET['activity']);
+                }
+                if (!empty($_POST['meta']['sub_category'])) {
+                    $redirect_url .= "&sub_type=" . urlencode($_POST['meta']['sub_category']);
+                } elseif (!empty($_GET['sub_type'])) {
+                    $redirect_url .= "&sub_type=" . urlencode($_GET['sub_type']);
+                }
+                header("Location: " . $redirect_url);
             }
             exit;
         }

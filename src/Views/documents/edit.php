@@ -80,7 +80,7 @@ $active_role = $_SESSION['active_role'] ?? null;
 
         <?php if (!empty($meta_fields)): ?>
         <?php
-        $is_stepcone_doc = ($type_key === 'student_activity_file' && ($meta_data['activity_category'] ?? '') === 'Stepcone');
+        $is_stepcone_doc = ($type_key === 'student_activity_file' && strcasecmp(trim($meta_data['activity_category'] ?? ''), 'stepcone') === 0);
         ?>
         <div class="meta-section">
             <div class="section-title">Additional Details</div>

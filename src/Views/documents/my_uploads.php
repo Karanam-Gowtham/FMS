@@ -141,6 +141,9 @@
                     <td><?= date('d M Y', strtotime($doc['created_at'])) ?></td>
                     <td>
                         <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>">View</a>
+                        <?php if (strtolower($doc['status']) !== 'accepted'): ?>
+                            | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="color: #007bff;">Edit</a>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

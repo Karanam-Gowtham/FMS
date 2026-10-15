@@ -96,7 +96,8 @@
     <?php else: ?>
         <!-- Upload form -->
         <?php
-        $is_stepcone_selected = ($type_key === 'student_activity_file' && (isset($_GET['activity']) && $_GET['activity'] === 'Stepcone'));
+        $selected_activity_val = $_GET['activity'] ?? ($old_input['meta']['activity_category'] ?? '');
+        $is_stepcone_selected = ($type_key === 'student_activity_file' && strcasecmp(trim((string)$selected_activity_val), 'stepcone') === 0);
         ?>
         <form method="POST" enctype="multipart/form-data" id="uploadForm" action="<?= BASE_URL ?>/public/index.php?route=documents/upload">
             <?php if (function_exists('csrfField')) echo csrfField(); ?>
@@ -109,7 +110,7 @@
                     <select id="dept_id" name="dept_id" required>
                         <option value="">— Select Department —</option>
                         <?php foreach ($user_depts as $did => $dname): ?>
-                            <option value="<?= $did ?>"><?= htmlspecialchars($dname) ?></option>
+                            <option value="<?= $did ?>" <?= (isset($old_input['dept_id']) && $old_input['dept_id'] == $did) ? 'selected' : '' ?>><?= htmlspecialchars($dname) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -122,7 +123,7 @@
             <?php if (auth_active_role()['role_id'] == ROLE_STUDENT): ?>
                 <div class="form-group">
                     <label class="required" for="mentor_per_no">Mentor's Per No.</label>
-                    <input type="text" id="mentor_per_no" name="mentor_per_no" required placeholder="Enter the exact Per No of your mentor">
+                    <input type="text" id="mentor_per_no" name="mentor_per_no" required placeholder="Enter the exact Per No of your mentor" value="<?= htmlspecialchars($old_input['mentor_per_no'] ?? '') ?>">
                     <small style="color: #6c757d;">Your upload will be sent to this mentor for verification.</small>
                 </div>
             <?php endif; ?>
@@ -133,7 +134,7 @@
                 <?php $has_custom_title = (strpos($type_key, 'student_') === 0 || in_array($type_key, ['exam_qual', 'journal', 'conference', 'patent'])); ?>
                 <div class="form-group" <?= $has_custom_title ? 'style="display: none;"' : '' ?>>
                     <label class="<?= $has_custom_title ? '' : 'required' ?>" for="title">Title</label>
-                    <input type="text" id="title" name="title" <?= $has_custom_title ? '' : 'required' ?>>
+                    <input type="text" id="title" name="title" value="<?= htmlspecialchars($old_input['title'] ?? '') ?>" <?= $has_custom_title ? '' : 'required' ?>>
                 </div>
 
                 <div class="form-group">
@@ -141,7 +142,7 @@
                     <select id="year_id" name="year_id">
                         <option value="">Select an academic year</option>
                         <?php foreach ($academic_years as $yr): ?>
-                            <option value="<?= $yr['year_id'] ?>"<?= ($active_year && $yr['year_id'] == $active_year['year_id']) ? ' selected' : '' ?>>
+                            <option value="<?= $yr['year_id'] ?>"<?= (($old_input['year_id'] ?? ($active_year['year_id'] ?? null)) == $yr['year_id']) ? ' selected' : '' ?>>
                                 <?= htmlspecialchars($yr['year_label']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -156,6 +157,7 @@
                     <?php 
                     $isHiddenDeptCategory = ($field['type'] === 'dept_category' && !empty($preselected_subtype)); 
                     $is_meta_req = $field['required'] && (!$is_stepcone_selected || $field['name'] === 'activity_category');
+                    $field_val = $old_input['meta'][$field['name']] ?? '';
                     ?>
                     <div class="form-group" <?= $isHiddenDeptCategory ? 'style="display:none;"' : '' ?>>
                         <?php 
@@ -169,15 +171,18 @@
                         </label>
                         <?php if ($field['type'] === 'textarea'): ?>
                             <textarea id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                      <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>></textarea>
+                                      <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>><?= htmlspecialchars($field_val) ?></textarea>
                         <?php elseif ($field['type'] === 'date'): ?>
                             <input type="date" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
+                                   value="<?= htmlspecialchars($field_val) ?>"
                                    <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                         <?php elseif ($field['type'] === 'number'): ?>
                             <input type="number" step="any" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
+                                   value="<?= htmlspecialchars($field_val) ?>"
                                    <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                         <?php elseif ($field['type'] === 'url'): ?>
                             <input type="url" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
+                                   value="<?= htmlspecialchars($field_val) ?>"
                                    <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?> placeholder="https://">
                         <?php elseif ($field['type'] === 'select'): ?>
                             <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
@@ -188,9 +193,8 @@
                                     <?php foreach ($field['options'] as $opt): ?>
                                         <?php 
                                         $selected = '';
-                                        if ($field['name'] === 'activity_category' && isset($_GET['activity']) && $_GET['activity'] === $opt) {
-                                            $selected = 'selected';
-                                        } elseif (isset($field['default']) && $field['default'] === $opt) {
+                                        $curr_opt_val = ($field_val !== '') ? $field_val : ($field['name'] === 'activity_category' ? ($_GET['activity'] ?? '') : ($field['default'] ?? ''));
+                                        if (strcasecmp(trim((string)$curr_opt_val), trim((string)$opt)) === 0) {
                                             $selected = 'selected';
                                         }
                                         ?>
@@ -203,7 +207,7 @@
                                 <?php if (!empty($field['options'])): ?>
                                     <?php foreach ($field['options'] as $opt): ?>
                                         <label style="font-weight: normal; margin: 0; display: flex; align-items: center; gap: 5px;">
-                                            <input type="radio" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($opt) ?>" <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
+                                            <input type="radio" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($opt) ?>" <?= ($field_val === $opt) ? 'checked' : '' ?> <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                                             <?= htmlspecialchars($opt) ?>
                                         </label>
                                     <?php endforeach; ?>
@@ -300,16 +304,21 @@
                             </select>
                         <?php else: ?>
                             <?php
-                            $default_val = '';
-                            if ($field['name'] === 'activity' && isset($_GET['activity'])) {
-                                $default_val = $_GET['activity'];
-                            } elseif ($field['name'] === 'exam' && isset($_GET['exam'])) {
-                                $default_val = $_GET['exam'];
+                            $default_val = $field_val !== '' ? $field_val : '';
+                            $is_readonly = false;
+                            if ($default_val === '') {
+                                if ($field['name'] === 'activity' && isset($_GET['activity'])) {
+                                    $default_val = $_GET['activity'];
+                                    $is_readonly = true;
+                                } elseif ($field['name'] === 'exam' && isset($_GET['exam'])) {
+                                    $default_val = $_GET['exam'];
+                                    $is_readonly = true;
+                                }
                             }
                             ?>
                             <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
                                    value="<?= htmlspecialchars($default_val) ?>"
-                                   <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?> <?= ($default_val !== '') ? 'readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;"' : '' ?>>
+                                   <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?> <?= ($is_readonly) ? 'readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;"' : '' ?>>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>

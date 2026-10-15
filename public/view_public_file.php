@@ -83,7 +83,8 @@ if ($doc) {
         $public_types = [
             'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 
             'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 
-            'student_event', 'student_body', 'student_journal', 'student_conference'
+            'student_event', 'student_body', 'student_journal', 'student_conference',
+            'student_activity_file', 'dept_file'
         ];
         $type_stmt = $conn->prepare("SELECT type_code FROM document_types WHERE type_id = ?");
         $type_stmt->bind_param("i", $doc['type_id']);

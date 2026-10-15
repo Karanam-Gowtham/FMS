@@ -7,7 +7,7 @@ class PublicController {
         $dept_param = isset($_GET['dept']) ? trim($_GET['dept']) : '';
         global $conn;
 
-        // Lookup department in database
+        // Lookup department in database with alias support (e.g. AIML <-> CSE-AI&ML)
         $dept_info = null;
         if ($dept_param !== '') {
             $stmt = $conn->prepare("SELECT * FROM departments WHERE dept_name = ?");
@@ -16,6 +16,26 @@ class PublicController {
                 $stmt->execute();
                 $dept_info = $stmt->get_result()->fetch_assoc();
                 $stmt->close();
+            }
+
+            if (!$dept_info) {
+                $aliases = [
+                    'AIML' => 'CSE-AI&ML',
+                    'AIDS' => 'CSE-AI&DS',
+                    'MATHEMATICS' => 'MatheMatics',
+                    'PHYSICS' => 'Physics',
+                    'CHEMISTRY' => 'Chemistry',
+                ];
+                if (isset($aliases[strtoupper($dept_param)])) {
+                    $alt_name = $aliases[strtoupper($dept_param)];
+                    $stmt = $conn->prepare("SELECT * FROM departments WHERE dept_name = ?");
+                    if ($stmt) {
+                        $stmt->bind_param("s", $alt_name);
+                        $stmt->execute();
+                        $dept_info = $stmt->get_result()->fetch_assoc();
+                        $stmt->close();
+                    }
+                }
             }
         }
 
@@ -56,7 +76,7 @@ class PublicController {
         // Fetch accepted public documents
         $public_docs = [];
         $stmt = $conn->prepare("
-            SELECT d.doc_id, dm.meta_value as original_file_name, dt.label as type_name, dt.type_code,
+            SELECT d.doc_id, COALESCE(NULLIF(d.title, ''), dm.meta_value, 'Untitled Document') as original_file_name, dt.label as type_name, dt.type_code,
                    u.full_name as uploader_name, u.user_id, ay.year_label as year_name, 
                    d.created_at, d.file_path 
             FROM documents d
@@ -65,7 +85,7 @@ class PublicController {
             LEFT JOIN academic_years ay ON d.academic_year_id = ay.year_id
             LEFT JOIN document_metadata dm ON d.doc_id = dm.doc_id AND dm.meta_key = 'title'
             WHERE d.dept_id = ? AND d.status = 'accepted' 
-            AND dt.type_code IN ('journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference')
+            AND dt.type_code IN ('journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference', 'student_activity_file', 'dept_file')
             ORDER BY d.created_at DESC
         ");
         if ($stmt) {
@@ -161,7 +181,8 @@ class PublicController {
         $public_types = [
             'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 
             'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 
-            'student_event', 'student_body', 'student_journal', 'student_conference'
+            'student_event', 'student_body', 'student_journal', 'student_conference',
+            'student_activity_file', 'dept_file'
         ];
 
         $stmt = $conn->prepare("

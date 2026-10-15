@@ -61,9 +61,31 @@
 
     <div class="doc-header">
         <h1><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></h1>
-        <span class="status-badge status-<?= htmlspecialchars($document['status']) ?>">
-            <?= htmlspecialchars($status_label) ?>
-        </span>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <span class="status-badge status-<?= htmlspecialchars($document['status']) ?>">
+                <?= htmlspecialchars($status_label) ?>
+            </span>
+            <?php 
+            $can_edit = (
+                isset($auth['user_id']) &&
+                (int)$document['uploaded_by'] === (int)$auth['user_id'] && 
+                strtolower($document['status']) !== 'accepted'
+            );
+            if ($can_edit && strtolower($document['status']) === 'pending' && !empty($action_history)) {
+                foreach ($action_history as $h) {
+                    if ($h['action'] === 'approve') {
+                        $can_edit = false;
+                        break;
+                    }
+                }
+            }
+            if ($can_edit): 
+            ?>
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$doc_id ?>" class="btn" style="background: #007bff; color: white; text-decoration: none; padding: 0.35rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">
+                    ✏ Edit Document
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 
     <?php if ($document['status'] === 'rejected' && $document['rejection_reason']): ?>

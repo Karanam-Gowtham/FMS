@@ -193,7 +193,7 @@ function doc_create(
         // 5. Store files
         $file_slots = meta_get_file_slots($type_key);
         $stored_paths = []; // Track physical paths to cleanup on rollback
-        $is_stepcone = ($type_key === 'student_activity_file' && ($meta_data['activity_category'] ?? '') === 'Stepcone');
+        $is_stepcone = ($type_key === 'student_activity_file' && strcasecmp(trim($meta_data['activity_category'] ?? ''), 'stepcone') === 0);
 
         foreach ($file_slots as $slot) {
             $slot_name = $slot['name'];
