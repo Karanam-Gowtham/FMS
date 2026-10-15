@@ -36,6 +36,8 @@ class DocumentActionController {
                     $post_title = trim($_POST['meta']['patent_title']);
                 } elseif (!empty($_POST['meta']['exam'])) {
                     $post_title = trim($_POST['meta']['exam']);
+                } elseif ($post_type_key === 'student_activity_file' && ($_POST['meta']['activity_category'] ?? '') === 'Stepcone') {
+                    $post_title = 'Stepcone Event';
                 } else {
                     $post_title = 'Untitled Document';
                 }

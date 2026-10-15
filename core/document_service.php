@@ -193,13 +193,14 @@ function doc_create(
         // 5. Store files
         $file_slots = meta_get_file_slots($type_key);
         $stored_paths = []; // Track physical paths to cleanup on rollback
+        $is_stepcone = ($type_key === 'student_activity_file' && ($meta_data['activity_category'] ?? '') === 'Stepcone');
 
         foreach ($file_slots as $slot) {
             $slot_name = $slot['name'];
 
             // Check if file was uploaded for this slot
             if (!isset($files[$slot_name]) || $files[$slot_name]['error'] === UPLOAD_ERR_NO_FILE) {
-                if ($slot['required']) {
+                if ($slot['required'] && !$is_stepcone) {
                     throw new RuntimeException('Required file "' . $slot['label'] . '" was not uploaded.');
                 }
                 continue;
@@ -331,6 +332,11 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
     $types_str = 'i';
     $values = [$doc_id];
 
+    // Ensure event_title is never empty/null for student_activity_file (DB column is VARCHAR NOT NULL)
+    if ($type_key === 'student_activity_file' && empty($meta_data['event_title'])) {
+        $meta_data['event_title'] = !empty($meta_data['activity_category']) ? $meta_data['activity_category'] . ' Event' : 'Event';
+    }
+
     foreach ($field_defs as $field) {
         $name = $field['name'];
         if (array_key_exists($name, $meta_data)) {
@@ -339,8 +345,13 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
 
             $val = $meta_data[$name];
             if ($val === '' || $val === null) {
-                $types_str .= 's';
-                $values[] = null;
+                if ($type_key === 'student_activity_file' && $name === 'event_title') {
+                    $types_str .= 's';
+                    $values[] = !empty($meta_data['activity_category']) ? $meta_data['activity_category'] . ' Event' : 'Event';
+                } else {
+                    $types_str .= 's';
+                    $values[] = null;
+                }
             } elseif ($field['type'] === 'number') {
                 $types_str .= 's'; // store as string, DB will cast
                 $values[] = $val;
@@ -611,7 +622,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
                 'Students in Competitive Exams' => 'exam_qual',
             ];
             
-            $saf_known_types = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'];
+            $saf_known_types = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC', 'Stepcone'];
             
             foreach ($clean_subfiletypes as $st) {
                 if (isset($type_code_mappings[$st])) {

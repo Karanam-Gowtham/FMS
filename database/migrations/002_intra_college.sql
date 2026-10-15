@@ -1,4 +1,5 @@
 -- Migration for Student Activities Files (Intra College Activities)
+-- Supported Categories: Grad Talks, Expert Talks / Guest Lectures, Soft skills, Language and communication skills, Life skills, Professional Societies, Clubs, IIC, Stepcone
 -- Creates the new document type and meta table.
 
 -- 1. Create the new meta table for Student Activity Files

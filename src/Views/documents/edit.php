@@ -79,6 +79,9 @@ $active_role = $_SESSION['active_role'] ?? null;
         </div>
 
         <?php if (!empty($meta_fields)): ?>
+        <?php
+        $is_stepcone_doc = ($type_key === 'student_activity_file' && ($meta_data['activity_category'] ?? '') === 'Stepcone');
+        ?>
         <div class="meta-section">
             <div class="section-title">Additional Details</div>
             <div class="form-grid">
@@ -88,17 +91,25 @@ $active_role = $_SESSION['active_role'] ?? null;
                         continue; // Skip rendering JSON fields to prevent overwriting them with strings
                     }
                     $val = $meta_data[$field['name']] ?? '';
+                    $is_f_req = $field['required'] && (!$is_stepcone_doc || $field['name'] === 'activity_category');
                     ?>
                     <div class="form-group <?= ($field['type'] === 'text' || $field['name'] === 'title') ? 'full-width' : '' ?>">
-                        <label class="<?= $field['required'] ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">
+                        <label class="<?= $is_f_req ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">
                             <?= htmlspecialchars($field['label']) ?>
                         </label>
                         <?php if ($field['type'] === 'date'): ?>
-                            <input type="date" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $field['required'] ? 'required' : '' ?>>
+                            <input type="date" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
                         <?php elseif ($field['type'] === 'number'): ?>
-                            <input type="number" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $field['required'] ? 'required' : '' ?>>
+                            <input type="number" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
+                        <?php elseif ($field['type'] === 'select' && !empty($field['options'])): ?>
+                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $is_f_req ? 'required' : '' ?>>
+                                <option value="">— Select —</option>
+                                <?php foreach ($field['options'] as $opt): ?>
+                                    <option value="<?= htmlspecialchars($opt) ?>" <?= ((string)$val === (string)$opt) ? 'selected' : '' ?>><?= htmlspecialchars($opt) ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         <?php else: ?>
-                            <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $field['required'] ? 'required' : '' ?>>
+                            <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>

@@ -95,6 +95,9 @@
 
     <?php else: ?>
         <!-- Upload form -->
+        <?php
+        $is_stepcone_selected = ($type_key === 'student_activity_file' && (isset($_GET['activity']) && $_GET['activity'] === 'Stepcone'));
+        ?>
         <form method="POST" enctype="multipart/form-data" id="uploadForm" action="<?= BASE_URL ?>/public/index.php?route=documents/upload">
             <?php if (function_exists('csrfField')) echo csrfField(); ?>
             <input type="hidden" name="type_key" value="<?= htmlspecialchars($type_key) ?>">
@@ -152,6 +155,7 @@
                 <?php foreach ($meta_fields as $field): ?>
                     <?php 
                     $isHiddenDeptCategory = ($field['type'] === 'dept_category' && !empty($preselected_subtype)); 
+                    $is_meta_req = $field['required'] && (!$is_stepcone_selected || $field['name'] === 'activity_category');
                     ?>
                     <div class="form-group" <?= $isHiddenDeptCategory ? 'style="display:none;"' : '' ?>>
                         <?php 
@@ -160,23 +164,23 @@
                             $dynamic_label = 'Select an Activity';
                         }
                         ?>
-                        <label class="<?= $field['required'] ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">
+                        <label class="<?= $is_meta_req ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">
                             <?= htmlspecialchars($dynamic_label) ?>
                         </label>
                         <?php if ($field['type'] === 'textarea'): ?>
                             <textarea id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                      <?= $field['required'] ? 'required data-required="true"' : '' ?>></textarea>
+                                      <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>></textarea>
                         <?php elseif ($field['type'] === 'date'): ?>
                             <input type="date" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                   <?= $field['required'] ? 'required data-required="true"' : '' ?>>
+                                   <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                         <?php elseif ($field['type'] === 'number'): ?>
                             <input type="number" step="any" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                   <?= $field['required'] ? 'required data-required="true"' : '' ?>>
+                                   <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                         <?php elseif ($field['type'] === 'url'): ?>
                             <input type="url" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
-                                   <?= $field['required'] ? 'required data-required="true"' : '' ?> placeholder="https://">
+                                   <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?> placeholder="https://">
                         <?php elseif ($field['type'] === 'select'): ?>
-                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required data-required="true"' : '' ?>>
+                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                                 <?php if (!isset($field['default'])): ?>
                                     <option value="">— Select —</option>
                                 <?php endif; ?>
@@ -199,7 +203,7 @@
                                 <?php if (!empty($field['options'])): ?>
                                     <?php foreach ($field['options'] as $opt): ?>
                                         <label style="font-weight: normal; margin: 0; display: flex; align-items: center; gap: 5px;">
-                                            <input type="radio" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($opt) ?>" <?= $field['required'] ? 'required' : '' ?>>
+                                            <input type="radio" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($opt) ?>" <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                                             <?= htmlspecialchars($opt) ?>
                                         </label>
                                     <?php endforeach; ?>
@@ -286,7 +290,7 @@
                                 } elseif ($preselected_subtype === 'Exam Section Files') {
                                     $options = ['Notice for Internal Lab Exams', 'Invigilation Schedule', 'Absentee Statement', 'Sessional Marks Record', 'Final Sessional Marks'];
                                 } elseif ($preselected_subtype === 'Student Activities Files') {
-                                    $options = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'];
+                                    $options = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC', 'Stepcone'];
                                 }
 
                                 foreach ($options as $opt) {
@@ -305,7 +309,7 @@
                             ?>
                             <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
                                    value="<?= htmlspecialchars($default_val) ?>"
-                                   <?= $field['required'] ? 'required data-required="true"' : '' ?> <?= ($default_val !== '') ? 'readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;"' : '' ?>>
+                                   <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?> <?= ($default_val !== '') ? 'readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;"' : '' ?>>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
@@ -315,13 +319,16 @@
             <!-- File upload slots -->
             <div class="file-section" style="background: transparent; border: none; padding: 0; margin-top: 0; box-shadow: none; <?= ($type_key === 'dept_file' && $preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
                 <?php foreach ($file_slots as $slot): ?>
+                    <?php
+                    $is_slot_req = $slot['required'] && !$is_stepcone_selected;
+                    ?>
                     <div class="form-group">
-                        <label class="<?= $slot['required'] ? 'required' : '' ?>" for="file_<?= $slot['name'] ?>">
+                        <label class="<?= $is_slot_req ? 'required' : '' ?>" for="file_<?= $slot['name'] ?>">
                             <?= htmlspecialchars($slot['label']) ?>
                         </label>
                         <input type="file" id="file_<?= $slot['name'] ?>" name="<?= $slot['name'] ?>"
                                accept="<?= htmlspecialchars($slot['accept']) ?>"
-                               <?= $slot['required'] ? 'required' : '' ?>>
+                               <?= $slot['required'] ? (($is_slot_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -395,7 +402,7 @@ function handleStudentActivityChange(select) {
     
     if (!val) return;
     
-    var intraCollegeCategories = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'];
+    var intraCollegeCategories = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC', 'Stepcone'];
     if (intraCollegeCategories.includes(val)) {
         type = 'student_activity_file';
         subtypeParam = '&activity=' + encodeURIComponent(val);
@@ -656,6 +663,16 @@ document.addEventListener('DOMContentLoaded', function() {
             resourcePersonGrp.style.display = 'block';
             if(scheduleGrp) scheduleGrp.style.display = 'block';
         }
+        // 7. Stepcone
+        else if (activityCat === 'Stepcone') {
+            eventTypeGrp.style.display = 'block';
+            eventTypeGrp.querySelector('label').innerText = 'Event Type';
+            eventTypeEl = changeInputType(eventTypeEl, 'select', ['Workshop', 'Technical Event', 'Paper Presentation', 'Project Expo', 'Hackathon / Coding Contest', 'Competition', 'Guest Lecture / Keynote', 'Other'], '— Select Event Type —');
+            
+            resourcePersonGrp.style.display = 'block';
+            resourcePersonGrp.querySelector('label').innerText = 'Judge / Resource Person / Guest Details';
+            if (scheduleGrp) scheduleGrp.style.display = 'block';
+        }
 
         // Toggle required attributes for all dynamic fields
         var allDynamicInputs = document.querySelectorAll('#meta_event_type, #meta_topic_domain, #meta_sub_category, #meta_resource_person, #file_schedule, #file_resource_person_profile');
@@ -663,10 +680,60 @@ document.addEventListener('DOMContentLoaded', function() {
             var grp = el.closest('.form-group');
             if (grp && grp.style.display === 'none') {
                 el.removeAttribute('required');
-            } else if (grp && grp.style.display !== 'none' && el.hasAttribute('data-required')) {
+            } else if (grp && grp.style.display !== 'none' && el.hasAttribute('data-required') && activityCat !== 'Stepcone') {
                 el.setAttribute('required', 'required');
             }
         });
+
+        // Stepcone: All fields (both metadata and file uploads) are non-mandatory
+        if (activityCat === 'Stepcone') {
+            document.querySelectorAll('#uploadForm [data-required="true"]').forEach(function(el) {
+                if (el.id === 'meta_activity_category') return; // Activity category select itself remains
+                el.removeAttribute('required');
+            });
+            document.querySelectorAll('#uploadForm .file-section input[type="file"]').forEach(function(el) {
+                el.removeAttribute('required');
+            });
+            document.querySelectorAll('input[name="meta[event_mode]"]').forEach(function(el) {
+                el.removeAttribute('required');
+            });
+
+            // Remove red asterisk from all labels in meta and file sections except activity category
+            document.querySelectorAll('#uploadForm .meta-section label.required, #uploadForm .file-section label.required').forEach(function(lbl) {
+                if (lbl.getAttribute('for') === 'meta_activity_category') return;
+                lbl.classList.remove('required');
+            });
+        } else {
+            // Restore required status and red asterisks for other categories
+            document.querySelectorAll('#uploadForm [data-required="true"]').forEach(function(el) {
+                var grp = el.closest('.form-group');
+                if (!grp || grp.style.display !== 'none') {
+                    el.setAttribute('required', 'required');
+                    if (grp) {
+                        var lbl = grp.querySelector('label');
+                        if (lbl) lbl.classList.add('required');
+                    }
+                }
+            });
+            document.querySelectorAll('.file-section [data-required="true"]').forEach(function(el) {
+                var grp = el.closest('.form-group');
+                if (!grp || grp.style.display !== 'none') {
+                    el.setAttribute('required', 'required');
+                    if (grp) {
+                        var lbl = grp.querySelector('label');
+                        if (lbl) lbl.classList.add('required');
+                    }
+                }
+            });
+            var modeGrp = document.querySelector('input[name="meta[event_mode]"]')?.closest('.form-group');
+            if (modeGrp && modeGrp.style.display !== 'none') {
+                document.querySelectorAll('input[name="meta[event_mode]"]').forEach(function(r) {
+                    r.setAttribute('required', 'required');
+                });
+                var mlbl = modeGrp.querySelector('label');
+                if (mlbl) mlbl.classList.add('required');
+            }
+        }
     }
 
     function updateModeLabel() {

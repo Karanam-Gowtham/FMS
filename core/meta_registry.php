@@ -215,7 +215,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'participants', 'label' => 'Participants', 'type' => 'json', 'required' => false],
         ],
         'student_activity_file' => [
-            ['name' => 'activity_category', 'label' => 'Category', 'type' => 'select', 'options' => ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC'], 'required' => true],
+            ['name' => 'activity_category', 'label' => 'Category', 'type' => 'select', 'options' => ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Professional Societies', 'Clubs', 'IIC', 'Stepcone'], 'required' => true],
             ['name' => 'sub_category', 'label' => 'Organization / Club Name', 'type' => 'text', 'required' => false],
             ['name' => 'event_type', 'label' => 'Event Type', 'type' => 'select', 'options' => ['Workshop', 'Hackathon', 'Conference', 'Competition', 'Other'], 'required' => false],
             ['name' => 'topic_domain', 'label' => 'Topic / Domain', 'type' => 'select', 'options' => ['Career Counselling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Cultural / Arts', 'Social / Community Service', 'Other'], 'required' => false],
