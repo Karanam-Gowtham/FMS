@@ -98,7 +98,12 @@ class DocumentController {
         $filter_dept   = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : 0;
         $filter_dept_ids = isset($_GET['dept_ids']) && is_array($_GET['dept_ids']) ? array_map('intval', $_GET['dept_ids']) : [];
         $page_num      = max(1, (int)($_GET['page'] ?? 1));
-        $per_page      = 25;
+        $per_page_param = $_GET['per_page'] ?? '25';
+        if ($per_page_param === 'all') {
+            $per_page = 10000;
+        } else {
+            $per_page = max(10, min(500, (int)$per_page_param));
+        }
         $offset        = ($page_num - 1) * $per_page;
 
         $filters = $forced_filters;
@@ -628,9 +633,10 @@ class DocumentController {
             }
 
             $event_title = !empty($meta['event_title']) ? $meta['event_title'] : $doc['title'];
-            $agency = !empty($meta['resource_person']) ? $meta['resource_person'] : '';
+            $agency = !empty($meta['resource_person']) ? $meta['resource_person'] : ($meta['publisher'] ?? ($meta['organisation'] ?? ''));
             $student_count = !empty($meta['participant_count']) ? (int)$meta['participant_count'] : 0;
-            $event_date = !empty($meta['date_from']) ? $meta['date_from'] : '';
+            $event_date = !empty($meta['date_from']) ? $meta['date_from'] : (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00' ? $doc['event_date'] : $doc['created_at']);
+            $date_to = $meta['date_to'] ?? '';
 
             $documents[] = [
                 'doc_id' => $id,
@@ -639,6 +645,8 @@ class DocumentController {
                 'student_count' => $student_count,
                 'agency' => $agency,
                 'event_date' => $event_date,
+                'date_from' => $event_date,
+                'date_to' => $date_to,
                 'activity_category' => $meta['activity_category'] ?? '',
                 'topic_domain' => $meta['topic_domain'] ?? ''
             ];

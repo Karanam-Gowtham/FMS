@@ -288,6 +288,7 @@
             <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
             <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                 <span style="font-size: 0.85rem; color: #555; font-weight: 600;">Bulk Actions:</span>
+                <span id="selectedCountBadge" style="font-size: 0.8rem; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 600; margin-right: 4px;">0 selected</span>
                 <button type="submit" name="action_type" value="zip" class="btn-sm" style="background: #6c757d; color: white;">Download as ZIP</button>
                 <button type="submit" name="action_type" value="merge_pdf" class="btn-sm btn-primary">Merge to Single PDF</button>
                 <button type="button" id="btnOpenAccreditationModal" class="btn-sm" style="background: #003366; color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
@@ -475,11 +476,26 @@
         </div>
 
         <script>
+            function updateSelectedCount() {
+                const checked = document.querySelectorAll('.doc-checkbox:checked').length;
+                const badge = document.getElementById('selectedCountBadge');
+                if (badge) {
+                    badge.textContent = checked + ' selected';
+                    badge.style.background = checked > 0 ? '#dbeafe' : '#e2e8f0';
+                    badge.style.color = checked > 0 ? '#1e40af' : '#475569';
+                }
+            }
+
             document.getElementById('selectAllDocs').addEventListener('change', function() {
                 let checkboxes = document.querySelectorAll('.doc-checkbox');
                 for (let cb of checkboxes) {
                     cb.checked = this.checked;
                 }
+                updateSelectedCount();
+            });
+
+            document.querySelectorAll('.doc-checkbox').forEach(cb => {
+                cb.addEventListener('change', updateSelectedCount);
             });
 
             // Accreditation Modal Handling
@@ -630,19 +646,37 @@
             }
         </script>
 
-        <?php if ($total_pages > 1): ?>
-        <div class="pagination">
-            <?php 
-            $q = $_GET;
-            unset($q['page']);
-            $page_url_base = "?" . http_build_query($q);
-            ?>
-            <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                <a href="<?= $page_url_base ?>&page=<?= $p ?>"
-                   class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
-            <?php endfor; ?>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 1.5rem; padding: 12px 0; border-top: 1px solid #e2e8f0;">
+            <div style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;">
+                <span>Showing <strong><?= count($documents) ?></strong> of <strong><?= $total ?></strong> documents</span>
+                <span style="color: #cbd5e1;">|</span>
+                <span>Per page:</span>
+                <?php 
+                $curr_pp = $_GET['per_page'] ?? '25';
+                $pp_options = ['25', '50', '100', 'all'];
+                foreach ($pp_options as $opt):
+                    $q_pp = $_GET;
+                    $q_pp['per_page'] = $opt;
+                    $q_pp['page'] = 1;
+                    $pp_url = "?" . http_build_query($q_pp);
+                ?>
+                    <a href="<?= $pp_url ?>" style="padding: 2px 7px; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 0.82rem; <?= ($curr_pp === $opt) ? 'background: #003366; color: white;' : 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;' ?>"><?= ucfirst($opt) ?></a>
+                <?php endforeach; ?>
+            </div>
+            <?php if ($total_pages > 1): ?>
+            <div class="pagination" style="margin: 0;">
+                <?php 
+                $q = $_GET;
+                unset($q['page']);
+                $page_url_base = "?" . http_build_query($q);
+                ?>
+                <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+                    <a href="<?= $page_url_base ?>&page=<?= $p ?>"
+                       class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
+                <?php endfor; ?>
+            </div>
+            <?php endif; ?>
         </div>
-        <?php endif; ?>
     <?php endif; ?>
     </main>
 </div>

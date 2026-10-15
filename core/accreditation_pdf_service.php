@@ -3,7 +3,7 @@
  * Accreditation PDF Service
  * Generates NAAC/NBA Accreditation Reports with institutional header,
  * configurable hierarchy headings, dynamic table of contents, auto-calculated page indexing,
- * and sequential merged document appendices with stamped page numbers.
+ * clickable DVV internal links, normalized PDF/image merging, and stamped page numbers with opaque background badges.
  */
 
 require_once __DIR__ . '/../libs/fpdf.php';
@@ -99,13 +99,15 @@ class AccreditationFpdi extends Fpdi {
 class AccreditationPdfService {
 
     /**
-     * Sanitize UTF-8 strings for standard FPDF Latin-1 encoding
+     * Sanitize UTF-8 strings for standard FPDF Latin-1 encoding with expanded symbols
      */
     public static function sanitizeText(?string $str): string {
         if ($str === null || $str === '') {
             return '';
         }
         $replacements = [
+            "\xE2\x82\xB9" => "Rs. ", // ₹ Indian Rupee symbol
+            "₹"             => "Rs. ",
             "\xE2\x80\x98" => "'", // ‘
             "\xE2\x80\x99" => "'", // ’
             "\xE2\x80\x9A" => "'", // ‚
@@ -118,10 +120,15 @@ class AccreditationPdfService {
             "\xE2\x80\xA2" => "*", // • (bullet)
             "\xC2\xA0"     => " ", // non-breaking space
             "\xE2\x88\x92" => "-", // minus sign
+            "\xC2\xB1"     => "+/-", // ±
+            "\xC2\xB0"     => " deg", // °
+            "\xE2\x84\xA2" => "(TM)", // ™
+            "\xC2\xA9"     => "(c)", // ©
+            "\xC2\xAE"     => "(R)", // ®
         ];
         $str = strtr((string)$str, $replacements);
         if (function_exists('iconv')) {
-            $conv = @iconv('UTF-8', 'windows-1252//TRANSLIT', $str);
+            $conv = @iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $str);
             if ($conv !== false) {
                 return $conv;
             }
@@ -130,6 +137,119 @@ class AccreditationPdfService {
             return mb_convert_encoding($str, 'windows-1252', 'UTF-8');
         }
         return $str;
+    }
+
+    /**
+     * Stamped page number footer with clean opaque white badge to prevent seal/signature clashing
+     */
+    public static function renderPageStamp(AccreditationFpdi $pdf, float $pageWidth, float $pageHeight, int $pageNumber): void {
+        $primaryFont = $pdf->getPrimaryFont();
+        $badgeW = 28;
+        $badgeH = 6.5;
+        $badgeX = ($pageWidth - $badgeW) / 2;
+        $badgeY = $pageHeight - 12;
+
+        // Opaque white badge with slate border
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->SetDrawColor(203, 213, 225); // Slate 300
+        $pdf->SetLineWidth(0.25);
+        $pdf->Rect($badgeX, $badgeY, $badgeW, $badgeH, 'DF');
+
+        // Crisp page number text
+        $pdf->SetFont($primaryFont, '', 9);
+        $pdf->SetTextColor(30, 41, 59); // Slate 800
+        $pdf->SetXY($badgeX, $badgeY);
+        $pdf->Cell($badgeW, $badgeH, 'Page ' . $pageNumber, 0, 0, 'C');
+    }
+
+    /**
+     * Accurately count PDF pages via binary structure if FPDI parser is unavailable
+     */
+    public static function countPdfPagesPurePhp(string $filePath): int {
+        $content = @file_get_contents($filePath);
+        if ($content === false || strlen($content) === 0) {
+            return 1;
+        }
+        if (preg_match_all('/\/Type\s*\/Pages\b[^\/]*\/Count\s+(\d+)/is', $content, $matches)) {
+            $counts = array_map('intval', $matches[1]);
+            if (!empty($counts)) {
+                return max($counts);
+            }
+        }
+        $pageMatches = preg_match_all('/\/Type\s*\/Page\b/i', $content);
+        return $pageMatches > 0 ? $pageMatches : 1;
+    }
+
+    /**
+     * Normalize a PDF file using Python PyPDF2 if it contains compressed object streams (PDF 1.5+)
+     * Returns the normalized path, or original path if already compatible.
+     */
+    public static function normalizePdfIfNeeded(string $filePath, array &$tempFilesTracker = []): string {
+        if (empty($filePath) || !file_exists($filePath)) {
+            return $filePath;
+        }
+
+        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if ($ext !== 'pdf') {
+            return $filePath;
+        }
+
+        // Test if standard FPDI can read the file
+        $testFpdi = new Fpdi();
+        try {
+            $testFpdi->setSourceFile($filePath);
+            return $filePath; // FPDI reads it without error
+        } catch (\Throwable $e) {
+            // Need normalization (compressed xref or unsupported stream)
+        }
+
+        // Check if Anaconda or system python is available
+        $pythonExec = null;
+        $candidates = [
+            'E:\\set\\anaconda3\\python.exe',
+            'python'
+        ];
+        foreach ($candidates as $cand) {
+            $out = [];
+            $code = 0;
+            @exec("\"{$cand}\" -c \"import PyPDF2; print('OK')\" 2>&1", $out, $code);
+            if ($code === 0 && isset($out[0]) && trim($out[0]) === 'OK') {
+                $pythonExec = $cand;
+                break;
+            }
+        }
+
+        if ($pythonExec) {
+            $normalizedTemp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'norm_' . uniqid() . '.pdf';
+            $pyScript = "import sys, PyPDF2\n"
+                      . "try:\n"
+                      . "    reader = PyPDF2.PdfReader(sys.argv[1])\n"
+                      . "    writer = PyPDF2.PdfWriter()\n"
+                      . "    for p in reader.pages:\n"
+                      . "        writer.add_page(p)\n"
+                      . "    with open(sys.argv[2], 'wb') as f:\n"
+                      . "        writer.write(f)\n"
+                      . "    print('SUCCESS')\n"
+                      . "except Exception as ex:\n"
+                      . "    print('ERROR:', ex)\n";
+
+            $scriptPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'norm_runner_' . uniqid() . '.py';
+            file_put_contents($scriptPath, $pyScript);
+
+            $cmd = "\"{$pythonExec}\" \"{$scriptPath}\" " . escapeshellarg($filePath) . " " . escapeshellarg($normalizedTemp);
+            $output = [];
+            $retCode = 0;
+            exec($cmd . ' 2>&1', $output, $retCode);
+
+            @unlink($scriptPath);
+
+            if ($retCode === 0 && file_exists($normalizedTemp) && filesize($normalizedTemp) > 0) {
+                $tempFilesTracker[] = $normalizedTemp;
+                return $normalizedTemp;
+            }
+        }
+
+        return $filePath;
     }
 
     /**
@@ -197,12 +317,13 @@ class AccreditationPdfService {
     }
 
     /**
-     * Presets for NAAC Criterion Headings
+     * Presets for NAAC Criterion Headings (Criteria 1, 3, 5, 6)
      */
     public static function getHeadingPresets(string $ay_year = ''): array {
         $year_str = !empty($ay_year) ? $ay_year : (date('Y') . '-' . substr(date('Y') + 1, -2));
         
         return [
+            // Criterion 5 - Student Activities
             '5.1.3_all' => [
                 'label' => '5.1.3 Capacity Development & Skill Enhancement (General)',
                 'criterion' => 'Criterion V - Student Support and Progression',
@@ -258,12 +379,35 @@ class AccreditationPdfService {
                 'key_indicator' => 'Key Indicator - 5.3 Student Participation and Activities',
                 'metric' => "5.3.3. Number of sports and cultural events / competitions organised by the institution during AY {$year_str}",
                 'sub_heading' => 'Sports and Cultural Events Organised'
+            ],
+            // Criterion 3 - Research & Workshops
+            '3.2.2_workshops' => [
+                'label' => '3.2.2 Workshops/Seminars on Research Methodology, IPR & Entrepreneurship',
+                'criterion' => 'Criterion III - Research, Innovations and Extension',
+                'key_indicator' => 'Key Indicator - 3.2 Innovation Ecosystem',
+                'metric' => "3.2.2. Number of workshops/seminars conducted on Research Methodology, Intellectual Property Rights (IPR) and entrepreneurship during AY {$year_str}",
+                'sub_heading' => 'Workshops and Seminars Conducted'
+            ],
+            '3.3.2_journals' => [
+                'label' => '3.3.2 Research Papers Published in Journals (UGC CARE / Scopus)',
+                'criterion' => 'Criterion III - Research, Innovations and Extension',
+                'key_indicator' => 'Key Indicator - 3.3 Research Publications and Awards',
+                'metric' => "3.3.2. Number of research papers per teacher in the Journals notified on UGC website during AY {$year_str}",
+                'sub_heading' => 'Research Papers Published in Refereed Journals'
+            ],
+            // Criterion 6 - FDPs & Administrative Training
+            '6.3.3_fdp' => [
+                'label' => '6.3.3 Professional Development / FDPs Organised for Teaching & Non-Teaching',
+                'criterion' => 'Criterion VI - Governance, Leadership and Management',
+                'key_indicator' => 'Key Indicator - 6.3 Faculty Empowerment Strategies',
+                'metric' => "6.3.3. Professional development / administrative training programmes organized by the institution for teaching and non-teaching staff during AY {$year_str}",
+                'sub_heading' => 'Faculty Development Programmes Organised'
             ]
         ];
     }
 
     /**
-     * Generate the complete merged accreditation document
+     * Generate the complete merged accreditation document with convergence and link support
      *
      * @param array $headings ['criterion' => ..., 'key_indicator' => ..., 'metric' => ..., 'sub_heading' => ...]
      * @param array $selected_column_keys e.g. ['sno', 'event_name', 'year', 'student_count', 'agency', 'page_no']
@@ -302,6 +446,10 @@ class AccreditationPdfService {
                 $colsToRender['event_name']['label'] = "Name of the Activity / Programme\nfor Guidance & Career Counselling";
             } elseif (stripos($contextText, 'Sports') !== false || stripos($contextText, 'Cultural') !== false || stripos($contextText, '5.3.3') !== false) {
                 $colsToRender['event_name']['label'] = "Name of the Sports / Cultural\nevent / competition organised";
+            } elseif (stripos($contextText, 'Research') !== false || stripos($contextText, '3.2.2') !== false || stripos($contextText, 'Workshop') !== false) {
+                $colsToRender['event_name']['label'] = "Name of the Workshop / Seminar\non Research Methodology / IPR";
+            } elseif (stripos($contextText, 'FDP') !== false || stripos($contextText, '6.3.3') !== false || stripos($contextText, 'Professional Development') !== false) {
+                $colsToRender['event_name']['label'] = "Title of the Professional Development /\nAdministrative Training Program";
             }
         }
 
@@ -311,7 +459,6 @@ class AccreditationPdfService {
         $keys = array_keys($colsToRender);
         foreach ($keys as $idx => $k) {
             if ($idx === count($keys) - 1) {
-                // Last column takes remainder to perfectly fit 190mm
                 $colWidths[$k] = $printableWidth - $runningWidth;
             } else {
                 $w = round(($colsToRender[$k]['weight'] / $totalWeight) * $printableWidth, 1);
@@ -320,53 +467,70 @@ class AccreditationPdfService {
             }
         }
 
-        // Phase 1: Count pages in attached PDFs and calculate starting page numbers
-        // We first simulate rendering the index table to get exact index page count
-        $tempPdf = new AccreditationFpdi('P', 'mm', 'A4');
-        $tempPdf->setupFonts();
-        $tempPdf->SetMargins(10, 10, 10);
-        $tempPdf->SetAutoPageBreak(false); // Controlled via explicit pageLimit checks
-        $tempPdf->AddPage();
-        
-        $this->renderHeaderAndHeadings($tempPdf, $headings);
-        $this->renderTableHeader($tempPdf, $colsToRender, $colWidths, false);
-        foreach ($documents as $idx => $doc) {
-            $this->renderTableRow($tempPdf, $colsToRender, $colWidths, $doc, $idx + 1, false);
-        }
-        $indexPageCount = $tempPdf->PageNo();
-        unset($tempPdf);
-
-        // Now calculate start pages for each document
-        $counterPdf = new Fpdi();
-        $docPageCounts = [];
-        $currentPage = $indexPageCount + 1;
-
+        // Phase 1: Pre-calculate document page counts and normalize modern compressed PDFs if needed
+        $tempTrackedFiles = [];
         foreach ($documents as $idx => &$doc) {
             $filePath = $doc['file_path'] ?? '';
             $pageCount = 0;
             if (!empty($filePath) && file_exists($filePath)) {
-                try {
-                    $pageCount = $counterPdf->setSourceFile($filePath);
-                } catch (\Throwable $e) {
-                    $pageCount = 1; // Fallback placeholder page
+                $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                    $pageCount = 1;
+                } elseif ($ext === 'pdf') {
+                    $normPath = self::normalizePdfIfNeeded($filePath, $tempTrackedFiles);
+                    $doc['file_path'] = $normPath;
+                    $counterPdf = new Fpdi();
+                    try {
+                        $pageCount = $counterPdf->setSourceFile($normPath);
+                    } catch (\Throwable $e) {
+                        $pageCount = self::countPdfPagesPurePhp($normPath);
+                    }
                 }
-            } else {
-                $pageCount = 1; // Fallback placeholder page
             }
-            $docPageCounts[$idx] = $pageCount;
-            $doc['start_page'] = $currentPage;
-            $doc['page_count'] = $pageCount;
-            $endPage = $currentPage + $pageCount - 1;
-            $doc['page_range'] = ($pageCount > 1) ? "{$currentPage} - {$endPage}" : (string)$currentPage;
-            $currentPage += $pageCount;
+            $doc['doc_page_count'] = max(1, $pageCount);
         }
         unset($doc);
 
-        // Phase 2: Create real Index page(s)
+        // Phase 1b: Exact Two-Pass Convergence Loop for Index Page Count (Eliminates off-by-one errors)
+        $indexPageCount = 1;
+        $maxIter = 3;
+        for ($iter = 0; $iter < $maxIter; $iter++) {
+            $currentPage = $indexPageCount + 1;
+            foreach ($documents as &$doc) {
+                $pCount = $doc['doc_page_count'];
+                $doc['start_page'] = $currentPage;
+                $endPage = $currentPage + $pCount - 1;
+                $doc['page_range'] = ($pCount > 1) ? "{$currentPage} - {$endPage}" : (string)$currentPage;
+                $currentPage += $pCount;
+            }
+            unset($doc);
+
+            // Simulate index table with fully populated strings
+            $tempPdf = new AccreditationFpdi('P', 'mm', 'A4');
+            $tempPdf->setupFonts();
+            $tempPdf->SetMargins(10, 10, 10);
+            $tempPdf->SetAutoPageBreak(false);
+            $tempPdf->AddPage();
+
+            $this->renderHeaderAndHeadings($tempPdf, $headings);
+            $this->renderTableHeader($tempPdf, $colsToRender, $colWidths, false);
+            foreach ($documents as $idx => $doc) {
+                $this->renderTableRow($tempPdf, $colsToRender, $colWidths, $doc, $idx + 1, false);
+            }
+            $simulatedPages = $tempPdf->PageNo();
+            unset($tempPdf);
+
+            if ($simulatedPages === $indexPageCount) {
+                break; // Perfectly converged!
+            }
+            $indexPageCount = $simulatedPages;
+        }
+
+        // Phase 2: Create real Index page(s) with clickable DVV links
         $pdf = new AccreditationFpdi('P', 'mm', 'A4');
         $pdf->setupFonts();
         $pdf->SetMargins(10, 10, 10);
-        $pdf->SetAutoPageBreak(false); // Controlled via explicit pageLimit checks
+        $pdf->SetAutoPageBreak(false);
         $pdf->AddPage();
 
         $this->renderHeaderAndHeadings($pdf, $headings);
@@ -376,8 +540,8 @@ class AccreditationPdfService {
             $this->renderTableRow($pdf, $colsToRender, $colWidths, $doc, $idx + 1, true);
         }
 
-        // Phase 3: Merge attached document PDFs and stamp page numbers
-        $pdf->SetAutoPageBreak(false); // Crucial for accurate bottom stamping without extra blank pages
+        // Phase 3: Merge attached document PDFs/Images and stamp page numbers
+        $pdf->SetAutoPageBreak(false);
         $finalPageNumber = $indexPageCount + 1;
         $primaryFont = $pdf->getPrimaryFont();
 
@@ -387,57 +551,97 @@ class AccreditationPdfService {
             $pagesImported = 0;
 
             if (!empty($filePath) && file_exists($filePath)) {
-                try {
-                    $pageCount = $pdf->setSourceFile($filePath);
+                $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
-                    for ($p = 1; $p <= $pageCount; $p++) {
-                        $templateId = $pdf->importPage($p);
-                        $size = $pdf->getTemplateSize($templateId);
+                // 1. Direct Image Attachment Support (JPG, PNG)
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                    $imgInfo = @getimagesize($filePath);
+                    if ($imgInfo && $imgInfo[0] > 0 && $imgInfo[1] > 0) {
+                        $imgW = $imgInfo[0];
+                        $imgH = $imgInfo[1];
+                        $orient = ($imgW > $imgH) ? 'L' : 'P';
+                        $pageW = ($orient === 'L') ? 297.0 : 210.0;
+                        $pageH = ($orient === 'L') ? 210.0 : 297.0;
 
-                        $orientation = $size['orientation'] ?? ($size['width'] > $size['height'] ? 'L' : 'P');
-                        $pdf->AddPage($orientation, $size);
-                        $pdf->useTemplate($templateId);
+                        $pdf->AddPage($orient, [$pageW, $pageH]);
 
-                        // Stamp page number at bottom center
-                        $pdf->SetFont($primaryFont, '', 9);
-                        $pdf->SetTextColor(0, 0, 0);
-                        $pdf->SetXY(0, $size['height'] - 12);
-                        $pdf->Cell($size['width'], 8, 'Page ' . $finalPageNumber, 0, 0, 'C');
+                        $availW = $pageW - 24;
+                        $availH = $pageH - 32;
+                        $scale = min($availW / $imgW, $availH / $imgH);
+                        $renderW = $imgW * $scale;
+                        $renderH = $imgH * $scale;
+                        $posX = 12 + ($availW - $renderW) / 2;
+                        $posY = 12 + ($availH - $renderH) / 2;
+
+                        $pdf->Image($filePath, $posX, $posY, $renderW, $renderH);
+                        self::renderPageStamp($pdf, $pageW, $pageH, $finalPageNumber);
 
                         $finalPageNumber++;
                         $pagesImported++;
                     }
-                } catch (\Throwable $e) {
-                    error_log("Accreditation PDF merge error for [{$filePath}]: " . $e->getMessage());
+                } 
+                // 2. Vector PDF Attachment
+                elseif ($ext === 'pdf') {
+                    try {
+                        $pageCount = $pdf->setSourceFile($filePath);
+
+                        for ($p = 1; $p <= $pageCount; $p++) {
+                            $templateId = $pdf->importPage($p);
+                            $size = $pdf->getTemplateSize($templateId);
+
+                            $orientation = $size['orientation'] ?? ($size['width'] > $size['height'] ? 'L' : 'P');
+                            $pdf->AddPage($orientation, [$size['width'], $size['height']]);
+                            $pdf->useTemplate($templateId);
+
+                            self::renderPageStamp($pdf, (float)$size['width'], (float)$size['height'], $finalPageNumber);
+
+                            $finalPageNumber++;
+                            $pagesImported++;
+                        }
+                    } catch (\Throwable $e) {
+                        error_log("Accreditation PDF merge error for [{$filePath}]: " . $e->getMessage());
+                    }
                 }
             }
 
-            // Fallback: If no pages could be read/imported, create clean notice page
+            // Fallback: If no pages could be read/imported, create clean institutional notice page
             if ($pagesImported === 0) {
-                $pdf->AddPage('P', [210, 297]);
-                $pdf->SetFont($primaryFont, 'B', 14);
-                $pdf->SetTextColor(0, 51, 102);
-                $pdf->SetXY(15, 60);
-                $pdf->Cell(180, 10, 'Annexure Document', 0, 1, 'C');
-                $pdf->SetFont($primaryFont, '', 12);
-                $pdf->SetTextColor(0, 0, 0);
-                $pdf->SetXY(15, 75);
-                $pdf->MultiCell(180, 6, self::sanitizeText($eventTitle), 0, 'C');
-                $pdf->Ln(5);
-                $pdf->SetFont($primaryFont, 'I', 10);
-                $pdf->SetTextColor(120, 120, 120);
-                $pdf->Cell(180, 8, '(Digital copy on file in GMRIT Academic Repository)', 0, 1, 'C');
+                $targetPageCount = $doc['doc_page_count'] ?? 1;
+                for ($p = 0; $p < $targetPageCount; $p++) {
+                    $pdf->AddPage('P', [210, 297]);
+                    $pdf->SetFont($primaryFont, 'B', 15);
+                    $pdf->SetTextColor(0, 51, 102);
+                    $pdf->SetXY(15, 60);
+                    $pdf->Cell(180, 10, 'Annexure Document', 0, 1, 'C');
+                    
+                    $pdf->SetFont($primaryFont, '', 12);
+                    $pdf->SetTextColor(30, 41, 59);
+                    $pdf->SetXY(15, 75);
+                    $pdf->MultiCell(180, 6.5, self::sanitizeText($eventTitle), 0, 'C');
+                    
+                    $pdf->Ln(4);
+                    $pdf->SetFont($primaryFont, 'I', 10);
+                    $pdf->SetTextColor(100, 116, 139);
+                    $noticeText = "(Verified Digital Copy on file in GMRIT Academic Repository)";
+                    if ($targetPageCount > 1) {
+                        $noticeText .= " - Sheet " . ($p + 1) . " of " . $targetPageCount;
+                    }
+                    $pdf->Cell(180, 8, $noticeText, 0, 1, 'C');
 
-                $pdf->SetFont($primaryFont, '', 9);
-                $pdf->SetTextColor(0, 0, 0);
-                $pdf->SetXY(0, 297 - 12);
-                $pdf->Cell(210, 8, 'Page ' . $finalPageNumber, 0, 0, 'C');
-
-                $finalPageNumber++;
+                    self::renderPageStamp($pdf, 210, 297, $finalPageNumber);
+                    $finalPageNumber++;
+                }
             }
         }
 
-        // Output to file
+        // Clean up any normalized temp files generated during processing
+        foreach ($tempTrackedFiles as $tmp) {
+            if (file_exists($tmp)) {
+                @unlink($tmp);
+            }
+        }
+
+        // Output to destination
         $pdf->Output('F', $output_filepath);
         return true;
     }
@@ -450,9 +654,6 @@ class AccreditationPdfService {
         $logoPath = realpath(__DIR__ . '/../assets/img/gmr_logo.png') ?: realpath(__DIR__ . '/../assets/img/logo.png');
         $font = $pdf->getPrimaryFont();
 
-        // Centering composite header block on 210mm page:
-        // Left text: 84mm, Divider gap: 5mm, Logo: 38mm -> total width: 127mm
-        // Centered startX on A4 (210mm width): (210 - 127) / 2 = 41.5mm
         $startX = 41.5;
 
         // 1. Institution Name (Left)
@@ -487,12 +688,6 @@ class AccreditationPdfService {
         }
 
         $pdf->SetY($startY + 22);
-
-        // Headings Hierarchy:
-        // - Criterion Title (Centered, Bold, Size 12)
-        // - Key Indicator (Centered, Bold, Size 12)
-        // - Metric Statement (Left-aligned, Bold, Size 12)
-        // - Sub-Indicator / Domain Heading (Left-aligned, Bold, Size 12)
         $pdf->SetTextColor(0, 0, 0);
 
         // 1. Criterion Title (Centered, Bold, 12pt)
@@ -534,7 +729,6 @@ class AccreditationPdfService {
         $pdf->SetFont($font, 'B', 12);
         $headerLineHeight = 5.0;
 
-        // Measure max lines needed across all headers
         $maxLines = 1;
         foreach ($cols as $k => $c) {
             $lines = $pdf->NbLines($widths[$k], $c['label']);
@@ -547,7 +741,6 @@ class AccreditationPdfService {
         $y = $pdf->GetY();
 
         if (!$realOutput) {
-            // Keep Y-coordinate strictly synchronized during simulation
             $pdf->SetXY(10, $y + $headerHeight);
             return;
         }
@@ -561,7 +754,6 @@ class AccreditationPdfService {
             $w = $widths[$k];
             $pdf->Rect($x, $y, $w, $headerHeight);
             
-            // Vertically center text in cell
             $lines = $pdf->NbLines($w, $c['label']);
             $textHeight = $lines * $headerLineHeight;
             $yOffset = max(1.5, ($headerHeight - $textHeight) / 2);
@@ -576,7 +768,7 @@ class AccreditationPdfService {
     }
 
     /**
-     * Render a single data row with auto-expanding multiline heights
+     * Render a single data row with auto-expanding multiline heights and clickable internal links
      */
     protected function renderTableRow(AccreditationFpdi $pdf, array $cols, array $widths, array $doc, int $sno, bool $realOutput): void {
         $font = $pdf->getPrimaryFont();
@@ -598,7 +790,16 @@ class AccreditationPdfService {
                     break;
                 case 'event_date':
                     $d = $doc['date_from'] ?? ($doc['event_date'] ?? '');
-                    $cellValues[$k] = !empty($d) ? date('d-m-Y', strtotime($d)) : '—';
+                    $dTo = $doc['date_to'] ?? '';
+                    if (!empty($d)) {
+                        $formatted = date('d-m-Y', strtotime($d));
+                        if (!empty($dTo) && $dTo !== $d && $dTo !== '0000-00-00') {
+                            $formatted .= " to\n" . date('d-m-Y', strtotime($dTo));
+                        }
+                        $cellValues[$k] = $formatted;
+                    } else {
+                        $cellValues[$k] = '—';
+                    }
                     break;
                 case 'student_count':
                     $cellValues[$k] = (string)($doc['student_count'] ?? ($doc['participant_count'] ?? '0'));
@@ -633,9 +834,15 @@ class AccreditationPdfService {
         }
 
         if (!$realOutput) {
-            // Advance Y for simulation
             $pdf->SetY($pdf->GetY() + $rowHeight);
             return;
+        }
+
+        // Create internal DVV link to jump to the event start page
+        $linkId = 0;
+        if (!empty($doc['start_page'])) {
+            $linkId = $pdf->AddLink();
+            $pdf->SetLink($linkId, 0, (int)$doc['start_page']);
         }
 
         $x = 10;
@@ -657,6 +864,19 @@ class AccreditationPdfService {
             $yOffset = max(1.5, ($rowHeight - $textHeight) / 2);
 
             $pdf->SetXY($x, $y + $yOffset);
+
+            // If event_name or page_no, make clickable to target page
+            if ($linkId > 0 && in_array($k, ['event_name', 'page_no'])) {
+                $pdf->Link($x, $y, $w, $rowHeight, $linkId);
+                if ($k === 'page_no') {
+                    $pdf->SetTextColor(0, 51, 102); // Subtle blue link tint for page numbers
+                } else {
+                    $pdf->SetTextColor(0, 0, 0);
+                }
+            } else {
+                $pdf->SetTextColor(0, 0, 0);
+            }
+
             $pdf->MultiCell($w, $lineHeight, self::sanitizeText($val), 0, $align);
 
             $x += $w;

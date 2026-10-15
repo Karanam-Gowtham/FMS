@@ -650,7 +650,11 @@ class DocumentActionController {
     }
 
     private function mergeAsAccreditationPdf($valid_docs, $conn) {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(180);
+
         require_once __DIR__ . '/../../core/accreditation_pdf_service.php';
+        require_once __DIR__ . '/../../core/pdf_merger_service.php';
 
         $headings = [
             'criterion' => trim($_POST['criterion'] ?? 'Criterion V - Student Support and Progression'),
@@ -665,6 +669,7 @@ class DocumentActionController {
         }
 
         $doc_custom_data = $_POST['doc_data'] ?? [];
+        $temp_cleanup_registry = [];
 
         $docs_to_merge = [];
         foreach ($valid_docs as $doc) {
@@ -690,50 +695,65 @@ class DocumentActionController {
             $studentCount = isset($custom['student_count']) && $custom['student_count'] !== '' ? (int)$custom['student_count'] : (!empty($meta['participant_count']) ? (int)$meta['participant_count'] : 0);
             $agency = isset($custom['agency']) ? trim($custom['agency']) : (!empty($meta['resource_person']) ? $meta['resource_person'] : '');
             $eventDate = !empty($custom['event_date']) ? trim($custom['event_date']) : (!empty($meta['date_from']) ? $meta['date_from'] : '');
+            $dateTo = $meta['date_to'] ?? '';
 
-            // Find associated PDF file
+            // Find associated proof files (PDFs and Images)
             $resolvedFilePath = '';
-            
-            // 1. Try document's main file_path
-            $rawDocPath = ltrim($doc['file_path'] ?? '', '/\\');
-            $mainPath = __DIR__ . '/../../' . $rawDocPath;
-            if (!empty($rawDocPath) && file_exists($mainPath) && strtolower(pathinfo($mainPath, PATHINFO_EXTENSION)) === 'pdf') {
-                $resolvedFilePath = $mainPath;
-            } else {
-                // 2. Check document_files for pre-merged PDF or all attached PDF files
-                $fstmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_path LIKE '%.pdf' ORDER BY (file_label = 'merged_pdf') DESC, file_id ASC");
+
+            // 1. Check document_files for pre-merged master PDF first
+            $mstmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf' LIMIT 1");
+            $mstmt->bind_param('i', $id);
+            $mstmt->execute();
+            $mres = $mstmt->get_result()->fetch_assoc();
+            $mstmt->close();
+
+            if (!empty($mres['file_path'])) {
+                $p = __DIR__ . '/../../' . ltrim($mres['file_path'], '/\\');
+                if (file_exists($p)) {
+                    $resolvedFilePath = $p;
+                }
+            }
+
+            // 2. Try document's main file_path if not resolved
+            if (empty($resolvedFilePath)) {
+                $rawDocPath = ltrim($doc['file_path'] ?? '', '/\\');
+                $mainPath = __DIR__ . '/../../' . $rawDocPath;
+                if (!empty($rawDocPath) && file_exists($mainPath)) {
+                    $resolvedFilePath = $mainPath;
+                }
+            }
+
+            // 3. Fallback: Query all attached files (both PDFs and JPG/PNG images)
+            if (empty($resolvedFilePath)) {
+                $fstmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? ORDER BY file_id ASC");
                 $fstmt->bind_param('i', $id);
                 $fstmt->execute();
                 $fres = $fstmt->get_result();
-                $doc_pdfs = [];
+                $attached_files = [];
                 while ($frow = $fres->fetch_assoc()) {
                     $rawFilePath = ltrim($frow['file_path'], '/\\');
                     $p = __DIR__ . '/../../' . $rawFilePath;
                     if (file_exists($p)) {
-                        if ($frow['file_label'] === 'merged_pdf') {
-                            $resolvedFilePath = $p;
-                            $doc_pdfs = [];
-                            break;
+                        $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
+                        if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'])) {
+                            $attached_files[] = ['path' => $p, 'title' => $frow['file_label']];
                         }
-                        $doc_pdfs[] = ['path' => $p, 'title' => $frow['file_label']];
                     }
                 }
                 $fstmt->close();
 
-                if (empty($resolvedFilePath)) {
-                    if (count($doc_pdfs) > 1) {
-                        require_once __DIR__ . '/../../core/pdf_merger_service.php';
-                        $tempMerged = sys_get_temp_dir() . '/doc_' . $id . '_compiled_' . uniqid() . '.pdf';
-                        try {
-                            if (merge_pdfs_with_headings($doc_pdfs, $tempMerged)) {
-                                $resolvedFilePath = $tempMerged;
-                            }
-                        } catch (\Throwable $e) {
-                            $resolvedFilePath = $doc_pdfs[0]['path'] ?? '';
+                if (count($attached_files) > 1) {
+                    $tempMerged = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'doc_' . $id . '_compiled_' . uniqid() . '.pdf';
+                    try {
+                        if (merge_pdfs_with_headings($attached_files, $tempMerged)) {
+                            $resolvedFilePath = $tempMerged;
+                            $temp_cleanup_registry[] = $tempMerged;
                         }
-                    } elseif (count($doc_pdfs) === 1) {
-                        $resolvedFilePath = $doc_pdfs[0]['path'];
+                    } catch (\Throwable $e) {
+                        $resolvedFilePath = $attached_files[0]['path'] ?? '';
                     }
+                } elseif (count($attached_files) === 1) {
+                    $resolvedFilePath = $attached_files[0]['path'];
                 }
             }
 
@@ -744,6 +764,8 @@ class DocumentActionController {
                 'student_count' => $studentCount,
                 'agency' => $agency,
                 'event_date' => $eventDate,
+                'date_from' => $eventDate,
+                'date_to' => $dateTo,
                 'file_path' => $resolvedFilePath
             ];
         }
@@ -754,8 +776,9 @@ class DocumentActionController {
         }
 
         $service = new \AccreditationPdfService();
-        $merged_filename = 'Accreditation_Report_' . date('Ymd_His') . '.pdf';
-        $merged_path = sys_get_temp_dir() . '/' . $merged_filename;
+        $merged_filename = 'Accreditation_Report_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.pdf';
+        $merged_path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $merged_filename;
+        $temp_cleanup_registry[] = $merged_path;
 
         try {
             $service->generateReport($headings, $selected_columns, $docs_to_merge, $merged_path);
@@ -771,9 +794,20 @@ class DocumentActionController {
             header('Pragma: public');
             
             readfile($merged_path);
-            unlink($merged_path);
+
+            // Clean up all temporary files created during this request
+            foreach ($temp_cleanup_registry as $tmpF) {
+                if (file_exists($tmpF)) {
+                    @unlink($tmpF);
+                }
+            }
             exit;
         } catch (\Throwable $e) {
+            foreach ($temp_cleanup_registry as $tmpF) {
+                if (file_exists($tmpF)) {
+                    @unlink($tmpF);
+                }
+            }
             $_SESSION['error_msg'] = "Accreditation PDF Generation Error: " . $e->getMessage();
             $this->safeRedirectBack();
         }
