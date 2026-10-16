@@ -148,6 +148,9 @@
                         <?php endif; ?>
                     </td>
                     <td>
+                        <?php if (doc_can_approve($conn, $auth, $doc)): ?>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="color: #10b981; font-weight: 600;">Review</a> | 
+                        <?php endif; ?>
                         <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>">View</a>
                         <?php if (strtolower($doc['status']) !== 'accepted'): ?>
                             | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="color: #007bff;">Edit</a>

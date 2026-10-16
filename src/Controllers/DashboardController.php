@@ -52,7 +52,7 @@ class DashboardController {
         if ($active_role) {
             global $conn;
             $stmt = $conn->prepare(
-                "SELECT d.doc_id, d.type_id, d.title, d.status, d.current_step, d.created_at, dt.label as type_label, dep.dept_name, ws.step_label,
+                "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.mentor_id, d.title, d.status, d.current_step, d.created_at, dt.label as type_label, dep.dept_name, ws.step_label,
                         COALESCE(
                             msaf.date_from,
                             mc.from_date,

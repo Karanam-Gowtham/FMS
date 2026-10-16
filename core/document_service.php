@@ -411,7 +411,7 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
 function doc_get(mysqli $conn, int $doc_id): ?array
 {
     $stmt = $conn->prepare(
-        "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id,
+        "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id, d.mentor_id,
                 d.title, d.status, d.current_step, d.rejection_reason,
                 d.created_at, d.updated_at,
                 dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,
@@ -800,7 +800,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     $count_stmt->close();
 
     // Fetch rows
-    $sql = "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id,
+    $sql = "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id, d.mentor_id,
                    d.title, d.status, d.current_step, d.rejection_reason,
                    d.created_at, d.updated_at,
                    dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,
@@ -915,7 +915,7 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
     $total = (int)$count_stmt->get_result()->fetch_assoc()['total'];
     $count_stmt->close();
 
-    $sql = "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id,
+    $sql = "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id, d.mentor_id,
                    d.title, d.status, d.current_step,
                    d.created_at, d.updated_at,
                    dt.type_code as type_key, dt.label as type_label, dt.workflow_id as workflow_key,

@@ -59,6 +59,17 @@
 
 <div class="container">
 
+    <?php if (!empty($_GET['msg'])): ?>
+        <div style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
+            ✓ <?= htmlspecialchars($_GET['msg']) ?>
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($_GET['err'])): ?>
+        <div style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
+            ⚠ <?= htmlspecialchars($_GET['err']) ?>
+        </div>
+    <?php endif; ?>
+
     <div class="doc-header">
         <h1><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></h1>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -94,8 +105,8 @@
         </div>
     <?php endif; ?>
 
-    <!-- Action Section (only if user can act and came from dashboard review mode) -->
-    <?php if (!empty($allowed_actions) && isset($_GET['mode']) && $_GET['mode'] === 'review'): ?>
+    <!-- Action Section (available whenever user is authorized to act on this document) -->
+    <?php if (!empty($allowed_actions)): ?>
     <div class="action-section">
         <h3>Actions Available</h3>
         <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/approve" id="actionForm">

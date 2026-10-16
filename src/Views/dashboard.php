@@ -552,7 +552,7 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                         
                         <div style="display: flex; gap: 1.5rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05);">
                             <div style="text-align: center;">
-                                <div style="font-size: 2.2rem; font-weight: 800; color: #60a5fa; line-height: 1;"><?= array_sum($dept_stats) ?></div>
+                                <div style="font-size: 2.2rem; font-weight: 800; color: #60a5fa; line-height: 1;"><?= !empty($dept_stats) && is_array($dept_stats) ? array_sum($dept_stats) : 0 ?></div>
                                 <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 0.5rem;">Total Submissions</div>
                             </div>
                             <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
@@ -692,8 +692,14 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
 
         <?php if ($is_reviewer && empty($_GET['view'])): ?>
         <!-- PENDING APPROVALS -->
-        <div class="header-title" style="margin-top: 2rem;">
-            <h1>Pending My Approval <span style="background: <?= !empty($pending_approvals) ? '#ef4444' : '#64748b' ?>; color:white; padding:2px 8px; border-radius:999px; font-size:0.8rem; margin-left:10px;"><?= count($pending_approvals) ?></span></h1>
+        <div class="header-title" style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h1 style="margin-bottom: 0.25rem;">Pending My Approval <span style="background: <?= !empty($pending_approvals) ? '#ef4444' : '#64748b' ?>; color:white; padding:2px 8px; border-radius:999px; font-size:0.8rem; margin-left:10px;"><?= count($pending_approvals) ?></span></h1>
+                <p style="color: #64748b; margin: 0; font-size: 0.9rem;">Departmental documents submitted by faculty and students awaiting your review.</p>
+            </div>
+            <?php if (!empty($pending_approvals)): ?>
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&mode=pending_approval" style="color: #2563eb; font-size: 0.9rem; font-weight: 600; text-decoration: none;">View All Pending &rarr;</a>
+            <?php endif; ?>
         </div>
         
         <?php if (!empty($pending_approvals)): ?>
@@ -730,7 +736,7 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                             <?php endif; ?>
                         </td>
                         <td style="padding: 12px 16px;">
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">Review</a>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; font-weight: 500;">Review</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -760,9 +766,13 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
 
         <?php if (empty($_GET['view'])): ?>
         <?php if ($is_faculty || !empty($recent_uploads)): ?>
-        <!-- RECENT UPLOADS & PENDING ACTIONS -->
-        <div class="header-title" style="margin-top: 2rem;">
-            <h1>Recent Uploads & Pending Actions</h1>
+        <!-- MY SUBMISSIONS -->
+        <div class="header-title" style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h1 style="margin-bottom: 0.25rem;">My Submissions</h1>
+                <p style="color: #64748b; margin: 0; font-size: 0.9rem;">Documents you have uploaded and their current workflow status.</p>
+            </div>
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads" style="color: #2563eb; font-size: 0.9rem; font-weight: 600; text-decoration: none;">View All My Uploads &rarr;</a>
         </div>
         
         <?php if (!empty($recent_uploads)): ?>
@@ -811,10 +821,16 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                             </span>
                         </td>
                         <td style="padding: 12px 16px;">
-                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap;">View</a>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                <?php 
+                                $can_user_approve_this = doc_can_approve($conn, $auth, $doc);
+                                if ($can_user_approve_this): 
+                                ?>
+                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Review</a>
+                                <?php endif; ?>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">View</a>
                                 <?php if ($status_lower === 'pending' || $status_lower === 'rejected'): ?>
-                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap;">Update</a>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Update</a>
                                 <?php endif; ?>
                             </div>
                         </td>
