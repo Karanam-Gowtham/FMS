@@ -23,13 +23,12 @@ function csrfValidate(): void
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         return;
     }
-    $submitted = $_POST['_csrf_token'] ?? '';
+    $submitted = $_POST['_csrf_token'] ?? $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     $stored = $_SESSION['_csrf_token'] ?? '';
 
     if (empty($stored) || !hash_equals($stored, $submitted)) {
         http_response_code(403);
         die('CSRF validation failed. Please reload the form and try again.');
     }
-
 }
 ?>

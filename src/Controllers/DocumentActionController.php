@@ -173,6 +173,7 @@ class DocumentActionController {
             $_SESSION['_old_input'] = $_POST;
             if ($is_student_activity) {
                 header("Location: " . BASE_URL . "/public/index.php?route=student/dashboard");
+                exit;
             } else {
                 $redirect_url = BASE_URL . "/public/index.php?route=documents/upload&type=" . urlencode($post_type_key);
                 if (!empty($_POST['meta']['activity_category'])) {
@@ -813,7 +814,10 @@ class DocumentActionController {
         }
     }
 
-    private function safeRedirectBack(string $default = '/documents'): void {
+    private function safeRedirectBack(string $default = ''): void {
+        if (empty($default)) {
+            $default = BASE_URL . '/public/index.php?route=documents/list';
+        }
         $target = $default;
         if (!empty($_SERVER['HTTP_REFERER'])) {
             $referer = $_SERVER['HTTP_REFERER'];

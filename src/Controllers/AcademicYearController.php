@@ -10,7 +10,7 @@ class AcademicYearController {
         $active_role = auth_active_role();
 
         if (!$active_role) {
-            header("Location: " . BASE_URL . "/public/index.php?route=dashboard");
+            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
             exit();
         }
 

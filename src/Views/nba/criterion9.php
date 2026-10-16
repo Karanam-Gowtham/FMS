@@ -389,6 +389,7 @@ if (!isset($criteria_data)) {
 
         const payload = { levelData: levelData };
         const formData = new FormData(document.getElementById('nbaForm'));
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
         formData.append('json_data', JSON.stringify(payload));
         formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
 

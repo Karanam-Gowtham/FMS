@@ -841,7 +841,7 @@ function activateRole(userRoleId, baseUrl, csrfToken) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'user_role_id=' + encodeURIComponent(userRoleId) + '&csrf_token=' + encodeURIComponent(csrfToken)
+        body: 'user_role_id=' + encodeURIComponent(userRoleId) + '&_csrf_token=' + encodeURIComponent(csrfToken) + '&csrf_token=' + encodeURIComponent(csrfToken)
     }).then(response => {
         if(response.redirected) {
             window.location.href = response.url;

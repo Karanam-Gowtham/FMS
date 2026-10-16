@@ -293,6 +293,8 @@
             const fileInput = document.getElementById(id);
             if (fileInput && fileInput.files.length > 0) {
                 const fileFormData = new FormData();
+                fileFormData.append('_csrf_token', '<?= csrfToken() ?>');
+                fileFormData.append('dept_id', '<?= $dept_id ?>');
                 fileFormData.append('pdf_file', fileInput.files[0]);
                 fileFormData.append('section', id);
                 
@@ -315,6 +317,7 @@
 
         // Save JSON data
         const formData = new FormData();
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
         formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('criterion_number', '<?= $crit_id ?>');
         formData.append('json_data', JSON.stringify(payload));

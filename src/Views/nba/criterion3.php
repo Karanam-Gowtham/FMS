@@ -973,6 +973,8 @@
         document.getElementById('row_uploading_' + index).innerText = 'Uploading...';
 
         const formData = new FormData();
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
+        formData.append('dept_id', '<?= $dept_id ?>');
         formData.append('pdf_file', file);
         formData.append('section', '3_6_row_' + index);
 
@@ -1037,6 +1039,8 @@
         overlay.style.display = 'flex';
 
         const formData = new FormData();
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
+        formData.append('dept_id', '<?= $dept_id ?>');
         formData.append('pdf_file', file);
         formData.append('section', section);
 

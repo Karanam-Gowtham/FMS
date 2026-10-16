@@ -394,15 +394,6 @@ class DocumentController {
         $types = doc_get_types($conn);
         $academic_years = doc_get_academic_years($conn);
 
-        // Fetch central categories for CC role
-        $central_categories = [];
-        $res = $conn->query("SELECT * FROM central_categories ORDER BY category_name");
-        if ($res) {
-            while ($row = $res->fetch_assoc()) {
-                $central_categories[] = $row;
-            }
-        }
-
         $preselected_type = isset($_GET['type']) ? trim($_GET['type']) : '';
         $preselected_subtype = isset($_GET['sub_type']) ? trim($_GET['sub_type']) : '';
         

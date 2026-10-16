@@ -359,6 +359,7 @@
         };
 
         const formData = new FormData();
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
         formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('json_data', JSON.stringify(payload));
         

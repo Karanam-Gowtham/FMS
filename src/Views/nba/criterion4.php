@@ -1610,6 +1610,8 @@
         overlay.style.display = 'flex';
 
         const formData = new FormData();
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
+        formData.append('dept_id', '<?= $dept_id ?>');
         formData.append('pdf_file', file);
         formData.append('section', section);
 
