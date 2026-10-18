@@ -57,7 +57,9 @@ if ($dept !== '') {
 $institutional_routes = [
     'student_activities/dashboard',
     'nba/dashboard',
+    'nba/criterion',
     'naac/dashboard',
+    'naac/criterion',
     'public/department',
 ];
 
@@ -82,11 +84,20 @@ if (isset($custom_breadcrumb_title)) {
         'nba/dashboard'                 => 'NBA Dashboard',
         'naac/dashboard'                => 'NAAC Dashboard',
         'public/department'             => 'Department Overview',
+        'profile/view'                  => 'My Profile',
         'profile/edit'                  => 'Edit Profile',
         'academic_years/list'           => 'Academic Years',
     ];
 
-    if ($route === 'documents/upload' && !empty($_GET['activity'])) {
+    if ($route === 'naac/criterion') {
+        $year_param = !empty($_GET['year']) ? '&year=' . urlencode($_GET['year']) : '';
+        $breadcrumbs[] = ['label' => 'NAAC Dashboard', 'url' => $bc_base_url . '/public/index.php?route=naac/dashboard' . $year_param];
+        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1');
+    } elseif ($route === 'nba/criterion') {
+        $year_param = !empty($_GET['year']) ? '&year=' . urlencode($_GET['year']) : '';
+        $breadcrumbs[] = ['label' => 'NBA Dashboard', 'url' => $bc_base_url . '/public/index.php?route=nba/dashboard' . $year_param];
+        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1');
+    } elseif ($route === 'documents/upload' && !empty($_GET['activity'])) {
         $page_name = 'Upload: ' . htmlspecialchars($_GET['activity']);
     } elseif ($route === 'documents/list' && isset($_GET['context']) && $_GET['context'] === 'dept_file') {
         $page_name = 'Department Files';
@@ -160,7 +171,7 @@ if (!$is_dashboard_page) {
         if ($index == $count - 1) {
             echo '<span class="current-page">' . $crumb['label'] . '</span>';
         } else {
-            echo '<a href="' . $crumb['url'] . '"' . (isset($crumb['title']) ? ' title="' . $crumb['title'] . '"' : '') . '>' . $crumb['label'] . '</a>';
+            echo '<a href="' . htmlspecialchars($crumb['url']) . '"' . (isset($crumb['title']) ? ' title="' . htmlspecialchars($crumb['title']) . '"' : '') . '>' . $crumb['label'] . '</a>';
             echo '<span class="separator"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>';
         }
     }

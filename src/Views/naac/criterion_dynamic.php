@@ -56,11 +56,6 @@
 <div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
-    <div class="breadcrumb">
-        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Dashboard</a> &raquo; 
-        <a href="<?= BASE_URL ?>/public/index.php?route=naac/dashboard&year=<?= urlencode($year) ?>">NAAC Accreditation</a> &raquo; 
-        Criterion <?= $crit_id ?>
-    </div>
 
     <div class="header-row">
         <h1><?= htmlspecialchars($page_title) ?></h1>

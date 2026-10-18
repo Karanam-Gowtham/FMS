@@ -40,22 +40,9 @@
         .history-table th, .history-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #dee2e6; font-size: 0.85rem; }
         .history-table th { font-weight: 600; color: #495057; }
         .remarks-input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; min-height: 60px; resize: vertical; margin-bottom: 0.8rem; }
-        .breadcrumb-bar { background: #f8f9fa; padding: 0.8rem 2rem; border-bottom: 1px solid #e9ecef; font-size: 0.9rem; color: #6c757d; }
-        .breadcrumb-bar a { color: #4a90d9; text-decoration: none; }
-    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-<div class="breadcrumb-bar">
-    <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
-    <?php if (isset($_GET['mode']) && $_GET['mode'] === 'review'): ?>
-        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Pending Approvals</a> &raquo;
-    <?php else: ?>
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list">Documents</a> &raquo;
-    <?php endif; ?>
-    <?= htmlspecialchars($document['title'] ?: 'View Document') ?>
-</div>
 
 <div class="container">
 
@@ -187,10 +174,39 @@
                     <div class="detail-label"><?= htmlspecialchars($field['label']) ?></div>
                     <div class="detail-value">
                         <?php 
-                        if ($field['type'] === 'json' && is_string($val)) {
-                            $decoded = json_decode($val, true);
+                        if (($field['type'] === 'json' || $field['type'] === 'author_table') && (is_string($val) || is_array($val))) {
+                            $decoded = is_string($val) ? json_decode($val, true) : $val;
                             if (is_array($decoded)) {
-                                if (empty($decoded)) {
+                                if (isset($decoded['name']) && is_array($decoded['name'])) {
+                                    $isInventor = ($field['name'] === 'inventors' || $field['name'] === 'investors');
+                                    $pLabel = $isInventor ? 'Inventor' : 'Author';
+                                    echo "<div style='overflow-x: auto;'><table style='width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.85rem;'>";
+                                    echo "<thead><tr style='background: #f8fafc; text-align: left; color: #475569;'>";
+                                    echo "<th style='padding: 6px 10px; border: 1px solid #e2e8f0; width: 40px; text-align: center;'>#</th>";
+                                    echo "<th style='padding: 6px 10px; border: 1px solid #e2e8f0;'>Name of $pLabel</th>";
+                                    echo "<th style='padding: 6px 10px; border: 1px solid #e2e8f0;'>Affiliation</th>";
+                                    echo "<th style='padding: 6px 10px; border: 1px solid #e2e8f0;'>Position</th>";
+                                    echo "</tr></thead><tbody>";
+                                    $count = count($decoded['name']);
+                                    $renderedRows = 0;
+                                    for ($i = 0; $i < $count; $i++) {
+                                        $aName = trim($decoded['name'][$i] ?? '');
+                                        $aAffil = trim($decoded['affiliation'][$i] ?? '');
+                                        $aPos = trim($decoded['position'][$i] ?? '');
+                                        if ($aName === '' && $aAffil === '' && $aPos === '') continue;
+                                        $renderedRows++;
+                                        echo "<tr style='border-bottom: 1px solid #e2e8f0;'>";
+                                        echo "<td style='padding: 6px 10px; border: 1px solid #e2e8f0; text-align: center; color: #64748b;'>$renderedRows</td>";
+                                        echo "<td style='padding: 6px 10px; border: 1px solid #e2e8f0; font-weight: 600; color: #1e293b;'>" . htmlspecialchars($aName) . "</td>";
+                                        echo "<td style='padding: 6px 10px; border: 1px solid #e2e8f0; color: #475569;'>" . htmlspecialchars($aAffil) . "</td>";
+                                        echo "<td style='padding: 6px 10px; border: 1px solid #e2e8f0;'><span style='background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;'>" . htmlspecialchars($aPos) . "</span></td>";
+                                        echo "</tr>";
+                                    }
+                                    if ($renderedRows === 0) {
+                                        echo "<tr><td colspan='4' style='padding: 8px; text-align: center; color: #94a3b8;'>— None specified —</td></tr>";
+                                    }
+                                    echo "</tbody></table></div>";
+                                } elseif (empty($decoded)) {
                                     echo "—";
                                 } else {
                                     echo "<ul style='margin:0; padding-left: 20px;'>";
@@ -211,7 +227,7 @@
                                 echo htmlspecialchars((string)$val);
                             }
                         } else {
-                            echo htmlspecialchars((string)$val);
+                            echo htmlspecialchars(is_array($val) ? json_encode($val) : (string)$val);
                         }
                         ?>
                     </div>

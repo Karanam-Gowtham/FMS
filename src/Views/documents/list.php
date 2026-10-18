@@ -31,17 +31,9 @@
         .pagination { display: flex; gap: 0.4rem; justify-content: center; margin-top: 1.5rem; }
         .pagination a { padding: 0.35rem 0.7rem; border: 1px solid #dee2e6; border-radius: 4px; text-decoration: none; color: #495057; font-size: 0.9rem; }
         .pagination a.active { background: #4a90d9; color: white; border-color: #4a90d9; }
-        .breadcrumb-bar { background: #f8f9fa; padding: 0.8rem 2rem; border-bottom: 1px solid #e9ecef; font-size: 0.9rem; color: #6c757d; }
-        .breadcrumb-bar a { color: #4a90d9; text-decoration: none; }
-    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-<div class="breadcrumb-bar">
-    <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
-    <?= htmlspecialchars($scope_label) ?>
-</div>
 
 <div class="container" style="max-width: 1400px; display: flex; gap: 2rem; align-items: flex-start; padding: 2rem 1rem;">
     
@@ -353,11 +345,11 @@
         </form>
 
         <!-- Accreditation Report Configuration Modal -->
-        <div id="accreditationModal" style="display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); overflow-y: auto; padding: 20px 10px; box-sizing: border-box;">
-            <div style="background: #ffffff; max-width: 950px; margin: 20px auto; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; overflow: hidden; animation: modalSlideIn 0.25s ease-out;">
+        <div id="accreditationModal" style="display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px 10px; box-sizing: border-box;">
+            <div style="background: #ffffff; width: 100%; max-width: 950px; max-height: calc(100vh - 40px); margin: auto; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; animation: modalSlideIn 0.25s ease-out;">
                 
                 <!-- Modal Header -->
-                <div style="background: #003366; color: #ffffff; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="background: #003366; color: #ffffff; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <i class="fas fa-file-invoice" style="font-size: 1.4rem; color: #f6ad55;"></i>
                         <div>
@@ -369,10 +361,13 @@
                 </div>
 
                 <!-- Modal Body Form -->
-                <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/bulk_action" id="accreditationPdfForm" target="_blank" style="padding: 1.5rem;">
+                <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/bulk_action" id="accreditationPdfForm" target="_blank" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; margin: 0;">
                     <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
                     <input type="hidden" name="action_type" value="merge_accreditation_pdf">
                     <div id="modalHiddenDocIds"></div>
+
+                    <!-- Scrollable Form Body -->
+                    <div style="flex: 1; overflow-y: auto; padding: 1.5rem;">
 
                     <!-- STEP 1: Accreditation Heading Presets & Customization -->
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem;">
@@ -467,10 +462,10 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div><!-- /scrollable body -->
 
-                    <!-- Modal Footer -->
-                    <div style="border-top: 1px solid #e2e8f0; padding-top: 1.2rem; display: flex; justify-content: flex-end; gap: 0.8rem;">
+                    <!-- Sticky Modal Footer -->
+                    <div style="border-top: 1px solid #e2e8f0; padding: 1rem 1.5rem; background: #ffffff; display: flex; justify-content: flex-end; gap: 0.8rem; flex-shrink: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.04);">
                         <button type="button" id="btnCancelAccreditationModal" style="padding: 0.6rem 1.2rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; color: #475569; font-weight: 600; cursor: pointer;">Cancel</button>
                         <button type="submit" style="padding: 0.6rem 1.6rem; border: none; border-radius: 6px; background: #003366; color: #ffffff; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0,51,102,0.3);">
                             <i class="fas fa-file-pdf"></i> Generate & Download Official PDF
@@ -491,13 +486,16 @@
                 }
             }
 
-            document.getElementById('selectAllDocs').addEventListener('change', function() {
-                let checkboxes = document.querySelectorAll('.doc-checkbox');
-                for (let cb of checkboxes) {
-                    cb.checked = this.checked;
-                }
-                updateSelectedCount();
-            });
+            const selectAllDocsEl = document.getElementById('selectAllDocs');
+            if (selectAllDocsEl) {
+                selectAllDocsEl.addEventListener('change', function() {
+                    let checkboxes = document.querySelectorAll('.doc-checkbox');
+                    for (let cb of checkboxes) {
+                        cb.checked = this.checked;
+                    }
+                    updateSelectedCount();
+                });
+            }
 
             document.querySelectorAll('.doc-checkbox').forEach(cb => {
                 cb.addEventListener('change', updateSelectedCount);
@@ -506,10 +504,36 @@
             // Accreditation Modal Handling
             let loadedPresets = {};
 
-            document.getElementById('btnOpenAccreditationModal').addEventListener('click', async function() {
+            function showListToast(message, type = 'info') {
+                let toast = document.getElementById('listToastNotification');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'listToastNotification';
+                    toast.style.cssText = 'position: fixed; bottom: 30px; right: 30px; z-index: 100000; padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 600; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; transform: translateY(100px); opacity: 0;';
+                    document.body.appendChild(toast);
+                }
+                toast.style.background = type === 'warning' ? '#d97706' : (type === 'error' ? '#dc2626' : '#2563eb');
+                toast.innerHTML = `<i class="fas ${type === 'warning' ? 'fa-exclamation-triangle' : (type === 'error' ? 'fa-times-circle' : 'fa-info-circle')}"></i> ${message}`;
+                toast.style.transform = 'translateY(0)';
+                toast.style.opacity = '1';
+                setTimeout(() => {
+                    toast.style.transform = 'translateY(100px)';
+                    toast.style.opacity = '0';
+                }, 3500);
+            }
+
+            const btnOpenAccModalEl = document.getElementById('btnOpenAccreditationModal');
+            if (btnOpenAccModalEl) {
+                btnOpenAccModalEl.addEventListener('click', async function() {
                 const checkedBoxes = Array.from(document.querySelectorAll('.doc-checkbox:checked'));
                 if (checkedBoxes.length === 0) {
-                    alert('Please select at least one document from the table using the checkboxes.');
+                    showListToast('Please select at least one document from the table using the checkboxes.', 'warning');
+                    const selectAll = document.getElementById('selectAllDocs');
+                    if (selectAll) {
+                        selectAll.focus();
+                        selectAll.parentElement.style.outline = '2px solid #3b82f6';
+                        setTimeout(() => selectAll.parentElement.style.outline = '', 1800);
+                    }
                     return;
                 }
 
@@ -541,7 +565,7 @@
                     }
 
                     if (!json.success) {
-                        alert(json.error || 'Failed to retrieve documents for accreditation preview.');
+                        showListToast(json.error || 'Failed to retrieve documents for accreditation preview.', 'error');
                         return;
                     }
 
@@ -605,44 +629,59 @@
                     });
 
                     // Open Modal
-                    document.getElementById('accreditationModal').style.display = 'block';
+                    document.getElementById('accreditationModal').style.display = 'flex';
                     document.body.style.overflow = 'hidden';
 
                 } catch (err) {
-                    alert('Error loading accreditation data: ' + err.message);
+                    showListToast('Error loading accreditation data: ' + err.message, 'error');
                 } finally {
                     this.innerHTML = originalBtnText;
                     this.disabled = false;
                 }
-            });
+                });
+            }
 
             function applyPreset(key) {
                 if (loadedPresets[key]) {
                     const p = loadedPresets[key];
-                    document.getElementById('inputCriterion').value = p.criterion || '';
-                    document.getElementById('inputKeyIndicator').value = p.key_indicator || '';
-                    document.getElementById('inputMetric').value = p.metric || '';
-                    document.getElementById('inputSubHeading').value = p.sub_heading || '';
+                    const cEl = document.getElementById('inputCriterion');
+                    if (cEl) cEl.value = p.criterion || '';
+                    const kEl = document.getElementById('inputKeyIndicator');
+                    if (kEl) kEl.value = p.key_indicator || '';
+                    const mEl = document.getElementById('inputMetric');
+                    if (mEl) mEl.value = p.metric || '';
+                    const sEl = document.getElementById('inputSubHeading');
+                    if (sEl) sEl.value = p.sub_heading || '';
                 }
             }
 
-            document.getElementById('accreditationPresetSelect').addEventListener('change', function() {
-                if (this.value) {
-                    applyPreset(this.value);
-                }
-            });
+            const presetSelectEl = document.getElementById('accreditationPresetSelect');
+            if (presetSelectEl) {
+                presetSelectEl.addEventListener('change', function() {
+                    if (this.value) {
+                        applyPreset(this.value);
+                    }
+                });
+            }
 
             function closeAccreditationModal() {
-                document.getElementById('accreditationModal').style.display = 'none';
+                const modal = document.getElementById('accreditationModal');
+                if (modal) modal.style.display = 'none';
                 document.body.style.overflow = '';
             }
 
-            document.getElementById('btnCloseAccreditationModal').addEventListener('click', closeAccreditationModal);
-            document.getElementById('btnCancelAccreditationModal').addEventListener('click', closeAccreditationModal);
+            const btnCloseAccEl = document.getElementById('btnCloseAccreditationModal');
+            if (btnCloseAccEl) btnCloseAccEl.addEventListener('click', closeAccreditationModal);
 
-            document.getElementById('accreditationPdfForm').addEventListener('submit', function() {
-                setTimeout(closeAccreditationModal, 1200);
-            });
+            const btnCancelAccEl = document.getElementById('btnCancelAccreditationModal');
+            if (btnCancelAccEl) btnCancelAccEl.addEventListener('click', closeAccreditationModal);
+
+            const formAccEl = document.getElementById('accreditationPdfForm');
+            if (formAccEl) {
+                formAccEl.addEventListener('submit', function() {
+                    setTimeout(closeAccreditationModal, 1200);
+                });
+            }
 
             function escapeHtml(str) {
                 return (str || '').replace(/[&<>"']/g, function(m) {

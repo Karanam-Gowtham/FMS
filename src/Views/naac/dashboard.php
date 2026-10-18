@@ -14,9 +14,6 @@
     <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
     <div class="container">
-        <div class="breadcrumb">
-            <a href="<?= BASE_URL ?>/public/index.php">Dashboard</a> &raquo; NAAC Module
-        </div>
 
         <div class="header-row">
             <h1>NAAC Criteria Management</h1>

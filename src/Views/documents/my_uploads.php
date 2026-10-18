@@ -29,17 +29,9 @@
         .pagination a { padding: 0.4rem 0.8rem; border: 1px solid #dee2e6; border-radius: 4px; text-decoration: none; color: #495057; }
         .pagination a.active { background: #4a90d9; color: white; border-color: #4a90d9; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .breadcrumb-bar { background: #f8f9fa; padding: 0.8rem 2rem; border-bottom: 1px solid #e9ecef; font-size: 0.9rem; color: #6c757d; }
-        .breadcrumb-bar a { color: #4a90d9; text-decoration: none; }
-    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-<div class="breadcrumb-bar">
-    <a href="<?= htmlspecialchars(get_role_landing_url(auth_active_role())) ?>">Dashboard</a> &raquo;
-    My Uploads
-</div>
 
 <div class="container" style="max-width: 1400px; display: flex; gap: 2rem; align-items: flex-start; padding: 2rem 1rem;">
     <!-- LEFT SIDEBAR -->
@@ -163,12 +155,15 @@
         </form>
 
         <script>
-            document.getElementById('selectAllMyDocs').addEventListener('change', function() {
-                let checkboxes = document.querySelectorAll('.mydoc-checkbox');
-                for (let cb of checkboxes) {
-                    cb.checked = this.checked;
-                }
-            });
+            const selectAllMyDocsEl = document.getElementById('selectAllMyDocs');
+            if (selectAllMyDocsEl) {
+                selectAllMyDocsEl.addEventListener('change', function() {
+                    let checkboxes = document.querySelectorAll('.mydoc-checkbox');
+                    for (let cb of checkboxes) {
+                        cb.checked = this.checked;
+                    }
+                });
+            }
         </script>
 
         <!-- Pagination -->

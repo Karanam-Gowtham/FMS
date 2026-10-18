@@ -29,10 +29,6 @@
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="container profile-container">
-    <div class="breadcrumb">
-        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Dashboard</a> &raquo; 
-        My Profile
-    </div>
 
     <div class="profile-card">
         <div class="profile-header">

@@ -242,12 +242,15 @@ require __DIR__ . '/../../../includes/header.php';
             </form>
 
             <script>
-                document.getElementById('selectAllStudentDocs').addEventListener('change', function() {
-                    let checkboxes = document.querySelectorAll('.student-doc-checkbox');
-                    for (let cb of checkboxes) {
-                        cb.checked = this.checked;
-                    }
-                });
+                const selectAllStudentEl = document.getElementById('selectAllStudentDocs');
+                if (selectAllStudentEl) {
+                    selectAllStudentEl.addEventListener('change', function() {
+                        let checkboxes = document.querySelectorAll('.student-doc-checkbox');
+                        for (let cb of checkboxes) {
+                            cb.checked = this.checked;
+                        }
+                    });
+                }
             </script>
         <?php endif; ?>
     </div>
@@ -431,30 +434,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    catSelect.addEventListener('change', function() {
-        typeSelect.innerHTML = '';
-        formBody.classList.add('d-none');
-        btnSubmit.classList.add('d-none');
-        
-        if (this.value === 'Co-Curricular') {
-            coCurricularOptions.forEach(opt => {
-                const el = document.createElement('option');
-                el.value = opt.value;
-                el.textContent = opt.label;
-                if (opt.activity) el.dataset.activity = opt.activity;
-                if (opt.exam) el.dataset.exam = opt.exam;
-                typeSelect.appendChild(el);
-            });
-            typeContainer.classList.remove('d-none');
-        } else if (this.value === 'Sports & Games') {
-            typeContainer.classList.add('d-none');
-            handleChange();
-        } else {
-            typeContainer.classList.add('d-none');
-        }
-    });
+    if (catSelect) {
+        catSelect.addEventListener('change', function() {
+            if (typeSelect) typeSelect.innerHTML = '';
+            if (formBody) formBody.classList.add('d-none');
+            if (btnSubmit) btnSubmit.classList.add('d-none');
+            
+            if (this.value === 'Co-Curricular') {
+                if (typeSelect) {
+                    coCurricularOptions.forEach(opt => {
+                        const el = document.createElement('option');
+                        el.value = opt.value;
+                        el.textContent = opt.label;
+                        if (opt.activity) el.dataset.activity = opt.activity;
+                        if (opt.exam) el.dataset.exam = opt.exam;
+                        typeSelect.appendChild(el);
+                    });
+                }
+                if (typeContainer) typeContainer.classList.remove('d-none');
+            } else if (this.value === 'Sports & Games') {
+                if (typeContainer) typeContainer.classList.add('d-none');
+                handleChange();
+            } else {
+                if (typeContainer) typeContainer.classList.add('d-none');
+            }
+        });
+    }
 
-    typeSelect.addEventListener('change', handleChange);
+    if (typeSelect) {
+        typeSelect.addEventListener('change', handleChange);
+    }
 });
 </script>
 

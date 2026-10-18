@@ -14,11 +14,6 @@
 <div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
-    <div class="breadcrumb">
-        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Dashboard</a> &raquo; 
-        <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&year=<?= urlencode($year) ?>">NBA Accreditation</a> &raquo; 
-        Criterion 3
-    </div>
 
     <div class="header-row">
         <h1>Criterion 3: Course Outcomes and Program Outcomes</h1>

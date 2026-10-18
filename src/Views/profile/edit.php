@@ -20,10 +20,6 @@
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="container">
-    <div class="breadcrumb">
-        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Dashboard</a> &raquo; 
-        Edit Profile
-    </div>
 
     <div class="header-row">
         <h1>👤 Edit Profile</h1>

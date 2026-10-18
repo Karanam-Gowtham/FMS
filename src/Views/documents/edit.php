@@ -87,10 +87,13 @@ $active_role = $_SESSION['active_role'] ?? null;
             <div class="form-grid">
                 <?php foreach ($meta_fields as $field): ?>
                     <?php 
-                    if ($field['type'] === 'json' || $field['type'] === 'authors') {
-                        continue; // Skip rendering JSON fields to prevent overwriting them with strings
+                    if ($field['type'] === 'json' || $field['type'] === 'authors' || $field['type'] === 'author_table') {
+                        continue; // Skip rendering JSON/author table fields to prevent overwriting them with strings
                     }
                     $val = $meta_data[$field['name']] ?? '';
+                    if (is_array($val)) {
+                        continue;
+                    }
                     $is_f_req = $field['required'] && (!$is_stepcone_doc || $field['name'] === 'activity_category');
                     ?>
                     <div class="form-group <?= ($field['type'] === 'text' || $field['name'] === 'title') ? 'full-width' : '' ?>">
