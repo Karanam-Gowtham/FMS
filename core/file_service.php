@@ -190,10 +190,15 @@ function file_save_record(mysqli $conn, int $doc_id, array $file_data, string $f
 function file_download(mysqli $conn, int $file_id, bool $inline = false): void
 {
     $stmt = $conn->prepare("SELECT original_name, file_path, mime_type FROM document_files WHERE file_id = ?");
+    if (!$stmt) {
+        http_response_code(500);
+        echo "Database query error.";
+        return;
+    }
     $stmt->bind_param('i', $file_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $file = $result->fetch_assoc();
+    $file = $result ? $result->fetch_assoc() : null;
     $stmt->close();
 
     if (!$file) {
@@ -203,9 +208,11 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
     }
 
     $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__);
-    $full_path = $base_dir . '/' . $file['file_path'];
+    $raw_target = $base_dir . '/' . ltrim($file['file_path'], '/\\');
+    $canonical_path = realpath($raw_target);
+    $allowed_base = realpath($base_dir . '/uploads');
 
-    if (!file_exists($full_path)) {
+    if (!$canonical_path || !$allowed_base || stripos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
         http_response_code(404);
         echo "File not found on disk.";
         return;
@@ -216,13 +223,15 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
         ob_end_clean();
     }
 
+    $safe_name = str_replace(['"', "\r", "\n"], '', basename($file['original_name']));
     $disposition = $inline ? 'inline' : 'attachment';
+    header('X-Content-Type-Options: nosniff');
     header('Content-Type: ' . ($file['mime_type'] ?: 'application/octet-stream'));
-    header('Content-Disposition: ' . $disposition . '; filename="' . basename($file['original_name']) . '"');
-    header('Content-Length: ' . filesize($full_path));
+    header('Content-Disposition: ' . $disposition . '; filename="' . $safe_name . '"');
+    header('Content-Length: ' . filesize($canonical_path));
     header('Cache-Control: no-cache, must-revalidate');
 
-    readfile($full_path);
+    readfile($canonical_path);
     exit;
 }
 
@@ -239,12 +248,17 @@ function file_get_by_document(mysqli $conn, int $doc_id): array
         "SELECT file_id, doc_id, file_label, original_name, stored_name, file_path, mime_type, file_size, uploaded_at
          FROM document_files WHERE doc_id = ? ORDER BY file_id"
     );
+    if (!$stmt) {
+        return [];
+    }
     $stmt->bind_param('i', $doc_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $files = [];
-    while ($row = $result->fetch_assoc()) {
-        $files[] = $row;
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $files[] = $row;
+        }
     }
     $stmt->close();
     return $files;

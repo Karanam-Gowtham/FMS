@@ -45,7 +45,16 @@ if (!defined('BASE_URL')) {
        $root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
        $path = str_replace('\\', '/', __DIR__);
 
-       $projectPath = str_replace($root, '', $path);
+       if (!empty($root) && stripos($path, $root) === 0) {
+           $projectPath = substr($path, strlen($root));
+       } else {
+           if (preg_match('#/htdocs(/.*)$#i', $path, $matches)) {
+               $projectPath = $matches[1];
+           } else {
+               $projectPath = '/mini/FMS';
+           }
+       }
+       $projectPath = '/' . ltrim($projectPath, '/');
 
        define('BASE_URL', rtrim($protocol . '://' . $host . $projectPath, '/'));
    }

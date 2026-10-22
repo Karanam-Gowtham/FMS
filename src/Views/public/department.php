@@ -158,8 +158,8 @@ include_once HEADER;
                                 <td><?= htmlspecialchars($doc['uploader_name'] ?: 'System') ?></td>
                                 <td><?= htmlspecialchars($doc['year_name'] ?: 'N/A') ?></td>
                                 <td>
-                                    <?php if ($doc['file_path'] !== '#'): ?>
-                                        <a href="<?= BASE_URL ?>/public/index.php?route=public/download&doc_id=<?= $doc['doc_id'] ?>" target="_blank" class="download-btn">
+                                    <?php if (!empty($doc['file_path']) && $doc['file_path'] !== '#'): ?>
+                                        <a href="<?= BASE_URL ?>/public/index.php?route=public/download&doc_id=<?= (int)$doc['doc_id'] ?>" target="_blank" class="download-btn">
                                             View File
                                         </a>
                                     <?php else: ?>
@@ -235,8 +235,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [
                     <?php foreach($top_faculty as $index => $fac): ?>
                     {
-                        label: '<?= addslashes($fac['name']) ?>',
-                        data: [<?= $fac['papers'] ?>, <?= $fac['patents'] ?>, <?= $fac['fdps'] ?>],
+                        label: <?= json_encode($fac['name']) ?>,
+                        data: [<?= (int)$fac['papers'] ?>, <?= (int)$fac['patents'] ?>, <?= (int)$fac['fdps'] ?>],
                         backgroundColor: '<?= $index === 0 ? "rgba(207, 168, 92, 0.2)" : ($index === 1 ? "rgba(23, 162, 184, 0.2)" : "rgba(11, 53, 61, 0.2)") ?>',
                         borderColor: '<?= $index === 0 ? "#cfa85c" : ($index === 1 ? "#17a2b8" : "#0b353d") ?>',
                         pointBackgroundColor: '<?= $index === 0 ? "#cfa85c" : ($index === 1 ? "#17a2b8" : "#0b353d") ?>',

@@ -63,18 +63,25 @@ if ($resolvedPath === null) {
 $projectRoot = realpath(__DIR__ . '/..');
 $relPath = str_replace('\\', '/', substr($resolvedPath, strlen($projectRoot) + 1));
 $altRelPath = '/' . $relPath;
+$bsRelPath = str_replace('/', '\\', $relPath);
+$altBsRelPath = '\\' . $bsRelPath;
 
 // Check if file is associated with a document
 $stmt = $conn->prepare("
     SELECT d.* FROM documents d 
     LEFT JOIN document_files df ON d.doc_id = df.doc_id 
-    WHERE d.file_path = ? OR df.file_path = ? OR d.file_path = ? OR df.file_path = ?
+    WHERE d.file_path = ? OR df.file_path = ? OR d.file_path = ? OR df.file_path = ? OR d.file_path = ? OR df.file_path = ? OR d.file_path = ? OR df.file_path = ?
     LIMIT 1
 ");
-$stmt->bind_param("ssss", $relPath, $relPath, $altRelPath, $altRelPath);
+if (!$stmt) {
+    while (ob_get_level()) { ob_end_clean(); }
+    header("HTTP/1.1 500 Internal Server Error");
+    exit("Database query preparation failed.");
+}
+$stmt->bind_param("ssssssss", $relPath, $relPath, $altRelPath, $altRelPath, $bsRelPath, $bsRelPath, $altBsRelPath, $altBsRelPath);
 $stmt->execute();
 $res = $stmt->get_result();
-$doc = $res->fetch_assoc();
+$doc = $res ? $res->fetch_assoc() : null;
 $stmt->close();
 
 if ($doc) {
@@ -87,13 +94,16 @@ if ($doc) {
             'student_activity_file', 'dept_file'
         ];
         $type_stmt = $conn->prepare("SELECT type_code FROM document_types WHERE type_id = ?");
-        $type_stmt->bind_param("i", $doc['type_id']);
-        $type_stmt->execute();
-        $trow = $type_stmt->get_result()->fetch_assoc();
-        $type_stmt->close();
+        if ($type_stmt) {
+            $type_stmt->bind_param("i", $doc['type_id']);
+            $type_stmt->execute();
+            $tres = $type_stmt->get_result();
+            $trow = $tres ? $tres->fetch_assoc() : null;
+            $type_stmt->close();
 
-        if ($trow && in_array($trow['type_code'], $public_types, true)) {
-            $is_public = true;
+            if ($trow && in_array($trow['type_code'], $public_types, true)) {
+                $is_public = true;
+            }
         }
     }
 

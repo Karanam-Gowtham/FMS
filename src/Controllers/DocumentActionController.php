@@ -22,7 +22,7 @@ class DocumentActionController {
         // --- End Custom Handler ---
         
         $post_type_key = trim($_POST['type_key'] ?? '');
-            $post_title    = trim($_POST['title'] ?? '');
+        $post_title    = trim(str_replace(["\0", "\r", "\n"], '', $_POST['title'] ?? ''));
             
             // Fallback for title if it's missing but meta title fields exist
             if ($post_title === '') {
@@ -76,15 +76,19 @@ class DocumentActionController {
                             JOIN user_roles ur ON up.user_id = ur.user_id
                             WHERE up.per_no = ? AND ur.role_id IN ($mentor_role_ids) AND ur.dept_id = ?
                         ");
-                        $mentor_stmt->bind_param("si", $mentor_per_no, $post_dept_id);
-                        $mentor_stmt->execute();
-                        $mentor_res = $mentor_stmt->get_result();
-                        if ($mentor_row = $mentor_res->fetch_assoc()) {
-                            $mentor_id = (int)$mentor_row['user_id'];
+                        if ($mentor_stmt) {
+                            $mentor_stmt->bind_param("si", $mentor_per_no, $post_dept_id);
+                            $mentor_stmt->execute();
+                            $mentor_res = $mentor_stmt->get_result();
+                            if ($mentor_row = $mentor_res->fetch_assoc()) {
+                                $mentor_id = (int)$mentor_row['user_id'];
+                            } else {
+                                $error_msg = 'Invalid Mentor Per No. No Faculty found with this Per No in your department.';
+                            }
+                            $mentor_stmt->close();
                         } else {
-                            $error_msg = 'Invalid Mentor Per No. No Faculty found with this Per No in your department.';
+                            $error_msg = 'Database error verifying mentor.';
                         }
-                        $mentor_stmt->close();
                     }
                 }
 
@@ -201,7 +205,8 @@ class DocumentActionController {
         global $conn;
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            die("Invalid request method.");
+            $_SESSION['error_msg'] = "Invalid request method.";
+            $this->safeRedirectBack();
         }
 
         if (function_exists('csrfValidate')) {
@@ -213,16 +218,19 @@ class DocumentActionController {
         $comments = isset($_POST['remarks']) ? trim($_POST['remarks']) : '';
 
         if ($doc_id <= 0 || !in_array($action, ['approve', 'reject', 'resubmit'], true)) {
-            die("Invalid request parameters.");
+            $_SESSION['error_msg'] = "Invalid request parameters.";
+            $this->safeRedirectBack();
         }
 
         $doc = doc_get($conn, $doc_id);
         if (!$doc) {
-            die("Document not found.");
+            $_SESSION['error_msg'] = "Document not found.";
+            $this->safeRedirectBack();
         }
 
         if (!doc_can_approve($conn, $auth, $doc)) {
-            die("You do not have permission to review this document.");
+            $_SESSION['error_msg'] = "You do not have permission to review this document.";
+            $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
         }
 
         $result = wf_execute_action($conn, $doc_id, (int)$auth['user_id'], $action, $comments);
@@ -247,36 +255,45 @@ class DocumentActionController {
 
         $file_id = isset($_GET['file_id']) ? (int)$_GET['file_id'] : 0;
         if ($file_id <= 0) {
-            die("Invalid file ID.");
+            $_SESSION['error_msg'] = "Invalid file ID.";
+            $this->safeRedirectBack();
         }
 
         // Fetch file record
         $stmt = $conn->prepare("SELECT doc_id, file_path, original_name as original_filename, file_size, mime_type FROM document_files WHERE file_id = ?");
-        $stmt->bind_param('i', $file_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $file_record = $res->fetch_assoc();
-        $stmt->close();
+        if ($stmt) {
+            $stmt->bind_param('i', $file_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $file_record = $res->fetch_assoc();
+            $stmt->close();
+        } else {
+            $file_record = null;
+        }
 
         if (!$file_record) {
-            die("File not found.");
+            $_SESSION['error_msg'] = "File not found.";
+            $this->safeRedirectBack();
         }
 
         // Check document access
         $doc = doc_get($conn, $file_record['doc_id']);
         if (!$doc) {
-            die("Associated document not found.");
+            $_SESSION['error_msg'] = "Associated document not found.";
+            $this->safeRedirectBack();
         }
 
         if (!doc_can_view($conn, $auth, $doc)) {
-            die("You do not have permission to download this file.");
+            $_SESSION['error_msg'] = "You do not have permission to download this file.";
+            $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . (int)$file_record['doc_id']);
         }
 
         $raw_file_path = $file_record['file_path'];
         $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
         $real_path = file_exists($raw_file_path) ? $raw_file_path : ($base_dir . '/' . ltrim($raw_file_path, '/\\'));
         if (!file_exists($real_path)) {
-            die("The physical file is missing from the server.");
+            $_SESSION['error_msg'] = "The physical file is missing from the server.";
+            $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . (int)$file_record['doc_id']);
         }
 
         // Stream file - clean all nested output buffers
@@ -288,6 +305,7 @@ class DocumentActionController {
         $disposition = $is_inline ? 'inline' : 'attachment';
 
         header('Content-Description: File Transfer');
+        header('X-Content-Type-Options: nosniff');
         header('Content-Type: ' . ($file_record['mime_type'] ?: 'application/octet-stream'));
         header('Content-Disposition: ' . $disposition . '; filename="' . basename($file_record['original_filename']) . '"');
         header('Expires: 0');
@@ -338,15 +356,17 @@ class DocumentActionController {
         
         if ($post_dept_id > 0 && validate_dept_filter($post_dept_id) === null) {
             $_SESSION['error_msg'] = "Unauthorized department selection.";
-            header("Location: index.php?route=documents/my_uploads");
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
             exit;
         }
 
         if ($post_title !== '' && $post_dept_id > 0) {
             $stmt = $conn->prepare("UPDATE documents SET title = ?, dept_id = ?, academic_year_id = ?, updated_at = NOW() WHERE doc_id = ?");
-            $stmt->bind_param('siii', $post_title, $post_dept_id, $post_year_id, $doc_id);
-            $stmt->execute();
-            $stmt->close();
+            if ($stmt) {
+                $stmt->bind_param('siii', $post_title, $post_dept_id, $post_year_id, $doc_id);
+                $stmt->execute();
+                $stmt->close();
+            }
         }
 
         // Update meta
@@ -397,22 +417,26 @@ class DocumentActionController {
                 if ($store_result['success']) {
                     // Delete physical file before deleting record
                     $stmt_old = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = ?");
-                    $stmt_old->bind_param('is', $doc_id, $slot_name);
-                    $stmt_old->execute();
-                    $res_old = $stmt_old->get_result();
-                    while ($old_row = $res_old->fetch_assoc()) {
-                        $old_path = __DIR__ . '/../../' . $old_row['file_path'];
-                        if (file_exists($old_path) && is_file($old_path)) {
-                            unlink($old_path);
+                    if ($stmt_old) {
+                        $stmt_old->bind_param('is', $doc_id, $slot_name);
+                        $stmt_old->execute();
+                        $res_old = $stmt_old->get_result();
+                        while ($old_row = $res_old->fetch_assoc()) {
+                            $old_path = __DIR__ . '/../../' . $old_row['file_path'];
+                            if (file_exists($old_path) && is_file($old_path)) {
+                                @unlink($old_path);
+                            }
                         }
+                        $stmt_old->close();
                     }
-                    $stmt_old->close();
 
                     // Delete old file record for this slot
                     $del_stmt = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = ?");
-                    $del_stmt->bind_param('is', $doc_id, $slot_name);
-                    $del_stmt->execute();
-                    $del_stmt->close();
+                    if ($del_stmt) {
+                        $del_stmt->bind_param('is', $doc_id, $slot_name);
+                        $del_stmt->execute();
+                        $del_stmt->close();
+                    }
 
                     // Save new file record
                     file_save_record($conn, $doc_id, $store_result['data'], $slot_name);
@@ -424,76 +448,87 @@ class DocumentActionController {
         if ($replaced_any_file) {
             // Re-merge PDFs if multiple exist
             $stmt_f = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_label != 'merged_pdf'");
-            $stmt_f->bind_param('i', $doc_id);
-            $stmt_f->execute();
-            $f_res = $stmt_f->get_result();
-            $pdfs_to_merge = [];
-            $file_slots_by_name = array_column($file_slots, null, 'name');
-            while ($f_row = $f_res->fetch_assoc()) {
-                if (strtolower(pathinfo($f_row['file_path'], PATHINFO_EXTENSION)) === 'pdf') {
-                    $slot_def = $file_slots_by_name[$f_row['file_label']] ?? null;
-                    $title = $slot_def ? $slot_def['label'] : ucfirst(str_replace('_', ' ', $f_row['file_label']));
-                    $pdfs_to_merge[] = [
-                        'path' => __DIR__ . '/../../' . $f_row['file_path'],
-                        'title' => $title
-                    ];
+            if ($stmt_f) {
+                $stmt_f->bind_param('i', $doc_id);
+                $stmt_f->execute();
+                $f_res = $stmt_f->get_result();
+                $pdfs_to_merge = [];
+                $file_slots_by_name = array_column($file_slots, null, 'name');
+                while ($f_row = $f_res->fetch_assoc()) {
+                    $f_ext = strtolower(pathinfo($f_row['file_path'], PATHINFO_EXTENSION));
+                    if (in_array($f_ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'], true)) {
+                        $slot_def = $file_slots_by_name[$f_row['file_label']] ?? null;
+                        $title = $slot_def ? $slot_def['label'] : ucfirst(str_replace('_', ' ', $f_row['file_label']));
+                        $pdfs_to_merge[] = [
+                            'path' => __DIR__ . '/../../' . $f_row['file_path'],
+                            'title' => $title
+                        ];
+                    }
                 }
-            }
-            $stmt_f->close();
+                $stmt_f->close();
 
-            if (count($pdfs_to_merge) > 1) {
-                require_once __DIR__ . '/../../core/pdf_merger_service.php';
-                $merged_filename = $type_key . '_merged_' . uniqid() . '.pdf';
-                $merged_dir = __DIR__ . '/../../uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/';
-                if (!is_dir($merged_dir)) { mkdir($merged_dir, 0755, true); }
-                $merged_path = $merged_dir . $merged_filename;
-                
-                try {
-                    if (merge_pdfs_with_headings($pdfs_to_merge, $merged_path)) {
-                        $rel_merged_path = 'uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/' . $merged_filename;
-                        
-                        $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
+                if (count($pdfs_to_merge) > 1) {
+                    require_once __DIR__ . '/../../core/pdf_merger_service.php';
+                    $merged_filename = $type_key . '_merged_' . uniqid() . '.pdf';
+                    $merged_dir = __DIR__ . '/../../uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/';
+                    if (!is_dir($merged_dir)) { mkdir($merged_dir, 0755, true); }
+                    $merged_path = $merged_dir . $merged_filename;
+                    
+                    try {
+                        if (merge_pdfs_with_headings($pdfs_to_merge, $merged_path)) {
+                            $rel_merged_path = 'uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/' . $merged_filename;
+                            
+                            $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
+                            if ($upd_stmt) {
+                                $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
+                                $upd_stmt->execute();
+                                $upd_stmt->close();
+                            }
+
+                            $del_merge_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
+                            if ($del_merge_stmt) {
+                                $del_merge_stmt->bind_param('i', $doc_id);
+                                $del_merge_stmt->execute();
+                                $res_merge_old = $del_merge_stmt->get_result();
+                                while ($old_row = $res_merge_old->fetch_assoc()) {
+                                    $old_path = __DIR__ . '/../../' . $old_row['file_path'];
+                                    if (file_exists($old_path) && is_file($old_path)) {
+                                        @unlink($old_path);
+                                    }
+                                }
+                                $del_merge_stmt->close();
+                            }
+
+                            $del_merge_stmt2 = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
+                            if ($del_merge_stmt2) {
+                                $del_merge_stmt2->bind_param('i', $doc_id);
+                                $del_merge_stmt2->execute();
+                                $del_merge_stmt2->close();
+                            }
+                            
+                            $merged_data = [
+                                'original_name' => 'Merged_Document.pdf',
+                                'stored_name' => $merged_filename,
+                                'file_path' => $rel_merged_path,
+                                'mime_type' => 'application/pdf',
+                                'file_size' => filesize($merged_path)
+                            ];
+                            file_save_record($conn, $doc_id, $merged_data, 'merged_pdf');
+                        }
+                    } catch (\Throwable $e) {
+                        error_log("PDF Re-Merge Failed: " . $e->getMessage());
+                    }
+                } elseif (count($pdfs_to_merge) === 1) {
+                    $base_root = str_replace('\\', '/', (string)realpath(__DIR__ . '/../../'));
+                    $norm_path = str_replace('\\', '/', $pdfs_to_merge[0]['path']);
+                    $rel_merged_path = ltrim(str_replace($base_root, '', $norm_path), '/\\');
+                    $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
+                    if ($upd_stmt) {
                         $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
                         $upd_stmt->execute();
                         $upd_stmt->close();
-
-                        $del_merge_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                        $del_merge_stmt->bind_param('i', $doc_id);
-                        $del_merge_stmt->execute();
-                        $res_merge_old = $del_merge_stmt->get_result();
-                        while ($old_row = $res_merge_old->fetch_assoc()) {
-                            $old_path = __DIR__ . '/../../' . $old_row['file_path'];
-                            if (file_exists($old_path) && is_file($old_path)) {
-                                unlink($old_path);
-                            }
-                        }
-                        $del_merge_stmt->close();
-
-                        $del_merge_stmt2 = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                        $del_merge_stmt2->bind_param('i', $doc_id);
-                        $del_merge_stmt2->execute();
-                        $del_merge_stmt2->close();
-                        
-                        $merged_data = [
-                            'original_name' => 'Merged_Document.pdf',
-                            'stored_name' => $merged_filename,
-                            'file_path' => $rel_merged_path,
-                            'mime_type' => 'application/pdf',
-                            'file_size' => filesize($merged_path)
-                        ];
-                        file_save_record($conn, $doc_id, $merged_data, 'merged_pdf');
                     }
-                } catch (\Exception $e) {
-                    error_log("PDF Re-Merge Failed: " . $e->getMessage());
                 }
-            } elseif (count($pdfs_to_merge) === 1) {
-                $base_root = str_replace('\\', '/', (string)realpath(__DIR__ . '/../../'));
-                $norm_path = str_replace('\\', '/', $pdfs_to_merge[0]['path']);
-                $rel_merged_path = ltrim(str_replace($base_root, '', $norm_path), '/\\');
-                $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
-                $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
-                $upd_stmt->execute();
-                $upd_stmt->close();
             }
         }
 
@@ -504,21 +539,27 @@ class DocumentActionController {
                 $first_step = $wf ? wf_get_first_step($conn, (int)$wf['workflow_id']) : null;
                 $step_id = $first_step ? (int)$first_step['step_id'] : 1;
                 $rst = $conn->prepare("UPDATE documents SET status = 'pending', current_step = ?, rejection_reason = NULL, updated_at = NOW() WHERE doc_id = ?");
-                $rst->bind_param('ii', $step_id, $doc_id);
-                $rst->execute();
-                $rst->close();
+                if ($rst) {
+                    $rst->bind_param('ii', $step_id, $doc_id);
+                    $rst->execute();
+                    $rst->close();
+                }
 
                 $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'resubmitted', ?, 'Author updated and resubmitted the document.', NOW())");
+                if ($log_stmt) {
+                    $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
+                    $log_stmt->execute();
+                    $log_stmt->close();
+                }
+            }
+            $_SESSION['success_msg'] = "Document updated and resubmitted for review successfully.";
+        } else {
+            $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'updated', ?, 'Author updated the document.', NOW())");
+            if ($log_stmt) {
                 $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
                 $log_stmt->execute();
                 $log_stmt->close();
             }
-            $_SESSION['success_msg'] = "Document updated and resubmitted for review successfully.";
-        } else {
-            $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'resubmitted', ?, 'Author updated the document.', NOW())");
-            $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
-            $log_stmt->execute();
-            $log_stmt->close();
             $_SESSION['success_msg'] = "Document updated successfully.";
         }
         header("Location: " . BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
@@ -572,46 +613,67 @@ class DocumentActionController {
         $zipName = sys_get_temp_dir() . '/FMS_Bulk_Download_' . time() . '.zip';
 
         if ($zip->open($zipName, \ZipArchive::CREATE) !== TRUE) {
-            die("Could not create ZIP file.");
+            $_SESSION['error_msg'] = "Could not create ZIP file.";
+            $this->safeRedirectBack();
         }
 
         $hasFiles = false;
         foreach ($valid_docs as $doc) {
-            $stmt = $conn->prepare("SELECT file_path, original_name FROM document_files WHERE doc_id = ?");
             $doc_id = $doc['doc_id'];
-            $stmt->bind_param('i', $doc_id);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            
             $doc_folder = preg_replace('/[^a-zA-Z0-9]/', '_', $doc['title']) . '_' . $doc_id;
 
-            while ($row = $res->fetch_assoc()) {
-                $path = __DIR__ . '/../../' . $row['file_path'];
-                if (file_exists($path) && is_file($path)) {
-                    $safe_orig_name = basename($row['original_name']);
-                    $zip->addFile($path, $doc_folder . '/' . $safe_orig_name);
+            $stmt = $conn->prepare("SELECT file_path, original_name FROM document_files WHERE doc_id = ?");
+            if ($stmt) {
+                $stmt->bind_param('i', $doc_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+
+                while ($row = $res->fetch_assoc()) {
+                    $path = __DIR__ . '/../../' . $row['file_path'];
+                    if (file_exists($path) && is_file($path)) {
+                        $safe_orig_name = basename($row['original_name']);
+                        $zip->addFile($path, $doc_folder . '/' . $safe_orig_name);
+                        $hasFiles = true;
+                    }
+                }
+                $stmt->close();
+            }
+
+            // Fallback: Check main document file_path if present
+            if (!empty($doc['file_path'])) {
+                $mainPath = __DIR__ . '/../../' . ltrim($doc['file_path'], '/\\');
+                if (file_exists($mainPath) && is_file($mainPath)) {
+                    $zip->addFile($mainPath, $doc_folder . '/' . basename($mainPath));
                     $hasFiles = true;
                 }
             }
-            $stmt->close();
         }
 
         $zip->close();
 
         if (!$hasFiles) {
-            unlink($zipName);
-            die("None of the selected documents have valid files attached.");
+            if (file_exists($zipName)) {
+                @unlink($zipName);
+            }
+            $_SESSION['error_msg'] = "None of the selected documents have valid files attached.";
+            $this->safeRedirectBack();
         }
 
-        if (ob_get_level()) {
+        while (ob_get_level()) {
             ob_end_clean();
         }
 
+        header('X-Content-Type-Options: nosniff');
         header('Content-Type: application/zip');
-        header('Content-disposition: attachment; filename=FMS_Bulk_Download.zip');
+        header('Content-Disposition: attachment; filename="FMS_Bulk_Download.zip"');
         header('Content-Length: ' . filesize($zipName));
-        readfile($zipName);
-        unlink($zipName);
+        try {
+            readfile($zipName);
+        } finally {
+            if (file_exists($zipName)) {
+                @unlink($zipName);
+            }
+        }
         exit;
     }
 
@@ -619,38 +681,45 @@ class DocumentActionController {
         require_once __DIR__ . '/../../core/pdf_merger_service.php';
         
         $pdfs_to_merge = [];
+        $supported_exts = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
+
         foreach ($valid_docs as $doc) {
             // Prefer the main merged/compiled PDF for the document if available
             $main_file_path = $doc['file_path'] ?? '';
             $full_path = __DIR__ . '/../../' . $main_file_path;
             
-            if (!empty($main_file_path) && file_exists($full_path) && strtolower(pathinfo($full_path, PATHINFO_EXTENSION)) === 'pdf') {
+            $main_ext = strtolower(pathinfo($full_path, PATHINFO_EXTENSION));
+            if (!empty($main_file_path) && file_exists($full_path) && in_array($main_ext, $supported_exts, true)) {
                 $pdfs_to_merge[] = [
                     'path' => $full_path,
                     'title' => $doc['title'] ?: $doc['type_label']
                 ];
             } else {
-                // Fallback: Check individual PDF files if main file is not PDF
+                // Fallback: Check individual PDF and image files if main file is not available
                 $stmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_label != 'merged_pdf'");
-                $doc_id = $doc['doc_id'];
-                $stmt->bind_param('i', $doc_id);
-                $stmt->execute();
-                $res = $stmt->get_result();
-                while ($row = $res->fetch_assoc()) {
-                    $path = __DIR__ . '/../../' . $row['file_path'];
-                    if (file_exists($path) && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'pdf') {
-                        $pdfs_to_merge[] = [
-                            'path' => $path,
-                            'title' => ($doc['title'] ?: $doc['type_label']) . ' - ' . ucfirst(str_replace('_', ' ', $row['file_label']))
-                        ];
+                if ($stmt) {
+                    $doc_id = $doc['doc_id'];
+                    $stmt->bind_param('i', $doc_id);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+                    while ($row = $res->fetch_assoc()) {
+                        $path = __DIR__ . '/../../' . $row['file_path'];
+                        $att_ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                        if (file_exists($path) && in_array($att_ext, $supported_exts, true)) {
+                            $pdfs_to_merge[] = [
+                                'path' => $path,
+                                'title' => ($doc['title'] ?: $doc['type_label']) . ' - ' . ucfirst(str_replace('_', ' ', $row['file_label']))
+                            ];
+                        }
                     }
+                    $stmt->close();
                 }
-                $stmt->close();
             }
         }
 
         if (empty($pdfs_to_merge)) {
-            die("None of the selected documents contain valid PDF files to merge.");
+            $_SESSION['error_msg'] = "None of the selected documents contain valid PDF or image files to merge.";
+            $this->safeRedirectBack();
         }
 
         $merged_filename = 'Bulk_Merged_' . uniqid() . '.pdf';
@@ -658,20 +727,34 @@ class DocumentActionController {
 
         try {
             if (merge_pdfs_with_headings($pdfs_to_merge, $merged_path)) {
-                if (ob_get_level()) {
+                while (ob_get_level()) {
                     ob_end_clean();
                 }
+                header('X-Content-Type-Options: nosniff');
                 header('Content-Type: application/pdf');
-                header('Content-disposition: attachment; filename=FMS_Bulk_Merged.pdf');
+                header('Content-Disposition: attachment; filename="FMS_Bulk_Merged.pdf"');
                 header('Content-Length: ' . filesize($merged_path));
-                readfile($merged_path);
-                unlink($merged_path);
+                try {
+                    readfile($merged_path);
+                } finally {
+                    if (file_exists($merged_path)) {
+                        @unlink($merged_path);
+                    }
+                }
                 exit;
             } else {
-                die("Failed to merge PDFs.");
+                if (file_exists($merged_path)) {
+                    @unlink($merged_path);
+                }
+                $_SESSION['error_msg'] = "Failed to merge PDFs.";
+                $this->safeRedirectBack();
             }
-        } catch (\Exception $e) {
-            die("PDF Merge Error: " . $e->getMessage());
+        } catch (\Throwable $e) {
+            if (file_exists($merged_path)) {
+                @unlink($merged_path);
+            }
+            $_SESSION['error_msg'] = "PDF Merge Error: " . $e->getMessage();
+            $this->safeRedirectBack();
         }
     }
 
@@ -702,6 +785,7 @@ class DocumentActionController {
             $id = (int)$doc['doc_id'];
 
             // Query DB for complete metadata
+            $meta = [];
             $stmt = $conn->prepare("
                 SELECT msaf.*, y.year_label 
                 FROM documents d
@@ -709,10 +793,12 @@ class DocumentActionController {
                 LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
                 WHERE d.doc_id = ?
             ");
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
-            $meta = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $meta = $stmt->get_result()->fetch_assoc() ?: [];
+                $stmt->close();
+            }
 
             // Override with custom user inputs from modal preview if present
             $custom = $doc_custom_data[$id] ?? [];
@@ -728,15 +814,17 @@ class DocumentActionController {
 
             // 1. Check document_files for pre-merged master PDF first
             $mstmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf' LIMIT 1");
-            $mstmt->bind_param('i', $id);
-            $mstmt->execute();
-            $mres = $mstmt->get_result()->fetch_assoc();
-            $mstmt->close();
+            if ($mstmt) {
+                $mstmt->bind_param('i', $id);
+                $mstmt->execute();
+                $mres = $mstmt->get_result()->fetch_assoc();
+                $mstmt->close();
 
-            if (!empty($mres['file_path'])) {
-                $p = __DIR__ . '/../../' . ltrim($mres['file_path'], '/\\');
-                if (file_exists($p)) {
-                    $resolvedFilePath = $p;
+                if (!empty($mres['file_path'])) {
+                    $p = __DIR__ . '/../../' . ltrim($mres['file_path'], '/\\');
+                    if (file_exists($p)) {
+                        $resolvedFilePath = $p;
+                    }
                 }
             }
 
@@ -752,34 +840,36 @@ class DocumentActionController {
             // 3. Fallback: Query all attached files (both PDFs and JPG/PNG images)
             if (empty($resolvedFilePath)) {
                 $fstmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? ORDER BY file_id ASC");
-                $fstmt->bind_param('i', $id);
-                $fstmt->execute();
-                $fres = $fstmt->get_result();
-                $attached_files = [];
-                while ($frow = $fres->fetch_assoc()) {
-                    $rawFilePath = ltrim($frow['file_path'], '/\\');
-                    $p = __DIR__ . '/../../' . $rawFilePath;
-                    if (file_exists($p)) {
-                        $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
-                        if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'])) {
-                            $attached_files[] = ['path' => $p, 'title' => $frow['file_label']];
+                if ($fstmt) {
+                    $fstmt->bind_param('i', $id);
+                    $fstmt->execute();
+                    $fres = $fstmt->get_result();
+                    $attached_files = [];
+                    while ($frow = $fres->fetch_assoc()) {
+                        $rawFilePath = ltrim($frow['file_path'], '/\\');
+                        $p = __DIR__ . '/../../' . $rawFilePath;
+                        if (file_exists($p)) {
+                            $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
+                            if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'])) {
+                                $attached_files[] = ['path' => $p, 'title' => $frow['file_label']];
+                            }
                         }
                     }
-                }
-                $fstmt->close();
+                    $fstmt->close();
 
-                if (count($attached_files) > 1) {
-                    $tempMerged = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'doc_' . $id . '_compiled_' . uniqid() . '.pdf';
-                    try {
-                        if (merge_pdfs_with_headings($attached_files, $tempMerged)) {
-                            $resolvedFilePath = $tempMerged;
-                            $temp_cleanup_registry[] = $tempMerged;
+                    if (count($attached_files) > 1) {
+                        $tempMerged = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'doc_' . $id . '_compiled_' . uniqid() . '.pdf';
+                        try {
+                            if (merge_pdfs_with_headings($attached_files, $tempMerged)) {
+                                $resolvedFilePath = $tempMerged;
+                                $temp_cleanup_registry[] = $tempMerged;
+                            }
+                        } catch (\Throwable $e) {
+                            $resolvedFilePath = $attached_files[0]['path'] ?? '';
                         }
-                    } catch (\Throwable $e) {
-                        $resolvedFilePath = $attached_files[0]['path'] ?? '';
+                    } elseif (count($attached_files) === 1) {
+                        $resolvedFilePath = $attached_files[0]['path'];
                     }
-                } elseif (count($attached_files) === 1) {
-                    $resolvedFilePath = $attached_files[0]['path'];
                 }
             }
 
@@ -797,6 +887,11 @@ class DocumentActionController {
         }
 
         if (empty($docs_to_merge)) {
+            foreach ($temp_cleanup_registry as $tmp_file) {
+                if (file_exists($tmp_file)) {
+                    @unlink($tmp_file);
+                }
+            }
             $_SESSION['error_msg'] = "No valid documents found to merge.";
             $this->safeRedirectBack();
         }
@@ -813,18 +908,21 @@ class DocumentActionController {
                 ob_end_clean();
             }
 
+            header('X-Content-Type-Options: nosniff');
             header('Content-Type: application/pdf');
             header('Content-Disposition: attachment; filename="' . $merged_filename . '"');
             header('Content-Length: ' . filesize($merged_path));
             header('Cache-Control: private, max-age=0, must-revalidate');
             header('Pragma: public');
             
-            readfile($merged_path);
-
-            // Clean up all temporary files created during this request
-            foreach ($temp_cleanup_registry as $tmpF) {
-                if (file_exists($tmpF)) {
-                    @unlink($tmpF);
+            try {
+                readfile($merged_path);
+            } finally {
+                // Clean up all temporary files created during this request
+                foreach ($temp_cleanup_registry as $tmpF) {
+                    if (file_exists($tmpF)) {
+                        @unlink($tmpF);
+                    }
                 }
             }
             exit;

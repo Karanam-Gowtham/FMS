@@ -43,6 +43,7 @@
         <h3 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 1.2rem; color: #111827; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">Filters</h3>
         <form method="GET" id="sidebar-filters" action="<?= BASE_URL ?>/public/index.php">
             <input type="hidden" name="route" value="documents/list">
+            <input type="hidden" name="page" value="1">
             <?php if (!empty($_GET['context'])): ?>
                 <input type="hidden" name="context" value="<?= htmlspecialchars($_GET['context']) ?>">
             <?php endif; ?>
@@ -271,6 +272,22 @@
                 <i class="fas fa-file-csv"></i> Export Filtered to CSV
             </a>
         </div>
+
+        <?php 
+        $active_success = !empty($disp_success) ? $disp_success : (!empty($success_msg) ? $success_msg : '');
+        $active_error   = !empty($disp_error) ? $disp_error : (!empty($error_msg) ? $error_msg : '');
+        ?>
+        <?php if (!empty($active_success)): ?>
+            <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1.25rem; font-size: 0.95rem; display: flex; align-items: center;">
+                <span><i class="fas fa-check-circle" style="margin-right: 8px;"></i><?= htmlspecialchars($active_success) ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($active_error)): ?>
+            <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1.25rem; font-size: 0.95rem; display: flex; align-items: center;">
+                <span><i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i><?= htmlspecialchars($active_error) ?></span>
+            </div>
+        <?php endif; ?>
 
     <?php if (empty($documents)): ?>
         <div class="empty-state">
@@ -713,10 +730,9 @@
                 <?php 
                 $q = $_GET;
                 unset($q['page']);
-                $page_url_base = "?" . http_build_query($q);
                 ?>
                 <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                    <a href="<?= $page_url_base ?>&page=<?= $p ?>"
+                    <a href="?<?= http_build_query(array_merge($q, ['page' => $p])) ?>"
                        class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
                 <?php endfor; ?>
             </div>

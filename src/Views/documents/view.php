@@ -82,7 +82,7 @@
         </div>
     </div>
 
-    <?php if ($document['status'] === 'rejected' && $document['rejection_reason']): ?>
+    <?php if ($document['status'] === 'rejected' && !empty($document['rejection_reason'])): ?>
         <div class="rejection-box">
             <strong>Rejection Reason:</strong> <?= htmlspecialchars($document['rejection_reason']) ?>
         </div>

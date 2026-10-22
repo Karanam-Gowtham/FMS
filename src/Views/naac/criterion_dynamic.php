@@ -327,15 +327,24 @@
             method: 'POST',
             body: formData
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('HTTP error ' + res.status);
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success || data.status === 'success') {
                 const toast = document.getElementById('toast');
                 toast.style.display = 'block';
                 setTimeout(() => { toast.style.display = 'none'; }, 3000);
             } else {
-                alert('Error: ' + data.error);
+                alert('Error: ' + (data.error || data.message || 'Failed to save data.'));
             }
+        })
+        .catch(err => {
+            console.error('Save error:', err);
+            alert('An error occurred while saving: ' + err.message);
         })
         .finally(() => {
             btn.innerText = 'Save Criterion <?= $crit_id ?>';

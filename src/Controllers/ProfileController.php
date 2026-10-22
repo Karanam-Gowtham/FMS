@@ -15,11 +15,14 @@ class ProfileController {
             $target_user_id = (int)$_GET['id'];
         }
 
+        $profile = null;
         $stmt = $conn->prepare("SELECT u.full_name as name, u.email, p.* FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ?");
-        $stmt->bind_param("i", $target_user_id);
-        $stmt->execute();
-        $profile = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        if ($stmt) {
+            $stmt->bind_param("i", $target_user_id);
+            $stmt->execute();
+            $profile = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+        }
 
         $is_own_profile = ($target_user_id === (int)$auth['user_id']);
 
@@ -47,7 +50,7 @@ class ProfileController {
             $specialization = trim($_POST['specialization'] ?? '');
             $doj_institution = trim($_POST['doj_institution'] ?? '');
             $doj_department = trim($_POST['doj_department'] ?? '');
-            $experience_years = (float)($_POST['experience_years'] ?? 0);
+            $experience_years = max(0.0, round((float)($_POST['experience_years'] ?? 0), 2));
             $designation_joining = trim($_POST['designation_joining'] ?? '');
             $designation_present = trim($_POST['designation_present'] ?? '');
             $date_designated_prof = trim($_POST['date_designated_prof'] ?? '');
@@ -84,18 +87,25 @@ class ProfileController {
                 if (!empty($conditions)) {
                     $check_sql .= implode(" OR ", $conditions) . ")";
                     $stmt = $conn->prepare($check_sql);
-                    $stmt->bind_param($types, ...$params);
-                    $stmt->execute();
-                    if ($stmt->get_result()->num_rows > 0) {
-                        $error = 'Another user is already using this Per No or PAN No.';
+                    if ($stmt) {
+                        $stmt->bind_param($types, ...$params);
+                        $stmt->execute();
+                        if ($stmt->get_result()->num_rows > 0) {
+                            $error = 'Another user is already using this Per No or PAN No.';
+                        }
+                        $stmt->close();
+                    } else {
+                        $error = 'Database error verifying unique credentials.';
                     }
-                    $stmt->close();
                 }
 
                 if (empty($error)) {
                     $conn->begin_transaction();
                 try {
                     $stmt = $conn->prepare("UPDATE users SET full_name = ? WHERE user_id = ?");
+                    if (!$stmt) {
+                        throw new \Exception("Database error preparing name update.");
+                    }
                     $stmt->bind_param("si", $name, $auth['user_id']);
                     $stmt->execute();
                     $stmt->close();
@@ -103,11 +113,30 @@ class ProfileController {
                     $update_photo = false;
                     $profile_photo_path = null;
                     if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+                        $photo_ext = strtolower(pathinfo($_FILES['profile_photo']['name'] ?? '', PATHINFO_EXTENSION));
+                        if (!in_array($photo_ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                            throw new \Exception('Profile photo must be a valid image file (JPG, PNG, or WebP).');
+                        }
                         require_once __DIR__ . '/../../core/file_service.php';
                         $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
                         if ($upload_result['success']) {
                             $profile_photo_path = $upload_result['data']['file_path'];
                             $update_photo = true;
+
+                            // Clean up previous profile photo on disk if present
+                            $old_photo_stmt = $conn->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
+                            if ($old_photo_stmt) {
+                                $old_photo_stmt->bind_param("i", $auth['user_id']);
+                                $old_photo_stmt->execute();
+                                $old_photo_res = $old_photo_stmt->get_result()->fetch_assoc();
+                                $old_photo_stmt->close();
+                                if (!empty($old_photo_res['profile_photo'])) {
+                                    $prev_file = (defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2)) . '/' . ltrim($old_photo_res['profile_photo'], '/\\');
+                                    if (file_exists($prev_file) && is_file($prev_file)) {
+                                        @unlink($prev_file);
+                                    }
+                                }
+                            }
                         } else {
                             throw new \Exception('Profile photo upload failed: ' . ($upload_result['error'] ?? 'Invalid file format or size.'));
                         }
@@ -131,6 +160,9 @@ class ProfileController {
                                 contract_type = VALUES(contract_type), is_currently_associated = VALUES(is_currently_associated),
                                 date_of_leaving = VALUES(date_of_leaving), profile_photo = VALUES(profile_photo)
                         ");
+                        if (!$stmt) {
+                            throw new \Exception("Database error preparing profile photo statement.");
+                        }
                         $stmt->bind_param("issssssssdsssssiss", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving, $profile_photo_path);
                     } else {
                         $stmt = $conn->prepare("
@@ -150,6 +182,9 @@ class ProfileController {
                                 contract_type = VALUES(contract_type), is_currently_associated = VALUES(is_currently_associated),
                                 date_of_leaving = VALUES(date_of_leaving)
                         ");
+                        if (!$stmt) {
+                            throw new \Exception("Database error preparing profile statement.");
+                        }
                         $stmt->bind_param("issssssssdsssssis", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving);
                     }
                     
@@ -169,11 +204,14 @@ class ProfileController {
             }
         }
 
+        $profile = null;
         $stmt = $conn->prepare("SELECT u.full_name as name, u.email, p.* FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ?");
-        $stmt->bind_param("i", $auth['user_id']);
-        $stmt->execute();
-        $profile = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        if ($stmt) {
+            $stmt->bind_param("i", $auth['user_id']);
+            $stmt->execute();
+            $profile = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+        }
 
         include __DIR__ . '/../Views/profile/edit.php';
     }

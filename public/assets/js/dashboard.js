@@ -21,6 +21,12 @@ function activateRole(userRoleId, baseUrl, csrfToken) {
     csrf.value = csrfToken;
     form.appendChild(csrf);
 
+    const csrf2 = document.createElement('input');
+    csrf2.type = 'hidden';
+    csrf2.name = 'csrf_token';
+    csrf2.value = csrfToken;
+    form.appendChild(csrf2);
+
     document.body.appendChild(form);
     form.submit();
 }

@@ -40,14 +40,20 @@ class NAACAPIController {
             $conn->begin_transaction();
 
             $sub_stmt = $conn->prepare("SELECT submission_id FROM naac_submissions WHERE dept_id = ? AND academic_year = ?");
+            if (!$sub_stmt) {
+                throw new \Exception("Database error: failed to prepare submission statement.");
+            }
             $sub_stmt->bind_param("is", $dept_id, $year);
             $sub_stmt->execute();
             $sub_res = $sub_stmt->get_result();
             
-            if ($sub_res->num_rows > 0) {
+            if ($sub_res && $sub_res->num_rows > 0) {
                 $sub_id = $sub_res->fetch_assoc()['submission_id'];
             } else {
                 $sub_insert = $conn->prepare("INSERT INTO naac_submissions (dept_id, academic_year, status) VALUES (?, ?, 'Draft')");
+                if (!$sub_insert) {
+                    throw new \Exception("Database error: failed to prepare submission insert.");
+                }
                 $sub_insert->bind_param("is", $dept_id, $year);
                 $sub_insert->execute();
                 $sub_id = $conn->insert_id;
@@ -58,16 +64,26 @@ class NAACAPIController {
             $final_json = json_encode($payload);
             
             $crit_stmt = $conn->prepare("SELECT id FROM naac_criteria_data WHERE submission_id = ? AND criterion_number = ?");
+            if (!$crit_stmt) {
+                throw new \Exception("Database error: failed to prepare criteria query.");
+            }
             $crit_stmt->bind_param("ii", $sub_id, $crit_id);
             $crit_stmt->execute();
+            $crit_res = $crit_stmt->get_result();
             
-            if ($crit_stmt->get_result()->num_rows > 0) {
+            if ($crit_res && $crit_res->num_rows > 0) {
                 $update = $conn->prepare("UPDATE naac_criteria_data SET data_json = ? WHERE submission_id = ? AND criterion_number = ?");
+                if (!$update) {
+                    throw new \Exception("Database error: failed to prepare criteria update.");
+                }
                 $update->bind_param("sii", $final_json, $sub_id, $crit_id);
                 $update->execute();
                 $update->close();
             } else {
                 $insert = $conn->prepare("INSERT INTO naac_criteria_data (submission_id, criterion_number, data_json) VALUES (?, ?, ?)");
+                if (!$insert) {
+                    throw new \Exception("Database error: failed to prepare criteria insert.");
+                }
                 $insert->bind_param("iis", $sub_id, $crit_id, $final_json);
                 $insert->execute();
                 $insert->close();
@@ -82,7 +98,7 @@ class NAACAPIController {
                 'message' => "Criterion {$crit_id} data saved successfully."
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if (isset($conn)) {
                 try {
                     $conn->rollback();
@@ -92,6 +108,7 @@ class NAACAPIController {
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ]);
         }
@@ -152,10 +169,12 @@ class NAACAPIController {
                 'message' => 'File uploaded successfully'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo json_encode([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'success' => false,
+                'message' => $e->getMessage(),
+                'error' => $e->getMessage()
             ]);
         }
     }
@@ -232,9 +251,11 @@ class NAACAPIController {
                 'success' => true,
                 'pdf_url' => BASE_URL . "/public/index.php?route=reports/download&type=naac&file=" . urlencode($filename)
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo json_encode([
+                'status' => 'error',
                 'success' => false,
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ]);
         }

@@ -50,7 +50,7 @@ class StudentActivityDashboardController
         
         $saf_cats = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Workshop', 'Seminar', 'Conference', 'Hackathon', 'Stepcone'];
         foreach ($saf_cats as $cat) {
-            if (!in_array($cat, $global_filter_options['event_types'])) {
+            if (!in_array($cat, $global_filter_options['event_types'], true)) {
                 $global_filter_options['event_types'][] = $cat;
             }
         }
@@ -204,7 +204,11 @@ class StudentActivityDashboardController
 
             // Timeline (by month based on form's event start date)
             $event_start_date = (!empty($meta['date_from']) && $meta['date_from'] !== '0000-00-00') ? $meta['date_from'] : $doc['created_at'];
-            $month = date('Y-m', strtotime($event_start_date));
+            $ts = strtotime($event_start_date);
+            if ($ts === false) {
+                $ts = !empty($doc['created_at']) ? (strtotime($doc['created_at']) ?: time()) : time();
+            }
+            $month = date('Y-m', $ts);
             $stats['timeline'][$month] = ($stats['timeline'][$month] ?? 0) + $count;
         }
 

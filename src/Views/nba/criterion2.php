@@ -329,22 +329,28 @@
         const payload = { levelData: levelData };
         formData.append('json_data', JSON.stringify(payload));
         formData.append('_csrf_token', '<?= csrfToken() ?>');
+        formData.append('csrf_token', '<?= csrfToken() ?>');
 
         fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=2', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData.toString()
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Server returned HTTP ' + res.status);
+            }
+            return res.json();
+        })
         .then(data => {
-            if (data.status === 'success') {
+            if (data.status === 'success' || data.success) {
                 if (!silent) {
                     const toast = document.getElementById('toast');
                     toast.style.display = 'block';
                     setTimeout(() => toast.style.display = 'none', 3000);
                 }
             } else {
-                alert('Error saving data: ' + data.message);
+                alert('Error saving data: ' + (data.error || data.message || 'Unknown error'));
             }
         })
         .catch(err => {

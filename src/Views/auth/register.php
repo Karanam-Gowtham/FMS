@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration &mdash; File Management System (FMS)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Navigation Bar */
+        .main-nav { background: #fff; padding: 15px 40px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; }
+        .nav-brand { font-size: 1.1rem; font-weight: bold; color: #0b353d; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-brand span { font-size: 0.75rem; color: #64748b; font-weight: normal; }
 
         body {
             background-image: url('<?= BASE_URL ?>/assets/img/gmr_landing_page.jpg');
@@ -17,7 +23,7 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 90px 20px 40px 20px; /* Offset for fixed navbar */
         }
 
         body::before {

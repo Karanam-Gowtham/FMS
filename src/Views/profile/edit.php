@@ -6,6 +6,7 @@
     <title>Edit Profile &mdash; FMS</title>
     <link href="<?= BASE_URL ?>/assets/css/layout.css" rel="stylesheet">
     <link href="<?= BASE_URL ?>/assets/css/nba_module.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .form-group.full-width { grid-column: 1 / -1; }

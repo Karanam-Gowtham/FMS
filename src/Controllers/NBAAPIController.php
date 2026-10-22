@@ -72,14 +72,20 @@ class NBAAPIController {
 
             // 1. Check/Create Submission
             $sub_stmt = $conn->prepare("SELECT submission_id FROM nba_submissions WHERE dept_id = ? AND academic_year = ?");
+            if (!$sub_stmt) {
+                throw new \Exception("Database error: failed to prepare submission statement.");
+            }
             $sub_stmt->bind_param("is", $dept_id, $year);
             $sub_stmt->execute();
             $sub_res = $sub_stmt->get_result();
             
-            if ($sub_res->num_rows > 0) {
+            if ($sub_res && $sub_res->num_rows > 0) {
                 $sub_id = $sub_res->fetch_assoc()['submission_id'];
             } else {
                 $sub_insert = $conn->prepare("INSERT INTO nba_submissions (dept_id, academic_year, status) VALUES (?, ?, 'Draft')");
+                if (!$sub_insert) {
+                    throw new \Exception("Database error: failed to prepare submission insert.");
+                }
                 $sub_insert->bind_param("is", $dept_id, $year);
                 $sub_insert->execute();
                 $sub_id = $conn->insert_id;
@@ -89,13 +95,16 @@ class NBAAPIController {
 
             // 2. Check existing criteria data for uploaded files
             $crit_stmt = $conn->prepare("SELECT id, data_json FROM nba_criteria_data WHERE submission_id = ? AND criterion_number = ?");
+            if (!$crit_stmt) {
+                throw new \Exception("Database error: failed to prepare criteria query.");
+            }
             $crit_stmt->bind_param("ii", $sub_id, $crit_id);
             $crit_stmt->execute();
             $crit_res = $crit_stmt->get_result();
             
             $existing_files = [];
             $crit_id_db = null;
-            if ($crit_res->num_rows > 0) {
+            if ($crit_res && $crit_res->num_rows > 0) {
                 $row = $crit_res->fetch_assoc();
                 $crit_id_db = $row['id'];
                 $existing_data = json_decode($row['data_json'], true) ?: [];
@@ -136,11 +145,17 @@ class NBAAPIController {
             
             if ($crit_id_db) {
                 $update = $conn->prepare("UPDATE nba_criteria_data SET data_json = ? WHERE id = ?");
+                if (!$update) {
+                    throw new \Exception("Database error: failed to prepare criteria update.");
+                }
                 $update->bind_param("si", $final_json, $crit_id_db);
                 $update->execute();
                 $update->close();
             } else {
                 $insert = $conn->prepare("INSERT INTO nba_criteria_data (submission_id, criterion_number, data_json) VALUES (?, ?, ?)");
+                if (!$insert) {
+                    throw new \Exception("Database error: failed to prepare criteria insert.");
+                }
                 $insert->bind_param("iis", $sub_id, $crit_id, $final_json);
                 $insert->execute();
                 $insert->close();
@@ -154,7 +169,7 @@ class NBAAPIController {
                 'message' => "Criterion {$crit_id} data saved successfully."
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if (isset($conn)) {
                 try {
                     $conn->rollback();
@@ -165,6 +180,7 @@ class NBAAPIController {
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ]);
         }
@@ -225,10 +241,12 @@ class NBAAPIController {
                 'message' => 'File uploaded successfully'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo json_encode([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'success' => false,
+                'message' => $e->getMessage(),
+                'error' => $e->getMessage()
             ]);
         }
     }
@@ -253,15 +271,43 @@ class NBAAPIController {
             
             require_once __DIR__ . '/../../libs/fpdf.php';
             
-            $pdf = new \FPDF();
+            $pdf = new \FPDF('P', 'mm', 'A4');
             $pdf->AddPage();
+            
+            $logoPath = realpath(__DIR__ . '/../../assets/img/gmr_logo.png') ?: realpath(__DIR__ . '/../../assets/img/logo.png');
+            if ($logoPath && file_exists($logoPath)) {
+                $pdf->Image($logoPath, 86, 12, 38);
+                $pdf->SetY(32);
+            } else {
+                $pdf->SetY(15);
+            }
+
             $pdf->SetFont('Arial', 'B', 16);
-            $pdf->Cell(0, 10, 'GMR Institute of Technology', 0, 1, 'C');
-            $pdf->SetFont('Arial', 'B', 12);
-            $pdf->Cell(0, 10, "NBA Accreditation - Criterion {$crit_id} Report", 0, 1, 'C');
-            $pdf->Ln(10);
+            $pdf->SetTextColor(0, 51, 102);
+            $pdf->Cell(0, 8, 'GMR Institute of Technology', 0, 1, 'C');
             $pdf->SetFont('Arial', '', 10);
-            $pdf->MultiCell(0, 7, "This is an auto-generated draft report for Criterion {$crit_id}. In production, this document will compile all saved data and mapped attachments dynamically.");
+            $pdf->SetTextColor(80, 80, 80);
+            $pdf->Cell(0, 5, 'An Autonomous Institute Affiliated to JNTU-GV', 0, 1, 'C');
+            $pdf->Ln(6);
+
+            $pdf->SetDrawColor(0, 51, 102);
+            $pdf->SetLineWidth(0.5);
+            $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
+            $pdf->Ln(6);
+
+            $pdf->SetFont('Arial', 'B', 13);
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->Cell(0, 8, "NBA Accreditation - Criterion {$crit_id} Report", 0, 1, 'C');
+            $pdf->Ln(4);
+
+            $pdf->SetFont('Arial', '', 10.5);
+            $pdf->SetTextColor(30, 41, 59);
+            $pdf->MultiCell(0, 6.5, "This is an auto-generated compliance report summary for NBA Criterion {$crit_id}. All mapped course outcomes, faculty data, and department records are archived in the GMRIT Academic Repository.", 0, 'L');
+            $pdf->Ln(4);
+
+            $pdf->SetFont('Arial', 'I', 9.5);
+            $pdf->SetTextColor(100, 116, 139);
+            $pdf->Cell(0, 6, "Report Generated on: " . date('d-m-Y H:i:s'), 0, 1, 'L');
             
             $dir = __DIR__ . "/../../uploads/nba_pdfs/";
             if (!is_dir($dir)) {
@@ -277,9 +323,11 @@ class NBAAPIController {
                 'success' => true,
                 'pdf_url' => BASE_URL . "/public/index.php?route=reports/download&type=nba&file=" . urlencode($filename)
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo json_encode([
+                'status' => 'error',
                 'success' => false,
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ]);
         }

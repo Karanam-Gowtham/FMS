@@ -17,14 +17,18 @@ class NBACriterionController {
         $crit_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
 
         if (!$active_role) {
-            die("You must have an active role to access NBA criteria.");
+            $_SESSION['error_msg'] = "You must select an active role to access NBA criteria.";
+            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
+            exit();
         }
 
         $requested_dept_id = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : null;
         $dept_id = validate_dept_filter($requested_dept_id);
         
         if ($dept_id === null) {
-            die("Access denied. You are not authorized to view data for this department.");
+            $_SESSION['error_msg'] = "Access denied. You are not authorized to view data for this department.";
+            header("Location: " . BASE_URL . "/public/index.php?route=nba/dashboard");
+            exit();
         }
 
         // Fetch departments for the selector (Exclude central/admin wings)
@@ -41,24 +45,28 @@ class NBACriterionController {
         if ($dept_id > 0) {
             // Check if submission exists
             $stmt = $conn->prepare("SELECT * FROM nba_submissions WHERE dept_id = ? AND academic_year = ?");
-            $stmt->bind_param("is", $dept_id, $year);
-            $stmt->execute();
-            $sub_res = $stmt->get_result();
-            if ($sub_res->num_rows > 0) {
-                $submission = $sub_res->fetch_assoc();
-                
-                // Fetch specific Criterion data
-                $stmt2 = $conn->prepare("SELECT data_json FROM nba_criteria_data WHERE submission_id = ? AND criterion_number = ?");
-                $stmt2->bind_param("ii", $submission['submission_id'], $crit_id);
-                $stmt2->execute();
-                $data_res = $stmt2->get_result();
-                if ($data_res->num_rows > 0) {
-                    $row = $data_res->fetch_assoc();
-                    $criteria_data = json_decode($row['data_json'], true) ?: [];
+            if ($stmt) {
+                $stmt->bind_param("is", $dept_id, $year);
+                $stmt->execute();
+                $sub_res = $stmt->get_result();
+                if ($sub_res && $sub_res->num_rows > 0) {
+                    $submission = $sub_res->fetch_assoc();
+                    
+                    // Fetch specific Criterion data
+                    $stmt2 = $conn->prepare("SELECT data_json FROM nba_criteria_data WHERE submission_id = ? AND criterion_number = ?");
+                    if ($stmt2) {
+                        $stmt2->bind_param("ii", $submission['submission_id'], $crit_id);
+                        $stmt2->execute();
+                        $data_res = $stmt2->get_result();
+                        if ($data_res && $data_res->num_rows > 0) {
+                            $row = $data_res->fetch_assoc();
+                            $criteria_data = json_decode($row['data_json'], true) ?: [];
+                        }
+                        $stmt2->close();
+                    }
                 }
-                $stmt2->close();
+                $stmt->close();
             }
-            $stmt->close();
         }
 
         // Title mapping

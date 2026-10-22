@@ -86,18 +86,20 @@ class DashboardController {
                  ORDER BY d.created_at DESC 
                  LIMIT 10"
             );
-            $user_id = $auth['user_id'];
-            $stmt->bind_param('i', $user_id);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            
-            while ($row = $res->fetch_assoc()) {
-                if ($row['status'] !== 'pending' || !$row['current_step']) {
-                    $row['step_label'] = '—';
+            if ($stmt) {
+                $user_id = $auth['user_id'];
+                $stmt->bind_param('i', $user_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                
+                while ($row = $res->fetch_assoc()) {
+                    if ($row['status'] !== 'pending' || !$row['current_step']) {
+                        $row['step_label'] = '—';
+                    }
+                    $recent_uploads[] = $row;
                 }
-                $recent_uploads[] = $row;
+                $stmt->close();
             }
-            $stmt->close();
 
             // Fetch chart data for Faculty/User Dashboard
             $chart_categories = [];
@@ -135,30 +137,32 @@ class DashboardController {
                 LEFT JOIN meta_student_journal msj ON msj.doc_id = d.doc_id
                 WHERE d.uploaded_by = ?
             ");
-            $chart_stmt->bind_param('i', $user_id);
-            $chart_stmt->execute();
-            $chart_res = $chart_stmt->get_result();
-            
-            while ($c_row = $chart_res->fetch_assoc()) {
-                if (isset($stats[$c_row['status']])) {
-                    $stats[$c_row['status']]++;
-                }
+            if ($chart_stmt) {
+                $chart_stmt->bind_param('i', $user_id);
+                $chart_stmt->execute();
+                $chart_res = $chart_stmt->get_result();
                 
-                $cat = $c_row['type_label'];
-                if (!isset($chart_categories[$cat])) {
-                    $chart_categories[$cat] = 0;
+                while ($c_row = $chart_res->fetch_assoc()) {
+                    if (isset($stats[$c_row['status']])) {
+                        $stats[$c_row['status']]++;
+                    }
+                    
+                    $cat = $c_row['type_label'];
+                    if (!isset($chart_categories[$cat])) {
+                        $chart_categories[$cat] = 0;
+                    }
+                    $chart_categories[$cat]++;
+                    
+                    $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
+                    $date = date('Y-m', strtotime($event_dt));
+                    if (!isset($chart_timeline[$date])) {
+                        $chart_timeline[$date] = 0;
+                    }
+                    $chart_timeline[$date]++;
                 }
-                $chart_categories[$cat]++;
-                
-                $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
-                $date = date('Y-m', strtotime($event_dt));
-                if (!isset($chart_timeline[$date])) {
-                    $chart_timeline[$date] = 0;
-                }
-                $chart_timeline[$date]++;
+                $chart_stmt->close();
+                ksort($chart_timeline);
             }
-            $chart_stmt->close();
-            ksort($chart_timeline);
         }
 
         // Fetch pending approvals for reviewer roles (including Faculty acting as Mentors)
@@ -206,39 +210,48 @@ class DashboardController {
                     LEFT JOIN meta_student_journal msj ON msj.doc_id = d.doc_id
                 ";
                 
+                $d_stmt = null;
                 if (!$is_college_wide) {
                     $dept_query .= " WHERE d.dept_id = ?";
                     $d_stmt = $conn->prepare($dept_query);
-                    $dept_id_param = (int)($active_role['dept_id'] ?? 0);
-                    $d_stmt->bind_param('i', $dept_id_param);
+                    if ($d_stmt) {
+                        $dept_id_param = (int)($active_role['dept_id'] ?? 0);
+                        $d_stmt->bind_param('i', $dept_id_param);
+                    }
                 } else {
                     $d_stmt = $conn->prepare($dept_query);
                 }
                 
-                $d_stmt->execute();
-                $d_res = $d_stmt->get_result();
-                while ($c_row = $d_res->fetch_assoc()) {
-                    if (isset($dept_stats[$c_row['status']])) {
-                        $dept_stats[$c_row['status']]++;
+                if ($d_stmt) {
+                    $d_stmt->execute();
+                    $d_res = $d_stmt->get_result();
+                    while ($c_row = $d_res->fetch_assoc()) {
+                        if (isset($dept_stats[$c_row['status']])) {
+                            $dept_stats[$c_row['status']]++;
+                        }
+                        
+                        $cat = $c_row['type_label'];
+                        if (!isset($dept_categories[$cat])) {
+                            $dept_categories[$cat] = 0;
+                        }
+                        $dept_categories[$cat]++;
+                        
+                        $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
+                        $date = date('Y-m', strtotime($event_dt));
+                        if (!isset($dept_timeline[$date])) {
+                            $dept_timeline[$date] = 0;
+                        }
+                        $dept_timeline[$date]++;
                     }
-                    
-                    $cat = $c_row['type_label'];
-                    if (!isset($dept_categories[$cat])) {
-                        $dept_categories[$cat] = 0;
-                    }
-                    $dept_categories[$cat]++;
-                    
-                    $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
-                    $date = date('Y-m', strtotime($event_dt));
-                    if (!isset($dept_timeline[$date])) {
-                        $dept_timeline[$date] = 0;
-                    }
-                    $dept_timeline[$date]++;
+                    $d_stmt->close();
+                    ksort($dept_timeline);
                 }
-                $d_stmt->close();
-                ksort($dept_timeline);
             }
         }
+
+        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $error_msg   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         // Render the view
         include __DIR__ . '/../Views/dashboard.php';

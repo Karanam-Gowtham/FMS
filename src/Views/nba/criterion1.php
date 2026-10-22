@@ -1219,18 +1219,24 @@
 
         // Send AJAX POST
         formData.append('_csrf_token', '<?= csrfToken() ?>');
+        formData.append('csrf_token', '<?= csrfToken() ?>');
         fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=1', {
             method: 'POST',
             body: formData
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Server returned HTTP ' + res.status);
+            }
+            return res.json();
+        })
         .then(data => {
-            if (data.success) {
+            if (data.success || data.status === 'success') {
                 const toast = document.getElementById('toast');
                 toast.style.display = 'block';
                 setTimeout(() => toast.style.display = 'none', 3000);
             } else {
-                alert('Error: ' + data.error);
+                alert('Error: ' + (data.error || data.message || 'Unknown error'));
             }
         })
         .catch(err => {
@@ -1240,7 +1246,7 @@
     }
 
     // Boot
-    window.onload = initData;
+    document.addEventListener('DOMContentLoaded', initData);
 </script>
 </body>
 </html>

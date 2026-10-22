@@ -7,8 +7,9 @@ $active_role = auth_active_role();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Document - <?= htmlspecialchars($document['type_label']) ?></title>
+    <title>Edit Document &mdash; <?= htmlspecialchars($document['type_label']) ?> &mdash; FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .upload-container { max-width: 800px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .form-title { color: #1e293b; margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem; font-weight: 600; }
@@ -231,7 +232,9 @@ $active_role = auth_active_role();
 
 <script>
 function addAuthorRow(btn, fieldName) {
-    var table = (btn.parentElement ? btn.parentElement.querySelector('table.author-table') : null) || btn.previousElementSibling;
+    var table = (btn.previousElementSibling && btn.previousElementSibling.querySelector('table.author-table'))
+        || (btn.parentElement ? btn.parentElement.querySelector('table.author-table') : null)
+        || btn.previousElementSibling;
     if (!table) return;
     var tbody = table.getElementsByTagName('tbody')[0] || table;
     var newRow = tbody.insertRow(tbody.rows.length);

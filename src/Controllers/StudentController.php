@@ -34,37 +34,43 @@ class StudentController {
             WHERE d.uploaded_by = ?
             ORDER BY d.created_at DESC
         ");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
         $submissions = [];
         $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
-        
         $chart_categories = [];
         $chart_timeline = [];
 
-        while ($row = $res->fetch_assoc()) {
-            $submissions[] = $row;
-            if (isset($stats[$row['status']])) {
-                $stats[$row['status']]++;
+        if ($stmt) {
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+
+            while ($row = $res->fetch_assoc()) {
+                $submissions[] = $row;
+                if (isset($stats[$row['status']])) {
+                    $stats[$row['status']]++;
+                }
+                
+                // For Categories Chart
+                $cat = $row['activity_category'] ?: 'Uncategorized';
+                if (!isset($chart_categories[$cat])) {
+                    $chart_categories[$cat] = 0;
+                }
+                $chart_categories[$cat]++;
+                
+                // For Timeline Chart (Group by Month-Year based on event start date)
+                $event_dt = (!empty($row['event_date']) && $row['event_date'] !== '0000-00-00') ? $row['event_date'] : $row['created_at'];
+                $ts = strtotime($event_dt);
+                if ($ts === false) {
+                    $ts = !empty($row['created_at']) ? (strtotime($row['created_at']) ?: time()) : time();
+                }
+                $date = date('Y-m', $ts);
+                if (!isset($chart_timeline[$date])) {
+                    $chart_timeline[$date] = 0;
+                }
+                $chart_timeline[$date]++;
             }
-            
-            // For Categories Chart
-            $cat = $row['activity_category'] ?: 'Uncategorized';
-            if (!isset($chart_categories[$cat])) {
-                $chart_categories[$cat] = 0;
-            }
-            $chart_categories[$cat]++;
-            
-            // For Timeline Chart (Group by Month-Year based on event start date)
-            $event_dt = (!empty($row['event_date']) && $row['event_date'] !== '0000-00-00') ? $row['event_date'] : $row['created_at'];
-            $date = date('Y-m', strtotime($event_dt));
-            if (!isset($chart_timeline[$date])) {
-                $chart_timeline[$date] = 0;
-            }
-            $chart_timeline[$date]++;
+            $stmt->close();
         }
-        $stmt->close();
         
         // Sort timeline chronologically
         ksort($chart_timeline);
@@ -72,12 +78,18 @@ class StudentController {
         // Check if there are academic years (for the form)
         $ay_res = $conn->query("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
         $academic_years = [];
-        while ($ay_row = $ay_res->fetch_assoc()) {
-            $academic_years[] = [
-                'ay_id' => $ay_row['year_id'],
-                'ay_name' => $ay_row['year_label']
-            ];
+        if ($ay_res) {
+            while ($ay_row = $ay_res->fetch_assoc()) {
+                $academic_years[] = [
+                    'ay_id' => $ay_row['year_id'],
+                    'ay_name' => $ay_row['year_label']
+                ];
+            }
         }
+
+        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $error_msg   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         include __DIR__ . '/../Views/student/dashboard.php';
     }

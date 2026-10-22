@@ -17,6 +17,19 @@ require __DIR__ . '/../../../includes/header.php';
 
 <div class="student-dashboard-wrapper container-fluid">
 
+    <?php if (!empty($success_msg)): ?>
+        <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <div><?= htmlspecialchars($success_msg) ?></div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($error_msg)): ?>
+        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <div><?= htmlspecialchars($error_msg) ?></div>
+        </div>
+    <?php endif; ?>
 
     <!-- 1. HERO PROFILE SECTION -->
     <div style="background: linear-gradient(135deg, #0b1c3b 0%, #1e3a8a 100%); color: white; border-radius: 12px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); position: relative; overflow: hidden;">
@@ -248,6 +261,17 @@ require __DIR__ . '/../../../includes/header.php';
                         let checkboxes = document.querySelectorAll('.student-doc-checkbox');
                         for (let cb of checkboxes) {
                             cb.checked = this.checked;
+                        }
+                    });
+                }
+
+                const bulkFormStudent = document.getElementById('bulkActionFormStudent');
+                if (bulkFormStudent) {
+                    bulkFormStudent.addEventListener('submit', function(e) {
+                        const checked = document.querySelectorAll('.student-doc-checkbox:checked');
+                        if (checked.length === 0) {
+                            e.preventDefault();
+                            alert('Please select at least one activity before performing a bulk action.');
                         }
                     });
                 }

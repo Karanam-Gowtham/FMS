@@ -155,7 +155,7 @@
         </form>
 
         <div class="register-link">
-            New faculty member? <a href="<?= BASE_URL ?>/public/index.php?route=auth/register">Register here</a>
+            New faculty or student? <a href="<?= BASE_URL ?>/public/index.php?route=auth/register">Register here</a>
         </div>
     </div>
 </body>

@@ -33,6 +33,9 @@ function wf_get_workflow_for_type(mysqli $conn, int $doc_type_id): ?array
          JOIN document_types dt ON dt.workflow_id = w.workflow_id
          WHERE dt.type_id = ?"
     );
+    if (!$stmt) {
+        return null;
+    }
     $stmt->bind_param('i', $doc_type_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -59,6 +62,9 @@ function wf_get_steps(mysqli $conn, int $workflow_id): array
          WHERE ws.workflow_id = ?
          ORDER BY ws.step_order ASC"
     );
+    if (!$stmt) {
+        return [];
+    }
     $stmt->bind_param('i', $workflow_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -100,6 +106,9 @@ function wf_get_step(mysqli $conn, int $step_id): ?array
          JOIN roles r ON r.role_id = ws.responsible_role_id
          WHERE ws.step_id = ?"
     );
+    if (!$stmt) {
+        return null;
+    }
     $stmt->bind_param('i', $step_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -129,6 +138,9 @@ function wf_get_transition(mysqli $conn, int $step_id, string $action_key): ?arr
          JOIN workflow_actions wa ON wa.action_id = wt.action_id
          WHERE wt.step_id = ? AND wa.action_key = ?"
     );
+    if (!$stmt) {
+        return null;
+    }
     $stmt->bind_param('is', $step_id, $action_key);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -154,6 +166,9 @@ function wf_get_transitions_for_step(mysqli $conn, int $step_id): array
          WHERE wt.step_id = ?
          ORDER BY wa.action_id ASC"
     );
+    if (!$stmt) {
+        return [];
+    }
     $stmt->bind_param('i', $step_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -186,7 +201,7 @@ function wf_get_transitions_for_step(mysqli $conn, int $step_id): array
 function wf_can_user_act(array $step, array $auth, array $document): bool
 {
     $required_role = (int)$step['responsible_role_id'];
-    $scope = $step['scope'];
+    $scope = trim((string)($step['scope'] ?? ''));
     $doc_dept_id = (int)($document['dept_id'] ?? 0);
     
     // If this step requires Faculty (Mentor) and a mentor is assigned to the document:
@@ -200,7 +215,7 @@ function wf_can_user_act(array $step, array $auth, array $document): bool
         }
 
         // Role matches. Check scope.
-        if ($scope === 'global') {
+        if (strcasecmp($scope, 'global') === 0) {
             return true;
         }
 
@@ -312,13 +327,16 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
     // 1. Load the document
     // Legacy tables use 'username' as uploader, we'll try to get both if possible, or fallback
     // Since legacy tables don't have doc_type_id, we will assume current_step is enough for the transition.
+    $doc = null;
     $stmt = $conn->prepare(
         "SELECT * FROM `$table_name` WHERE `$id_col` = ?"
     );
-    $stmt->bind_param('i', $doc_id);
-    $stmt->execute();
-    $doc = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    if ($stmt) {
+        $stmt->bind_param('i', $doc_id);
+        $stmt->execute();
+        $doc = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+    }
 
     if (!$doc) {
         return ['success' => false, 'error' => 'Document not found.', 'new_status' => null];
@@ -351,6 +369,9 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
                  SET status = ?, current_step = ?, rejection_reason = ?, updated_at = NOW()
                  WHERE `doc_id` = ?"
             );
+            if (!$upd) {
+                throw new \RuntimeException('Failed to prepare document update: ' . $conn->error);
+            }
             $upd->bind_param('sisi', $new_status, $new_step, $rejection_reason, $doc_id);
             $upd->execute();
             $upd->close();
@@ -360,6 +381,9 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
                 "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
                  VALUES (?, ?, ?, ?, ?, NOW())"
             );
+            if (!$act_stmt) {
+                throw new \RuntimeException('Failed to prepare action audit statement: ' . $conn->error);
+            }
             $current_step_int = (int)$current_step;
             $act_stmt->bind_param('iisis', $doc_id, $actor_user_id, $action_key, $current_step_int, $remarks);
             $act_stmt->execute();
@@ -371,6 +395,9 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
                  SET status = ?, rejection_reason = ?
                  WHERE `$id_col` = ?"
             );
+            if (!$upd) {
+                throw new \RuntimeException('Failed to prepare table update: ' . $conn->error);
+            }
             $upd->bind_param('ssi', $new_status, $rejection_reason, $doc_id);
             $upd->execute();
             $upd->close();
@@ -380,7 +407,7 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
 
         return ['success' => true, 'error' => null, 'new_status' => $new_status];
 
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $conn->rollback();
         return ['success' => false, 'error' => 'Transaction failed: ' . $e->getMessage(), 'new_status' => null];
     }
@@ -417,18 +444,22 @@ function wf_initialize_document(mysqli $conn, int $doc_id, int $doc_type_id, int
     if ($first_step === null) {
         // Zero-step workflow: auto-accept
         $stmt = $conn->prepare("UPDATE documents SET status = 'accepted', current_step = NULL WHERE doc_id = ?");
-        $stmt->bind_param('i', $doc_id);
-        $stmt->execute();
-        $stmt->close();
+        if ($stmt) {
+            $stmt->bind_param('i', $doc_id);
+            $stmt->execute();
+            $stmt->close();
+        }
 
         // Record the upload action
         $act = $conn->prepare(
             "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
              VALUES (?, ?, 'uploaded', NULL, 'Auto-accepted (zero-step workflow)', NOW())"
         );
-        $act->bind_param('ii', $doc_id, $uploader_user_id);
-        $act->execute();
-        $act->close();
+        if ($act) {
+            $act->bind_param('ii', $doc_id, $uploader_user_id);
+            $act->execute();
+            $act->close();
+        }
 
         return ['success' => true, 'status' => 'accepted', 'error' => null];
     }
@@ -436,18 +467,22 @@ function wf_initialize_document(mysqli $conn, int $doc_id, int $doc_type_id, int
     // 3. Has steps: set to pending at first step
     $step_id = (int)$first_step['step_id'];
     $stmt = $conn->prepare("UPDATE documents SET status = 'pending', current_step = ? WHERE doc_id = ?");
-    $stmt->bind_param('ii', $step_id, $doc_id);
-    $stmt->execute();
-    $stmt->close();
+    if ($stmt) {
+        $stmt->bind_param('ii', $step_id, $doc_id);
+        $stmt->execute();
+        $stmt->close();
+    }
 
     // Record the upload action
     $act = $conn->prepare(
         "INSERT INTO document_actions (doc_id, acted_by, action, step_id, remarks, acted_at)
          VALUES (?, ?, 'uploaded', ?, NULL, NOW())"
     );
-    $act->bind_param('iii', $doc_id, $uploader_user_id, $step_id);
-    $act->execute();
-    $act->close();
+    if ($act) {
+        $act->bind_param('iii', $doc_id, $uploader_user_id, $step_id);
+        $act->execute();
+        $act->close();
+    }
 
     return ['success' => true, 'status' => 'pending', 'error' => null];
 }
@@ -504,6 +539,9 @@ function wf_get_action_history(mysqli $conn, int $doc_id): array
          WHERE da.doc_id = ?
          ORDER BY da.acted_at ASC"
     );
+    if (!$stmt) {
+        return [];
+    }
     $stmt->bind_param('i', $doc_id);
     $stmt->execute();
     $result = $stmt->get_result();

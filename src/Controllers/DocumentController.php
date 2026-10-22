@@ -41,10 +41,14 @@ class DocumentController {
             case ROLE_JUNIOR_ASSISTANT:
                 $forced_filters['dept_id'] = $active_dept_id;
                 $dept_stmt = $conn->prepare("SELECT dept_name FROM departments WHERE dept_id = ?");
-                $dept_stmt->bind_param('i', $active_dept_id);
-                $dept_stmt->execute();
-                $dept_name = $dept_stmt->get_result()->fetch_assoc()['dept_name'] ?? 'Unknown';
-                $dept_stmt->close();
+                $dept_name = 'Unknown';
+                if ($dept_stmt) {
+                    $dept_stmt->bind_param('i', $active_dept_id);
+                    $dept_stmt->execute();
+                    $dres = $dept_stmt->get_result();
+                    $dept_name = ($dres && $drow = $dres->fetch_assoc()) ? ($drow['dept_name'] ?? 'Unknown') : 'Unknown';
+                    $dept_stmt->close();
+                }
                 $scope_label = htmlspecialchars($dept_name) . ' Documents';
                 if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
                     $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
@@ -285,18 +289,22 @@ class DocumentController {
                     $placeholders = implode(',', array_fill(0, count($chunk), '?'));
                     $types = str_repeat('i', count($chunk));
                     $stmt = $conn->prepare("SELECT doc_id, meta_key, meta_value FROM document_metadata WHERE doc_id IN ($placeholders)");
-                    $stmt->bind_param($types, ...$chunk);
-                    $stmt->execute();
-                    $mres = $stmt->get_result();
-                    while ($row = $mres->fetch_assoc()) {
-                        $dId = (int)$row['doc_id'];
-                        $mKey = $row['meta_key'];
-                        $doc_meta_map[$dId][$mKey] = $row['meta_value'];
-                        if (!in_array($mKey, $all_meta_keys, true)) {
-                            $all_meta_keys[] = $mKey;
+                    if ($stmt) {
+                        $stmt->bind_param($types, ...$chunk);
+                        $stmt->execute();
+                        $mres = $stmt->get_result();
+                        if ($mres) {
+                            while ($row = $mres->fetch_assoc()) {
+                                $dId = (int)$row['doc_id'];
+                                $mKey = $row['meta_key'];
+                                $doc_meta_map[$dId][$mKey] = $row['meta_value'];
+                                if (!in_array($mKey, $all_meta_keys, true)) {
+                                    $all_meta_keys[] = $mKey;
+                                }
+                            }
                         }
+                        $stmt->close();
                     }
-                    $stmt->close();
                 }
             }
             
@@ -333,6 +341,10 @@ class DocumentController {
             fclose($output);
             exit;
         }
+
+        $disp_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $disp_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         include __DIR__ . '/../Views/documents/list.php';
     }
@@ -627,10 +639,14 @@ class DocumentController {
                 LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
                 WHERE d.doc_id = ?
             ");
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
-            $meta = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+            $meta = [];
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $mres = $stmt->get_result();
+                $meta = ($mres && $mrow = $mres->fetch_assoc()) ? $mrow : [];
+                $stmt->close();
+            }
 
             $year_label = $meta['year_label'] ?? ($doc['academic_year'] ?? '');
             if (empty($detected_year) && !empty($year_label)) {

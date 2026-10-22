@@ -34,27 +34,39 @@ class AcademicYearController {
                 exit();
             }
 
-            if (!preg_match('/^\d{4}-\d{2,4}$/', $new_year)) {
+            // Automatically normalize YYYY-YYYY (e.g. 2026-2027) into canonical YYYY-YY (e.g. 2026-27)
+            if (preg_match('/^(\d{4})-(\d{4})$/', $new_year, $matches)) {
+                $new_year = $matches[1] . '-' . substr($matches[2], -2);
+            }
+
+            if (!preg_match('/^\d{4}-\d{2}$/', $new_year)) {
                 $_SESSION['error_msg'] = "Invalid Academic Year format. Please use YYYY-YY (e.g. 2025-26).";
                 header("Location: " . BASE_URL . "/public/index.php?route=academic_years/list");
                 exit();
             }
 
+            $existing = null;
             $chk = $conn->prepare("SELECT year_id FROM academic_years WHERE year_label = ?");
-            $chk->bind_param("s", $new_year);
-            $chk->execute();
-            $existing = $chk->get_result()->fetch_assoc();
-            $chk->close();
+            if ($chk) {
+                $chk->bind_param("s", $new_year);
+                $chk->execute();
+                $existing = $chk->get_result()->fetch_assoc();
+                $chk->close();
+            }
 
             if ($existing) {
                 $_SESSION['error_msg'] = "Academic Year '{$new_year}' already exists.";
             } else {
                 try {
                     $stmt = $conn->prepare("INSERT INTO academic_years (year_label) VALUES (?)");
-                    $stmt->bind_param("s", $new_year);
-                    $stmt->execute();
-                    $stmt->close();
-                    $_SESSION['success_msg'] = "Academic Year '{$new_year}' added successfully.";
+                    if ($stmt) {
+                        $stmt->bind_param("s", $new_year);
+                        $stmt->execute();
+                        $stmt->close();
+                        $_SESSION['success_msg'] = "Academic Year '{$new_year}' added successfully.";
+                    } else {
+                        $_SESSION['error_msg'] = "Database error: unable to prepare statement.";
+                    }
                 } catch (\Exception $e) {
                     $_SESSION['error_msg'] = "Failed to add academic year: " . $e->getMessage();
                 }

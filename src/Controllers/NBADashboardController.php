@@ -11,7 +11,9 @@ class NBADashboardController {
         $active_role = auth_active_role();
 
         if (!$active_role) {
-            die("You must have an active role to access the NBA dashboard.");
+            $_SESSION['error_msg'] = "You must select an active role to access the NBA dashboard.";
+            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
+            exit();
         }
 
         // Filters
@@ -51,6 +53,10 @@ class NBADashboardController {
             8 => 'Continuous Improvement',
             9 => 'Student Support and Governance'
         ];
+
+        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $error_msg   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         include __DIR__ . '/../Views/nba/dashboard.php';
     }

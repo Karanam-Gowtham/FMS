@@ -41,10 +41,11 @@ class PublicController {
 
         // If dept not found, handle it gracefully
         if (!$dept_info) {
+            http_response_code(404);
             echo "<div style='text-align:center; padding: 50px; font-family:sans-serif;'>";
             echo "<h2>Department Not Found</h2>";
             echo "<p>The department '" . htmlspecialchars($dept_param) . "' does not exist in our records.</p>";
-            echo "<a href='" . BASE_URL . "/index.php' style='color:#3b82f6;'>Return to Home</a>";
+            echo "<a href='" . BASE_URL . "/' style='color:#3b82f6; text-decoration:none; font-weight:bold;'>Return to Home</a>";
             echo "</div>";
             exit;
         }
@@ -78,7 +79,7 @@ class PublicController {
         $stmt = $conn->prepare("
             SELECT d.doc_id, COALESCE(NULLIF(d.title, ''), dm.meta_value, 'Untitled Document') as original_file_name, dt.label as type_name, dt.type_code,
                    u.full_name as uploader_name, u.user_id, ay.year_label as year_name, 
-                   d.created_at, d.file_path 
+                   d.created_at, COALESCE(NULLIF(d.file_path, ''), (SELECT df.file_path FROM document_files df WHERE df.doc_id = d.doc_id LIMIT 1), '') as file_path 
             FROM documents d
             LEFT JOIN document_types dt ON d.type_id = dt.type_id
             LEFT JOIN users u ON d.uploaded_by = u.user_id
@@ -185,17 +186,20 @@ class PublicController {
             'student_activity_file', 'dept_file'
         ];
 
+        $doc = null;
         $stmt = $conn->prepare("
             SELECT d.file_path, dt.type_code 
             FROM documents d
             JOIN document_types dt ON d.type_id = dt.type_id
             WHERE d.doc_id = ? AND d.status = 'accepted'
         ");
-        $stmt->bind_param("i", $doc_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $doc = $res->fetch_assoc();
-        $stmt->close();
+        if ($stmt) {
+            $stmt->bind_param("i", $doc_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $doc = $res->fetch_assoc();
+            $stmt->close();
+        }
 
         if (!$doc || !in_array($doc['type_code'], $public_types, true)) {
             if (ob_get_level()) ob_end_clean();
@@ -207,13 +211,15 @@ class PublicController {
         if (empty($file_path)) {
             // Fallback for single-file documents which do not have a merged file_path in documents table
             $stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? LIMIT 1");
-            $stmt->bind_param("i", $doc_id);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($row = $res->fetch_assoc()) {
-                $file_path = $row['file_path'];
+            if ($stmt) {
+                $stmt->bind_param("i", $doc_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($row = $res->fetch_assoc()) {
+                    $file_path = $row['file_path'];
+                }
+                $stmt->close();
             }
-            $stmt->close();
         }
 
         if (empty($file_path)) {

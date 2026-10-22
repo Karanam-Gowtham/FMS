@@ -246,6 +246,10 @@ class AccreditationPdfService {
             if ($retCode === 0 && file_exists($normalizedTemp) && filesize($normalizedTemp) > 0) {
                 $tempFilesTracker[] = $normalizedTemp;
                 return $normalizedTemp;
+            } else {
+                if (file_exists($normalizedTemp)) {
+                    @unlink($normalizedTemp);
+                }
             }
         }
 
@@ -470,7 +474,8 @@ class AccreditationPdfService {
 
         // Phase 1: Pre-calculate document page counts and normalize modern compressed PDFs if needed
         $tempTrackedFiles = [];
-        foreach ($documents as $idx => &$doc) {
+        try {
+            foreach ($documents as $idx => &$doc) {
             $filePath = $doc['file_path'] ?? '';
             $pageCount = 0;
             if (!empty($filePath) && file_exists($filePath)) {
@@ -635,16 +640,23 @@ class AccreditationPdfService {
             }
         }
 
+        // Ensure output directory exists
+        $outDir = dirname($output_filepath);
+        if (!is_dir($outDir)) {
+            @mkdir($outDir, 0755, true);
+        }
+
+        // Output to destination
+        $pdf->Output('F', $output_filepath);
+        return true;
+    } finally {
         // Clean up any normalized temp files generated during processing
         foreach ($tempTrackedFiles as $tmp) {
             if (file_exists($tmp)) {
                 @unlink($tmp);
             }
         }
-
-        // Output to destination
-        $pdf->Output('F', $output_filepath);
-        return true;
+    }
     }
 
     /**

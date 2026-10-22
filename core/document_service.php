@@ -31,6 +31,10 @@ function doc_get_type_by_key(mysqli $conn, string $type_key): ?array
         "SELECT type_id, type_code AS type_key, label AS type_label, workflow_id
          FROM document_types WHERE type_code = ?"
     );
+    if (!$stmt) {
+        error_log("Failed to prepare statement in doc_get_type_by_key: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param('s', $type_key);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
@@ -51,6 +55,10 @@ function doc_get_type_by_id(mysqli $conn, int $type_id): ?array
         "SELECT type_id, type_code AS type_key, label AS type_label, workflow_id
          FROM document_types WHERE type_id = ?"
     );
+    if (!$stmt) {
+        error_log("Failed to prepare statement in doc_get_type_by_id: " . $conn->error);
+        return null;
+    }
     $stmt->bind_param('i', $type_id);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
@@ -94,27 +102,29 @@ function doc_get_category_map(): array
  */
 function doc_get_types(mysqli $conn): array
 {
+    $types = [];
     $stmt = $conn->prepare(
         "SELECT type_id, type_code, label AS type_label, workflow_id
          FROM document_types
          ORDER BY label"
     );
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $types = [];
-    
-    $category_map = doc_get_category_map();
-
-    while ($row = $result->fetch_assoc()) {
-        $type_code = $row['type_code'];
-        // Inject the missing properties that the codebase expects
-        $row['type_key'] = $type_code;
-        $row['category'] = $category_map[$type_code] ?? 'other';
-        $row['is_active'] = 1; // Assuming all returned are active
+    if ($stmt) {
+        $stmt->execute();
+        $result = $stmt->get_result();
         
-        $types[] = $row;
+        $category_map = doc_get_category_map();
+
+        while ($row = $result->fetch_assoc()) {
+            $type_code = $row['type_code'];
+            // Inject the missing properties that the codebase expects
+            $row['type_key'] = $type_code;
+            $row['category'] = $category_map[$type_code] ?? 'other';
+            $row['is_active'] = 1; // Assuming all returned are active
+            
+            $types[] = $row;
+        }
+        $stmt->close();
     }
-    $stmt->close();
     return $types;
 }
 
@@ -174,6 +184,9 @@ function doc_create(
             "INSERT INTO documents (type_id, uploaded_by, dept_id, academic_year_id, mentor_id, title, file_path, status, current_step, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, '', 'pending', NULL, NOW(), NOW())"
         );
+        if (!$stmt) {
+            throw new RuntimeException('Failed to prepare document insert statement: ' . $conn->error);
+        }
         $type_id = (int)$doc_type['type_id'];
         $stmt->bind_param('iiiiis', $type_id, $uploaded_by, $dept_id, $year_id, $mentor_id, $title);
         $stmt->execute();
@@ -232,20 +245,22 @@ function doc_create(
         
         // Refetch files from db to get correct paths
         $stmt_f = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ?");
-        $stmt_f->bind_param('i', $doc_id);
-        $stmt_f->execute();
-        $f_res = $stmt_f->get_result();
-        while ($f_row = $f_res->fetch_assoc()) {
-            if (strtolower(pathinfo($f_row['file_path'], PATHINFO_EXTENSION)) === 'pdf') {
-                $slot_def = $file_slots_by_name[$f_row['file_label']] ?? null;
-                $title = $slot_def ? $slot_def['label'] : ucfirst(str_replace('_', ' ', $f_row['file_label']));
-                $pdfs_to_merge[] = [
-                    'path' => __DIR__ . '/../' . $f_row['file_path'],
-                    'title' => $title
-                ];
+        if ($stmt_f) {
+            $stmt_f->bind_param('i', $doc_id);
+            $stmt_f->execute();
+            $f_res = $stmt_f->get_result();
+            while ($f_row = $f_res->fetch_assoc()) {
+                if (strtolower(pathinfo($f_row['file_path'], PATHINFO_EXTENSION)) === 'pdf') {
+                    $slot_def = $file_slots_by_name[$f_row['file_label']] ?? null;
+                    $title = $slot_def ? $slot_def['label'] : ucfirst(str_replace('_', ' ', $f_row['file_label']));
+                    $pdfs_to_merge[] = [
+                        'path' => __DIR__ . '/../' . $f_row['file_path'],
+                        'title' => $title
+                    ];
+                }
             }
+            $stmt_f->close();
         }
-        $stmt_f->close();
 
         if (count($pdfs_to_merge) > 1) {
             require_once __DIR__ . '/pdf_merger_service.php';
@@ -260,9 +275,11 @@ function doc_create(
                     
                     // Update the master file_path in documents table
                     $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
-                    $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
-                    $upd_stmt->execute();
-                    $upd_stmt->close();
+                    if ($upd_stmt) {
+                        $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
+                        $upd_stmt->execute();
+                        $upd_stmt->close();
+                    }
                     
                     // Store as a document_files record
                     $merged_data = [
@@ -275,9 +292,27 @@ function doc_create(
                     file_save_record($conn, $doc_id, $merged_data, 'merged_pdf');
                     $stored_paths[] = $merged_path;
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 // Ignore merge errors and keep original files
                 error_log("PDF Merge Failed: " . $e->getMessage());
+            }
+        } else {
+            // Populate master file_path with the primary uploaded file so documents.file_path is never left blank
+            $stmt_single = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? ORDER BY file_id ASC LIMIT 1");
+            if ($stmt_single) {
+                $stmt_single->bind_param('i', $doc_id);
+                $stmt_single->execute();
+                $s_res = $stmt_single->get_result();
+                if ($s_row = $s_res->fetch_assoc()) {
+                    $single_file_path = $s_row['file_path'];
+                    $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
+                    if ($upd_stmt) {
+                        $upd_stmt->bind_param('si', $single_file_path, $doc_id);
+                        $upd_stmt->execute();
+                        $upd_stmt->close();
+                    }
+                }
+                $stmt_single->close();
             }
         }
 
@@ -288,7 +323,7 @@ function doc_create(
 
         return ['success' => true, 'doc_id' => $doc_id, 'error' => null];
 
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $conn->rollback();
         
         // Cleanup orphaned files created during the failed transaction
@@ -321,6 +356,9 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
     if (empty($field_defs)) {
         // No meta fields defined — just insert doc_id
         $stmt = $conn->prepare("INSERT INTO `$meta_table` (doc_id) VALUES (?)");
+        if (!$stmt) {
+            return ['success' => false, 'error' => 'Failed to prepare meta record insert: ' . $conn->error];
+        }
         $stmt->bind_param('i', $doc_id);
         $result = $stmt->execute();
         $stmt->close();
@@ -439,6 +477,9 @@ function doc_get(mysqli $conn, int $doc_id): ?array
          LEFT JOIN academic_years ay ON ay.year_id = d.academic_year_id
          WHERE d.doc_id = ?"
     );
+    if (!$stmt) {
+        return null;
+    }
     $stmt->bind_param('i', $doc_id);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
@@ -467,6 +508,9 @@ function doc_get_meta(mysqli $conn, int $doc_id, string $type_key): ?array
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$meta_table` WHERE doc_id = ?");
+    if (!$stmt) {
+        return null;
+    }
     $stmt->bind_param('i', $doc_id);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
@@ -788,17 +832,21 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     // Count total
+    $total = 0;
     $count_sql = "SELECT COUNT(*) as total FROM documents d
                   JOIN document_types dt ON dt.type_id = d.type_id
                   $join_sql
                   $where_sql";
     $count_stmt = $conn->prepare($count_sql);
-    if ($types && $params) {
-        $count_stmt->bind_param($types, ...$params);
+    if ($count_stmt) {
+        if ($types && $params) {
+            $count_stmt->bind_param($types, ...$params);
+        }
+        $count_stmt->execute();
+        $c_res = $count_stmt->get_result();
+        $total = (int)($c_res && ($crow = $c_res->fetch_assoc()) ? ($crow['total'] ?? 0) : 0);
+        $count_stmt->close();
     }
-    $count_stmt->execute();
-    $total = (int)$count_stmt->get_result()->fetch_assoc()['total'];
-    $count_stmt->close();
 
     // Fetch rows
     $sql = "SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.academic_year_id, d.mentor_id,
@@ -840,7 +888,8 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
-        die("Prepare failed: " . $conn->error . "\nSQL: " . $sql);
+        error_log("doc_list prepare failed: " . $conn->error . " | SQL: " . $sql);
+        return ['rows' => [], 'total' => 0];
     }
     if ($types && $params) {
         $stmt->bind_param($types, ...$params);
@@ -909,6 +958,10 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
                   WHERE d.status = 'pending' AND $role_sql";
 
     $count_stmt = $conn->prepare($count_sql);
+    if (!$count_stmt) {
+        error_log("doc_list_pending_for_user count prepare failed: " . $conn->error);
+        return ['rows' => [], 'total' => 0];
+    }
     if ($params) {
         $count_stmt->bind_param($types, ...$params);
     }
@@ -954,6 +1007,10 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
     $types .= 'i';
 
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        error_log("doc_list_pending_for_user query prepare failed: " . $conn->error);
+        return ['rows' => [], 'total' => 0];
+    }
     if ($params) {
         $stmt->bind_param($types, ...$params);
     }
@@ -981,6 +1038,10 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
 function doc_get_academic_years(mysqli $conn): array
 {
     $stmt = $conn->prepare("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
+    if (!$stmt) {
+        error_log("Failed to prepare statement in doc_get_academic_years: " . $conn->error);
+        return [];
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     $years = [];
@@ -1000,6 +1061,10 @@ function doc_get_academic_years(mysqli $conn): array
 function doc_get_active_year(mysqli $conn): ?array
 {
     $stmt = $conn->prepare("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC LIMIT 1");
+    if (!$stmt) {
+        error_log("Failed to prepare statement in doc_get_active_year: " . $conn->error);
+        return null;
+    }
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
     $stmt->close();
@@ -1019,6 +1084,10 @@ function doc_get_active_year(mysqli $conn): ?array
 function doc_get_departments(mysqli $conn): array
 {
     $stmt = $conn->prepare("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
+    if (!$stmt) {
+        error_log("Failed to prepare statement in doc_get_departments: " . $conn->error);
+        return [];
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     $depts = [];
@@ -1071,13 +1140,14 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
     
     // Check if they previously took action on this document
     $stmt = $conn->prepare("SELECT 1 FROM document_actions WHERE doc_id = ? AND acted_by = ?");
-    $stmt->bind_param("ii", $doc['doc_id'], $auth['user_id']);
-    $stmt->execute();
-    $acted = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    
-    if ($acted) {
-        return true;
+    if ($stmt) {
+        $stmt->bind_param("ii", $doc['doc_id'], $auth['user_id']);
+        $stmt->execute();
+        $acted = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($acted) {
+            return true;
+        }
     }
     
     // Check if they are the assigned mentor (if applicable)
@@ -1124,6 +1194,9 @@ function doc_get_history(mysqli $conn, int $doc_id): array
          WHERE a.doc_id = ? 
          ORDER BY a.acted_at ASC"
     );
+    if (!$stmt) {
+        return [];
+    }
     $stmt->bind_param('i', $doc_id);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -202,22 +202,30 @@ class AuthController {
 
                 if (empty($error)) {
                     $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
-                    $stmt->bind_param("s", $email);
-                    $stmt->execute();
-                    if ($stmt->get_result()->num_rows > 0) {
-                        $error = 'An account with this email already exists.';
+                    if ($stmt) {
+                        $stmt->bind_param("s", $email);
+                        $stmt->execute();
+                        if ($stmt->get_result()->num_rows > 0) {
+                            $error = 'An account with this email already exists.';
+                        }
+                        $stmt->close();
+                    } else {
+                        $error = 'Database error checking email availability.';
                     }
-                    $stmt->close();
                 }
 
                 if (empty($error) && $role_id === ROLE_FACULTY) {
                     $stmt2 = $conn->prepare("SELECT user_id FROM user_profiles WHERE pan_no = ? OR per_no = ?");
-                    $stmt2->bind_param("ss", $pan_no, $per_no);
-                    $stmt2->execute();
-                    if ($stmt2->get_result()->num_rows > 0) {
-                        $error = 'An account with this PAN number or Per No already exists.';
+                    if ($stmt2) {
+                        $stmt2->bind_param("ss", $pan_no, $per_no);
+                        $stmt2->execute();
+                        if ($stmt2->get_result()->num_rows > 0) {
+                            $error = 'An account with this PAN number or Per No already exists.';
+                        }
+                        $stmt2->close();
+                    } else {
+                        $error = 'Database error verifying faculty credentials.';
                     }
-                    $stmt2->close();
                 }
 
                 if (empty($error)) {
@@ -225,12 +233,18 @@ class AuthController {
                     try {
                         $hashed = password_hash($password, PASSWORD_DEFAULT);
                         $stmt = $conn->prepare("INSERT INTO users (full_name, email, password, status) VALUES (?, ?, ?, 'active')");
+                        if (!$stmt) {
+                            throw new \Exception("Database error preparing user account statement.");
+                        }
                         $stmt->bind_param("sss", $full_name, $email, $hashed);
                         $stmt->execute();
                         $new_user_id = $conn->insert_id;
                         $stmt->close();
 
                         $role_stmt = $conn->prepare("INSERT INTO user_roles (user_id, role_id, dept_id) VALUES (?, ?, ?)");
+                        if (!$role_stmt) {
+                            throw new \Exception("Database error preparing user roles statement.");
+                        }
                         $role_stmt->bind_param("iii", $new_user_id, $role_id, $dept_id);
                         $role_stmt->execute();
                         $role_stmt->close();
@@ -238,10 +252,14 @@ class AuthController {
                         if ($role_id === ROLE_FACULTY) {
                             $profile_photo_path = null;
                             if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
-                                require_once __DIR__ . '/../../core/file_service.php';
-                                $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
-                                if ($upload_result['success']) {
-                                    $profile_photo_path = $upload_result['data']['file_path'];
+                                $allowed_exts = ['jpg', 'jpeg', 'png', 'webp'];
+                                $f_ext = strtolower(pathinfo($_FILES['profile_photo']['name'], PATHINFO_EXTENSION));
+                                if (in_array($f_ext, $allowed_exts, true)) {
+                                    require_once __DIR__ . '/../../core/file_service.php';
+                                    $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
+                                    if ($upload_result['success']) {
+                                        $profile_photo_path = $upload_result['data']['file_path'];
+                                    }
                                 }
                             }
 
@@ -253,6 +271,9 @@ class AuthController {
                                     contract_type, is_currently_associated, date_of_leaving, profile_photo
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             ");
+                            if (!$prof_stmt) {
+                                throw new \Exception("Database error preparing faculty profile statement.");
+                            }
                             $prof_stmt->bind_param(
                                 "issssssssdsssssiss", 
                                 $new_user_id, $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization,
@@ -267,8 +288,14 @@ class AuthController {
                         $conn->commit();
                         $success = 'Registration successful! You can now log in.';
                         $_POST = [];
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         $conn->rollback();
+                        if (!empty($profile_photo_path)) {
+                            $photo_file = __DIR__ . '/../../' . ltrim($profile_photo_path, '/\\');
+                            if (file_exists($photo_file) && is_file($photo_file)) {
+                                @unlink($photo_file);
+                            }
+                        }
                         error_log("Registration failed DB error: " . $e->getMessage());
                         $error = 'Registration could not be completed due to a system error. Please verify your details or contact support.';
                     }

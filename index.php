@@ -39,7 +39,7 @@ if($all_res) $stats['total_docs'] = $all_res->fetch_assoc()['cnt'];
 // 2. Initial Top Researchers
 $top_researchers = [];
 $tr_res = $conn->query("
-    SELECT u.user_id, u.full_name, u.email, d.dept_name, COUNT(doc.doc_id) as total_pubs
+    SELECT u.user_id, u.full_name, u.email, d.dept_name, COUNT(DISTINCT doc.doc_id) as total_pubs
     FROM users u
     JOIN user_roles ur ON u.user_id = ur.user_id
     JOIN departments d ON ur.dept_id = d.dept_id
@@ -332,13 +332,16 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         async function fetchDashboardData() {
             loader.style.display = 'flex';
             try {
-                const url = `<?= BASE_URL ?>/public/api/public_stats.php?year=${state.year}&dept_id=${state.dept_id}&category=${state.category}&type=${state.type}`;
+                const url = `<?= BASE_URL ?>/public/api/public_stats.php?year=${encodeURIComponent(state.year)}&dept_id=${encodeURIComponent(state.dept_id)}&category=${encodeURIComponent(state.category)}&type=${encodeURIComponent(state.type)}`;
                 const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
                 const json = await response.json();
                 if(json.status === 'success') {
                     updateUI(json.data);
                 }
-            } catch (err) { console.error(err); } 
+            } catch (err) { console.error('Dashboard data fetch error:', err); } 
             finally { setTimeout(() => { loader.style.display = 'none'; }, 300); }
         }
 

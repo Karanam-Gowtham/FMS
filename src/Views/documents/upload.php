@@ -65,10 +65,10 @@
         }
         ?>
 
-        <?php foreach ($categories as $cat => $types): ?>
+        <?php foreach ($categories as $cat => $cat_types): ?>
             <h3 style="text-transform: capitalize; margin-top: 1.5rem;"><?= htmlspecialchars($cat) ?></h3>
             <div class="type-selector">
-                <?php foreach ($types as $t): ?>
+                <?php foreach ($cat_types as $t): ?>
                     <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=<?= urlencode($t['type_key']) ?>" class="type-card">
                         <div class="type-label"><?= htmlspecialchars($t['type_label']) ?></div>
                         <div class="type-category"><?= htmlspecialchars($t['category']) ?></div>
@@ -333,7 +333,9 @@
 
 <script>
 function addAuthorRow(btn, fieldName) {
-    var table = (btn.parentElement ? btn.parentElement.querySelector('table.author-table') : null) || btn.previousElementSibling;
+    var table = (btn.previousElementSibling && btn.previousElementSibling.querySelector('table.author-table'))
+        || (btn.parentElement ? btn.parentElement.querySelector('table.author-table') : null)
+        || btn.previousElementSibling;
     if (!table) return;
     var tbody = table.getElementsByTagName('tbody')[0] || table;
     var newRow = tbody.insertRow(tbody.rows.length);

@@ -11,7 +11,9 @@ class NAACDashboardController {
         $active_role = auth_active_role();
 
         if (!$active_role) {
-            die("You must have an active role to access the NAAC dashboard.");
+            $_SESSION['error_msg'] = "You must select an active role to access the NAAC dashboard.";
+            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
+            exit();
         }
 
         // Filters
@@ -49,6 +51,10 @@ class NAACDashboardController {
             6 => 'Governance, Leadership and Management',
             7 => 'Institutional Values and Best Practices'
         ];
+
+        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $error_msg   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         include __DIR__ . '/../Views/naac/dashboard.php';
     }

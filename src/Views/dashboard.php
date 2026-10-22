@@ -172,6 +172,20 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
 <main class="main-content">
     <div class="container12">
         
+        <?php if (!empty($success_msg)): ?>
+            <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 0.85rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.95rem; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <i class="fas fa-check-circle" style="margin-right: 10px; font-size: 1.1rem;"></i>
+                <span><?= htmlspecialchars($success_msg) ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($error_msg)): ?>
+            <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.85rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.95rem; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <i class="fas fa-exclamation-circle" style="margin-right: 10px; font-size: 1.1rem;"></i>
+                <span><?= htmlspecialchars($error_msg) ?></span>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($user_roles) && count($user_roles) > 1): ?>
         <div style="margin-bottom: 2rem;">
             <p style="font-weight: 600; margin-bottom: 10px; color: #475569;">Switch Role:</p>
@@ -846,11 +860,17 @@ function activateRole(userRoleId, baseUrl, csrfToken) {
         },
         body: 'user_role_id=' + encodeURIComponent(userRoleId) + '&_csrf_token=' + encodeURIComponent(csrfToken) + '&csrf_token=' + encodeURIComponent(csrfToken)
     }).then(response => {
+        if (!response.ok) {
+            throw new Error('Server returned HTTP ' + response.status);
+        }
         if(response.redirected) {
             window.location.href = response.url;
         } else {
             window.location.href = baseUrl + '/public/index.php?route=dashboard';
         }
+    }).catch(err => {
+        console.error('Role switch failed:', err);
+        alert('Failed to switch role. Please check network connection and try again.');
     });
 }
 </script>

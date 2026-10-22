@@ -19,6 +19,18 @@
             <h1>NAAC Criteria Management</h1>
         </div>
 
+        <?php if (!empty($success_msg)): ?>
+            <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 0.85rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.95rem; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <span style="font-weight: 500;">✓ <?= htmlspecialchars($success_msg) ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($error_msg)): ?>
+            <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.85rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.95rem; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <span style="font-weight: 500;">⚠ <?= htmlspecialchars($error_msg) ?></span>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($pending_approvals)): ?>
         <!-- PENDING APPROVALS -->
         <div style="margin-top: 1rem; margin-bottom: 2rem;">
@@ -84,7 +96,7 @@
                 <?php
                 // We'll mark them all as built since the views exist now
                 $is_built = true; 
-                $link = $is_built ? BASE_URL . "/public/index.php?route=naac/criterion&id={$num}&year={$filter_year}" : "#";
+                $link = $is_built ? BASE_URL . "/public/index.php?route=naac/criterion&id=" . (int)$num . "&year=" . urlencode($filter_year) : "#";
                 $status_class = $is_built ? "in-progress" : "pending";
                 $status_text = $is_built ? "In Progress" : "Pending Config";
                 ?>

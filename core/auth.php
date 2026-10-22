@@ -38,6 +38,9 @@ function auth_authenticate(mysqli $conn, string $identifier, string $password): 
         WHERE (u.email = ? OR u.full_name = ? OR up.per_no = ?) AND u.status = 'active'
         LIMIT 1
     ");
+    if (!$stmt) {
+        return false;
+    }
     $stmt->bind_param("sss", $email, $identifier, $identifier);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -45,6 +48,8 @@ function auth_authenticate(mysqli $conn, string $identifier, string $password): 
     $stmt->close();
 
     if (!$user) {
+        // Run dummy password_verify to match execution timing and mitigate user enumeration
+        password_verify($password, '$2y$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ012345');
         return false;
     }
 
@@ -77,6 +82,9 @@ function auth_load_user_roles(mysqli $conn, int $user_id): array
         WHERE ur.user_id = ?
         ORDER BY ur.role_id, ur.dept_id
     ");
+    if (!$stmt) {
+        return [];
+    }
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();

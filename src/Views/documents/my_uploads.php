@@ -180,6 +180,17 @@
                     }
                 });
             }
+
+            const bulkFormMyUploads = document.getElementById('bulkActionFormMyUploads');
+            if (bulkFormMyUploads) {
+                bulkFormMyUploads.addEventListener('submit', function(e) {
+                    const checked = document.querySelectorAll('.mydoc-checkbox:checked');
+                    if (checked.length === 0) {
+                        e.preventDefault();
+                        alert('Please select at least one document before performing a bulk action.');
+                    }
+                });
+            }
         </script>
 
         <!-- Pagination -->
