@@ -14,6 +14,12 @@
 
 <div class="container">
 
+    <div style="margin-bottom: 1rem;">
+        <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&year=<?= urlencode($year) ?>" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
+            &larr; Back to NBA Dashboard (<?= htmlspecialchars($year) ?>)
+        </a>
+    </div>
+
     <div class="header-row">
         <h1>Criterion 2: Teaching-Learning Processes</h1>
         <p>Academic Year: <strong><?= htmlspecialchars($year) ?></strong></p>

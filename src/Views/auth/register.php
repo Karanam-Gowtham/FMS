@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration &mdash; FMS</title>
+    <title>Registration &mdash; File Management System (FMS)</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -276,7 +276,7 @@
         </a>
     </nav>
     <div class="card">
-        <h1>FMS Registration</h1>
+        <h1>File Management System Registration</h1>
         <p class="subtitle">Create your Student or Faculty account</p>
 
         <div class="role-note">
@@ -371,11 +371,11 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="doj_institution">Date of Joining (Institution) *</label>
-                    <input type="date" id="doj_institution" name="doj_institution" value="<?= htmlspecialchars($_POST['doj_institution'] ?? '') ?>" required>
+                    <input type="date" id="doj_institution" name="doj_institution" value="<?= htmlspecialchars($_POST['doj_institution'] ?? '') ?>" required max="<?= date('Y-m-d') ?>">
                 </div>
                 <div class="form-group">
                     <label for="doj_department">Date of Joining (Department)</label>
-                    <input type="date" id="doj_department" name="doj_department" value="<?= htmlspecialchars($_POST['doj_department'] ?? '') ?>" title="In case of transfer from one Department to another">
+                    <input type="date" id="doj_department" name="doj_department" value="<?= htmlspecialchars($_POST['doj_department'] ?? '') ?>" title="In case of transfer from one Department to another" max="<?= date('Y-m-d') ?>">
                 </div>
                 <div class="form-group">
                     <label for="designation_joining">Designation at Time of Joining *</label>
@@ -387,7 +387,7 @@
                 </div>
                 <div class="form-group">
                     <label for="date_designated_prof">Date Designated as Prof/Assoc. Prof (if any)</label>
-                    <input type="date" id="date_designated_prof" name="date_designated_prof" value="<?= htmlspecialchars($_POST['date_designated_prof'] ?? '') ?>">
+                    <input type="date" id="date_designated_prof" name="date_designated_prof" value="<?= htmlspecialchars($_POST['date_designated_prof'] ?? '') ?>" max="<?= date('Y-m-d') ?>">
                 </div>
                 <div class="form-group">
                     <label for="experience_years">Experience in current institute (Years) *</label>
@@ -467,9 +467,13 @@
             if (this.value) {
                 const doj = new Date(this.value);
                 const today = new Date();
-                const diffTime = Math.abs(today - doj);
-                const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
-                document.getElementById('experience_years').value = diffYears.toFixed(1);
+                if (doj > today) {
+                    document.getElementById('experience_years').value = '0.0';
+                } else {
+                    const diffTime = Math.max(0, today - doj);
+                    const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+                    document.getElementById('experience_years').value = diffYears.toFixed(1);
+                }
             }
         });
 

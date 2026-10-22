@@ -230,7 +230,7 @@ class NAACAPIController {
 
             echo json_encode([
                 'success' => true,
-                'pdf_url' => BASE_URL . "/uploads/naac_pdfs/" . $filename
+                'pdf_url' => BASE_URL . "/public/index.php?route=reports/download&type=naac&file=" . urlencode($filename)
             ]);
         } catch (\Exception $e) {
             echo json_encode([

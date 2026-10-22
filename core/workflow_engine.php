@@ -189,12 +189,9 @@ function wf_can_user_act(array $step, array $auth, array $document): bool
     $scope = $step['scope'];
     $doc_dept_id = (int)($document['dept_id'] ?? 0);
     
-    // CRITICAL AUTHORIZATION FIX: If this step requires Faculty (Mentor), 
-    // the user MUST be the assigned mentor.
+    // If this step requires Faculty (Mentor) and a mentor is assigned to the document:
     if ($required_role === ROLE_FACULTY && !empty($document['mentor_id'])) {
-        if ((int)$auth['user_id'] !== (int)$document['mentor_id']) {
-            return false;
-        }
+        return (int)$auth['user_id'] === (int)$document['mentor_id'];
     }
 
     foreach ($auth['roles'] as $user_role) {

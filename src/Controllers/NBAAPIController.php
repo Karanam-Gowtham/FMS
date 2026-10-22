@@ -263,14 +263,19 @@ class NBAAPIController {
             $pdf->SetFont('Arial', '', 10);
             $pdf->MultiCell(0, 7, "This is an auto-generated draft report for Criterion {$crit_id}. In production, this document will compile all saved data and mapped attachments dynamically.");
             
+            $dir = __DIR__ . "/../../uploads/nba_pdfs/";
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
             $filename = "dummy_criterion{$crit_id}_" . time() . ".pdf";
-            $filepath = __DIR__ . "/../../uploads/nba_pdfs/" . $filename;
+            $filepath = $dir . $filename;
             
             $pdf->Output('F', $filepath);
 
             echo json_encode([
                 'success' => true,
-                'pdf_url' => BASE_URL . "/uploads/nba_pdfs/" . $filename
+                'pdf_url' => BASE_URL . "/public/index.php?route=reports/download&type=nba&file=" . urlencode($filename)
             ]);
         } catch (\Exception $e) {
             echo json_encode([

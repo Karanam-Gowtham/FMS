@@ -39,6 +39,7 @@
         .type-card.active { border-color: #28a745; background: #f0fff4; }
         .type-card .type-label { font-weight: 600; font-size: 0.95rem; }
         .type-card .type-category { font-size: 0.8rem; color: #6c757d; text-transform: uppercase; }
+    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
@@ -68,7 +69,7 @@
             <h3 style="text-transform: capitalize; margin-top: 1.5rem;"><?= htmlspecialchars($cat) ?></h3>
             <div class="type-selector">
                 <?php foreach ($types as $t): ?>
-                    <a href="?type=<?= urlencode($t['type_key']) ?>" class="type-card">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=<?= urlencode($t['type_key']) ?>" class="type-card">
                         <div class="type-label"><?= htmlspecialchars($t['type_label']) ?></div>
                         <div class="type-category"><?= htmlspecialchars($t['category']) ?></div>
                     </a>
@@ -98,12 +99,13 @@
                     </select>
                 </div>
             <?php else: ?>
-                <?php foreach ($user_depts as $did => $dname): ?>
-                    <input type="hidden" name="dept_id" value="<?= $did ?>">
-                <?php endforeach; ?>
+                <?php 
+                $single_dept_id = !empty($user_depts) ? array_key_first($user_depts) : (auth_active_dept_id() ?: 1);
+                ?>
+                <input type="hidden" name="dept_id" value="<?= (int)$single_dept_id ?>">
             <?php endif; ?>
             <!-- Mentor Per No for Students -->
-            <?php if (auth_active_role()['role_id'] == ROLE_STUDENT): ?>
+            <?php if ((auth_active_role()['role_id'] ?? null) == ROLE_STUDENT): ?>
                 <div class="form-group">
                     <label class="required" for="mentor_per_no">Mentor's Per No.</label>
                     <input type="text" id="mentor_per_no" name="mentor_per_no" required placeholder="Enter the exact Per No of your mentor" value="<?= htmlspecialchars($old_input['mentor_per_no'] ?? '') ?>">

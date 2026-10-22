@@ -9,11 +9,19 @@ class ProfileController {
         $auth = auth_context();
         global $conn;
 
+        $target_user_id = (int)$auth['user_id'];
+        $can_view_others = in_array(auth_active_role_id(), [ROLE_ADMIN, ROLE_IQAC, ROLE_HOD, ROLE_RND_DEAN]);
+        if (isset($_GET['id']) && (int)$_GET['id'] > 0 && $can_view_others) {
+            $target_user_id = (int)$_GET['id'];
+        }
+
         $stmt = $conn->prepare("SELECT u.full_name as name, u.email, p.* FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE u.user_id = ?");
-        $stmt->bind_param("i", $auth['user_id']);
+        $stmt->bind_param("i", $target_user_id);
         $stmt->execute();
         $profile = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+
+        $is_own_profile = ($target_user_id === (int)$auth['user_id']);
 
         include __DIR__ . '/../Views/profile/view.php';
     }

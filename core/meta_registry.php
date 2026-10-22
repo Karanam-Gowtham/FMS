@@ -25,6 +25,7 @@ function meta_get_table(string $type_key): ?string
         'journal'             => 'meta_journal',
         'conference'          => 'meta_conference',
         'patent'              => 'meta_patent',
+        'fdp'                 => 'meta_fdp_attended',
         'fdp_attended'        => 'meta_fdp_attended',
         'fdp_organised'       => 'meta_fdp_organised',
         'conf_organised'      => 'meta_conf_organised',
@@ -100,6 +101,13 @@ function meta_get_fields(string $type_key): array
             ['name' => 'patent_type',   'label' => 'Patent Type',     'type' => 'select', 'options' => ['published', 'granted'], 'required' => true],
             ['name' => 'date_of_issue', 'label' => 'Date of Issue',   'type' => 'date',   'required' => true],
             ['name' => 'inventors',     'label' => 'Inventors',       'type' => 'author_table','required' => true],
+        ],
+        'fdp' => [
+            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
+            ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => true],
+            ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => true],
+            ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => true],
+            ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => true],
         ],
         'fdp_attended' => [
             ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
@@ -251,6 +259,8 @@ function meta_get_file_slots(string $type_key): array
         'conference'  => [['name' => 'certificate',   'label' => 'Certificate',  'required' => true, 'accept' => '.pdf,.jpg,.png'],
                           ['name' => 'paper_file',    'label' => 'Paper File',   'required' => false,'accept' => '.pdf,.doc,.docx']],
         'patent'      => [['name' => 'patent_file',   'label' => 'Patent File',  'required' => true, 'accept' => '.pdf']],
+        'fdp'         => [['name' => 'certificate',   'label' => 'Certificate',  'required' => true, 'accept' => '.pdf,.jpg,.png'],
+                          ['name' => 'brochure',      'label' => 'Brochure',     'required' => false,'accept' => '.pdf,.jpg,.png']],
         'fdp_attended'=> [['name' => 'certificate',   'label' => 'Certificate',  'required' => true, 'accept' => '.pdf,.jpg,.png'],
                           ['name' => 'brochure',      'label' => 'Brochure',     'required' => false,'accept' => '.pdf,.jpg,.png']],
         'fdp_organised' => [

@@ -40,20 +40,31 @@
         .history-table th, .history-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #dee2e6; font-size: 0.85rem; }
         .history-table th { font-weight: 600; color: #495057; }
         .remarks-input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; min-height: 60px; resize: vertical; margin-bottom: 0.8rem; }
+    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="container">
 
-    <?php if (!empty($_GET['msg'])): ?>
+    <div class="breadcrumb">
+        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list">Documents</a> &rsaquo; 
+        <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads">My Uploads</a> &rsaquo; 
+        <span><?= htmlspecialchars($document['title'] ?: ($document['type_label'] ?? 'Document'), ENT_QUOTES, 'UTF-8') ?></span>
+    </div>
+
+    <?php 
+    $disp_success = !empty($success_msg) ? $success_msg : (!empty($_GET['msg']) ? $_GET['msg'] : null);
+    $disp_error = !empty($error_msg) ? $error_msg : (!empty($_GET['err']) ? $_GET['err'] : null);
+    ?>
+    <?php if ($disp_success): ?>
         <div style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
-            ✓ <?= htmlspecialchars($_GET['msg']) ?>
+            ✓ <?= htmlspecialchars($disp_success) ?>
         </div>
     <?php endif; ?>
-    <?php if (!empty($_GET['err'])): ?>
+    <?php if ($disp_error): ?>
         <div style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
-            ⚠ <?= htmlspecialchars($_GET['err']) ?>
+            ⚠ <?= htmlspecialchars($disp_error) ?>
         </div>
     <?php endif; ?>
 
@@ -63,22 +74,7 @@
             <span class="status-badge status-<?= htmlspecialchars($document['status']) ?>">
                 <?= htmlspecialchars($status_label) ?>
             </span>
-            <?php 
-            $can_edit = (
-                isset($auth['user_id']) &&
-                (int)$document['uploaded_by'] === (int)$auth['user_id'] && 
-                strtolower($document['status']) !== 'accepted'
-            );
-            if ($can_edit && strtolower($document['status']) === 'pending' && !empty($action_history)) {
-                foreach ($action_history as $h) {
-                    if ($h['action'] === 'approve') {
-                        $can_edit = false;
-                        break;
-                    }
-                }
-            }
-            if ($can_edit): 
-            ?>
+            <?php if (doc_can_edit($conn, $auth, $document)): ?>
                 <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$doc_id ?>" class="btn" style="background: #007bff; color: white; text-decoration: none; padding: 0.35rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">
                     ✏ Edit Document
                 </a>
@@ -293,8 +289,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         if(typeof showToast === 'function') {
             showToast(<?= json_encode($_GET['msg']) ?>, 'success');
-        } else {
-            alert(<?= json_encode($_GET['msg']) ?>);
         }
     });
 </script>
@@ -304,8 +298,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         if(typeof showToast === 'function') {
             showToast(<?= json_encode($_GET['err']) ?>, 'error');
-        } else {
-            alert(<?= json_encode($_GET['err']) ?>);
         }
     });
 </script>

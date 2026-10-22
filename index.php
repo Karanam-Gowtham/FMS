@@ -19,7 +19,7 @@ if($dt_res) { while($row = $dt_res->fetch_assoc()) { $doc_types[] = $row; } }
 
 // 1. Initial Hero Stats (All Time, All Depts)
 $stats = ['researchers' => 0, 'depts' => 0, 'patents' => 0, 'pubs' => 0, 'fdps' => 0, 'total_docs' => 0];
-$s_res = $conn->query("SELECT count(*) as cnt FROM users WHERE status='active' AND user_id IN (SELECT user_id FROM user_roles WHERE role_id IN (SELECT role_id FROM roles WHERE role_name IN ('Faculty', 'HOD', 'R&D Dean')))");
+$s_res = $conn->query("SELECT count(*) as cnt FROM users WHERE status='active' AND user_id IN (SELECT user_id FROM user_roles WHERE role_id IN (SELECT role_id FROM roles WHERE role_name IN ('Faculty', 'HOD', 'RnD_Dean', 'R&D Dean')))");
 if($s_res) $stats['researchers'] = $s_res->fetch_assoc()['cnt'];
 
 $stats['depts'] = count($depts);
@@ -47,7 +47,7 @@ $tr_res = $conn->query("
     JOIN document_types dt ON doc.type_id = dt.type_id
     WHERE u.status = 'active' AND doc.status = 'accepted' AND d.is_academic = 1
     AND dt.type_code IN ($whitelist)
-    GROUP BY u.user_id
+    GROUP BY u.user_id, u.full_name, u.email, d.dept_name
     ORDER BY total_pubs DESC
     LIMIT 4
 ");
@@ -216,25 +216,25 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
                 
                 <div class="facet-group">
                     <h4>Analytics Focus</h4>
-                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-type"> Select All</label>
+                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-type" checked> Select All</label>
                     <?php foreach($doc_types as $dt): ?>
-                        <label class="facet-label"><input type="checkbox" class="cb-type" value="<?= $dt['type_code'] ?>"> <?= htmlspecialchars($dt['label']) ?></label>
+                        <label class="facet-label"><input type="checkbox" class="cb-type" value="<?= $dt['type_code'] ?>" checked> <?= htmlspecialchars($dt['label']) ?></label>
                     <?php endforeach; ?>
                 </div>
 
                 <div class="facet-group">
                     <h4>Academic Year</h4>
-                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-year"> Select All</label>
+                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-year" checked> Select All</label>
                     <?php foreach($years as $yr): ?>
-                        <label class="facet-label"><input type="checkbox" class="cb-year" value="<?= htmlspecialchars($yr) ?>"> <?= htmlspecialchars($yr) ?></label>
+                        <label class="facet-label"><input type="checkbox" class="cb-year" value="<?= htmlspecialchars($yr) ?>" checked> <?= htmlspecialchars($yr) ?></label>
                     <?php endforeach; ?>
                 </div>
 
                 <div class="facet-group">
                     <h4>Department</h4>
-                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-dept"> Select All</label>
+                    <label class="facet-label" style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;"><input type="checkbox" class="cb-select-all" data-target=".cb-dept" checked> Select All</label>
                     <?php foreach($depts as $d): ?>
-                        <label class="facet-label"><input type="checkbox" class="cb-dept" value="<?= $d['dept_id'] ?>"> <?= htmlspecialchars($d['dept_name']) ?></label>
+                        <label class="facet-label"><input type="checkbox" class="cb-dept" value="<?= $d['dept_id'] ?>" checked> <?= htmlspecialchars($d['dept_name']) ?></label>
                     <?php endforeach; ?>
                 </div>
             </aside>
@@ -300,7 +300,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         </div>
     </section>
 
-    <div class="footer">Powered by FMS (Internal Document Tracking System)</div>
+    <div class="footer">Powered by FMS (File Management System)</div>
 
     <script>
         // Global State
@@ -344,33 +344,47 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
 
         function updateUI(data) {
             // Update Label
-            document.getElementById('current-view-label').innerText = `Currently Viewing: Filtered Results`;
+            let filterLabel = [];
+            if (state.year === 'none' || state.dept_id === 'none' || state.type === 'none') {
+                document.getElementById('current-view-label').innerText = `Currently Viewing: 0 Results (Filter Cleared)`;
+            } else {
+                if (state.year !== 'all') filterLabel.push(`Years: ${state.year}`);
+                if (state.dept_id !== 'all') {
+                    const names = Array.from(cbDepts).filter(cb => cb.checked).map(cb => cb.parentElement.textContent.trim()).join(', ');
+                    filterLabel.push(`Dept: ${names}`);
+                }
+                if (state.type !== 'all') {
+                    filterLabel.push(`${Array.from(cbTypes).filter(cb => cb.checked).length} Focus Areas`);
+                }
+                if (state.category !== 'all') filterLabel.push(`Metric: ${state.category.toUpperCase()}`);
+                document.getElementById('current-view-label').innerText = filterLabel.length > 0 ? `Currently Viewing: ${filterLabel.join(' | ')}` : `Currently Viewing: All Institutional Data`;
+            }
 
             // Update Metrics
-            const mData = data.stats;
-            animateValue(document.getElementById('val-total'), 0, mData.total_docs, 800);
-            animateValue(document.getElementById('val-pubs'), 0, mData.pubs, 800);
-            animateValue(document.getElementById('val-patents'), 0, mData.patents, 800);
-            animateValue(document.getElementById('val-fdps'), 0, mData.fdps, 800);
-            animateValue(document.getElementById('val-researchers'), 0, mData.researchers, 800);
+            const mData = data.stats || { total_docs: 0, pubs: 0, patents: 0, fdps: 0, researchers: 0 };
+            animateValue(document.getElementById('val-total'), 0, mData.total_docs || 0, 800);
+            animateValue(document.getElementById('val-pubs'), 0, mData.pubs || 0, 800);
+            animateValue(document.getElementById('val-patents'), 0, mData.patents || 0, 800);
+            animateValue(document.getElementById('val-fdps'), 0, mData.fdps || 0, 800);
+            animateValue(document.getElementById('val-researchers'), 0, mData.researchers || 0, 800);
 
             // Timeline Chart (Smooth Area)
-            const tLabels = Object.keys(data.timeline); // Use academic year string directly
-            const tValues = Object.values(data.timeline);
+            const tLabels = data.timeline ? Object.keys(data.timeline) : [];
+            const tValues = data.timeline ? Object.values(data.timeline) : [];
             
             if (timelineChartInst) timelineChartInst.destroy();
             const ctxT = document.getElementById('timelineChart').getContext('2d');
             
             let grad = ctxT.createLinearGradient(0, 0, 0, 400);
-            grad.addColorStop(0, 'rgba(23, 162, 184, 0.6)'); // Accent cyan
+            grad.addColorStop(0, 'rgba(23, 162, 184, 0.6)');
             grad.addColorStop(1, 'rgba(23, 162, 184, 0.0)');
 
             timelineChartInst = new Chart(ctxT, {
                 type: 'line',
                 data: {
-                    labels: tLabels,
+                    labels: tLabels.length > 0 ? tLabels : ['No Data'],
                     datasets: [{
-                        label: 'Activities', data: tValues,
+                        label: 'Activities', data: tValues.length > 0 ? tValues : [0],
                         borderColor: '#17a2b8', backgroundColor: grad,
                         borderWidth: 3, fill: true, tension: 0.4,
                         pointBackgroundColor: '#fff', pointBorderColor: '#17a2b8', pointBorderWidth: 3, pointRadius: 5, pointHoverRadius: 7
@@ -387,13 +401,29 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             });
 
             // Distribution Chart (Bar/Doughnut)
-            document.getElementById('dist-title').innerHTML = `<i class="fas fa-chart-pie" style="color: var(--accent);"></i> ` + (state.dept_id !== 'all' ? 'Documents by Category' : 'Documents by Department');
+            const isSingleDept = state.dept_id !== 'all' && state.dept_id !== 'none' && !state.dept_id.includes(',');
+            let distTitle = 'Documents by Department';
+            let chartType = 'bar';
+            let distData = data.dept_distribution || {};
+
+            if (state.dept_id === 'none' || state.year === 'none' || state.type === 'none') {
+                distTitle = 'No Results for Current Filter';
+                distData = {};
+            } else if (isSingleDept) {
+                const selectedDeptEl = Array.from(cbDepts).find(cb => cb.checked);
+                const deptName = selectedDeptEl ? selectedDeptEl.parentElement.textContent.trim() : 'Department';
+                distTitle = `${deptName} - Category Distribution`;
+                chartType = 'doughnut';
+                distData = data.category_distribution || {};
+            } else {
+                distTitle = 'Documents by Department';
+                chartType = 'bar';
+                distData = data.dept_distribution || {};
+            }
+            document.getElementById('dist-title').innerHTML = `<i class="fas fa-chart-pie" style="color: var(--accent);"></i> ` + distTitle;
             if (distChartInst) distChartInst.destroy();
             
-            const chartType = state.dept_id !== 'all' ? 'doughnut' : 'bar';
             const bgColors = ['#17a2b8', '#0b353d', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
-            
-            const distData = state.dept_id !== 'all' ? data.category_distribution : data.dept_distribution;
 
             distChartInst = new Chart(document.getElementById('distributionChart').getContext('2d'), {
                 type: chartType,
@@ -419,10 +449,10 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             radarChartInst = new Chart(document.getElementById('radarChart').getContext('2d'), {
                 type: 'radar',
                 data: {
-                    labels: Object.keys(data.category_distribution),
+                    labels: Object.keys(data.category_distribution || {}),
                     datasets: [{
                         label: 'Document Focus',
-                        data: Object.values(data.category_distribution),
+                        data: Object.values(data.category_distribution || {}),
                         backgroundColor: 'rgba(23, 162, 184, 0.2)',
                         borderColor: '#17a2b8',
                         pointBackgroundColor: '#0b353d',
@@ -444,10 +474,10 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             polarChartInst = new Chart(document.getElementById('polarChart').getContext('2d'), {
                 type: 'polarArea',
                 data: {
-                    labels: Object.keys(data.dept_distribution),
+                    labels: Object.keys(data.dept_distribution || {}),
                     datasets: [{
-                        data: Object.values(data.dept_distribution),
-                        backgroundColor: bgColors.map(c => c + 'CC'), // Add transparency
+                        data: Object.values(data.dept_distribution || {}),
+                        backgroundColor: bgColors.map(c => c + 'CC'),
                         borderColor: '#fff',
                         borderWidth: 2
                     }]
@@ -462,16 +492,22 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
 
         // Listeners
         function syncFiltersAndFetch() {
-            state.year = Array.from(cbYears).filter(cb => cb.checked).map(cb => cb.value).join(',') || 'all';
-            state.dept_id = Array.from(cbDepts).filter(cb => cb.checked).map(cb => cb.value).join(',') || 'all';
-            state.type = Array.from(cbTypes).filter(cb => cb.checked).map(cb => cb.value).join(',') || 'all';
+            const checkedYears = Array.from(cbYears).filter(cb => cb.checked);
+            const checkedDepts = Array.from(cbDepts).filter(cb => cb.checked);
+            const checkedTypes = Array.from(cbTypes).filter(cb => cb.checked);
+
+            state.year = (checkedYears.length === cbYears.length) ? 'all' : (checkedYears.length === 0 ? 'none' : checkedYears.map(cb => cb.value).join(','));
+            state.dept_id = (checkedDepts.length === cbDepts.length) ? 'all' : (checkedDepts.length === 0 ? 'none' : checkedDepts.map(cb => cb.value).join(','));
+            state.type = (checkedTypes.length === cbTypes.length) ? 'all' : (checkedTypes.length === 0 ? 'none' : checkedTypes.map(cb => cb.value).join(','));
+
             fetchDashboardData();
         }
 
         const selectAllBoxes = document.querySelectorAll('.cb-select-all');
         selectAllBoxes.forEach(sa => {
             sa.addEventListener('change', (e) => {
-                const targets = document.querySelectorAll(e.target.dataset.target);
+                const group = e.target.closest('.facet-group');
+                const targets = group ? group.querySelectorAll(e.target.dataset.target) : document.querySelectorAll(e.target.dataset.target);
                 targets.forEach(t => t.checked = e.target.checked);
                 syncFiltersAndFetch();
             });
@@ -482,7 +518,7 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             if(group) {
                 const sa = group.querySelector('.cb-select-all');
                 if(sa) {
-                    const targets = document.querySelectorAll(sa.dataset.target);
+                    const targets = group.querySelectorAll(sa.dataset.target);
                     const allChecked = Array.from(targets).every(t => t.checked);
                     const someChecked = Array.from(targets).some(t => t.checked);
                     sa.checked = allChecked && targets.length > 0;

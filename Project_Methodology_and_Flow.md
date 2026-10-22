@@ -1,12 +1,12 @@
 # Project Methodology and Flow Diagram
 
-This document outlines the operational methodology, architectural design, and system flow of the **Faculty Management System (FMS)**.
+This document outlines the operational methodology, architectural design, and system flow of the **File Management System (FMS)**.
 
 ---
 
 ## 1. Project Methodology
 
-The **Faculty Management System (FMS)** is built using a **Modular Development Methodology** with a focus on **Role-Based Access Control (RBAC)** and a structured document lifecycle.
+The **File Management System (FMS)** is built using a **Modular Development Methodology** with a focus on **Role-Based Access Control (RBAC)** and a structured document lifecycle.
 
 ### 1.1 Development Approach
 *   **Modular Architecture:** The system is divided into independent modules for different user roles (Faculty, Dept Coordinator, HOD, Admin, Central Coordinator) to ensure scalability and ease of maintenance.

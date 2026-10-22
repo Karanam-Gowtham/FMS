@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — Research Analytics Portal</title>
+    <title>Login — File Management System (FMS)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
@@ -125,6 +125,13 @@
             <div class="error-msg">
                 <i class="fas fa-exclamation-circle"></i>
                 <span><?= htmlspecialchars($error) ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['_flash_logout'])): unset($_SESSION['_flash_logout']); ?>
+            <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-check-circle"></i>
+                <span>You have been successfully logged out.</span>
             </div>
         <?php endif; ?>
 

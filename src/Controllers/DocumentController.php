@@ -60,6 +60,11 @@ class DocumentController {
                     $scope_label = 'Central Department Files';
                 }
                 break;
+            case ROLE_STUDENT:
+                $forced_filters['uploaded_by'] = $user_id;
+                $forced_filters['category'] = 'student';
+                $scope_label = 'My Student Activities';
+                break;
             case ROLE_FACULTY:
             default:
                 $forced_filters['uploaded_by'] = $user_id;
@@ -246,6 +251,9 @@ class DocumentController {
             $export_docs = $export_result['rows'];
             
             $filename = "FMS_Export_" . date('Ymd_His') . ".csv";
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
             header("Content-Type: text/csv; charset=utf-8");
             header("Content-Disposition: attachment; filename=\"$filename\"");
             
@@ -377,6 +385,10 @@ class DocumentController {
         $pending_result = doc_list_pending_for_user($conn, $auth, 100, 0);
         $pending_count = $pending_result['total'];
 
+        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
+        $error_msg = $_SESSION['error_msg'] ?? ($_GET['err'] ?? null);
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
+
         include __DIR__ . '/../Views/documents/my_uploads.php';
     }
 
@@ -467,30 +479,22 @@ class DocumentController {
 
         $doc_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if (!$doc_id) {
-            die("Invalid document ID.");
+            $_SESSION['error_msg'] = "Invalid document ID.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
+            exit;
         }
 
         $document = doc_get($conn, $doc_id);
         if (!$document) {
-            die("Document not found.");
+            $_SESSION['error_msg'] = "Document not found.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
+            exit;
         }
 
-        // Only uploader can edit
-        if ((int)$document['uploaded_by'] !== (int)$auth['user_id']) {
-            die("Unauthorized to edit this document.");
-        }
-        if (strtolower($document['status']) === 'accepted') {
-            die("Cannot edit an accepted document.");
-        }
-        
-        // Workflow bypass fix: Prevent editing if the document is pending but has already been partially approved
-        if (strtolower($document['status']) === 'pending') {
-            $history = doc_get_history($conn, $doc_id);
-            foreach ($history as $h) {
-                if ($h['action'] === 'approve') {
-                    die("Cannot edit a document that is already partially approved. Please request a rejection first.");
-                }
-            }
+        if (!doc_can_edit($conn, $auth, $document)) {
+            $_SESSION['error_msg'] = "You do not have permission to edit this document.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
+            exit;
         }
 
         $type_key = $document['type_key'];
@@ -540,17 +544,27 @@ class DocumentController {
         global $conn;
 
         if ($doc_id <= 0) {
-            die("Invalid document ID.");
+            $_SESSION['error_msg'] = "Invalid document ID.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/list");
+            exit;
         }
 
         $document = doc_get($conn, $doc_id);
         if (!$document) {
-            die("Document not found.");
+            $_SESSION['error_msg'] = "Document not found.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/list");
+            exit;
         }
 
         if (!doc_can_view($conn, $auth, $document)) {
-            die("You do not have permission to view this document.");
+            $_SESSION['error_msg'] = "You do not have permission to view this document.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/list");
+            exit;
         }
+
+        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
+        $error_msg = $_SESSION['error_msg'] ?? ($_GET['err'] ?? null);
+        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         $type_key = $document['type_key'];
         $page_title = 'View: ' . $document['title'];

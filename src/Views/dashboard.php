@@ -816,7 +816,7 @@ if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
                                     <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Review</a>
                                 <?php endif; ?>
                                 <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">View</a>
-                                <?php if ($status_lower === 'pending' || $status_lower === 'rejected'): ?>
+                                <?php if (doc_can_edit($conn, $auth, $doc)): ?>
                                 <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Update</a>
                                 <?php endif; ?>
                             </div>

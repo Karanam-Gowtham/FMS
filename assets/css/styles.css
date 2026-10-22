@@ -1,0 +1,44 @@
+/**
+ * FMS Common Stylesheet (assets/css/styles.css)
+ * Baseline styles for containers, typography, buttons, tables, and alerts.
+ */
+
+:root {
+    --primary: #003366;
+    --primary-hover: #002244;
+    --accent: #3b82f6;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --bg-light: #f8fafc;
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    color: var(--text-main);
+    background-color: #f8fafc;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Toast */
+.toast {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #003366;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    z-index: 99999;
+}

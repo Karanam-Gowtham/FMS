@@ -1052,108 +1052,12 @@ if (isset($extra_head)) {
 
 
         /* ========================================================
-           DASHBOARD NOTIFICATION BADGE
+           DASHBOARD NOTIFICATION BADGE (Optional)
         ======================================================== */
-
-        function updateDashboardBadge() {
-
-
-            const badge =
-                document.getElementById("dashboard-badge");
-
-
-            /*
-             * If the badge does not exist,
-             * user is probably logged out.
-             */
-
-            if (!badge) {
-                return;
-            }
-
-
-            const baseUrl =
-                window.FMS_BASE_URL || "";
-
-
-            fetch(
-                baseUrl + "/check_notifications.php"
-            )
-
-                .then(function (response) {
-
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            "Notification request failed"
-                        );
-
-                    }
-
-
-                    return response.json();
-
-                })
-
-
-                .then(function (data) {
-
-
-                    const count =
-                        Number(data.count) || 0;
-
-
-                    if (count > 0) {
-
-
-                        badge.textContent = count;
-
-                        badge.style.display =
-                            "inline-block";
-
-
-                    } else {
-
-
-                        badge.style.display =
-                            "none";
-
-
-                    }
-
-                })
-
-
-                .catch(function (error) {
-
-
-                    console.error(
-                        "Notification error:",
-                        error
-                    );
-
-
-                });
-
+        const badge = document.getElementById("dashboard-badge");
+        if (badge) {
+            badge.style.display = "none";
         }
-
-
-        /* ========================================================
-           INITIAL NOTIFICATION CHECK
-        ======================================================== */
-
-        updateDashboardBadge();
-
-
-        /* ========================================================
-           CHECK EVERY 60 SECONDS
-        ======================================================== */
-
-        setInterval(
-            updateDashboardBadge,
-            60000
-        );
 
 
     });

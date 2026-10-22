@@ -169,7 +169,11 @@
         </form>
 
         <div class="back-link">
-            <a href="<?= BASE_URL ?>/public/index.php?route=auth/login">← Back to Login</a>
+            <?php if (auth_is_logged_in()): ?>
+                <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">← Back to Dashboard</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login">← Back to Login</a>
+            <?php endif; ?>
         </div>
     </div>
 </body>

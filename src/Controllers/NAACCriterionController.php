@@ -9,7 +9,11 @@ class NAACCriterionController {
         $auth = auth_context();
         $active_role = auth_active_role();
 
-        $year = isset($_GET['year']) ? trim($_GET['year']) : '2025-26';
+        global $conn;
+
+        $active_ay = function_exists('doc_get_active_year') ? doc_get_active_year($conn) : null;
+        $default_year = $active_ay ? $active_ay['year_label'] : '2025-26';
+        $year = !empty($_GET['year']) ? trim($_GET['year']) : $default_year;
         $crit_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
 
         if (!$active_role) {
@@ -22,7 +26,6 @@ class NAACCriterionController {
         if ($dept_id === null) {
             die("Access denied. You are not authorized to view data for this department.");
         }
-        global $conn;
 
         // Fetch departments for the selector (Exclude central/admin wings)
         $excluded_depts = "'Antiragging', 'Clubs', 'Exam_Section', 'IIC', 'IQAC', 'NAAC', 'NBA', 'NCC', 'NSS', 'PASH', 'PE', 'PG', 'R&D', 'SAC', 'Sports', 'Women_Empowerment'";

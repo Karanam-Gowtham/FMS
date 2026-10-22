@@ -1,13 +1,13 @@
 function switchRole(baseUrl) {
-    // Clear auth and go to role selection
-    window.location.href = baseUrl + '/pages/select_role.php';
+    // Go to role selection
+    window.location.href = baseUrl + '/public/index.php?route=auth/select_role';
 }
 
 function activateRole(userRoleId, baseUrl, csrfToken) {
     // Use a form POST to switch role securely
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = baseUrl + '/pages/switch_role.php';
+    form.action = baseUrl + '/public/index.php?route=auth/select_role';
 
     const input = document.createElement('input');
     input.type = 'hidden';

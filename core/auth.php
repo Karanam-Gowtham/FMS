@@ -30,14 +30,15 @@ function auth_authenticate(mysqli $conn, string $identifier, string $password): 
     // Normalise: if no @ symbol, append default domain
     $email = (strpos($identifier, '@') !== false) ? $identifier : ($identifier . '@gmrit.edu.in');
 
-    // Query users table by email OR full_name
+    // Query users table by email, full_name, or personnel number (per_no)
     $stmt = $conn->prepare("
-        SELECT user_id, full_name, email, password, status
-        FROM users
-        WHERE (email = ? OR full_name = ?) AND status = 'active'
+        SELECT u.user_id, u.full_name, u.email, u.password, u.status
+        FROM users u
+        LEFT JOIN user_profiles up ON u.user_id = up.user_id
+        WHERE (u.email = ? OR u.full_name = ? OR up.per_no = ?) AND u.status = 'active'
         LIMIT 1
     ");
-    $stmt->bind_param("ss", $email, $identifier);
+    $stmt->bind_param("sss", $email, $identifier, $identifier);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
@@ -314,13 +315,22 @@ function get_authorized_depts(): array
  */
 function validate_dept_filter(?int $requested_dept_id): ?int
 {
-    if ($requested_dept_id === null) {
-        return auth_active_dept_id();
+    $active_role_id = auth_active_role_id();
+    $is_college_wide = in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+
+    if ($requested_dept_id === null || $requested_dept_id <= 0) {
+        $active_dept = auth_active_dept_id();
+        if ($active_dept !== null && $active_dept > 0) {
+            return $active_dept;
+        }
+        if ($is_college_wide) {
+            return 1; // Default to primary academic department (CSE) for college-wide oversight roles
+        }
+        return null;
     }
 
     // College-wide oversight roles can see all departments
-    $active_role_id = auth_active_role_id();
-    if (in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+    if ($is_college_wide) {
         return $requested_dept_id;
     }
 

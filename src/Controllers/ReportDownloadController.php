@@ -25,14 +25,18 @@ class ReportDownloadController {
             die("Invalid report type.");
         }
 
-        // Validate the filename against the generated pattern, preventing directory traversal natively
-        if (!preg_match('/^dummy_criterion\d+_\d+\.pdf$/', $filename)) {
+        // Validate the filename against safe patterns, preventing directory traversal natively
+        if (!preg_match('/^(dummy_criterion\d+_\d+|dept_\d+_[a-zA-Z0-9_]+)\.pdf$/', $filename)) {
             http_response_code(400);
             die("Invalid filename format.");
         }
 
         // Map type to fixed server-side directory
-        $base_dir = realpath(__DIR__ . '/../../uploads/' . $type . '_pdfs');
+        $raw_dir = __DIR__ . '/../../uploads/' . $type . '_pdfs';
+        if (!is_dir($raw_dir)) {
+            mkdir($raw_dir, 0755, true);
+        }
+        $base_dir = realpath($raw_dir);
         if (!$base_dir) {
             http_response_code(500);
             die("Report directory configuration error.");
@@ -52,7 +56,7 @@ class ReportDownloadController {
         }
 
         // Safely clear any previously buffered output
-        if (ob_get_level()) {
+        while (ob_get_level()) {
             ob_end_clean();
         }
 

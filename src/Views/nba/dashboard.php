@@ -70,7 +70,7 @@
         <div class="filters">
             <div class="form-group">
                 <label for="year">Academic Year</label>
-                <select name="year" id="year" onchange="window.location.href='?route=nba/dashboard&year=' + this.value">
+                <select name="year" id="year" onchange="window.location.href='<?= BASE_URL ?>/public/index.php?route=nba/dashboard&year=' + encodeURIComponent(this.value)">
                     <?php foreach ($academic_years as $y): ?>
                         <option value="<?= $y ?>" <?= $y === $filter_year ? 'selected' : '' ?>><?= $y ?></option>
                     <?php endforeach; ?>

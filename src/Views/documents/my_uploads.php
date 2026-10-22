@@ -29,6 +29,7 @@
         .pagination a { padding: 0.4rem 0.8rem; border: 1px solid #dee2e6; border-radius: 4px; text-decoration: none; color: #495057; }
         .pagination a.active { background: #4a90d9; color: white; border-color: #4a90d9; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
@@ -85,6 +86,21 @@
 
     <!-- MAIN CONTENT -->
     <main style="flex-grow: 1; min-width: 0; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <?php 
+        $disp_success = !empty($success_msg) ? $success_msg : (!empty($_GET['msg']) ? $_GET['msg'] : null);
+        $disp_error = !empty($error_msg) ? $error_msg : (!empty($_GET['err']) ? $_GET['err'] : null);
+        ?>
+        <?php if ($disp_success): ?>
+            <div style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
+                ✓ <?= htmlspecialchars($disp_success) ?>
+            </div>
+        <?php endif; ?>
+        <?php if ($disp_error): ?>
+            <div style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
+                ⚠ <?= htmlspecialchars($disp_error) ?>
+            </div>
+        <?php endif; ?>
+
         <div class="header-row" style="margin-bottom: 1.5rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">
             <h1 style="margin: 0; font-size: 1.5rem; color: #111827;">My Uploads</h1>
             <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload" class="btn-upload" style="background: #28a745; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">+ Upload New Document</a>
@@ -144,7 +160,7 @@
                             <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="color: #10b981; font-weight: 600;">Review</a> | 
                         <?php endif; ?>
                         <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>">View</a>
-                        <?php if (strtolower($doc['status']) !== 'accepted'): ?>
+                        <?php if (doc_can_edit($conn, $auth, $doc)): ?>
                             | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="color: #007bff;">Edit</a>
                         <?php endif; ?>
                     </td>

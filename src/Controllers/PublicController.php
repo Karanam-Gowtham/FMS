@@ -55,12 +55,12 @@ class PublicController {
         // Fetch active faculty members in this department
         $faculty = [];
         $stmt = $conn->prepare("
-            SELECT u.*, r.role_name
+            SELECT u.user_id, u.full_name, u.email, u.status, u.created_at, MAX(r.role_name) as role_name
             FROM users u
             JOIN user_roles ur ON u.user_id = ur.user_id
             JOIN roles r ON ur.role_id = r.role_id
             WHERE ur.dept_id = ? AND u.status = 'active' AND r.role_name IN ('Faculty', 'HOD')
-            GROUP BY u.user_id
+            GROUP BY u.user_id, u.full_name, u.email, u.status, u.created_at
             ORDER BY u.full_name
         ");
         if ($stmt) {
@@ -85,7 +85,7 @@ class PublicController {
             LEFT JOIN academic_years ay ON d.academic_year_id = ay.year_id
             LEFT JOIN document_metadata dm ON d.doc_id = dm.doc_id AND dm.meta_key = 'title'
             WHERE d.dept_id = ? AND d.status = 'accepted' 
-            AND dt.type_code IN ('journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference', 'student_activity_file', 'dept_file')
+            AND dt.type_code IN ('journal', 'conference', 'patent', 'fdp', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference', 'student_activity_file', 'dept_file')
             ORDER BY d.created_at DESC
         ");
         if ($stmt) {
@@ -179,7 +179,7 @@ class PublicController {
 
         // Only allow downloading accepted documents belonging to publicly visible document types
         $public_types = [
-            'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 
+            'journal', 'conference', 'patent', 'fdp', 'fdp_attended', 'fdp_organised', 
             'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 
             'student_event', 'student_body', 'student_journal', 'student_conference',
             'student_activity_file', 'dept_file'
@@ -226,7 +226,7 @@ class PublicController {
         $raw_target = __DIR__ . '/../../' . ltrim($file_path, '/\\');
         $canonical_path = realpath($raw_target);
 
-        if (!$canonical_path || !$allowed_base || strpos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
+        if (!$canonical_path || !$allowed_base || stripos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
             if (ob_get_level()) ob_end_clean();
             header("HTTP/1.1 404 Not Found");
             exit("File not found or not available publicly.");
@@ -247,7 +247,7 @@ class PublicController {
 
         $filename = basename($canonical_path);
 
-        if (ob_get_level()) ob_end_clean();
+        while (ob_get_level()) ob_end_clean();
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $mime_type);
         header('Content-Disposition: inline; filename="' . $filename . '"');

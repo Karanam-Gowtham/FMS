@@ -423,7 +423,7 @@ function doc_get(mysqli $conn, int $doc_id): ?array
                     WHEN dt.type_code = 'conference' THEN (SELECT from_date FROM meta_conference WHERE doc_id = d.doc_id LIMIT 1)
                     WHEN dt.type_code = 'journal' THEN (SELECT date_of_publication FROM meta_journal WHERE doc_id = d.doc_id LIMIT 1)
                     WHEN dt.type_code = 'patent' THEN (SELECT date_of_issue FROM meta_patent WHERE doc_id = d.doc_id LIMIT 1)
-                    WHEN dt.type_code = 'fdp_attended' THEN (SELECT date_from FROM meta_fdp_attended WHERE doc_id = d.doc_id LIMIT 1)
+                    WHEN dt.type_code IN ('fdp', 'fdp_attended') THEN (SELECT date_from FROM meta_fdp_attended WHERE doc_id = d.doc_id LIMIT 1)
                     WHEN dt.type_code = 'fdp_organised' THEN (SELECT date_from FROM meta_fdp_organised WHERE doc_id = d.doc_id LIMIT 1)
                     WHEN dt.type_code = 'conf_organised' THEN (SELECT date_from FROM meta_conf_organised WHERE doc_id = d.doc_id LIMIT 1)
                     WHEN dt.type_code = 'student_event' THEN (SELECT from_date FROM meta_student_event WHERE doc_id = d.doc_id LIMIT 1)
@@ -520,9 +520,10 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         $types .= 'i';
     }
 
-    if (!empty($filters['doc_type_id'])) {
-        $where_clauses[] = 'd.doc_type_id = ?';
-        $params[] = (int)$filters['doc_type_id'];
+    $type_id_filter = !empty($filters['type_id']) ? (int)$filters['type_id'] : (!empty($filters['doc_type_id']) ? (int)$filters['doc_type_id'] : 0);
+    if ($type_id_filter > 0) {
+        $where_clauses[] = 'd.type_id = ?';
+        $params[] = $type_id_filter;
         $types .= 'i';
     }
 
@@ -812,7 +813,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
                        WHEN dt.type_code = 'conference' THEN (SELECT from_date FROM meta_conference WHERE doc_id = d.doc_id LIMIT 1)
                        WHEN dt.type_code = 'journal' THEN (SELECT date_of_publication FROM meta_journal WHERE doc_id = d.doc_id LIMIT 1)
                        WHEN dt.type_code = 'patent' THEN (SELECT date_of_issue FROM meta_patent WHERE doc_id = d.doc_id LIMIT 1)
-                       WHEN dt.type_code = 'fdp_attended' THEN (SELECT date_from FROM meta_fdp_attended WHERE doc_id = d.doc_id LIMIT 1)
+                       WHEN dt.type_code IN ('fdp', 'fdp_attended') THEN (SELECT date_from FROM meta_fdp_attended WHERE doc_id = d.doc_id LIMIT 1)
                        WHEN dt.type_code = 'fdp_organised' THEN (SELECT date_from FROM meta_fdp_organised WHERE doc_id = d.doc_id LIMIT 1)
                        WHEN dt.type_code = 'conf_organised' THEN (SELECT date_from FROM meta_conf_organised WHERE doc_id = d.doc_id LIMIT 1)
                        WHEN dt.type_code = 'student_event' THEN (SELECT from_date FROM meta_student_event WHERE doc_id = d.doc_id LIMIT 1)
@@ -1132,4 +1133,38 @@ function doc_get_history(mysqli $conn, int $doc_id): array
     }
     $stmt->close();
     return $history;
+}
+
+/**
+ * Checks if a user is authorized to edit a document.
+ * Must be the uploader, cannot be accepted, and if pending, must not have any partial approvals.
+ */
+function doc_can_edit(mysqli $conn, array $auth, array $doc): bool
+{
+    $uploader = (int)($doc['uploaded_by'] ?? ($doc['created_by'] ?? 0));
+    $user_id  = (int)($auth['user_id'] ?? 0);
+    if ($uploader !== $user_id || $user_id <= 0) {
+        return false;
+    }
+
+    $status = strtolower($doc['status'] ?? '');
+    if ($status === 'accepted') {
+        return false;
+    }
+
+    if ($status === 'rejected') {
+        return true;
+    }
+
+    if ($status === 'pending') {
+        $history = doc_get_history($conn, (int)$doc['doc_id']);
+        foreach ($history as $h) {
+            if (($h['action'] ?? '') === 'approve') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    return false;
 }

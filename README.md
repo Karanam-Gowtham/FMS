@@ -1,6 +1,6 @@
 # File Management System (FMS) 🚀
 
-A premium, role-based document management solution designed for **GMRIT** and higher education institutions. FMS streamlines the lifecycle of academic and administrative proofs — from faculty uploads to workflow-driven approvals and accreditation-ready consolidation (NAAC/NBA).
+A premium, role-based document and file management solution designed for **GMRIT** and higher education institutions. The **File Management System (FMS)** streamlines the lifecycle of academic and administrative proofs — from file uploads to workflow-driven approvals and accreditation-ready consolidation (NAAC/NBA).
 
 ---
 

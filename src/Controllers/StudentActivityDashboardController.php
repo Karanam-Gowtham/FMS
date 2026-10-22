@@ -6,6 +6,7 @@ class StudentActivityDashboardController
     public function index()
     {
         require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
         
         global $conn;
         
@@ -32,9 +33,9 @@ class StudentActivityDashboardController
         $dept_filter = $_GET['dept_id'] ?? 'all';
         $scope_filter = $_GET['scope'] ?? 'all';
         
-        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? $_GET['global_modes'] : [];
-        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? $_GET['global_domains'] : [];
-        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? $_GET['global_event_types'] : [];
+        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? array_values(array_filter(array_map('trim', $_GET['global_modes']))) : [];
+        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? array_values(array_filter(array_map('trim', $_GET['global_domains']))) : [];
+        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? array_values(array_filter(array_map('trim', $_GET['global_event_types']))) : [];
 
         // Fetch dynamic global filter options
         $global_filter_options = ['modes' => [], 'domains' => [], 'event_types' => []];

@@ -1,6 +1,6 @@
 <?php
 require_login();
-$active_role = $_SESSION['active_role'] ?? null;
+$active_role = auth_active_role();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +8,7 @@ $active_role = $_SESSION['active_role'] ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Document - <?= htmlspecialchars($document['type_label']) ?></title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .upload-container { max-width: 800px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .form-title { color: #1e293b; margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem; font-weight: 600; }
@@ -87,23 +87,28 @@ $active_role = $_SESSION['active_role'] ?? null;
             <div class="form-grid">
                 <?php foreach ($meta_fields as $field): ?>
                     <?php 
-                    if ($field['type'] === 'json' || $field['type'] === 'authors' || $field['type'] === 'author_table') {
-                        continue; // Skip rendering JSON/author table fields to prevent overwriting them with strings
+                    if ($field['type'] === 'json' || $field['type'] === 'authors') {
+                        continue;
                     }
                     $val = $meta_data[$field['name']] ?? '';
-                    if (is_array($val)) {
+                    if ($field['type'] !== 'author_table' && is_array($val)) {
                         continue;
                     }
                     $is_f_req = $field['required'] && (!$is_stepcone_doc || $field['name'] === 'activity_category');
+                    $is_full_width = ($field['type'] === 'text' || $field['type'] === 'textarea' || $field['type'] === 'author_table' || $field['name'] === 'title');
                     ?>
-                    <div class="form-group <?= ($field['type'] === 'text' || $field['name'] === 'title') ? 'full-width' : '' ?>">
+                    <div class="form-group <?= $is_full_width ? 'full-width' : '' ?>">
                         <label class="<?= $is_f_req ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">
                             <?= htmlspecialchars($field['label']) ?>
                         </label>
-                        <?php if ($field['type'] === 'date'): ?>
+                        <?php if ($field['type'] === 'textarea'): ?>
+                            <textarea id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $is_f_req ? 'required' : '' ?> style="width: 100%; min-height: 80px;"><?= htmlspecialchars($val) ?></textarea>
+                        <?php elseif ($field['type'] === 'date'): ?>
                             <input type="date" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
                         <?php elseif ($field['type'] === 'number'): ?>
-                            <input type="number" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
+                            <input type="number" step="any" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
+                        <?php elseif ($field['type'] === 'url'): ?>
+                            <input type="url" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?> placeholder="https://">
                         <?php elseif ($field['type'] === 'select' && !empty($field['options'])): ?>
                             <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $is_f_req ? 'required' : '' ?>>
                                 <option value="">— Select —</option>
@@ -111,6 +116,86 @@ $active_role = $_SESSION['active_role'] ?? null;
                                     <option value="<?= htmlspecialchars($opt) ?>" <?= ((string)$val === (string)$opt) ? 'selected' : '' ?>><?= htmlspecialchars($opt) ?></option>
                                 <?php endforeach; ?>
                             </select>
+                        <?php elseif ($field['type'] === 'radio'): ?>
+                            <div class="radio-group" style="display: flex; gap: 15px; margin-top: 5px;">
+                                <?php if (!empty($field['options'])): ?>
+                                    <?php foreach ($field['options'] as $opt): ?>
+                                        <label style="font-weight: normal; margin: 0; display: flex; align-items: center; gap: 5px;">
+                                            <input type="radio" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($opt) ?>" <?= ((string)$val === (string)$opt) ? 'checked' : '' ?> <?= $is_f_req ? 'required' : '' ?>>
+                                            <?= htmlspecialchars($opt) ?>
+                                        </label>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        <?php elseif ($field['type'] === 'author_table'): ?>
+                            <?php 
+                                $isInventor = ($field['name'] === 'inventors' || $field['name'] === 'investors');
+                                $personLabel = $isInventor ? 'Inventor' : 'Author';
+                                $rawAuthors = $meta_data[$field['name']] ?? null;
+                                if (is_string($rawAuthors)) {
+                                    $rawAuthors = json_decode($rawAuthors, true) ?: [];
+                                }
+                                $parsedNames = [];
+                                $parsedAffils = [];
+                                $parsedPositions = [];
+                                if (is_array($rawAuthors)) {
+                                    if (isset($rawAuthors['name']) && is_array($rawAuthors['name'])) {
+                                        $parsedNames = $rawAuthors['name'];
+                                        $parsedAffils = $rawAuthors['affiliation'] ?? [];
+                                        $parsedPositions = $rawAuthors['position'] ?? [];
+                                    } else {
+                                        foreach ($rawAuthors as $aItem) {
+                                            if (is_array($aItem)) {
+                                                $parsedNames[] = $aItem['name'] ?? '';
+                                                $parsedAffils[] = $aItem['affiliation'] ?? '';
+                                                $parsedPositions[] = $aItem['position'] ?? '';
+                                            }
+                                        }
+                                    }
+                                }
+                                $authorCount = max(1, count($parsedNames));
+                            ?>
+                            <div style="overflow-x: auto; margin-bottom: 0.8rem;">
+                                <table class="author-table" style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden;">
+                                    <thead>
+                                        <tr style="background: #f1f5f9; color: #334155; font-size: 0.85rem;">
+                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Name of the <?= $personLabel ?></th>
+                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Affiliation</th>
+                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Position</th>
+                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; width: 40px; text-align: center;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php for ($i = 0; $i < $authorCount; $i++): 
+                                            $curName = $parsedNames[$i] ?? '';
+                                            $curAffil = $parsedAffils[$i] ?? '';
+                                            $curPos = $parsedPositions[$i] ?? '';
+                                        ?>
+                                        <tr>
+                                            <td style="border: 1px solid #cbd5e1; padding: 0;"><input type="text" name="meta[<?= $field['name'] ?>][name][]" value="<?= htmlspecialchars($curName) ?>" placeholder="Full Name" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;"></td>
+                                            <td style="border: 1px solid #cbd5e1; padding: 0;"><input type="text" name="meta[<?= $field['name'] ?>][affiliation][]" value="<?= htmlspecialchars($curAffil) ?>" placeholder="e.g. GMRIT" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;"></td>
+                                            <td style="border: 1px solid #cbd5e1; padding: 0;">
+                                                <select name="meta[<?= $field['name'] ?>][position][]" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent; cursor:pointer;">
+                                                    <?php if ($isInventor): ?>
+                                                        <option value="Main Inventor" <?= $curPos === 'Main Inventor' ? 'selected' : '' ?>>Main Inventor</option>
+                                                        <option value="Co-Inventor" <?= $curPos === 'Co-Inventor' ? 'selected' : '' ?>>Co-Inventor</option>
+                                                    <?php else: ?>
+                                                        <option value="First author" <?= $curPos === 'First author' ? 'selected' : '' ?>>First author</option>
+                                                        <option value="First author with equal contribution" <?= $curPos === 'First author with equal contribution' ? 'selected' : '' ?>>First author with equal contribution</option>
+                                                        <option value="Corresponding Author" <?= $curPos === 'Corresponding Author' ? 'selected' : '' ?>>Corresponding Author</option>
+                                                        <option value="Co-author" <?= $curPos === 'Co-author' ? 'selected' : '' ?>>Co-author</option>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </td>
+                                            <td style="border: 1px solid #cbd5e1; padding: 0; text-align: center;">
+                                                <button type="button" onclick="removeAuthorRow(this)" style="background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 18px; line-height: 1; padding: 6px;" title="Remove Row">&minus;</button>
+                                            </td>
+                                        </tr>
+                                        <?php endfor; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 1.2rem;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'" onclick="addAuthorRow(this, '<?= $field['name'] ?>')"><i class="fas fa-plus"></i> Add <?= $personLabel ?></button>
                         <?php else: ?>
                             <input type="text" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
                         <?php endif; ?>
@@ -143,5 +228,64 @@ $active_role = $_SESSION['active_role'] ?? null;
         <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $document['doc_id'] ?>" style="display:block; text-align:center; margin-top: 1rem; color: #6c757d;">Cancel</a>
     </form>
 </div>
+
+<script>
+function addAuthorRow(btn, fieldName) {
+    var table = (btn.parentElement ? btn.parentElement.querySelector('table.author-table') : null) || btn.previousElementSibling;
+    if (!table) return;
+    var tbody = table.getElementsByTagName('tbody')[0] || table;
+    var newRow = tbody.insertRow(tbody.rows.length);
+    
+    var cell1 = newRow.insertCell(0);
+    var cell2 = newRow.insertCell(1);
+    var cell3 = newRow.insertCell(2);
+    var cell4 = newRow.insertCell(3);
+    
+    cell1.innerHTML = '<input type="text" name="meta[' + fieldName + '][name][]" placeholder="Full Name" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;">';
+    cell1.style.border = '1px solid #cbd5e1';
+    cell1.style.padding = '0';
+    
+    cell2.innerHTML = '<input type="text" name="meta[' + fieldName + '][affiliation][]" placeholder="e.g. GMRIT" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;">';
+    cell2.style.border = '1px solid #cbd5e1';
+    cell2.style.padding = '0';
+    
+    var selectHtml = '';
+    if (fieldName === 'inventors' || fieldName === 'investors') {
+        selectHtml = '<select name="meta[' + fieldName + '][position][]" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent; cursor:pointer;">' +
+                     '<option value="Main Inventor">Main Inventor</option>' +
+                     '<option value="Co-Inventor">Co-Inventor</option>' +
+                     '</select>';
+    } else {
+        selectHtml = '<select name="meta[' + fieldName + '][position][]" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent; cursor:pointer;">' +
+                     '<option value="First author">First author</option>' +
+                     '<option value="First author with equal contribution">First author with equal contribution</option>' +
+                     '<option value="Corresponding Author">Corresponding Author</option>' +
+                     '<option value="Co-author">Co-author</option>' +
+                     '</select>';
+    }
+    cell3.innerHTML = selectHtml;
+    cell3.style.border = '1px solid #cbd5e1';
+    cell3.style.padding = '0';
+    
+    cell4.innerHTML = '<button type="button" onclick="removeAuthorRow(this)" style="background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 18px; line-height: 1; padding: 6px;" title="Remove Row">&minus;</button>';
+    cell4.style.border = '1px solid #cbd5e1';
+    cell4.style.padding = '0';
+    cell4.style.textAlign = 'center';
+}
+
+function removeAuthorRow(btn) {
+    var row = btn.closest('tr');
+    if (!row) return;
+    var tbody = row.closest('tbody');
+    if (tbody && tbody.rows.length > 1) {
+        row.remove();
+    } else {
+        var inputs = row.querySelectorAll('input');
+        inputs.forEach(input => input.value = '');
+        var select = row.querySelector('select');
+        if (select) select.selectedIndex = 0;
+    }
+}
+</script>
 </body>
 </html>

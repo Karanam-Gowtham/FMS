@@ -452,6 +452,7 @@ class AccreditationPdfService {
                 $colsToRender['event_name']['label'] = "Title of the Professional Development /\nAdministrative Training Program";
             }
         }
+        $totalWeight = max(1.0, (float)$totalWeight);
 
         $printableWidth = 190; // mm
         $colWidths = [];

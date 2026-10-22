@@ -23,27 +23,48 @@ $doc_joins = "
 ";
 
 // Base WHERE condition for accepted documents
-$whitelist = "'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 'conf_organised'";
+$whitelist = "'journal', 'conference', 'patent', 'fdp', 'fdp_attended', 'fdp_organised', 'conf_organised'";
 $doc_where = "d.status = 'accepted' AND dt.type_code IN ($whitelist)";
 
 if ($year_filter) {
-    $years = explode(',', $year_filter);
-    $year_sql = implode(',', array_map(function($y) { return (int)substr(trim($y), 0, 4); }, $years));
-    if (!empty($year_sql)) $doc_where .= " AND CAST(SUBSTRING(ay.year_label, 1, 4) AS UNSIGNED) IN ($year_sql)";
+    if ($year_filter === 'none') {
+        $doc_where .= " AND 1=0";
+    } else {
+        $years = explode(',', $year_filter);
+        $escaped_years = array_map(function($y) use ($conn) {
+            return "'" . $conn->real_escape_string(trim($y)) . "'";
+        }, $years);
+        $year_nums = array_filter(array_map(function($y) { return (int)substr(trim($y), 0, 4); }, $years));
+        $year_sql = implode(',', $escaped_years);
+        $num_sql = implode(',', $year_nums);
+        if (!empty($year_sql) && !empty($num_sql)) {
+            $doc_where .= " AND (ay.year_label IN ($year_sql) OR CAST(SUBSTRING(ay.year_label, 1, 4) AS UNSIGNED) IN ($num_sql))";
+        } elseif (!empty($year_sql)) {
+            $doc_where .= " AND ay.year_label IN ($year_sql)";
+        }
+    }
 }
 
 if ($dept_filter) {
-    $depts = explode(',', $dept_filter);
-    $dept_sql = implode(',', array_map('intval', $depts));
-    if (!empty($dept_sql)) $doc_where .= " AND d.dept_id IN ($dept_sql)";
+    if ($dept_filter === 'none') {
+        $doc_where .= " AND 1=0";
+    } else {
+        $depts = explode(',', $dept_filter);
+        $dept_sql = implode(',', array_map('intval', $depts));
+        if (!empty($dept_sql)) $doc_where .= " AND d.dept_id IN ($dept_sql)";
+    }
 }
 
 // 1. Apply Focus Filter (Multi-Select)
 if ($focus_filter) {
-    $foci = explode(',', $focus_filter);
-    $foci_sql = implode(',', array_map(function($f) { global $conn; return "'" . $conn->real_escape_string(trim($f)) . "'"; }, $foci));
-    if (!empty($foci_sql)) {
-        $doc_where .= " AND dt.type_code IN ($foci_sql)";
+    if ($focus_filter === 'none') {
+        $doc_where .= " AND 1=0";
+    } else {
+        $foci = explode(',', $focus_filter);
+        $foci_sql = implode(',', array_map(function($f) { global $conn; return "'" . $conn->real_escape_string(trim($f)) . "'"; }, $foci));
+        if (!empty($foci_sql)) {
+            $doc_where .= " AND dt.type_code IN ($foci_sql)";
+        }
     }
 }
 
@@ -73,9 +94,13 @@ $res = $conn->query("SELECT count(DISTINCT d.doc_id) as cnt FROM documents d $do
 if($res) $stats['fdps'] = $res->fetch_assoc()['cnt'];
 
 // Active Researchers (Filtered by dept)
-$r_where = "u.status='active' AND ur.role_id IN (SELECT role_id FROM roles WHERE role_name IN ('Faculty', 'HOD', 'R&D Dean'))";
-if ($dept_filter && !empty($dept_sql)) {
-    $r_where .= " AND ur.dept_id IN ($dept_sql)";
+$r_where = "u.status='active' AND ur.role_id IN (SELECT role_id FROM roles WHERE role_name IN ('Faculty', 'HOD', 'Coordinator', 'RnD_Dean', 'R&D Dean') OR role_id = " . ROLE_DEPT_COORDINATOR . ")";
+if ($dept_filter) {
+    if ($dept_filter === 'none') {
+        $r_where .= " AND 1=0";
+    } elseif (!empty($dept_sql)) {
+        $r_where .= " AND ur.dept_id IN ($dept_sql)";
+    }
 }
 $res = $conn->query("SELECT count(DISTINCT u.user_id) as cnt FROM users u JOIN user_roles ur ON u.user_id = ur.user_id WHERE $r_where");
 if($res) $stats['researchers'] = $res->fetch_assoc()['cnt'];

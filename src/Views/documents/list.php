@@ -31,6 +31,7 @@
         .pagination { display: flex; gap: 0.4rem; justify-content: center; margin-top: 1.5rem; }
         .pagination a { padding: 0.35rem 0.7rem; border: 1px solid #dee2e6; border-radius: 4px; text-decoration: none; color: #495057; font-size: 0.9rem; }
         .pagination a.active { background: #4a90d9; color: white; border-color: #4a90d9; }
+    </style>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>

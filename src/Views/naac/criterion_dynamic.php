@@ -57,6 +57,12 @@
 
 <div class="container">
 
+    <div style="margin-bottom: 1rem;">
+        <a href="<?= BASE_URL ?>/public/index.php?route=naac/dashboard&year=<?= urlencode($year) ?>" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
+            &larr; Back to NAAC Dashboard (<?= htmlspecialchars($year) ?>)
+        </a>
+    </div>
+
     <div class="header-row">
         <h1><?= htmlspecialchars($page_title) ?></h1>
         <p>Academic Year: <strong><?= htmlspecialchars($year) ?></strong></p>
@@ -145,9 +151,9 @@
     
     // Build an index of table schemas for easy access
     const tableSchemas = {};
-    formSchema.sections.forEach(sec => {
-        sec.metrics.forEach(met => {
-            met.fields.forEach(f => {
+    (formSchema && formSchema.sections ? formSchema.sections : []).forEach(sec => {
+        (sec.metrics || []).forEach(met => {
+            (met.fields || []).forEach(f => {
                 if (f.type === 'table') {
                     tableSchemas[f.name] = f;
                 }
@@ -270,9 +276,9 @@
 
         // Collect files to upload
         let fileFields = [];
-        formSchema.sections.forEach(section => {
-            section.metrics.forEach(metric => {
-                metric.fields.forEach(field => {
+        (formSchema && formSchema.sections ? formSchema.sections : []).forEach(section => {
+            (section.metrics || []).forEach(metric => {
+                (metric.fields || []).forEach(field => {
                     if (field.type === 'file') {
                         fileFields.push(field.name);
                         // Preserve existing paths

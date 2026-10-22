@@ -149,8 +149,9 @@
                 <input type="date" id="date_of_leaving" name="date_of_leaving" value="<?= htmlspecialchars($profile['date_of_leaving'] ?? '') ?>">
             </div>
 
-            <div class="form-group full-width" style="margin-top: 1rem;">
+            <div class="form-group full-width" style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">
                 <button type="submit" class="btn-save">Update Profile</button>
+                <a href="<?= BASE_URL ?>/public/index.php?route=profile/view" class="btn-cancel" style="display: inline-block; padding: 0.6rem 1.4rem; background: #64748b; color: #fff; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 0.95rem;">Cancel</a>
             </div>
         </form>
     </div>
@@ -188,9 +189,13 @@
         if (this.value) {
             const doj = new Date(this.value);
             const today = new Date();
-            const diffTime = Math.abs(today - doj);
-            const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
-            document.getElementById('experience_years').value = diffYears.toFixed(1);
+            if (doj > today) {
+                document.getElementById('experience_years').value = '0.0';
+            } else {
+                const diffTime = Math.max(0, today - doj);
+                const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+                document.getElementById('experience_years').value = diffYears.toFixed(1);
+            }
         }
     });
 

@@ -68,12 +68,13 @@ class DocumentActionController {
                     if ($mentor_per_no === '') {
                         $error_msg = 'Mentor Per No is required for student uploads.';
                     } else {
-                        // CRITICAL FIX: Ensure the resolved Mentor is actually a Faculty member (Role 4) in the same department!
+                        // Ensure the resolved Mentor is a recognized department faculty member (Faculty, HOD, or Coordinator)
+                        $mentor_role_ids = implode(',', [ROLE_FACULTY, ROLE_HOD, ROLE_DEPT_COORDINATOR]);
                         $mentor_stmt = $conn->prepare("
                             SELECT up.user_id 
                             FROM user_profiles up
                             JOIN user_roles ur ON up.user_id = ur.user_id
-                            WHERE up.per_no = ? AND ur.role_id = 4 AND ur.dept_id = ?
+                            WHERE up.per_no = ? AND ur.role_id IN ($mentor_role_ids) AND ur.dept_id = ?
                         ");
                         $mentor_stmt->bind_param("si", $mentor_per_no, $post_dept_id);
                         $mentor_stmt->execute();
@@ -271,13 +272,15 @@ class DocumentActionController {
             die("You do not have permission to download this file.");
         }
 
-        $real_path = __DIR__ . '/../../' . $file_record['file_path'];
+        $raw_file_path = $file_record['file_path'];
+        $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
+        $real_path = file_exists($raw_file_path) ? $raw_file_path : ($base_dir . '/' . ltrim($raw_file_path, '/\\'));
         if (!file_exists($real_path)) {
             die("The physical file is missing from the server.");
         }
 
-        // Stream file
-        if (ob_get_level()) {
+        // Stream file - clean all nested output buffers
+        while (ob_get_level()) {
             ob_end_clean();
         }
         
@@ -308,25 +311,22 @@ class DocumentActionController {
 
         $doc_id = isset($_POST['doc_id']) ? (int)$_POST['doc_id'] : 0;
         if (!$doc_id) {
-            die("Invalid document ID.");
+            $_SESSION['error_msg'] = "Invalid document ID.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
+            exit;
         }
 
         $doc = doc_get($conn, $doc_id);
         if (!$doc) {
-            die("Document not found.");
+            $_SESSION['error_msg'] = "Document not found.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
+            exit;
         }
 
-        if ((int)$doc['uploaded_by'] !== (int)$auth['user_id'] || strtolower($doc['status']) === 'accepted') {
-            die("Unauthorized to edit this document.");
-        }
-
-        if (strtolower($doc['status']) === 'pending') {
-            $history = doc_get_history($conn, $doc_id);
-            foreach ($history as $h) {
-                if ($h['action'] === 'approve') {
-                    die("Cannot edit a document that is already partially approved. Please request a rejection first.");
-                }
-            }
+        if (!doc_can_edit($conn, $auth, $doc)) {
+            $_SESSION['error_msg'] = "Unauthorized to edit this document.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
+            exit;
         }
 
         $type_key = $doc['type_key'];
@@ -334,10 +334,12 @@ class DocumentActionController {
         // Update documents table (title, academic_year, dept)
         $post_title = trim($_POST['title'] ?? '');
         $post_dept_id = (int)($_POST['dept_id'] ?? 0);
-        $post_year_id = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : 0);
+        $post_year_id = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : null);
         
         if ($post_dept_id > 0 && validate_dept_filter($post_dept_id) === null) {
-            die("Unauthorized department selection.");
+            $_SESSION['error_msg'] = "Unauthorized department selection.";
+            header("Location: index.php?route=documents/my_uploads");
+            exit;
         }
 
         if ($post_title !== '' && $post_dept_id > 0) {
@@ -485,7 +487,9 @@ class DocumentActionController {
                     error_log("PDF Re-Merge Failed: " . $e->getMessage());
                 }
             } elseif (count($pdfs_to_merge) === 1) {
-                $rel_merged_path = str_replace(__DIR__ . '/../../', '', $pdfs_to_merge[0]['path']);
+                $base_root = str_replace('\\', '/', (string)realpath(__DIR__ . '/../../'));
+                $norm_path = str_replace('\\', '/', $pdfs_to_merge[0]['path']);
+                $rel_merged_path = ltrim(str_replace($base_root, '', $norm_path), '/\\');
                 $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");
                 $upd_stmt->bind_param('si', $rel_merged_path, $doc_id);
                 $upd_stmt->execute();
@@ -493,12 +497,30 @@ class DocumentActionController {
             }
         }
 
-        $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'resubmitted', ?, 'Author updated the document.', NOW())");
-        $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
-        $log_stmt->execute();
-        $log_stmt->close();
+        if (strtolower($doc['status']) === 'rejected') {
+            $resubmit_res = wf_execute_action($conn, $doc_id, (int)$auth['user_id'], 'resubmit', 'Author updated and resubmitted the document.');
+            if (!$resubmit_res['success']) {
+                $wf = wf_get_workflow_for_type($conn, (int)$doc['type_id']);
+                $first_step = $wf ? wf_get_first_step($conn, (int)$wf['workflow_id']) : null;
+                $step_id = $first_step ? (int)$first_step['step_id'] : 1;
+                $rst = $conn->prepare("UPDATE documents SET status = 'pending', current_step = ?, rejection_reason = NULL, updated_at = NOW() WHERE doc_id = ?");
+                $rst->bind_param('ii', $step_id, $doc_id);
+                $rst->execute();
+                $rst->close();
 
-        $_SESSION['success_msg'] = "Document updated successfully.";
+                $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'resubmitted', ?, 'Author updated and resubmitted the document.', NOW())");
+                $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
+                $log_stmt->execute();
+                $log_stmt->close();
+            }
+            $_SESSION['success_msg'] = "Document updated and resubmitted for review successfully.";
+        } else {
+            $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'resubmitted', ?, 'Author updated the document.', NOW())");
+            $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
+            $log_stmt->execute();
+            $log_stmt->close();
+            $_SESSION['success_msg'] = "Document updated successfully.";
+        }
         header("Location: " . BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
         exit;
     }
@@ -636,6 +658,9 @@ class DocumentActionController {
 
         try {
             if (merge_pdfs_with_headings($pdfs_to_merge, $merged_path)) {
+                if (ob_get_level()) {
+                    ob_end_clean();
+                }
                 header('Content-Type: application/pdf');
                 header('Content-disposition: attachment; filename=FMS_Bulk_Merged.pdf');
                 header('Content-Length: ' . filesize($merged_path));
@@ -784,7 +809,7 @@ class DocumentActionController {
         try {
             $service->generateReport($headings, $selected_columns, $docs_to_merge, $merged_path);
 
-            if (ob_get_level()) {
+            while (ob_get_level()) {
                 ob_end_clean();
             }
 

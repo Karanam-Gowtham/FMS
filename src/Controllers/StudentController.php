@@ -12,7 +12,9 @@ class StudentController {
         
         global $conn;
         $stmt = $conn->prepare("
-            SELECT d.doc_id, d.status, d.created_at, dt.label as activity_category, d.title as event_title,
+            SELECT d.doc_id, d.status, d.created_at,
+                   COALESCE(msaf.activity_category, dmsa.activity_category, dt.label) as activity_category,
+                   COALESCE(msaf.event_title, d.title) as event_title,
                    COALESCE(
                        msaf.date_from,
                        mse.from_date,
@@ -24,6 +26,7 @@ class StudentController {
             FROM documents d
             JOIN document_types dt ON dt.type_id = d.type_id
             LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id
+            LEFT JOIN document_meta_student_activity dmsa ON dmsa.doc_id = d.doc_id
             LEFT JOIN meta_student_event mse ON mse.doc_id = d.doc_id
             LEFT JOIN meta_student_body msb ON msb.doc_id = d.doc_id
             LEFT JOIN meta_student_conference msc ON msc.doc_id = d.doc_id

@@ -46,7 +46,7 @@ $resolvedPath = null;
 foreach ($candidatePaths as $cp) {
     if (file_exists($cp) && is_file($cp)) {
         $realCp = realpath($cp);
-        if ($realCp !== false && $allowedBaseDir !== false && strpos($realCp, $allowedBaseDir) === 0) {
+        if ($realCp !== false && $allowedBaseDir !== false && stripos($realCp, $allowedBaseDir) === 0) {
             $resolvedPath = $realCp;
             break;
         }
@@ -81,7 +81,7 @@ if ($doc) {
     $is_public = false;
     if ($doc['status'] === 'accepted') {
         $public_types = [
-            'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised', 
+            'journal', 'conference', 'patent', 'fdp', 'fdp_attended', 'fdp_organised', 
             'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 
             'student_event', 'student_body', 'student_journal', 'student_conference',
             'student_activity_file', 'dept_file'
@@ -141,6 +141,7 @@ $disposition = (strpos($mime, 'pdf') !== false || strpos($mime, 'image') !== fal
 header("Content-Type: $mime");
 header("Content-Disposition: $disposition; filename=\"" . basename($resolvedPath) . "\"");
 header("Content-Length: " . filesize($resolvedPath));
+header("X-Content-Type-Options: nosniff");
 header("Cache-Control: private, must-revalidate, max-age=3600");
 
 readfile($resolvedPath);
