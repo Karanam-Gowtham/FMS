@@ -44,7 +44,7 @@
         <form method="GET" id="sidebar-filters" action="<?= BASE_URL ?>/public/index.php">
             <input type="hidden" name="route" value="documents/list">
             <input type="hidden" name="page" value="1">
-            <?php if (!empty($_GET['context'])): ?>
+            <?php if (!empty($_GET['context']) && is_string($_GET['context'])): ?>
                 <input type="hidden" name="context" value="<?= htmlspecialchars($_GET['context']) ?>">
             <?php endif; ?>
 
@@ -55,7 +55,7 @@
             </div>
 
             <!-- Types Checkboxes -->
-            <?php if (empty($_GET['context'])): ?>
+            <?php if (empty($_GET['context']) || !is_string($_GET['context'])): ?>
             <div style="margin-bottom: 1.5rem;">
                 <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Type</label>
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
@@ -85,7 +85,7 @@
             <?php endif; ?>
 
             <!-- Merged Types & Categories -->
-            <?php if (!empty($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
+            <?php if (!empty($_GET['context']) && is_string($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
             <div style="margin-bottom: 1.5rem;">
                 <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Categories</label>
                 
@@ -183,7 +183,7 @@
             <?php endif; ?>
 
             <!-- Global Event Filters -->
-            <?php if (!empty($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
+            <?php if (!empty($_GET['context']) && is_string($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
             <div style="margin-bottom: 1.5rem; border-top: 1px solid #e5e7eb; padding-top: 1.5rem;">
                 <h3 style="font-size: 0.95rem; margin-top: 0; margin-bottom: 1rem; color: #111827; text-transform: uppercase; letter-spacing: 0.05em;">Global Attributes</h3>
 
@@ -728,7 +728,7 @@
                 <span style="color: #cbd5e1;">|</span>
                 <span>Per page:</span>
                 <?php 
-                $curr_pp = $_GET['per_page'] ?? '25';
+                $curr_pp = (isset($_GET['per_page']) && is_string($_GET['per_page'])) ? $_GET['per_page'] : '25';
                 $pp_options = ['25', '50', '100', 'all'];
                 foreach ($pp_options as $opt):
                     $q_pp = $_GET;

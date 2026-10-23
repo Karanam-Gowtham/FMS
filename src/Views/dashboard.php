@@ -15,6 +15,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
     $breadcrumb = "Dashboard";
 }
 
+$current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET['view']) : '';
 ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -495,7 +496,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
         <?php if ($is_reviewer || $is_dept_manager): ?>
             <!-- HOD / REVIEWER DASHBOARD (Viewing & Approving) -->
             <?php 
-            $hod_view = $_GET['view'] ?? ''; 
+            $hod_view = $current_view; 
             ?>
 
             <?php if ($hod_view === 'upload_dept_files' && $is_dept_manager): ?>
@@ -691,7 +692,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
             <?php endif; ?>
         <?php endif; ?>
 
-        <?php if ($is_reviewer && empty($_GET['view'])): ?>
+        <?php if ($is_reviewer && empty($current_view)): ?>
         <!-- PENDING APPROVALS -->
         <div class="header-title" style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
             <div>
@@ -767,7 +768,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
             </div>
         <?php endif; ?>
 
-        <?php if (empty($_GET['view'])): ?>
+        <?php if (empty($current_view)): ?>
         <?php if ($is_faculty || !empty($recent_uploads)): ?>
         <!-- MY SUBMISSIONS -->
         <div class="header-title" style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">

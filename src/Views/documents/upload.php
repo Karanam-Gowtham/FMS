@@ -80,7 +80,7 @@
     <?php else: ?>
         <!-- Upload form -->
         <?php
-        $selected_activity_val = $_GET['activity'] ?? ($old_input['meta']['activity_category'] ?? '');
+        $selected_activity_val = (isset($_GET['activity']) && is_string($_GET['activity'])) ? $_GET['activity'] : ($old_input['meta']['activity_category'] ?? '');
         $is_stepcone_selected = ($type_key === 'student_activity_file' && strcasecmp(trim((string)$selected_activity_val), 'stepcone') === 0);
         ?>
         <form method="POST" enctype="multipart/form-data" id="uploadForm" action="<?= BASE_URL ?>/public/index.php?route=documents/upload">
@@ -178,7 +178,7 @@
                                     <?php foreach ($field['options'] as $opt): ?>
                                         <?php 
                                         $selected = '';
-                                        $curr_opt_val = ($field_val !== '') ? $field_val : ($field['name'] === 'activity_category' ? ($_GET['activity'] ?? '') : ($field['default'] ?? ''));
+                                        $curr_opt_val = ($field_val !== '') ? $field_val : ($field['name'] === 'activity_category' ? ((isset($_GET['activity']) && is_string($_GET['activity'])) ? $_GET['activity'] : '') : ($field['default'] ?? ''));
                                         if (strcasecmp(trim((string)$curr_opt_val), trim((string)$opt)) === 0) {
                                             $selected = 'selected';
                                         }
@@ -290,10 +290,10 @@
                             $default_val = $field_val !== '' ? $field_val : '';
                             $is_readonly = false;
                             if ($default_val === '') {
-                                if ($field['name'] === 'activity' && isset($_GET['activity'])) {
+                                if ($field['name'] === 'activity' && isset($_GET['activity']) && is_string($_GET['activity'])) {
                                     $default_val = $_GET['activity'];
                                     $is_readonly = true;
-                                } elseif ($field['name'] === 'exam' && isset($_GET['exam'])) {
+                                } elseif ($field['name'] === 'exam' && isset($_GET['exam']) && is_string($_GET['exam'])) {
                                     $default_val = $_GET['exam'];
                                     $is_readonly = true;
                                 }
@@ -421,8 +421,8 @@ function handleStudentActivityChange(select) {
     
     if (type) {
         var url = '<?= BASE_URL ?>/public/index.php?route=documents/upload&type=' + type + subtypeParam;
-        <?php if (!empty($_GET['sub_type'])): ?>
-        url += '&sub_type=' + encodeURIComponent(<?= json_encode((string)$_GET['sub_type'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>);
+        <?php if (!empty($_GET['sub_type']) && is_string($_GET['sub_type'])): ?>
+        url += '&sub_type=' + encodeURIComponent(<?= json_encode($_GET['sub_type'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>);
         <?php endif; ?>
         window.location.href = url;
     }
