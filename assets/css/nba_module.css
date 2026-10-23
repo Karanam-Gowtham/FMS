@@ -91,16 +91,17 @@
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(255,255,255,0.9);
     border-radius: 8px;
-    display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     color: #4a90d9;
     display: none;
 }
+.upload-overlay.active {
+    display: flex;
+}
 
 .file-preview {
-    display: flex;
     align-items: center;
     justify-content: space-between;
     background: #e8f5e9;
@@ -109,6 +110,9 @@
     border-radius: 6px;
     margin-top: 15px;
     display: none;
+}
+.file-preview.active {
+    display: flex;
 }
 .file-preview a { color: #28a745; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; }
 .file-preview a:hover { text-decoration: underline; }
