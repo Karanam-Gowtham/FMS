@@ -57,4 +57,31 @@ require_once __DIR__ . '/../includes/csrf.php';
 if (!defined('FMS_DEBUG') || !FMS_DEBUG) {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
+
+    if (!defined('FMS_EXCEPTION_HANDLER_SET')) {
+        define('FMS_EXCEPTION_HANDLER_SET', true);
+        set_exception_handler(function (\Throwable $e) {
+            error_log("Uncaught Exception: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+            if (!headers_sent()) {
+                http_response_code(500);
+            }
+            $is_api = (isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
+                   || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
+                   || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+
+            if ($is_api) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => false, 'error' => 'An internal server error occurred. Please try again later.']);
+                exit(1);
+            }
+
+            $error_page = __DIR__ . '/../public/500.php';
+            if (file_exists($error_page)) {
+                include $error_page;
+            } else {
+                echo "An internal server error occurred. Please contact the administrator.";
+            }
+            exit(1);
+        });
+    }
 }

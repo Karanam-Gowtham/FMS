@@ -912,6 +912,7 @@ if (isset($extra_head)) {
                 <div class="dropdown-content">
                     <a href="<?= $app_url ?>/public/index.php?route=nba/dashboard">NBA</a>
                     <a href="<?= $app_url ?>/public/index.php?route=naac/dashboard">NAAC</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=student_activities/dashboard">Student Activities</a>
                 </div>
             </div>
 

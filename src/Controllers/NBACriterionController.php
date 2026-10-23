@@ -15,6 +15,10 @@ class NBACriterionController {
         $default_year = $active_ay ? $active_ay['year_label'] : '2025-26';
         $year = !empty($_GET['year']) ? trim($_GET['year']) : $default_year;
         $crit_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
+        if ($crit_id < 1 || $crit_id > 9) {
+            include __DIR__ . '/../../public/404.php';
+            exit;
+        }
 
         if (!$active_role) {
             $_SESSION['error_msg'] = "You must select an active role to access NBA criteria.";
@@ -105,7 +109,8 @@ class NBACriterionController {
         if (file_exists($view_file)) {
             include $view_file;
         } else {
-            echo "<h2>Pending Configuration</h2><p>Criterion {$crit_id} is not yet implemented.</p>";
+            include __DIR__ . '/../../public/404.php';
+            exit;
         }
     }
 }
