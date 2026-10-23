@@ -77,10 +77,10 @@ function file_validate(array $file): array
     }
 
     // Check MIME type (using finfo for reliability)
-    if (class_exists('finfo')) {
+    if (class_exists('finfo') && !empty($file['tmp_name']) && file_exists($file['tmp_name'])) {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mime = $finfo->file($file['tmp_name']);
-        if (!in_array($mime, file_allowed_mimes(), true)) {
+        if ($mime !== false && !in_array($mime, file_allowed_mimes(), true)) {
             return ['valid' => false, 'error' => 'File MIME type ' . $mime . ' is not allowed.'];
         }
     }

@@ -340,56 +340,62 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
         return ['success' => false, 'error' => 'Invalid ID column.', 'new_status' => null];
     }
 
-    // 1. Load the document
-    // Legacy tables use 'username' as uploader, we'll try to get both if possible, or fallback
-    // Since legacy tables don't have doc_type_id, we will assume current_step is enough for the transition.
-    $doc = null;
-    $stmt = $conn->prepare(
-        "SELECT * FROM `$table_name` WHERE `$id_col` = ?"
-    );
-    if ($stmt) {
-        $stmt->bind_param('i', $doc_id);
-        $stmt->execute();
-        $doc = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-    }
-
-    if (!$doc) {
-        return ['success' => false, 'error' => 'Document not found.', 'new_status' => null];
-    }
-
-    $current_step = $doc['current_step'] ?? null;
-    if ($current_step === null) {
-        if ($action_key === 'resubmit' && ($doc['status'] ?? '') === 'rejected') {
-            $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action IN ('reject', 'rejected') ORDER BY action_id DESC LIMIT 1");
-            if ($act_s) {
-                $act_s->bind_param("i", $doc_id);
-                $act_s->execute();
-                $act_res = $act_s->get_result();
-                if ($act_row = $act_res->fetch_assoc()) {
-                    $current_step = $act_row['step_id'];
-                }
-                $act_s->close();
-            }
-        }
-        if ($current_step === null) {
-            return ['success' => false, 'error' => 'Document has no active workflow step.', 'new_status' => null];
-        }
-    }
-
-    // 2. Look up the transition
-    $transition = wf_get_transition($conn, (int)$current_step, $action_key);
-    if (!$transition) {
-        return ['success' => false, 'error' => 'No valid transition for this action.', 'new_status' => null];
-    }
-
-    $new_step   = $transition['to_step_id'];  // may be NULL (terminal)
-    $new_status = $transition['resulting_status'];
-
-    // 3. Begin transaction
+    // Begin transaction for row-level concurrency lock
     $conn->begin_transaction();
 
     try {
+        // 1. Load the document with exclusive row lock
+        $doc = null;
+        $stmt = $conn->prepare(
+            "SELECT * FROM `$table_name` WHERE `$id_col` = ? FOR UPDATE"
+        );
+        if ($stmt) {
+            $stmt->bind_param('i', $doc_id);
+            $stmt->execute();
+            $doc = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+        }
+
+        if (!$doc) {
+            $conn->rollback();
+            return ['success' => false, 'error' => 'Document not found.', 'new_status' => null];
+        }
+
+        // Terminal state check under exclusive lock
+        if (($doc['status'] ?? '') === 'accepted' && $action_key !== 'resubmit') {
+            $conn->rollback();
+            return ['success' => false, 'error' => 'Document has already been accepted.', 'new_status' => null];
+        }
+
+        $current_step = $doc['current_step'] ?? null;
+        if ($current_step === null) {
+            if ($action_key === 'resubmit' && ($doc['status'] ?? '') === 'rejected') {
+                $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action IN ('reject', 'rejected') ORDER BY action_id DESC LIMIT 1");
+                if ($act_s) {
+                    $act_s->bind_param("i", $doc_id);
+                    $act_s->execute();
+                    $act_res = $act_s->get_result();
+                    if ($act_row = $act_res->fetch_assoc()) {
+                        $current_step = $act_row['step_id'];
+                    }
+                    $act_s->close();
+                }
+            }
+            if ($current_step === null) {
+                $conn->rollback();
+                return ['success' => false, 'error' => 'Document has no active workflow step.', 'new_status' => null];
+            }
+        }
+
+        // 2. Look up the transition
+        $transition = wf_get_transition($conn, (int)$current_step, $action_key);
+        if (!$transition) {
+            $conn->rollback();
+            return ['success' => false, 'error' => 'No valid transition for this action.', 'new_status' => null];
+        }
+
+        $new_step   = $transition['to_step_id'];  // may be NULL (terminal)
+        $new_status = $transition['resulting_status'];
         // 4. Update document status and current_step
         $rejection_reason = ($action_key === 'reject') ? $remarks : null;
 

@@ -116,6 +116,6 @@ if ($route === 'dashboard') {
     $controller->download();
 } else {
     // 404 Route
-    http_response_code(404);
-    echo "404 Not Found in MVC Router. Route: " . htmlspecialchars($route);
+    include __DIR__ . '/404.php';
+    exit;
 }

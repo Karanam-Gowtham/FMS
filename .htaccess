@@ -1,3 +1,54 @@
-php_value upload_max_filesize 200M
-php_value post_max_size 220M
-php_value max_execution_time 400
+# ------------------------------------------------------------------------------
+# PHP Runtime Directives
+# ------------------------------------------------------------------------------
+<IfModule mod_php.c>
+    php_value upload_max_filesize 200M
+    php_value post_max_size 220M
+    php_value max_execution_time 400
+</IfModule>
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 200M
+    php_value post_max_size 220M
+    php_value max_execution_time 400
+</IfModule>
+<IfModule mod_php8.c>
+    php_value upload_max_filesize 200M
+    php_value post_max_size 220M
+    php_value max_execution_time 400
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# Disable Directory Browsing
+# ------------------------------------------------------------------------------
+Options -Indexes
+
+# ------------------------------------------------------------------------------
+# Block Direct Access to Sensitive & Hidden Files
+# ------------------------------------------------------------------------------
+<FilesMatch "^\.(env|git|htaccess|htpasswd|ini|log|sh|sql|bak|swp|md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ------------------------------------------------------------------------------
+# Block Direct HTTP Access to Internal Core & Application Directories
+# ------------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(core|includes|database|src|scratch|tmp)(/.*)?$ - [F,L]
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# Security Headers
+# ------------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
