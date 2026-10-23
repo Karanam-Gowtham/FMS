@@ -16,8 +16,8 @@ class AcademicYearController {
 
         global $conn;
         
-        // Only Admin and HOD can manage academic years globally
-        $can_manage = in_array((int)$active_role['role_id'], [ROLE_ADMIN, ROLE_HOD], true);
+        // Only Admin, HOD, IQAC, and Central Coordinator can manage academic years globally
+        $can_manage = in_array((int)$active_role['role_id'], [ROLE_ADMIN, ROLE_HOD, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             if (!$can_manage) {

@@ -257,10 +257,26 @@ function wf_get_allowed_actions(mysqli $conn, array $document, array $auth): arr
 
     // Rejected: only the original uploader can resubmit
     if ($status === 'rejected') {
-        if ($user_id === $uploader && $step_id !== null) {
-            $transition = wf_get_transition($conn, (int)$step_id, 'resubmit');
-            if ($transition) {
-                return ['resubmit'];
+        if ($user_id === $uploader) {
+            $effective_step = $step_id;
+            if ($effective_step === null && isset($document['doc_id'])) {
+                $doc_id_val = (int)$document['doc_id'];
+                $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action = 'reject' ORDER BY action_id DESC LIMIT 1");
+                if ($act_s) {
+                    $act_s->bind_param("i", $doc_id_val);
+                    $act_s->execute();
+                    $act_res = $act_s->get_result();
+                    if ($act_row = $act_res->fetch_assoc()) {
+                        $effective_step = $act_row['step_id'];
+                    }
+                    $act_s->close();
+                }
+            }
+            if ($effective_step !== null) {
+                $transition = wf_get_transition($conn, (int)$effective_step, 'resubmit');
+                if ($transition) {
+                    return ['resubmit'];
+                }
             }
         }
         return [];
@@ -344,7 +360,21 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
 
     $current_step = $doc['current_step'] ?? null;
     if ($current_step === null) {
-        return ['success' => false, 'error' => 'Document has no active workflow step.', 'new_status' => null];
+        if ($action_key === 'resubmit' && ($doc['status'] ?? '') === 'rejected') {
+            $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action = 'reject' ORDER BY action_id DESC LIMIT 1");
+            if ($act_s) {
+                $act_s->bind_param("i", $doc_id);
+                $act_s->execute();
+                $act_res = $act_s->get_result();
+                if ($act_row = $act_res->fetch_assoc()) {
+                    $current_step = $act_row['step_id'];
+                }
+                $act_s->close();
+            }
+        }
+        if ($current_step === null) {
+            return ['success' => false, 'error' => 'Document has no active workflow step.', 'new_status' => null];
+        }
     }
 
     // 2. Look up the transition

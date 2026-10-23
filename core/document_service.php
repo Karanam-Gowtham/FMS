@@ -493,6 +493,18 @@ function doc_get(mysqli $conn, int $doc_id): ?array
 }
 
 /**
+ * Loads a single document with its type info (alias for doc_get).
+ *
+ * @param mysqli $conn
+ * @param int    $doc_id
+ * @return array|null
+ */
+function doc_get_by_id(mysqli $conn, int $doc_id): ?array
+{
+    return doc_get($conn, $doc_id);
+}
+
+/**
  * Loads meta data for a document.
  *
  * @param mysqli $conn

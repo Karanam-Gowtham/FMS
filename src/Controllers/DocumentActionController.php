@@ -102,7 +102,7 @@ class DocumentActionController {
                 }
 
                 foreach ($auth['roles'] as $role) {
-                    if (in_array((int)$role['role_id'], [ROLE_ADMIN, ROLE_RND_DEAN], true)) {
+                    if (in_array((int)$role['role_id'], [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
                         $dept_authorized = true;
                         break;
                     }
@@ -228,8 +228,9 @@ class DocumentActionController {
             $this->safeRedirectBack();
         }
 
-        if (!doc_can_approve($conn, $auth, $doc)) {
-            $_SESSION['error_msg'] = "You do not have permission to review this document.";
+        $allowed_actions = wf_get_allowed_actions($conn, $doc, $auth);
+        if (!in_array($action, $allowed_actions, true)) {
+            $_SESSION['error_msg'] = "You do not have permission to perform this action on this document.";
             $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
         }
 
@@ -430,8 +431,9 @@ class DocumentActionController {
                         $stmt_old->bind_param('is', $doc_id, $slot_name);
                         $stmt_old->execute();
                         $res_old = $stmt_old->get_result();
+                        $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
                         while ($old_row = $res_old->fetch_assoc()) {
-                            $old_path = __DIR__ . '/../../' . $old_row['file_path'];
+                            $old_path = $base_dir . '/' . ltrim($old_row['file_path'], '/\\');
                             if (file_exists($old_path) && is_file($old_path)) {
                                 @unlink($old_path);
                             }
@@ -499,8 +501,9 @@ class DocumentActionController {
                                 $del_merge_stmt->bind_param('i', $doc_id);
                                 $del_merge_stmt->execute();
                                 $res_merge_old = $del_merge_stmt->get_result();
+                                $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
                                 while ($old_row = $res_merge_old->fetch_assoc()) {
-                                    $old_path = __DIR__ . '/../../' . $old_row['file_path'];
+                                    $old_path = $base_dir . '/' . ltrim($old_row['file_path'], '/\\');
                                     if (file_exists($old_path) && is_file($old_path)) {
                                         @unlink($old_path);
                                     }
@@ -544,8 +547,9 @@ class DocumentActionController {
                         $del_merge_stmt->bind_param('i', $doc_id);
                         $del_merge_stmt->execute();
                         $res_merge_old = $del_merge_stmt->get_result();
+                        $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
                         while ($old_row = $res_merge_old->fetch_assoc()) {
-                            $old_path = __DIR__ . '/../../' . $old_row['file_path'];
+                            $old_path = $base_dir . '/' . ltrim($old_row['file_path'], '/\\');
                             if (file_exists($old_path) && is_file($old_path)) {
                                 @unlink($old_path);
                             }
@@ -661,8 +665,9 @@ class DocumentActionController {
                 $stmt->execute();
                 $res = $stmt->get_result();
 
+                $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
                 while ($row = $res->fetch_assoc()) {
-                    $path = __DIR__ . '/../../' . $row['file_path'];
+                    $path = file_exists($row['file_path']) ? $row['file_path'] : ($base_dir . '/' . ltrim($row['file_path'], '/\\'));
                     $real_file = realpath($path);
                     if ($real_file && $allowed_base && stripos($real_file, $allowed_base) === 0 && is_file($real_file)) {
                         $safe_orig_name = str_replace(['"', "\r", "\n"], '', basename($row['original_name']));
@@ -722,7 +727,8 @@ class DocumentActionController {
         foreach ($valid_docs as $doc) {
             // Prefer the main merged/compiled PDF for the document if available
             $main_file_path = $doc['file_path'] ?? '';
-            $full_path = __DIR__ . '/../../' . $main_file_path;
+            $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
+            $full_path = file_exists($main_file_path) ? $main_file_path : ($base_dir . '/' . ltrim($main_file_path, '/\\'));
             $real_main = realpath($full_path);
             
             $main_ext = strtolower(pathinfo($full_path, PATHINFO_EXTENSION));
@@ -740,7 +746,7 @@ class DocumentActionController {
                     $stmt->execute();
                     $res = $stmt->get_result();
                     while ($row = $res->fetch_assoc()) {
-                        $path = __DIR__ . '/../../' . $row['file_path'];
+                        $path = file_exists($row['file_path']) ? $row['file_path'] : ($base_dir . '/' . ltrim($row['file_path'], '/\\'));
                         $real_path = realpath($path);
                         $att_ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                         if ($real_path && $allowed_base && stripos($real_path, $allowed_base) === 0 && in_array($att_ext, $supported_exts, true)) {
@@ -888,7 +894,7 @@ class DocumentActionController {
                         $p = __DIR__ . '/../../' . $rawFilePath;
                         if (file_exists($p)) {
                             $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
-                            if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'])) {
+                            if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'], true)) {
                                 $attached_files[] = ['path' => $p, 'title' => $frow['file_label']];
                             }
                         }

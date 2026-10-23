@@ -11,7 +11,7 @@ class ProfileController {
 
         $target_user_id = (int)$auth['user_id'];
         $active_role_id = auth_active_role_id();
-        $can_view_others = in_array($active_role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_HOD, ROLE_RND_DEAN], true);
+        $can_view_others = in_array($active_role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_HOD, ROLE_RND_DEAN, ROLE_CENTRAL_COORDINATOR], true);
         if ($can_view_others && isset($_GET['id']) && (int)$_GET['id'] > 0) {
             $req_id = (int)$_GET['id'];
             if ($active_role_id === ROLE_HOD) {
