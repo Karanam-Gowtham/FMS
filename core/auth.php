@@ -389,8 +389,7 @@ function validate_dept_filter(?int $requested_dept_id): ?int
  */
 function get_role_landing_url(array $role): string
 {
-    $role_id = (int)$role['role_id'];
-    $dept = urlencode($role['dept_name'] ?? '');
+    $role_id = (int)($role['role_id'] ?? 0);
 
     // Student dashboard
     if ($role_id === ROLE_STUDENT) {
@@ -416,7 +415,9 @@ function get_distinct_role_assignments(array $roles): array
     // But for display, group same role_id entries
     $grouped = [];
     foreach ($roles as $role) {
-        $key = $role['role_id'] . '_' . $role['dept_id'];
+        $roleId = (int)($role['role_id'] ?? 0);
+        $deptId = (int)($role['dept_id'] ?? 0);
+        $key = $roleId . '_' . $deptId;
         $grouped[$key] = $role;
     }
     return array_values($grouped);

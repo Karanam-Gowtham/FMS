@@ -75,17 +75,17 @@ include_once HEADER;
     <div class="dept-hero-right">
         <div class="hero-stat-card">
             <i class="fas fa-file-alt"></i>
-            <div class="stat-number"><h3><?= $papers_count ?></h3></div>
+            <div class="stat-number"><h3><?= (int)($papers_count ?? 0) ?></h3></div>
             <p>Published Papers</p>
         </div>
         <div class="hero-stat-card">
             <i class="fas fa-lightbulb"></i>
-            <div class="stat-number"><h3><?= $patents_count ?></h3></div>
+            <div class="stat-number"><h3><?= (int)($patents_count ?? 0) ?></h3></div>
             <p>Patents & IPR</p>
         </div>
         <div class="hero-stat-card">
             <i class="fas fa-chalkboard-teacher"></i>
-            <div class="stat-number"><h3><?= $fdps_count ?></h3></div>
+            <div class="stat-number"><h3><?= (int)($fdps_count ?? 0) ?></h3></div>
             <p>FDPs & Workshops</p>
         </div>
     </div>
@@ -109,8 +109,8 @@ include_once HEADER;
                         #<?= $index + 1 ?>
                     </div>
                     <div class="faculty-info">
-                        <div class="faculty-name"><?= htmlspecialchars($fac['name']) ?></div>
-                        <div class="faculty-role">Total Points: <strong><?= $fac['points'] ?></strong></div>
+                        <div class="faculty-name"><?= htmlspecialchars($fac['name'] ?? 'Faculty') ?></div>
+                        <div class="faculty-role">Total Points: <strong><?= (int)($fac['points'] ?? 0) ?></strong></div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -152,14 +152,14 @@ include_once HEADER;
                         <?php foreach ($public_docs as $doc): ?>
                             <tr>
                                 <td>
-                                    <strong><?= htmlspecialchars($doc['original_file_name'] ?: 'Untitled Document') ?></strong>
+                                    <strong><?= htmlspecialchars(!empty($doc['original_file_name']) ? $doc['original_file_name'] : 'Untitled Document') ?></strong>
                                 </td>
-                                <td><span class="type-badge"><?= htmlspecialchars($doc['type_name'] ?: 'Document') ?></span></td>
-                                <td><?= htmlspecialchars($doc['uploader_name'] ?: 'System') ?></td>
-                                <td><?= htmlspecialchars($doc['year_name'] ?: 'N/A') ?></td>
+                                <td><span class="type-badge"><?= htmlspecialchars(!empty($doc['type_name']) ? $doc['type_name'] : 'Document') ?></span></td>
+                                <td><?= htmlspecialchars(!empty($doc['uploader_name']) ? $doc['uploader_name'] : 'System') ?></td>
+                                <td><?= htmlspecialchars(!empty($doc['year_name']) ? $doc['year_name'] : 'N/A') ?></td>
                                 <td>
                                     <?php if (!empty($doc['file_path']) && $doc['file_path'] !== '#'): ?>
-                                        <a href="<?= BASE_URL ?>/public/index.php?route=public/download&amp;doc_id=<?= (int)$doc['doc_id'] ?>" target="_blank" class="download-btn">
+                                        <a href="<?= BASE_URL ?>/public/index.php?route=public/download&amp;doc_id=<?= (int)($doc['doc_id'] ?? 0) ?>" target="_blank" class="download-btn">
                                             View File
                                         </a>
                                     <?php else: ?>
@@ -178,7 +178,7 @@ include_once HEADER;
 <?php
 $type_counts = [];
 foreach($public_docs as $doc) {
-    $t = $doc['type_name'] ?: 'Other';
+    $t = !empty($doc['type_name']) ? $doc['type_name'] : 'Other';
     if(!isset($type_counts[$t])) $type_counts[$t] = 0;
     $type_counts[$t]++;
 }
@@ -235,8 +235,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [
                     <?php foreach($top_faculty as $index => $fac): ?>
                     {
-                        label: <?= json_encode($fac['name'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
-                        data: [<?= (int)$fac['papers'] ?>, <?= (int)$fac['patents'] ?>, <?= (int)$fac['fdps'] ?>],
+                        label: <?= json_encode(!empty($fac['name']) ? $fac['name'] : 'Faculty', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
+                        data: [<?= (int)($fac['papers'] ?? 0) ?>, <?= (int)($fac['patents'] ?? 0) ?>, <?= (int)($fac['fdps'] ?? 0) ?>],
                         backgroundColor: '<?= $index === 0 ? "rgba(207, 168, 92, 0.2)" : ($index === 1 ? "rgba(23, 162, 184, 0.2)" : "rgba(11, 53, 61, 0.2)") ?>',
                         borderColor: '<?= $index === 0 ? "#cfa85c" : ($index === 1 ? "#17a2b8" : "#0b353d") ?>',
                         pointBackgroundColor: '<?= $index === 0 ? "#cfa85c" : ($index === 1 ? "#17a2b8" : "#0b353d") ?>',
