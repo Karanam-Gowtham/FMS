@@ -228,8 +228,8 @@
 </div>
 
 <script>
-    const year = <?= json_encode($year) ?>;
-    const initialData = <?= json_encode($criteria_data) ?>;
+    const year = <?= json_encode($year, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const initialData = <?= json_encode($criteria_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     let levelData = {};
     let currentLevel = '';
 

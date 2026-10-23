@@ -173,7 +173,7 @@ if (!isset($criteria_data)) {
     let levelData = {};
     let currentLevel = 'dept_<?= $dept_id ?>';
     
-    const rawData = <?= json_encode($criteria_data ?? []) ?>;
+    const rawData = <?= json_encode($criteria_data ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     let initialData = {};
     if (!Array.isArray(rawData)) { initialData = rawData; }
 

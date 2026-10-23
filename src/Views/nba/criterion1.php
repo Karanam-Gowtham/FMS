@@ -445,7 +445,7 @@
         return 'school_' + schoolName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     }
 
-    const initialData = <?= json_encode($criteria_data) ?>;
+    const initialData = <?= json_encode($criteria_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
     function initData() {
         levelData = initialData.levelData || {};

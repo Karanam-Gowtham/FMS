@@ -1202,6 +1202,9 @@ function doc_can_approve(mysqli $conn, array $auth, array $doc): bool
  */
 function doc_get_history(mysqli $conn, int $doc_id): array
 {
+    if ($doc_id <= 0) {
+        return [];
+    }
     $stmt = $conn->prepare(
         "SELECT a.*, u.full_name as actor_name, s.step_label 
          FROM document_actions a
@@ -1246,7 +1249,8 @@ function doc_can_edit(mysqli $conn, array $auth, array $doc): bool
     }
 
     if ($status === 'pending') {
-        $history = doc_get_history($conn, (int)$doc['doc_id']);
+        $d_id = (int)($doc['doc_id'] ?? 0);
+        $history = doc_get_history($conn, $d_id);
         foreach ($history as $h) {
             $act = strtolower($h['action'] ?? '');
             if ($act === 'approve' || $act === 'approved') {
