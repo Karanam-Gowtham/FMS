@@ -108,7 +108,15 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
         }
 
         $dir = dirname($output_path);
-        if (!is_dir($dir)) {
+        $canonical_temp = realpath(sys_get_temp_dir());
+        $canonical_uploads = realpath(defined('ROOT_PATH') ? (ROOT_PATH . '/uploads') : (__DIR__ . '/../uploads'));
+        $target_real = realpath($dir) ?: $dir;
+
+        // Ensure target directory is strictly constrained within temp or uploads sandbox
+        $is_safe_dir = ($canonical_temp && stripos($target_real, $canonical_temp) === 0) ||
+                       ($canonical_uploads && stripos($target_real, $canonical_uploads) === 0);
+
+        if ($is_safe_dir && !is_dir($dir)) {
             @mkdir($dir, 0755, true);
         }
 

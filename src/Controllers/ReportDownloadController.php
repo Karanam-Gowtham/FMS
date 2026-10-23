@@ -18,8 +18,12 @@ class ReportDownloadController {
         $type = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
         $filename = (isset($_GET['file']) && is_string($_GET['file'])) ? trim($_GET['file']) : '';
 
-        // Accept only 'nba' or 'naac'
-        if (!in_array($type, ['nba', 'naac'], true)) {
+        // Map type to fixed server-side directory using static whitelist dictionary
+        $type_dirs = [
+            'nba'  => __DIR__ . '/../../uploads/nba_pdfs',
+            'naac' => __DIR__ . '/../../uploads/naac_pdfs',
+        ];
+        if (!isset($type_dirs[$type])) {
             $this->renderError(400, "Invalid report type specified.");
         }
 
@@ -28,8 +32,7 @@ class ReportDownloadController {
             $this->renderError(400, "Invalid report filename format.");
         }
 
-        // Map type to fixed server-side directory
-        $raw_dir = __DIR__ . '/../../uploads/' . $type . '_pdfs';
+        $raw_dir = $type_dirs[$type];
         if (!is_dir($raw_dir)) {
             @mkdir($raw_dir, 0755, true);
         }

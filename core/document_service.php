@@ -282,12 +282,14 @@ function doc_create(
                     }
                     
                     // Store as a document_files record
+                    $real_merged_file = realpath($merged_path);
+                    $fsize = ($real_merged_file && is_file($real_merged_file)) ? @filesize($real_merged_file) : 0;
                     $merged_data = [
                         'original_name' => 'Merged_Document.pdf',
                         'stored_name' => $merged_filename,
                         'file_path' => $rel_merged_path,
                         'mime_type' => 'application/pdf',
-                        'file_size' => filesize($merged_path)
+                        'file_size' => ($fsize !== false && $fsize >= 0) ? $fsize : 0
                     ];
                     file_save_record($conn, $doc_id, $merged_data, 'merged_pdf');
                     $stored_paths[] = $merged_path;

@@ -97,7 +97,7 @@
                     foreach ($sub_types as $st): 
                         $has_children = isset($available_sub_file_types[$st]) && !empty($available_sub_file_types[$st]);
                         $is_checked = in_array($st, $filter_sub_types, true);
-                        $st_id = md5($st);
+                        $st_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$st);
                     ?>
                         <div class="category-parent-node" style="margin-bottom: 0.6rem;">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -107,10 +107,12 @@
                             
                             <?php if ($has_children): ?>
                             <div class="category-children-node" data-parent="<?= htmlspecialchars($st) ?>" style="margin-left: 1.2rem; margin-top: 0.3rem; padding-left: 0.6rem; border-left: 2px solid #e5e7eb; display: <?= $is_checked ? 'block' : 'none' ?>; max-height: 180px; overflow-y: auto;">
-                                <?php foreach ($available_sub_file_types[$st] as $sft): ?>
+                                <?php foreach ($available_sub_file_types[$st] as $sft): 
+                                    $sft_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$sft);
+                                ?>
                                     <div class="child-item" style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                                        <input type="checkbox" name="sub_file_types[]" value="<?= htmlspecialchars($sft) ?>" id="sft_<?= md5($sft) ?>" class="child-checkbox" <?= in_array($sft, $filter_sub_file_types, true) ? 'checked' : '' ?>>
-                                        <label for="sft_<?= md5($sft) ?>" class="child-label" style="margin: 0; font-weight: normal; cursor: pointer; font-size: 0.85rem;"><?= htmlspecialchars($sft) ?></label>
+                                        <input type="checkbox" name="sub_file_types[]" value="<?= htmlspecialchars($sft) ?>" id="sft_<?= $sft_id ?>" class="child-checkbox" <?= in_array($sft, $filter_sub_file_types, true) ? 'checked' : '' ?>>
+                                        <label for="sft_<?= $sft_id ?>" class="child-label" style="margin: 0; font-weight: normal; cursor: pointer; font-size: 0.85rem;"><?= htmlspecialchars($sft) ?></label>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -191,10 +193,12 @@
                 <div style="margin-bottom: 1rem;">
                     <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Event Type</label>
                     <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
-                        <?php foreach ($global_filter_options['event_types'] as $et): ?>
+                        <?php foreach ($global_filter_options['event_types'] as $et): 
+                            $et_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$et);
+                        ?>
                             <div style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <input type="checkbox" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" id="get_<?= md5($et) ?>" <?= in_array($et, $filter_global_event_types ?? [], true) ? 'checked' : '' ?>>
-                                <label for="get_<?= md5($et) ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($et) ?></label>
+                                <input type="checkbox" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" id="get_<?= $et_id ?>" <?= in_array($et, $filter_global_event_types ?? [], true) ? 'checked' : '' ?>>
+                                <label for="get_<?= $et_id ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($et) ?></label>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -205,10 +209,12 @@
                 <div style="margin-bottom: 1rem;">
                     <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Domain / Topic</label>
                     <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
-                        <?php foreach ($global_filter_options['domains'] as $dom): ?>
+                        <?php foreach ($global_filter_options['domains'] as $dom): 
+                            $dom_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$dom);
+                        ?>
                             <div style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <input type="checkbox" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" id="gdom_<?= md5($dom) ?>" <?= in_array($dom, $filter_global_domains ?? [], true) ? 'checked' : '' ?>>
-                                <label for="gdom_<?= md5($dom) ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($dom) ?></label>
+                                <input type="checkbox" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" id="gdom_<?= $dom_id ?>" <?= in_array($dom, $filter_global_domains ?? [], true) ? 'checked' : '' ?>>
+                                <label for="gdom_<?= $dom_id ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($dom) ?></label>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -219,10 +225,12 @@
                 <div style="margin-bottom: 1rem;">
                     <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Mode of Conduct</label>
                     <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
-                        <?php foreach ($global_filter_options['modes'] as $md): ?>
+                        <?php foreach ($global_filter_options['modes'] as $md): 
+                            $md_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$md);
+                        ?>
                             <div style="margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <input type="checkbox" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" id="gmd_<?= md5($md) ?>" <?= in_array($md, $filter_global_modes ?? [], true) ? 'checked' : '' ?>>
-                                <label for="gmd_<?= md5($md) ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($md) ?></label>
+                                <input type="checkbox" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" id="gmd_<?= $md_id ?>" <?= in_array($md, $filter_global_modes ?? [], true) ? 'checked' : '' ?>>
+                                <label for="gmd_<?= $md_id ?>" style="margin: 0; cursor: pointer;"><?= htmlspecialchars($md) ?></label>
                             </div>
                         <?php endforeach; ?>
                     </div>
