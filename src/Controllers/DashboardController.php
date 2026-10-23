@@ -44,7 +44,7 @@ class DashboardController {
             ROLE_RND_DEAN            => '🎓',
         ];
 
-        $role_icon = $active_role ? ($role_icons[$active_role['role_id']] ?? '👤') : '👤';
+        $role_icon = $active_role ? ($role_icons[(int)($active_role['role_id'] ?? 0)] ?? '👤') : '👤';
         $role_landing_url = $active_role ? get_role_landing_url($active_role) : null;
 
         // Fetch recent uploads for the user
@@ -87,7 +87,6 @@ class DashboardController {
                  LIMIT 10"
             );
             if ($stmt) {
-                $user_id = $auth['user_id'];
                 $stmt->bind_param('i', $user_id);
                 $stmt->execute();
                 $res = $stmt->get_result();
@@ -147,7 +146,7 @@ class DashboardController {
                         $stats[$c_row['status']]++;
                     }
                     
-                    $cat = $c_row['type_label'];
+                    $cat = !empty($c_row['type_label']) ? $c_row['type_label'] : 'Other';
                     if (!isset($chart_categories[$cat])) {
                         $chart_categories[$cat] = 0;
                     }
@@ -234,7 +233,7 @@ class DashboardController {
                             $dept_stats[$c_row['status']]++;
                         }
                         
-                        $cat = $c_row['type_label'];
+                        $cat = !empty($c_row['type_label']) ? $c_row['type_label'] : 'Other';
                         if (!isset($dept_categories[$cat])) {
                             $dept_categories[$cat] = 0;
                         }
@@ -257,8 +256,10 @@ class DashboardController {
             }
         }
 
-        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
-        $error_msg   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        $success_msg = is_string($raw_success) ? $raw_success : '';
+        $error_msg   = is_string($raw_error)   ? $raw_error   : '';
         unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         // Render the view

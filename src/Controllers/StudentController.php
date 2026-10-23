@@ -88,8 +88,10 @@ class StudentController {
             $ay_res->close();
         }
 
-        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
-        $error_msg   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        $success_msg = is_string($raw_success) ? $raw_success : '';
+        $error_msg   = is_string($raw_error)   ? $raw_error   : '';
         unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         include __DIR__ . '/../Views/student/dashboard.php';

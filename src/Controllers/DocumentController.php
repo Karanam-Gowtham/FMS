@@ -343,8 +343,10 @@ class DocumentController {
             exit;
         }
 
-        $disp_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
-        $disp_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        $raw_disp_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $raw_disp_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        $disp_success     = is_string($raw_disp_success) ? $raw_disp_success : '';
+        $disp_error       = is_string($raw_disp_error)   ? $raw_disp_error   : '';
         unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         include __DIR__ . '/../Views/documents/list.php';
@@ -398,8 +400,10 @@ class DocumentController {
         $pending_result = doc_list_pending_for_user($conn, $auth, 100, 0);
         $pending_count = $pending_result['total'];
 
-        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
-        $error_msg = $_SESSION['error_msg'] ?? ($_GET['err'] ?? null);
+        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
+        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? null);
+        $success_msg = is_string($raw_success) ? $raw_success : null;
+        $error_msg   = is_string($raw_error)   ? $raw_error   : null;
         unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         include __DIR__ . '/../Views/documents/my_uploads.php';
@@ -577,8 +581,10 @@ class DocumentController {
             exit;
         }
 
-        $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
-        $error_msg = $_SESSION['error_msg'] ?? ($_GET['err'] ?? null);
+        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
+        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? null);
+        $success_msg = is_string($raw_success) ? $raw_success : null;
+        $error_msg   = is_string($raw_error)   ? $raw_error   : null;
         unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         $type_key = $document['type_key'];

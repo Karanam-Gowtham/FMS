@@ -54,8 +54,8 @@
     </div>
 
     <?php 
-    $disp_success = !empty($success_msg) ? $success_msg : (!empty($_GET['msg']) ? $_GET['msg'] : null);
-    $disp_error = !empty($error_msg) ? $error_msg : (!empty($_GET['err']) ? $_GET['err'] : null);
+    $disp_success = !empty($success_msg) && is_string($success_msg) ? $success_msg : (!empty($_GET['msg']) && is_string($_GET['msg']) ? $_GET['msg'] : null);
+    $disp_error = !empty($error_msg) && is_string($error_msg) ? $error_msg : (!empty($_GET['err']) && is_string($_GET['err']) ? $_GET['err'] : null);
     ?>
     <?php if ($disp_success): ?>
         <div style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">

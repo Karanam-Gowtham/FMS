@@ -274,8 +274,8 @@
         </div>
 
         <?php 
-        $active_success = !empty($disp_success) ? $disp_success : (!empty($success_msg) ? $success_msg : '');
-        $active_error   = !empty($disp_error) ? $disp_error : (!empty($error_msg) ? $error_msg : '');
+        $active_success = !empty($disp_success) && is_string($disp_success) ? $disp_success : (!empty($success_msg) && is_string($success_msg) ? $success_msg : '');
+        $active_error   = !empty($disp_error) && is_string($disp_error) ? $disp_error : (!empty($error_msg) && is_string($error_msg) ? $error_msg : '');
         ?>
         <?php if (!empty($active_success)): ?>
             <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1.25rem; font-size: 0.95rem; display: flex; align-items: center;">
