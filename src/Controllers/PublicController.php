@@ -40,14 +40,9 @@ class PublicController {
             }
         }
 
-        // If dept not found, handle it gracefully
+        // If dept not found, render 404 template
         if (!$dept_info) {
-            http_response_code(404);
-            echo "<div style='text-align:center; padding: 50px; font-family:sans-serif;'>";
-            echo "<h2>Department Not Found</h2>";
-            echo "<p>The department '" . htmlspecialchars($dept_param) . "' does not exist in our records.</p>";
-            echo "<a href='" . BASE_URL . "/' style='color:#3b82f6; text-decoration:none; font-weight:bold;'>Return to Home</a>";
-            echo "</div>";
+            include __DIR__ . '/../../public/404.php';
             exit;
         }
 
@@ -203,9 +198,8 @@ class PublicController {
         }
 
         if (!$doc || !in_array($doc['type_code'], $public_types, true)) {
-            if (ob_get_level()) ob_end_clean();
-            header("HTTP/1.1 404 Not Found");
-            exit("File not found or not available publicly.");
+            include __DIR__ . '/../../public/404.php';
+            exit;
         }
 
         $file_path = $doc['file_path'];
@@ -224,9 +218,8 @@ class PublicController {
         }
 
         if (empty($file_path)) {
-            if (ob_get_level()) ob_end_clean();
-            header("HTTP/1.1 404 Not Found");
-            exit("File not found or not available publicly.");
+            include __DIR__ . '/../../public/404.php';
+            exit;
         }
 
         $allowed_base = realpath(__DIR__ . '/../../uploads');
@@ -234,9 +227,8 @@ class PublicController {
         $canonical_path = realpath($raw_target);
 
         if (!$canonical_path || !$allowed_base || stripos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
-            if (ob_get_level()) ob_end_clean();
-            header("HTTP/1.1 404 Not Found");
-            exit("File not found or not available publicly.");
+            include __DIR__ . '/../../public/404.php';
+            exit;
         }
 
         $finfo = new \finfo(FILEINFO_MIME_TYPE);

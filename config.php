@@ -49,6 +49,10 @@ if (!defined('FMS_DEBUG')) {
     }
 }
 
+if (!defined('SESSION_TIMEOUT')) {
+    define('SESSION_TIMEOUT', (int)(getenv('SESSION_TIMEOUT') ?: 7200));
+}
+
 /* =========================================================
    DATABASE CONFIGURATION
    ========================================================= */

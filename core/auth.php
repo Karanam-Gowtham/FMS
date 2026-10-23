@@ -116,12 +116,13 @@ function auth_create_session(array $user, array $active_role): void
     }
 
     $_SESSION[SESSION_AUTH_KEY] = [
-        'user_id'     => $user['user_id'],
-        'full_name'   => $user['full_name'],
-        'email'       => $user['email'],
-        'roles'       => $user['roles'],
-        'active_role' => $active_role,
-        'login_time'  => time(),
+        'user_id'       => $user['user_id'],
+        'full_name'     => $user['full_name'],
+        'email'         => $user['email'],
+        'roles'         => $user['roles'],
+        'active_role'   => $active_role,
+        'login_time'    => time(),
+        'last_activity' => time(),
     ];
 }
 
@@ -164,7 +165,21 @@ function auth_context(): ?array
 function auth_is_logged_in(): bool
 {
     $auth = auth_context();
-    return $auth !== null && !empty($auth['user_id']);
+    if ($auth === null || empty($auth['user_id'])) {
+        return false;
+    }
+
+    // Inactivity timeout defense for unattended sessions
+    if (defined('SESSION_TIMEOUT') && SESSION_TIMEOUT > 0) {
+        $last_act = $auth['last_activity'] ?? $auth['login_time'] ?? 0;
+        if ($last_act > 0 && (time() - $last_act) > SESSION_TIMEOUT) {
+            auth_logout();
+            return false;
+        }
+        $_SESSION[SESSION_AUTH_KEY]['last_activity'] = time();
+    }
+
+    return true;
 }
 
 /**

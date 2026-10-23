@@ -259,6 +259,22 @@ class AuthController {
                     }
                 }
 
+                if (empty($error) && $role_id === ROLE_FACULTY) {
+                    if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] !== UPLOAD_ERR_NO_FILE) {
+                        if ($_FILES['profile_photo']['error'] === UPLOAD_ERR_INI_SIZE || $_FILES['profile_photo']['error'] === UPLOAD_ERR_FORM_SIZE) {
+                            $error = 'Profile photo exceeds the maximum permitted file size.';
+                        } elseif ($_FILES['profile_photo']['error'] !== UPLOAD_ERR_OK) {
+                            $error = 'Error uploading profile photo (code: ' . (int)$_FILES['profile_photo']['error'] . ').';
+                        } else {
+                            $allowed_exts = ['jpg', 'jpeg', 'png', 'webp'];
+                            $f_ext = strtolower(pathinfo($_FILES['profile_photo']['name'] ?? '', PATHINFO_EXTENSION));
+                            if (!in_array($f_ext, $allowed_exts, true)) {
+                                $error = 'Profile photo must be a valid image file (JPG, PNG, or WebP).';
+                            }
+                        }
+                    }
+                }
+
                 if (empty($error)) {
                     $conn->begin_transaction();
                     try {
@@ -283,14 +299,12 @@ class AuthController {
                         if ($role_id === ROLE_FACULTY) {
                             $profile_photo_path = null;
                             if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
-                                $allowed_exts = ['jpg', 'jpeg', 'png', 'webp'];
-                                $f_ext = strtolower(pathinfo($_FILES['profile_photo']['name'], PATHINFO_EXTENSION));
-                                if (in_array($f_ext, $allowed_exts, true)) {
-                                    require_once __DIR__ . '/../../core/file_service.php';
-                                    $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
-                                    if ($upload_result['success']) {
-                                        $profile_photo_path = $upload_result['data']['file_path'];
-                                    }
+                                require_once __DIR__ . '/../../core/file_service.php';
+                                $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
+                                if ($upload_result['success']) {
+                                    $profile_photo_path = $upload_result['data']['file_path'];
+                                } else {
+                                    throw new \Exception('Profile photo upload failed: ' . ($upload_result['error'] ?? 'Invalid file format or size.'));
                                 }
                             }
 
@@ -328,7 +342,11 @@ class AuthController {
                             }
                         }
                         error_log("Registration failed DB error: " . $e->getMessage());
-                        $error = 'Registration could not be completed due to a system error. Please verify your details or contact support.';
+                        if (str_starts_with($e->getMessage(), 'Profile photo upload failed')) {
+                            $error = $e->getMessage();
+                        } else {
+                            $error = 'Registration could not be completed due to a system error. Please verify your details or contact support.';
+                        }
                     }
                 }
             }
