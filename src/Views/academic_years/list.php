@@ -35,7 +35,7 @@
 
         <?php if ($can_manage): ?>
         <div style="margin-bottom: 2rem;">
-            <form action="" method="POST" style="display: flex; gap: 1rem; align-items: center; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <form action="" method="POST" id="addYearForm" style="display: flex; gap: 1rem; align-items: center; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" onsubmit="const b=this.querySelector('button[type=submit]'); if(b && this.checkValidity()){b.disabled=true; b.innerText='Adding...';}">
                 <?= csrfField() ?>
                 <label for="new_year"><strong>Add Academic Year:</strong></label>
                 <input type="text" name="academic_year" id="new_year" placeholder="e.g. 2026-27" required style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">

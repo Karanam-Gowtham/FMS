@@ -40,7 +40,7 @@ Options -Indexes
 # ------------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(core|includes|database|src|scratch|tmp)(/.*)?$ - [F,L]
+    RewriteRule ^(core|includes|database|src|scratch|tmp|bin)(/.*)?$ - [F,L]
 </IfModule>
 
 # ------------------------------------------------------------------------------

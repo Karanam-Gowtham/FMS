@@ -144,6 +144,7 @@ class ProfileController {
 
                     $update_photo = false;
                     $profile_photo_path = null;
+                    $old_photo_to_delete = null;
                     if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
                         $photo_ext = strtolower(pathinfo($_FILES['profile_photo']['name'] ?? '', PATHINFO_EXTENSION));
                         if (!in_array($photo_ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
@@ -155,7 +156,7 @@ class ProfileController {
                             $profile_photo_path = $upload_result['data']['file_path'];
                             $update_photo = true;
 
-                            // Clean up previous profile photo on disk if present
+                            // Stage previous profile photo on disk for removal only after commit succeeds
                             $old_photo_stmt = $conn->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
                             if ($old_photo_stmt) {
                                 $old_photo_stmt->bind_param("i", $auth['user_id']);
@@ -165,7 +166,7 @@ class ProfileController {
                                 if (!empty($old_photo_res['profile_photo'])) {
                                     $prev_file = (defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2)) . '/' . ltrim($old_photo_res['profile_photo'], '/\\');
                                     if (file_exists($prev_file) && is_file($prev_file)) {
-                                        @unlink($prev_file);
+                                        $old_photo_to_delete = $prev_file;
                                     }
                                 }
                             }
@@ -225,11 +226,23 @@ class ProfileController {
 
                     $conn->commit();
                     $success = 'Profile updated successfully!';
+
+                    // Safely remove superseded photo on disk only after DB commit succeeds
+                    if ($old_photo_to_delete && file_exists($old_photo_to_delete)) {
+                        @unlink($old_photo_to_delete);
+                    }
                     
                     // Update auth context name
                     $_SESSION[SESSION_AUTH_KEY]['full_name'] = $name;
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $conn->rollback();
+                    // On failure, clean up the newly uploaded file from disk to avoid orphaned files
+                    if ($update_photo && !empty($profile_photo_path)) {
+                        $new_file = (defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2)) . '/' . ltrim($profile_photo_path, '/\\');
+                        if (file_exists($new_file) && is_file($new_file)) {
+                            @unlink($new_file);
+                        }
+                    }
                     $error = 'Failed to update profile: ' . $e->getMessage();
                 }
                 }

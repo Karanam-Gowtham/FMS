@@ -117,7 +117,14 @@ if ($has_htaccess) {
     $htaccess_body = file_get_contents($htaccess_path);
     add_check('Web Server Security', 'Directory Listing Disabled (Options -Indexes)', strpos($htaccess_body, 'Options -Indexes') !== false);
     add_check('Web Server Security', 'Security Headers (X-Content-Type-Options)', strpos($htaccess_body, 'X-Content-Type-Options') !== false);
+    add_check('Web Server Security', 'Core & CLI Folders Blocked (core/src/bin)', preg_match('/RewriteRule\s+\^\(.*bin.*\)\(\/\.\*\)\?\$\s+-\s+\[F,L\]/', $htaccess_body) === 1);
 }
+
+// Subfolder protection guards
+add_check('Web Server Security', 'Uploads Execution Guard (uploads/.htaccess)', file_exists($root_dir . '/uploads/.htaccess'));
+add_check('Web Server Security', 'Database Directory Guard (database/.htaccess)', file_exists($root_dir . '/database/.htaccess'));
+add_check('Web Server Security', 'Temporary Directory Guard (tmp/.htaccess)', file_exists($root_dir . '/tmp/.htaccess'));
+add_check('Web Server Security', 'CLI Bin Directory Guard (bin/.htaccess)', file_exists($root_dir . '/bin/.htaccess'));
 
 // Output rendering
 if ($is_json) {

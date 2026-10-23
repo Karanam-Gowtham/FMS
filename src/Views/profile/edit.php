@@ -35,7 +35,7 @@
             <div class="error-msg"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
-        <form action="" method="POST" class="form-grid" enctype="multipart/form-data">
+        <form action="" method="POST" class="form-grid" enctype="multipart/form-data" id="profileEditForm">
             <?= csrfField() ?>
             
             <div class="form-group full-width">
@@ -151,7 +151,7 @@
             </div>
 
             <div class="form-group full-width" style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">
-                <button type="submit" class="btn-save">Update Profile</button>
+                <button type="submit" class="btn-save" id="btnUpdateProfile">Update Profile</button>
                 <a href="<?= BASE_URL ?>/public/index.php?route=profile/view" class="btn-cancel" style="display: inline-block; padding: 0.6rem 1.4rem; background: #64748b; color: #fff; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 0.95rem;">Cancel</a>
             </div>
         </form>
@@ -199,6 +199,20 @@
             }
         }
     });
+
+    // Double-submit prevention
+    const profileForm = document.getElementById('profileEditForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function() {
+            if (profileForm.checkValidity()) {
+                const btn = document.getElementById('btnUpdateProfile');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = 'Updating Profile...';
+                }
+            }
+        });
+    }
 
     // Initialize on load to restore state
     window.onload = function() {
