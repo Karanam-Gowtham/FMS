@@ -169,9 +169,8 @@ class PublicController {
 
         $doc_id = isset($_GET['doc_id']) ? (int)$_GET['doc_id'] : 0;
         if ($doc_id <= 0) {
-            if (ob_get_level()) ob_end_clean();
-            header("HTTP/1.1 400 Bad Request");
-            exit("Invalid document ID.");
+            include __DIR__ . '/../../public/404.php';
+            exit;
         }
 
         // Only allow downloading accepted documents belonging to publicly visible document types
