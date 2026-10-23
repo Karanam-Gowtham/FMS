@@ -36,7 +36,7 @@
                     <select name="year_id" class="form-select">
                         <option value="all">All Years</option>
                         <?php foreach($years as $yr): ?>
-                            <option value="<?= $yr['year_id'] ?>" <?= ($year_filter == $yr['year_id']) ? 'selected' : '' ?>>
+                            <option value="<?= (int)$yr['year_id'] ?>" <?= ($year_filter !== 'all' && (int)$year_filter === (int)$yr['year_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($yr['year_label']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -48,7 +48,7 @@
                     <select name="dept_id" class="form-select">
                         <option value="all">All Departments</option>
                         <?php foreach($depts as $d): ?>
-                            <option value="<?= $d['dept_id'] ?>" <?= ($dept_filter == $d['dept_id']) ? 'selected' : '' ?>>
+                            <option value="<?= (int)$d['dept_id'] ?>" <?= ($dept_filter !== 'all' && $dept_filter !== 'authorized' && (int)$dept_filter === (int)$d['dept_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($d['dept_name']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -76,7 +76,7 @@
                             <?php foreach($global_filter_options['event_types'] as $et): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
-                                    <input type="checkbox" class="form-check-input mt-1" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" <?= in_array($et, $filter_global_event_types) ? 'checked' : '' ?>>
+                                    <input type="checkbox" class="form-check-input mt-1" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" <?= in_array($et, $filter_global_event_types, true) ? 'checked' : '' ?>>
                                     <span style="word-break: break-word;"><?= htmlspecialchars($et) ?></span>
                                 </label>
                             </li>
@@ -95,7 +95,7 @@
                             <?php foreach($global_filter_options['domains'] as $dom): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
-                                    <input type="checkbox" class="form-check-input mt-1" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" <?= in_array($dom, $filter_global_domains) ? 'checked' : '' ?>>
+                                    <input type="checkbox" class="form-check-input mt-1" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" <?= in_array($dom, $filter_global_domains, true) ? 'checked' : '' ?>>
                                     <span style="word-break: break-word;"><?= htmlspecialchars($dom) ?></span>
                                 </label>
                             </li>
@@ -114,7 +114,7 @@
                             <?php foreach($global_filter_options['modes'] as $md): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
-                                    <input type="checkbox" class="form-check-input mt-1" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" <?= in_array($md, $filter_global_modes) ? 'checked' : '' ?>>
+                                    <input type="checkbox" class="form-check-input mt-1" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" <?= in_array($md, $filter_global_modes, true) ? 'checked' : '' ?>>
                                     <span style="word-break: break-word;"><?= htmlspecialchars($md) ?></span>
                                 </label>
                             </li>

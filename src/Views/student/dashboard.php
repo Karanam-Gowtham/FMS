@@ -223,11 +223,13 @@ require __DIR__ . '/../../../includes/header.php';
                             if ($sub['status'] === 'pending') $badge_class = 'bg-warning text-dark';
                             if ($sub['status'] === 'accepted') $badge_class = 'bg-success';
                             if ($sub['status'] === 'rejected') $badge_class = 'bg-danger';
-                            $sub_event_date = (!empty($sub['event_date']) && $sub['event_date'] !== '0000-00-00') ? $sub['event_date'] : $sub['created_at'];
+                            $sub_event_date = (!empty($sub['event_date']) && $sub['event_date'] !== '0000-00-00') ? $sub['event_date'] : ($sub['created_at'] ?? '');
+                            $sub_event_ts = !empty($sub_event_date) ? strtotime($sub_event_date) : false;
+                            $sub_created_ts = !empty($sub['created_at']) ? strtotime($sub['created_at']) : false;
                         ?>
                             <tr>
-                                <td class="text-center"><input type="checkbox" name="doc_ids[]" value="<?= $sub['doc_id'] ?>" class="student-doc-checkbox"></td>
-                                <td>#<?= $sub['doc_id'] ?></td>
+                                <td class="text-center"><input type="checkbox" name="doc_ids[]" value="<?= (int)$sub['doc_id'] ?>" class="student-doc-checkbox"></td>
+                                <td>#<?= (int)$sub['doc_id'] ?></td>
                                 <td><strong><?= htmlspecialchars($sub['activity_category']) ?></strong></td>
                                 <td>
                                     <?php
@@ -235,16 +237,16 @@ require __DIR__ . '/../../../includes/header.php';
                                     ?>
                                 </td>
                                 <td>
-                                    <div class="fw-semibold"><?= date('M d, Y', strtotime($sub_event_date)) ?></div>
-                                    <?php if (!empty($sub['event_date']) && date('Y-m-d', strtotime($sub['event_date'])) !== date('Y-m-d', strtotime($sub['created_at']))): ?>
-                                        <small class="text-muted" title="Uploaded on <?= date('M d, Y', strtotime($sub['created_at'])) ?>">Uploaded: <?= date('M d, Y', strtotime($sub['created_at'])) ?></small>
+                                    <div class="fw-semibold"><?= $sub_event_ts ? date('M d, Y', $sub_event_ts) : '—' ?></div>
+                                    <?php if (!empty($sub['event_date']) && $sub_event_ts && $sub_created_ts && date('Y-m-d', $sub_event_ts) !== date('Y-m-d', $sub_created_ts)): ?>
+                                        <small class="text-muted" title="Uploaded on <?= date('M d, Y', $sub_created_ts) ?>">Uploaded: <?= date('M d, Y', $sub_created_ts) ?></small>
                                     <?php endif; ?>
                                 </td>
                                 <td><span class="badge <?= $badge_class ?> text-uppercase"><?= $sub['status'] ?></span></td>
                                 <td>
-                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $sub['doc_id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
-                                    <?php if ($sub['status'] === 'rejected'): ?>
-                                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $sub['doc_id'] ?>" class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</a>
+                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <?php if ($sub['status'] === 'rejected' || $sub['status'] === 'draft'): ?>
+                                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>

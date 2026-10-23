@@ -153,8 +153,8 @@ class DashboardController {
                     }
                     $chart_categories[$cat]++;
                     
-                    $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
-                    $ts = strtotime($event_dt);
+                    $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : ($c_row['created_at'] ?? '');
+                    $ts = !empty($event_dt) ? strtotime($event_dt) : false;
                     if ($ts === false) {
                         $ts = !empty($c_row['created_at']) ? (strtotime($c_row['created_at']) ?: time()) : time();
                     }
@@ -240,8 +240,8 @@ class DashboardController {
                         }
                         $dept_categories[$cat]++;
                         
-                        $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
-                        $ts = strtotime($event_dt);
+                        $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : ($c_row['created_at'] ?? '');
+                        $ts = !empty($event_dt) ? strtotime($event_dt) : false;
                         if ($ts === false) {
                             $ts = !empty($c_row['created_at']) ? (strtotime($c_row['created_at']) ?: time()) : time();
                         }

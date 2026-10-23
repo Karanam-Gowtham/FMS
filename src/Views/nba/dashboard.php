@@ -59,16 +59,18 @@
                                 <?= htmlspecialchars($doc['uploader_name'] ?? 'Unknown') ?>
                             </td>
                             <?php 
-                            $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : $doc['created_at'];
+                            $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : ($doc['created_at'] ?? '');
+                            $event_ts = !empty($event_dt) ? strtotime($event_dt) : false;
+                            $created_ts = !empty($doc['created_at']) ? strtotime($doc['created_at']) : false;
                             ?>
                             <td style="padding: 12px 16px; color: #64748b;">
-                                <div style="font-weight: 600; color: #1e293b;"><?= date('M d, Y', strtotime($event_dt)) ?></div>
-                                <?php if (!empty($doc['event_date']) && date('Y-m-d', strtotime($doc['event_date'])) !== date('Y-m-d', strtotime($doc['created_at']))): ?>
-                                    <div style="font-size: 0.72rem; color: #94a3b8;" title="Uploaded on <?= date('M d, Y', strtotime($doc['created_at'])) ?>">Up: <?= date('M d, Y', strtotime($doc['created_at'])) ?></div>
+                                <div style="font-weight: 600; color: #1e293b;"><?= $event_ts ? date('M d, Y', $event_ts) : '—' ?></div>
+                                <?php if (!empty($doc['event_date']) && $event_ts && $created_ts && date('Y-m-d', $event_ts) !== date('Y-m-d', $created_ts)): ?>
+                                    <div style="font-size: 0.72rem; color: #94a3b8;" title="Uploaded on <?= date('M d, Y', $created_ts) ?>">Up: <?= date('M d, Y', $created_ts) ?></div>
                                 <?php endif; ?>
                             </td>
                             <td style="padding: 12px 16px;">
-                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">Review</a>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">Review</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>

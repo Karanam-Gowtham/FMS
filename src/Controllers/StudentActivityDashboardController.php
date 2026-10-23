@@ -246,8 +246,8 @@ class StudentActivityDashboardController
             }
 
             // Timeline (by month based on form's event start date)
-            $event_start_date = (!empty($meta['date_from']) && $meta['date_from'] !== '0000-00-00') ? $meta['date_from'] : $doc['created_at'];
-            $ts = strtotime($event_start_date);
+            $event_start_date = (!empty($meta['date_from']) && $meta['date_from'] !== '0000-00-00') ? $meta['date_from'] : ($doc['created_at'] ?? '');
+            $ts = !empty($event_start_date) ? strtotime($event_start_date) : false;
             if ($ts === false) {
                 $ts = !empty($doc['created_at']) ? (strtotime($doc['created_at']) ?: time()) : time();
             }

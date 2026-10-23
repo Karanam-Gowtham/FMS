@@ -12,7 +12,7 @@ class StudentController {
         
         global $conn;
         $stmt = $conn->prepare("
-            SELECT d.doc_id, d.status, d.created_at,
+            SELECT d.doc_id, d.uploaded_by, d.dept_id, d.status, d.created_at,
                    COALESCE(msaf.activity_category, dmsa.activity_category, dt.label) as activity_category,
                    COALESCE(msaf.event_title, d.title) as event_title,
                    COALESCE(

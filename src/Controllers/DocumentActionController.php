@@ -44,7 +44,18 @@ class DocumentActionController {
             }
 
             $post_dept_id  = (int)($_POST['dept_id'] ?? 0);
-            $post_year_id  = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : null;
+            $post_year_id  = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : null);
+            if ($post_year_id !== null) {
+                $chk_yr = $conn->prepare("SELECT 1 FROM academic_years WHERE year_id = ?");
+                if ($chk_yr) {
+                    $chk_yr->bind_param('i', $post_year_id);
+                    $chk_yr->execute();
+                    if (!$chk_yr->get_result()->fetch_row()) {
+                        $post_year_id = null;
+                    }
+                    $chk_yr->close();
+                }
+            }
 
             $post_doc_type = doc_get_type_by_key($conn, $post_type_key);
             if (!$post_doc_type) {
@@ -359,6 +370,17 @@ class DocumentActionController {
         $post_title = trim($_POST['title'] ?? '');
         $post_dept_id = (int)($_POST['dept_id'] ?? 0);
         $post_year_id = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : null);
+        if ($post_year_id !== null) {
+            $chk_yr = $conn->prepare("SELECT 1 FROM academic_years WHERE year_id = ?");
+            if ($chk_yr) {
+                $chk_yr->bind_param('i', $post_year_id);
+                $chk_yr->execute();
+                if (!$chk_yr->get_result()->fetch_row()) {
+                    $post_year_id = null;
+                }
+                $chk_yr->close();
+            }
+        }
         
         if ($post_title === '' || $post_dept_id <= 0) {
             $_SESSION['error_msg'] = "Document Title and Department are required.";

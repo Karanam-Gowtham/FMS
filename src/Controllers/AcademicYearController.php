@@ -88,7 +88,7 @@ class AcademicYearController {
         $success_msg = $_SESSION['success_msg'] ?? '';
         unset($_SESSION['error_msg'], $_SESSION['success_msg']);
         
-        $sql = "SELECT * FROM academic_years ORDER BY year_id DESC";
+        $sql = "SELECT * FROM academic_years ORDER BY year_label DESC";
         $result = $conn->query($sql);
         $academic_years = [];
         if ($result instanceof \mysqli_result) {
