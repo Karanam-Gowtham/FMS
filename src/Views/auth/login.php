@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — File Management System (FMS)</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
         
@@ -141,8 +141,7 @@
             <div class="form-group">
                 <label for="identifier">User ID or Email</label>
                 <input type="text" id="identifier" name="identifier" placeholder="e.g. cse-hod or user@gmrit.edu.in"
-                    value="<?= htmlspecialchars($_POST['identifier'] ?? '') ?>" required autocomplete="username"
-                    autofocus>
+                    value="<?= htmlspecialchars($_POST['identifier'] ?? '') ?>" required autocomplete="username">
             </div>
 
             <div class="form-group">

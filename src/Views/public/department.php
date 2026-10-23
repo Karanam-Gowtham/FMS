@@ -3,7 +3,7 @@ include_once HEADER;
 ?>
 <link rel="stylesheet" href="<?= CSS_PATH ?>/portal.css">
 <link rel="stylesheet" href="<?= CSS_PATH ?>/dashboard.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
 <style>
     :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
     * { box-sizing: border-box; }

@@ -5,8 +5,8 @@ require __DIR__ . '/../../../includes/header.php';
 ?>
 
 <!-- Load Bootstrap and FontAwesome for Student Dashboard -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
     /* Scope some Bootstrap resets so they don't break the global header */
     .main-header-navbar { box-sizing: border-box; }
@@ -115,7 +115,7 @@ require __DIR__ . '/../../../includes/header.php';
     </div>
 
     <!-- Chart.js Setup -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const colors = ['#1e40af', '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
@@ -229,7 +229,10 @@ require __DIR__ . '/../../../includes/header.php';
                             $sub_created_ts = (!empty($sub['created_at']) && is_string($sub['created_at'])) ? strtotime($sub['created_at']) : false;
                         ?>
                             <tr>
-                                <td class="text-center"><input type="checkbox" name="doc_ids[]" value="<?= (int)($sub['doc_id'] ?? 0) ?>" class="student-doc-checkbox"></td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="doc_ids[]" value="<?= (int)($sub['doc_id'] ?? 0) ?>" id="doc_chk_<?= (int)($sub['doc_id'] ?? 0) ?>" class="student-doc-checkbox" aria-label="Select document #<?= (int)($sub['doc_id'] ?? 0) ?>">
+                                    <label for="doc_chk_<?= (int)($sub['doc_id'] ?? 0) ?>" class="visually-hidden">Select document #<?= (int)($sub['doc_id'] ?? 0) ?></label>
+                                </td>
                                 <td>#<?= (int)($sub['doc_id'] ?? 0) ?></td>
                                 <td><strong><?= htmlspecialchars(is_string($sub['activity_category'] ?? null) ? $sub['activity_category'] : '') ?></strong></td>
                                 <td>
@@ -517,7 +520,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div> <!-- End student-dashboard-wrapper -->
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
 <?php if (file_exists(__DIR__ . '/../../../includes/footer.php')) { require __DIR__ . '/../../../includes/footer.php'; } ?>
 </body>
