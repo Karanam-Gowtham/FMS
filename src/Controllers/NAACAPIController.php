@@ -48,7 +48,7 @@ class NAACAPIController {
             $sub_res = $sub_stmt->get_result();
             
             if ($sub_res && $sub_res->num_rows > 0) {
-                $sub_id = $sub_res->fetch_assoc()['submission_id'];
+                $sub_id = (int)$sub_res->fetch_assoc()['submission_id'];
             } else {
                 $sub_insert = $conn->prepare("INSERT INTO naac_submissions (dept_id, academic_year, status) VALUES (?, ?, 'Draft')");
                 if (!$sub_insert) {
@@ -56,7 +56,7 @@ class NAACAPIController {
                 }
                 $sub_insert->bind_param("is", $dept_id, $year);
                 $sub_insert->execute();
-                $sub_id = $conn->insert_id;
+                $sub_id = (int)$conn->insert_id;
                 $sub_insert->close();
             }
             $sub_stmt->close();

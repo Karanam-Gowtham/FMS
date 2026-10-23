@@ -14,7 +14,7 @@ class DashboardController {
         // Fetch profile photo
         global $conn;
         $profile_photo = null;
-        $user_id = $auth['user_id'];
+        $user_id = (int)$auth['user_id'];
         $photo_stmt = $conn->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
         if ($photo_stmt) {
             $photo_stmt->bind_param("i", $user_id);
@@ -104,7 +104,7 @@ class DashboardController {
             // Fetch chart data for Faculty/User Dashboard
             $chart_categories = [];
             $chart_timeline = [];
-            $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
+            $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0, 'draft' => 0];
 
             $chart_stmt = $conn->prepare("
                 SELECT dt.label as type_label, d.status, d.created_at,

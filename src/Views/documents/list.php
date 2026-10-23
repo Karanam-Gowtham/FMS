@@ -97,6 +97,7 @@
                     foreach ($sub_types as $st): 
                         $has_children = isset($available_sub_file_types[$st]) && !empty($available_sub_file_types[$st]);
                         $is_checked = in_array($st, $filter_sub_types, true);
+                        $st_id = md5($st);
                     ?>
                         <div class="category-parent-node" style="margin-bottom: 0.6rem;">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">

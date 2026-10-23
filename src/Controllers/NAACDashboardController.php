@@ -30,6 +30,9 @@ class NAACDashboardController {
             $academic_years = ['2023-24', '2024-25', '2025-26'];
         }
         $filter_year = isset($_GET['year']) ? trim($_GET['year']) : ($academic_years[0] ?? '2025-26');
+        if (!in_array($filter_year, $academic_years, true)) {
+            $filter_year = $academic_years[0] ?? '2025-26';
+        }
 
         $page_title = 'NAAC Dashboard';
 
@@ -37,7 +40,6 @@ class NAACDashboardController {
         $pending_approvals = [];
         if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             require_once __DIR__ . '/../../core/document_service.php';
-            global $conn;
             $pending_res = doc_list_pending_for_user($conn, $auth, 10, 0);
             $pending_approvals = $pending_res['rows'];
         }

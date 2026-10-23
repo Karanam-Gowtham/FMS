@@ -35,7 +35,7 @@ class StudentController {
             ORDER BY d.created_at DESC
         ");
         $submissions = [];
-        $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0];
+        $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0, 'draft' => 0];
         $chart_categories = [];
         $chart_timeline = [];
 

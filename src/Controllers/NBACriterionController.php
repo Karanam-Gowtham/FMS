@@ -71,7 +71,8 @@ class NBACriterionController {
                     // Fetch specific Criterion data
                     $stmt2 = $conn->prepare("SELECT data_json FROM nba_criteria_data WHERE submission_id = ? AND criterion_number = ?");
                     if ($stmt2) {
-                        $stmt2->bind_param("ii", $submission['submission_id'], $crit_id);
+                        $sub_id = (int)$submission['submission_id'];
+                        $stmt2->bind_param("ii", $sub_id, $crit_id);
                         $stmt2->execute();
                         $data_res = $stmt2->get_result();
                         if ($data_res && $data_res->num_rows > 0) {
