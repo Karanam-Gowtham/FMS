@@ -109,7 +109,7 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
 
         $dir = dirname($output_path);
         if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+            @mkdir($dir, 0755, true);
         }
 
         $pdf->Output('F', $output_path);

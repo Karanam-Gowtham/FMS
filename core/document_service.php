@@ -266,7 +266,7 @@ function doc_create(
             require_once __DIR__ . '/pdf_merger_service.php';
             $merged_filename = $type_key . '_merged_' . uniqid() . '.pdf';
             $merged_dir = __DIR__ . '/../uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/';
-            if (!is_dir($merged_dir)) { mkdir($merged_dir, 0755, true); }
+            if (!is_dir($merged_dir)) { @mkdir($merged_dir, 0755, true); }
             $merged_path = $merged_dir . $merged_filename;
             
             try {

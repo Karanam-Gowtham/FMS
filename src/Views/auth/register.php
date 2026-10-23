@@ -152,10 +152,10 @@
             ℹ️ Please select your role. Students must use their JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in). Faculty fields will hide if Student is selected.
         </div>
 
-        <?php if ($error): ?>
+        <?php if (!empty($error)): ?>
             <div class="error-msg"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
-        <?php if ($success): ?>
+        <?php if (!empty($success)): ?>
             <div class="success-msg">
                 <?= htmlspecialchars($success) ?><br><br>
                 <a href="<?= BASE_URL ?>/public/index.php?route=auth/login" style="color: #6ee7b7; text-decoration: underline; font-weight: bold;">Click here to login</a>
@@ -195,8 +195,8 @@
                     <select id="dept_id" name="dept_id" required>
                         <option value="">&mdash; Select Department &mdash;</option>
                         <?php foreach ($departments as $d): ?>
-                            <option value="<?= $d['dept_id'] ?>" <?= (isset($_POST['dept_id']) && (int)$_POST['dept_id'] === (int)$d['dept_id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($d['dept_name']) ?>
+                            <option value="<?= (int)($d['dept_id'] ?? 0) ?>" <?= (isset($_POST['dept_id']) && (int)$_POST['dept_id'] === (int)($d['dept_id'] ?? 0)) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($d['dept_name'] ?? 'Department') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
