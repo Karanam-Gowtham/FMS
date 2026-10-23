@@ -49,7 +49,7 @@
             <h4>Click to Upload PDF for Section 2.1</h4>
             <p>Upload a single PDF document detailing the teaching & learning processes.</p>
             <div class="upload-overlay" id="overlay_2_1">Uploading...</div>
-            <input type="file" id="pdfInput_2_1" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_1')">
+            <input aria-label="PdfInput 2 1" type="file" id="pdfInput_2_1" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_1')">
         </div>
         <div class="file-preview" id="preview_2_1">
             <a href="#" id="link_2_1" target="_blank">
@@ -72,7 +72,7 @@
             <h4>Click to Upload PDF for Section 2.2</h4>
             <p>Upload a single PDF document detailing capstone projects.</p>
             <div class="upload-overlay" id="overlay_2_2">Uploading...</div>
-            <input type="file" id="pdfInput_2_2" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_2')">
+            <input aria-label="PdfInput 2 2" type="file" id="pdfInput_2_2" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_2')">
         </div>
         <div class="file-preview" id="preview_2_2">
             <a href="#" id="link_2_2" target="_blank">
@@ -95,7 +95,7 @@
             <h4>Click to Upload PDF for Section 2.3</h4>
             <p>Upload a single PDF document detailing internship processes.</p>
             <div class="upload-overlay" id="overlay_2_3">Uploading...</div>
-            <input type="file" id="pdfInput_2_3" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_3')">
+            <input aria-label="PdfInput 2 3" type="file" id="pdfInput_2_3" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_3')">
         </div>
         <div class="file-preview" id="preview_2_3">
             <a href="#" id="link_2_3" target="_blank">
@@ -118,7 +118,7 @@
             <h4>Click to Upload PDF for Section 2.4</h4>
             <p>Upload a single PDF document detailing seminar and project processes.</p>
             <div class="upload-overlay" id="overlay_2_4">Uploading...</div>
-            <input type="file" id="pdfInput_2_4" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_4')">
+            <input aria-label="PdfInput 2 4" type="file" id="pdfInput_2_4" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_4')">
         </div>
         <div class="file-preview" id="preview_2_4">
             <a href="#" id="link_2_4" target="_blank">
@@ -141,7 +141,7 @@
             <h4>Click to Upload PDF for Section 2.5</h4>
             <p>Upload a single PDF document detailing case studies.</p>
             <div class="upload-overlay" id="overlay_2_5">Uploading...</div>
-            <input type="file" id="pdfInput_2_5" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_5')">
+            <input aria-label="PdfInput 2 5" type="file" id="pdfInput_2_5" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_5')">
         </div>
         <div class="file-preview" id="preview_2_5">
             <a href="#" id="link_2_5" target="_blank">
@@ -164,7 +164,7 @@
             <h4>Click to Upload PDF for Section 2.6</h4>
             <p>Upload a single PDF document detailing MOOC/Self Learning.</p>
             <div class="upload-overlay" id="overlay_2_6">Uploading...</div>
-            <input type="file" id="pdfInput_2_6" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_6')">
+            <input aria-label="PdfInput 2 6" type="file" id="pdfInput_2_6" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_6')">
         </div>
         <div class="file-preview" id="preview_2_6">
             <a href="#" id="link_2_6" target="_blank">
@@ -187,7 +187,7 @@
             <h4>Click to Upload PDF for Section 2.7</h4>
             <p>Upload a single PDF document detailing complex engineering problem solving.</p>
             <div class="upload-overlay" id="overlay_2_7">Uploading...</div>
-            <input type="file" id="pdfInput_2_7" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_7')">
+            <input aria-label="PdfInput 2 7" type="file" id="pdfInput_2_7" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_7')">
         </div>
         <div class="file-preview" id="preview_2_7">
             <a href="#" id="link_2_7" target="_blank">
@@ -210,7 +210,7 @@
             <h4>Click to Upload PDF for Section 2.8</h4>
             <p>Upload a single PDF document detailing industry partnerships.</p>
             <div class="upload-overlay" id="overlay_2_8">Uploading...</div>
-            <input type="file" id="pdfInput_2_8" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_8')">
+            <input aria-label="PdfInput 2 8" type="file" id="pdfInput_2_8" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '2_8')">
         </div>
         <div class="file-preview" id="preview_2_8">
             <a href="#" id="link_2_8" target="_blank">

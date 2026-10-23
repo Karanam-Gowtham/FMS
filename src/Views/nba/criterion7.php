@@ -59,18 +59,18 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th rowspan="2">S.N.</th>
-                            <th rowspan="2">Name of the Laboratory</th>
-                            <th rowspan="2">No. of students per setup (Batch Size)</th>
-                            <th rowspan="2">Name of the major equipment</th>
-                            <th rowspan="2">Weekly utilization status</th>
-                            <th colspan="3">Technical Manpower support</th>
-                            <th rowspan="2">Action</th>
+                            <th scope="col" rowspan="2">S.N.</th>
+                            <th scope="col" rowspan="2">Name of the Laboratory</th>
+                            <th scope="col" rowspan="2">No. of students per setup (Batch Size)</th>
+                            <th scope="col" rowspan="2">Name of the major equipment</th>
+                            <th scope="col" rowspan="2">Weekly utilization status</th>
+                            <th scope="col" colspan="3">Technical Manpower support</th>
+                            <th scope="col" rowspan="2">Action</th>
                         </tr>
                         <tr>
-                            <th>Name of the technical staff</th>
-                            <th>Designation</th>
-                            <th>Qualification</th>
+                            <th scope="col">Name of the technical staff</th>
+                            <th scope="col">Designation</th>
+                            <th scope="col">Qualification</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-laboratories"></tbody>
@@ -86,13 +86,13 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>S.N.</th>
-                            <th>Name of the Facility</th>
-                            <th>Details</th>
-                            <th>Purpose for creating facility</th>
-                            <th>Utilization</th>
-                            <th>Relevance to POs/PSOs</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Name of the Facility</th>
+                            <th scope="col">Details</th>
+                            <th scope="col">Purpose for creating facility</th>
+                            <th scope="col">Utilization</th>
+                            <th scope="col">Relevance to POs/PSOs</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-additional_facilities"></tbody>
@@ -107,7 +107,7 @@ if (!isset($criteria_data)) {
             <textarea name="text_7_3" id="text_7_3" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe maintenance procedures, ambiance, lighting, seating, circulation space, etc..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>Maintenance Protocols / Documentation PDF</strong></div>
-                <input type="file" name="file_7_3" accept=".pdf">
+                <input aria-label="File 7 3" type="file" name="file_7_3" accept=".pdf">
             </div>
         </div>
 
@@ -119,10 +119,10 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>S.N.</th>
-                            <th>Name of the Laboratory</th>
-                            <th>Safety measures deployed</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Name of the Laboratory</th>
+                            <th scope="col">Safety measures deployed</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-safety_measures"></tbody>
@@ -139,9 +139,9 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>S.N.</th>
-                            <th>Name of the Laboratory / Centre of Excellence</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Name of the Laboratory / Centre of Excellence</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-project_labs"></tbody>
@@ -232,7 +232,7 @@ if (!isset($criteria_data)) {
             const tr = document.createElement('tr');
             let html = `<td style="text-align:center; font-weight:bold;">${idx + 1}</td>`;
             lists[listName].keys.forEach(k => {
-                html += `<td><input type="text" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
+                html += `<td><input aria-label="Text Input" type="text" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
             });
             html += `<td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeRow('${listName}', ${idx})">&times;</button></td>`;
             tr.innerHTML = html;

@@ -64,10 +64,10 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>Name of the Faculty</th>
-                            <th>Name of the Professional Society/Body</th>
-                            <th>Grade/Level/Position</th>
-                            <th>Action</th>
+                            <th scope="col">Name of the Faculty</th>
+                            <th scope="col">Name of the Professional Society/Body</th>
+                            <th scope="col">Grade/Level/Position</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-memberships"></tbody>
@@ -83,13 +83,13 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>Year</th>
-                            <th>Name of Faculty</th>
-                            <th>Name of the STTP/FDP</th>
-                            <th>Date</th>
-                            <th>Location</th>
-                            <th>Organized by</th>
-                            <th>Action</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Name of Faculty</th>
+                            <th scope="col">Name of the STTP/FDP</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Location</th>
+                            <th scope="col">Organized by</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-resource_persons"></tbody>
@@ -102,39 +102,39 @@ if (!isset($criteria_data)) {
             <h3>6.1.2.2 Faculty Members' Participation in STTPs/FDPs (05)</h3>
             <p>Participation in 2 to 5 days = 3 Points. >5 days = 5 points. (Max 5 per faculty).</p>
             <div style="display:flex; gap:15px; margin-bottom:15px;">
-                <label><strong>RF for CAYm1:</strong> <input type="number" id="t6122_rf_caym1" class="calc-box" style="width:80px;" oninput="calc6122()"></label>
-                <label><strong>RF for CAYm2:</strong> <input type="number" id="t6122_rf_caym2" class="calc-box" style="width:80px;" oninput="calc6122()"></label>
-                <label><strong>RF for CAYm3:</strong> <input type="number" id="t6122_rf_caym3" class="calc-box" style="width:80px;" oninput="calc6122()"></label>
+                <label><strong>RF for CAYm1:</strong> <input aria-label="T6122 Rf Caym1" type="number" id="t6122_rf_caym1" class="calc-box" style="width:80px;" oninput="calc6122()"></label>
+                <label><strong>RF for CAYm2:</strong> <input aria-label="T6122 Rf Caym2" type="number" id="t6122_rf_caym2" class="calc-box" style="width:80px;" oninput="calc6122()"></label>
+                <label><strong>RF for CAYm3:</strong> <input aria-label="T6122 Rf Caym3" type="number" id="t6122_rf_caym3" class="calc-box" style="width:80px;" oninput="calc6122()"></label>
             </div>
             <button type="button" class="btn-add" onclick="addRow('participation')">+ Add Faculty Participation Points</button>
             <div style="overflow-x: auto;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th rowspan="2">Name of the Faculty</th>
-                            <th colspan="3">Max. 5 per Faculty</th>
-                            <th rowspan="2">Action</th>
+                            <th scope="col" rowspan="2">Name of the Faculty</th>
+                            <th scope="col" colspan="3">Max. 5 per Faculty</th>
+                            <th scope="col" rowspan="2">Action</th>
                         </tr>
                         <tr>
-                            <th>CAYm1</th>
-                            <th>CAYm2</th>
-                            <th>CAYm3</th>
+                            <th scope="col">CAYm1</th>
+                            <th scope="col">CAYm2</th>
+                            <th scope="col">CAYm3</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-participation"></tbody>
                     <tfoot>
                         <tr style="background:#f1f3f5; font-weight:bold;">
                             <td style="text-align:right;">Sum</td>
-                            <td><input type="text" id="t6122_sum_caym1" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t6122_sum_caym2" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t6122_sum_caym3" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T6122 Sum Caym1" type="text" id="t6122_sum_caym1" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T6122 Sum Caym2" type="text" id="t6122_sum_caym2" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T6122 Sum Caym3" type="text" id="t6122_sum_caym3" class="calc-box readonly-box" readonly></td>
                             <td></td>
                         </tr>
                         <tr style="background:#e9ecef; font-weight:bold;">
                             <td style="text-align:right;">Assessment Points (AP) = Sum / (0.5 * RF) <br><small>(Limited to 5)</small></td>
-                            <td><input type="text" id="t6122_ap_caym1" class="calc-box readonly-box" readonly style="color:#d9534f;"></td>
-                            <td><input type="text" id="t6122_ap_caym2" class="calc-box readonly-box" readonly style="color:#d9534f;"></td>
-                            <td><input type="text" id="t6122_ap_caym3" class="calc-box readonly-box" readonly style="color:#d9534f;"></td>
+                            <td><input aria-label="T6122 Ap Caym1" type="text" id="t6122_ap_caym1" class="calc-box readonly-box" readonly style="color:#d9534f;"></td>
+                            <td><input aria-label="T6122 Ap Caym2" type="text" id="t6122_ap_caym2" class="calc-box readonly-box" readonly style="color:#d9534f;"></td>
+                            <td><input aria-label="T6122 Ap Caym3" type="text" id="t6122_ap_caym3" class="calc-box readonly-box" readonly style="color:#d9534f;"></td>
                             <td></td>
                         </tr>
                     </tfoot>
@@ -149,8 +149,8 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto; margin-bottom: 20px;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th colspan="4">6.1.3 Courses Developed (Swayam/e-PG, etc.)</th></tr>
-                        <tr><th>S.N.</th><th>Name of Faculty</th><th>Course Developed (Platform)</th><th>Action</th></tr>
+                        <tr><th scope="col" colspan="4">6.1.3 Courses Developed (Swayam/e-PG, etc.)</th></tr>
+                        <tr><th scope="col">S.N.</th><th scope="col">Name of Faculty</th><th scope="col">Course Developed (Platform)</th><th scope="col">Action</th></tr>
                     </thead>
                     <tbody id="tbody-mooc_dev"></tbody>
                 </table>
@@ -160,8 +160,8 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th colspan="6">6.1.4 Courses Certified</th></tr>
-                        <tr><th>S.N.</th><th>Name of Faculty</th><th>Course Passed</th><th>Course Offered By</th><th>Grade</th><th>Action</th></tr>
+                        <tr><th scope="col" colspan="6">6.1.4 Courses Certified</th></tr>
+                        <tr><th scope="col">S.N.</th><th scope="col">Name of Faculty</th><th scope="col">Course Passed</th><th scope="col">Course Offered By</th><th scope="col">Grade</th><th scope="col">Action</th></tr>
                     </thead>
                     <tbody id="tbody-mooc_cert"></tbody>
                 </table>
@@ -176,13 +176,13 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>Year</th>
-                            <th>Name of Program</th>
-                            <th>Date</th>
-                            <th>Duration (Days)</th>
-                            <th>Speaker & Org</th>
-                            <th>No. Attended</th>
-                            <th>Action</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Name of Program</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Duration (Days)</th>
+                            <th scope="col">Speaker & Org</th>
+                            <th scope="col">No. Attended</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-fdp_org"></tbody>
@@ -198,13 +198,13 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>Year</th>
-                            <th>Faculty Name</th>
-                            <th>Event Name</th>
-                            <th>Date</th>
-                            <th>Place</th>
-                            <th>Website Link</th>
-                            <th>Action</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Faculty Name</th>
+                            <th scope="col">Event Name</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Place</th>
+                            <th scope="col">Website Link</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-innovative"></tbody>
@@ -220,12 +220,12 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>Faculty Name</th>
-                            <th>Internship/Training Name</th>
-                            <th>Company & Place</th>
-                            <th>Duration</th>
-                            <th>Outcomes</th>
-                            <th>Action</th>
+                            <th scope="col">Faculty Name</th>
+                            <th scope="col">Internship/Training Name</th>
+                            <th scope="col">Company & Place</th>
+                            <th scope="col">Duration</th>
+                            <th scope="col">Outcomes</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-industry"></tbody>
@@ -242,26 +242,26 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto; margin-bottom:20px;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th style="text-align:left;">Table 6.2.1.1 Publication Details</th><th>CAYm1</th><th>CAYm2</th><th>CAYm3</th></tr>
+                        <tr><th scope="col" style="text-align:left;">Table 6.2.1.1 Publication Details</th><th scope="col">CAYm1</th><th scope="col">CAYm2</th><th scope="col">CAYm3</th></tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Peer reviewed journal papers</td>
-                            <td><input type="number" id="t621_j_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t621_j_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t621_j_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 J Caym1" type="number" id="t621_j_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 J Caym2" type="number" id="t621_j_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 J Caym3" type="number" id="t621_j_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>Peer reviewed conference papers</td>
-                            <td><input type="number" id="t621_c_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t621_c_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t621_c_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 C Caym1" type="number" id="t621_c_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 C Caym2" type="number" id="t621_c_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 C Caym3" type="number" id="t621_c_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>Books/book chapters</td>
-                            <td><input type="number" id="t621_b_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t621_b_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t621_b_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 B Caym1" type="number" id="t621_b_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 B Caym2" type="number" id="t621_b_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T621 B Caym3" type="number" id="t621_b_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -270,20 +270,20 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th style="text-align:left;">Table 6.2.2.1 Ph.D. Details</th><th>CAYm1</th><th>CAYm2</th><th>CAYm3</th></tr>
+                        <tr><th scope="col" style="text-align:left;">Table 6.2.2.1 Ph.D. Details</th><th scope="col">CAYm1</th><th scope="col">CAYm2</th><th scope="col">CAYm3</th></tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Students enrolled for Ph.D</td>
-                            <td><input type="number" id="t622_e_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t622_e_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t622_e_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T622 E Caym1" type="number" id="t622_e_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T622 E Caym2" type="number" id="t622_e_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T622 E Caym3" type="number" id="t622_e_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>Students graduated for Ph.D</td>
-                            <td><input type="number" id="t622_g_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t622_g_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t622_g_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T622 G Caym1" type="number" id="t622_g_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T622 G Caym2" type="number" id="t622_g_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T622 G Caym3" type="number" id="t622_g_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -297,7 +297,7 @@ if (!isset($criteria_data)) {
             <textarea name="text_6_2_3" id="text_6_2_3" style="width:100%; height:80px; padding:10px; border:1px solid #ced4da;" placeholder="Describe patents and prototypes..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 10px;">
                 <div><strong>Proof/Documentation PDF</strong></div>
-                <input type="file" name="file_6_2_3" accept=".pdf">
+                <input aria-label="File 6 2 3" type="file" name="file_6_2_3" accept=".pdf">
             </div>
         </div>
 
@@ -309,7 +309,7 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto; margin-bottom:20px;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th>S.N.</th><th>Year</th><th>PI Name</th><th>Co-PI</th><th>Dept</th><th>Title</th><th>Agency</th><th>Duration</th><th>Amount (Lacs)</th><th>Action</th></tr>
+                        <tr><th scope="col">S.N.</th><th scope="col">Year</th><th scope="col">PI Name</th><th scope="col">Co-PI</th><th scope="col">Dept</th><th scope="col">Title</th><th scope="col">Agency</th><th scope="col">Duration</th><th scope="col">Amount (Lacs)</th><th scope="col">Action</th></tr>
                     </thead>
                     <tbody id="tbody-sponsored"></tbody>
                     <tfoot>
@@ -325,7 +325,7 @@ if (!isset($criteria_data)) {
             <div style="overflow-x: auto;">
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr><th>S.N.</th><th>Year</th><th>PI Name</th><th>Co-PI</th><th>Dept</th><th>Title</th><th>Agency</th><th>Duration</th><th>Amount (Lacs)</th><th>Action</th></tr>
+                        <tr><th scope="col">S.N.</th><th scope="col">Year</th><th scope="col">PI Name</th><th scope="col">Co-PI</th><th scope="col">Dept</th><th scope="col">Title</th><th scope="col">Agency</th><th scope="col">Duration</th><th scope="col">Amount (Lacs)</th><th scope="col">Action</th></tr>
                     </thead>
                     <tbody id="tbody-consultancy"></tbody>
                     <tfoot>
@@ -346,14 +346,14 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>Year</th>
-                            <th>Faculty Name</th>
-                            <th>Project/Support Title</th>
-                            <th>Duration</th>
-                            <th>Amount Recv (Lacs)</th>
-                            <th>Amount Utilized (Lacs)</th>
-                            <th>Outcomes</th>
-                            <th>Action</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Faculty Name</th>
+                            <th scope="col">Project/Support Title</th>
+                            <th scope="col">Duration</th>
+                            <th scope="col">Amount Recv (Lacs)</th>
+                            <th scope="col">Amount Utilized (Lacs)</th>
+                            <th scope="col">Outcomes</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-seed_money"></tbody>
@@ -487,9 +487,9 @@ if (!isset($criteria_data)) {
                         <option value="CAYm3" ${row[k]==='CAYm3'?'selected':''}>CAYm3</option>
                     </select></td>`;
                 } else if (['c1','c2','c3','amt','recv','util'].includes(k)) {
-                    html += `<td><input type="number" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
+                    html += `<td><input aria-label="Number Input" type="number" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
                 } else {
-                    html += `<td><input type="text" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
+                    html += `<td><input aria-label="Text Input" type="text" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
                 }
             });
             html += `<td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeRow('${listName}', ${idx})">&times;</button></td>`;

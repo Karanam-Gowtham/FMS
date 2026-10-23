@@ -43,14 +43,14 @@
             <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem;" border="1">
                 <thead style="background: #f8f9fa;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 30%;">Item (Information is to be provided cumulatively for all the shifts with explicit headings, wherever applicable)</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAY</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 30%;">Item (Information is to be provided cumulatively for all the shifts with explicit headings, wherever applicable)</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAY</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)</th>
                     </tr>
                 </thead>
                 <tbody id="table4a-body">
@@ -68,7 +68,7 @@
                         <td style="padding: 10px; border: 1px solid #dee2e6;"><?= $label ?></td>
                         <?php foreach($columns as $col): ?>
                         <td style="padding: 5px; border: 1px solid #dee2e6;">
-                            <input type="number" id="t4a_<?= $key ?>_<?= $col ?>" class="t4a-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()">
+                            <input aria-label="Number Input" type="number" id="t4a_<?= $key ?>_<?= $col ?>" class="t4a-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()">
                         </td>
                         <?php endforeach; ?>
                     </tr>
@@ -94,14 +94,14 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; background: #fff;" border="1">
                     <thead style="background: #fff3cd; color: #000;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: left; width: 30%;">Item (Information is to be provided cumulatively for all the shifts with explicit headings, wherever applicable)</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAY<br>2023-24</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm1<br>2022-23</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm2<br>2021-22</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm3<br>2020-21</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)<br>2019-20</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)<br>2018-19</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)<br>2017-18</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: left; width: 30%;">Item (Information is to be provided cumulatively for all the shifts with explicit headings, wherever applicable)</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAY<br>2023-24</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm1<br>2022-23</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm2<br>2021-22</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm3<br>2020-21</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)<br>2019-20</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)<br>2018-19</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)<br>2017-18</th>
                         </tr>
                     </thead>
                     <tbody style="color: #000;">
@@ -178,14 +178,14 @@
             <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem;" border="1">
                 <thead style="background: #f8f9fa;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 30%;">Item (No. of students admitted/exited through multiple entry and exit points) in the respective batch</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAY</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 30%;">Item (No. of students admitted/exited through multiple entry and exit points) in the respective batch</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAY</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)</th>
                     </tr>
                 </thead>
                 <tbody id="table4b-body">
@@ -208,7 +208,7 @@
                         <td style="padding: 10px; border: 1px solid #dee2e6;"><?= $label ?></td>
                         <?php foreach($columns as $col): ?>
                         <td style="padding: 5px; border: 1px solid #dee2e6;">
-                            <input type="number" id="t4b_<?= $key ?>_<?= $col ?>" class="t4b-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()">
+                            <input aria-label="Number Input" type="number" id="t4b_<?= $key ?>_<?= $col ?>" class="t4b-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()">
                         </td>
                         <?php endforeach; ?>
                     </tr>
@@ -226,7 +226,7 @@
                         <td style="padding: 10px; border: 1px solid #dee2e6;"><?= $label ?></td>
                         <?php foreach($columns as $col): ?>
                         <td style="padding: 5px; border: 1px solid #dee2e6;">
-                            <input type="number" id="t4b_<?= $key ?>_<?= $col ?>" class="t4b-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()">
+                            <input aria-label="Number Input" type="number" id="t4b_<?= $key ?>_<?= $col ?>" class="t4b-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()">
                         </td>
                         <?php endforeach; ?>
                     </tr>
@@ -246,14 +246,14 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; background: #fff;" border="1">
                     <thead style="background: #fff3cd; color: #000;">
                         <tr>
-                            <th colspan="2" style="padding: 5px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item (No. of students admitted/exited through multiple entry and exit points) in the respective batch</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAY<br>2023-24</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm1<br>2022-23</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm2<br>2021-22</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm3<br>2020-21</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)<br>2019-20</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)<br>2018-19</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)<br>2017-18</th>
+                            <th scope="col" colspan="2" style="padding: 5px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item (No. of students admitted/exited through multiple entry and exit points) in the respective batch</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAY<br>2023-24</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm1<br>2022-23</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm2<br>2021-22</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm3<br>2020-21</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm4 (LYG)<br>2019-20</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm5 (LYGm1)<br>2018-19</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm6 (LYGm2)<br>2017-18</th>
                         </tr>
                     </thead>
                     <tbody style="color: #000;">
@@ -355,15 +355,15 @@
             <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem;" border="1">
                 <thead style="background: #f8f9fa;">
                     <tr>
-                        <th rowspan="2" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">Year of entry</th>
-                        <th rowspan="2" style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 30%;">Total no. of students (N1 + N2 + N3+ N4+N5-N6 as defined above)</th>
-                        <th colspan="4" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">Number of students who have successfully graduated in the stipulated period of study [Total of with Backlogs+ without Backlogs]</th>
+                        <th scope="col" rowspan="2" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">Year of entry</th>
+                        <th scope="col" rowspan="2" style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 30%;">Total no. of students (N1 + N2 + N3+ N4+N5-N6 as defined above)</th>
+                        <th scope="col" colspan="4" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">Number of students who have successfully graduated in the stipulated period of study [Total of with Backlogs+ without Backlogs]</th>
                     </tr>
                     <tr>
-                        <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">I Year</th>
-                        <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">II Year</th>
-                        <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">III Year</th>
-                        <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">IV Year</th>
+                        <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">I Year</th>
+                        <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">II Year</th>
+                        <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">III Year</th>
+                        <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">IV Year</th>
                     </tr>
                 </thead>
                 <tbody id="table4c-body">
@@ -394,7 +394,7 @@
                         <?php for($i=1; $i<=4; $i++): ?>
                         <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center; <?php if(in_array($i, $greyed[$rKey])) echo 'background: #d6d8db;'; ?>">
                             <?php if(!in_array($i, $greyed[$rKey])): ?>
-                                <input type="number" id="t4c_<?= $rKey ?>_year<?= $i ?>" class="t4c-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()">
+                                <input aria-label="Number Input" type="number" id="t4c_<?= $rKey ?>_year<?= $i ?>" class="t4c-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()">
                             <?php endif; ?>
                         </td>
                         <?php endfor; ?>
@@ -417,10 +417,10 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                 <thead style="background: #fff3cd;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item (Students enrolled in the First Year on average over 3 academic years (CAY, CAYm1 and CAYm2))</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAY</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item (Students enrolled in the First Year on average over 3 academic years (CAY, CAYm1 and CAYm2))</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAY</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -462,10 +462,10 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; background: #fff;" border="1">
                     <thead style="background: #fff3cd; color: #000;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item (Students enrolled in the First Year on average over 3 academic years (CAY, CAYm1 and CAYm2))</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAY<br>2023-24</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm1<br>2022-23</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm2<br>2021-22</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item (Students enrolled in the First Year on average over 3 academic years (CAY, CAYm1 and CAYm2))</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAY<br>2023-24</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm1<br>2022-23</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">CAYm2<br>2021-22</th>
                         </tr>
                     </thead>
                     <tbody style="color: #000;">
@@ -520,10 +520,10 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                 <thead style="background: #fff3cd;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 40%;">Item</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYG</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 40%;">Item</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYG</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm2</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -574,30 +574,30 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                 <thead style="background: #fff3cd;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Academic Performance</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Academic Performance</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">X= (Mean of 1st year grade point average of all successful students on a 10-point scale) or (Mean of the percentage of marks of all successful students in 1st year/10)</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_X_caym1" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_X_caym2" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_X_caym3" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 X Caym1" type="number" id="t431_X_caym1" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 X Caym2" type="number" id="t431_X_caym2" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 X Caym3" type="number" id="t431_X_caym3" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Y= Total no. of successful students</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_Y_caym1" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_Y_caym2" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_Y_caym3" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 Y Caym1" type="number" id="t431_Y_caym1" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 Y Caym2" type="number" id="t431_Y_caym2" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 Y Caym3" type="number" id="t431_Y_caym3" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Z = Total no. of students appeared in the examination</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_Z_caym1" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_Z_caym2" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t431_Z_caym3" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 Z Caym1" type="number" id="t431_Z_caym1" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 Z Caym2" type="number" id="t431_Z_caym2" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T431 Z Caym3" type="number" id="t431_Z_caym3" class="t431-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">API = X* (Y/Z)</td>
@@ -631,30 +631,30 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                 <thead style="background: #fff3cd;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Academic Performance</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Academic Performance</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">X= (Mean of 2nd year grade point average of all successful students on a 10-point scale) or (Mean of the percentage of marks of all successful students in 2nd year/10)</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_X_caym1" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_X_caym2" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_X_caym3" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 X Caym1" type="number" id="t441_X_caym1" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 X Caym2" type="number" id="t441_X_caym2" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 X Caym3" type="number" id="t441_X_caym3" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Y= Total no. of successful students</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_Y_caym1" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_Y_caym2" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_Y_caym3" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 Y Caym1" type="number" id="t441_Y_caym1" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 Y Caym2" type="number" id="t441_Y_caym2" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 Y Caym3" type="number" id="t441_Y_caym3" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Z = Total no. of students appeared in the examination</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_Z_caym1" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_Z_caym2" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t441_Z_caym3" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 Z Caym1" type="number" id="t441_Z_caym1" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 Z Caym2" type="number" id="t441_Z_caym2" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T441 Z Caym3" type="number" id="t441_Z_caym3" class="t441-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">API = X* (Y/Z)</td>
@@ -686,30 +686,30 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                 <thead style="background: #fff3cd;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Academic Performance</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Academic Performance</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">CAYm3</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">X= (Mean of 3rd year grade point average of all successful students on a 10-point scale) or (Mean of the percentage of marks of all successful students in 3rd year/10)</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_X_caym1" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_X_caym2" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_X_caym3" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 X Caym1" type="number" id="t451_X_caym1" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 X Caym2" type="number" id="t451_X_caym2" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 X Caym3" type="number" id="t451_X_caym3" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()" step="0.01"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Y= Total no. of successful students</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_Y_caym1" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_Y_caym2" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_Y_caym3" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 Y Caym1" type="number" id="t451_Y_caym1" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 Y Caym2" type="number" id="t451_Y_caym2" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 Y Caym3" type="number" id="t451_Y_caym3" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Z = Total no. of students appeared in the examination</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_Z_caym1" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_Z_caym2" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t451_Z_caym3" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 Z Caym1" type="number" id="t451_Z_caym1" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 Z Caym2" type="number" id="t451_Z_caym2" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T451 Z Caym3" type="number" id="t451_Z_caym3" class="t451-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">API = X* (Y/Z)</td>
@@ -739,36 +739,36 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                 <thead style="background: #fff3cd;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYG</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm1</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm2</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left; width: 40%;">Item</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYG</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm1</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">LYGm2</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">FS*=Total no. of final year students</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_FS_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_FS_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_FS_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 FS Caym4" type="number" id="t461_FS_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 FS Caym5" type="number" id="t461_FS_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 FS Caym6" type="number" id="t461_FS_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">X= No. of students placed</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_X_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_X_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_X_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 X Caym4" type="number" id="t461_X_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 X Caym5" type="number" id="t461_X_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 X Caym6" type="number" id="t461_X_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Y= No. of students admitted to higher studies</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_Y_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_Y_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_Y_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 Y Caym4" type="number" id="t461_Y_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 Y Caym5" type="number" id="t461_Y_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 Y Caym6" type="number" id="t461_Y_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">Z= No. of students taking up entrepreneurship</td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_Z_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_Z_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
-                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input type="number" id="t461_Z_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 Z Caym4" type="number" id="t461_Z_caym4" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 Z Caym5" type="number" id="t461_Z_caym5" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
+                        <td style="padding: 5px; border: 1px solid #dee2e6;"><input aria-label="T461 Z Caym6" type="number" id="t461_Z_caym6" class="t461-input" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box; text-align: center;" onchange="saveCurrentLevel()" oninput="calculateAllTotals()"></td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #dee2e6;">X + Y + Z = </td>
@@ -811,9 +811,9 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                 <thead style="background: #fff3cd;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 10%;">S.N.</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: left;">Name of the Professional Societies/Bodies, Chapters, Clubs</th>
-                        <th style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 15%;">Action</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 10%;">S.N.</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: left;">Name of the Professional Societies/Bodies, Chapters, Clubs</th>
+                        <th scope="col" style="padding: 10px; border: 1px solid #dee2e6; text-align: center; width: 15%;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="t4711-tbody">
@@ -833,12 +833,12 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Professional Societies/Bodies/Chapters/Clubs</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">National/International level</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Professional Societies/Bodies/Chapters/Clubs</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">National/International level</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4712-caym1-tbody"></tbody>
@@ -854,12 +854,12 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Professional Societies/Bodies/Chapters/Clubs</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">National/International level</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Professional Societies/Bodies/Chapters/Clubs</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">National/International level</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4712-caym2-tbody"></tbody>
@@ -875,12 +875,12 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Professional Societies/Bodies/Chapters/Clubs</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">National/International level</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Professional Societies/Bodies/Chapters/Clubs</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">National/International level</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4712-caym3-tbody"></tbody>
@@ -905,13 +905,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">State /National/ International level</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the award if any</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">State /National/ International level</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the award if any</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4721-caym1-tbody"></tbody>
@@ -927,13 +927,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">State /National/ International level</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the award if any</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">State /National/ International level</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the award if any</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4721-caym2-tbody"></tbody>
@@ -949,13 +949,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">State /National/ International level</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the award if any</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">State /National/ International level</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Date of Event</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the award if any</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4721-caym3-tbody"></tbody>
@@ -980,13 +980,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal, Magazine, Newsletter</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Editor</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">No. of Issues</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Hard copy/ Soft copy</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal, Magazine, Newsletter</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Editor</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">No. of Issues</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Hard copy/ Soft copy</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4731-caym1-tbody"></tbody>
@@ -1002,13 +1002,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal, Magazine, Newsletter</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Editor</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">No. of Issues</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Hard copy/ Soft copy</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal, Magazine, Newsletter</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Editor</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">No. of Issues</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Hard copy/ Soft copy</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4731-caym2-tbody"></tbody>
@@ -1024,13 +1024,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal, Magazine, Newsletter</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Editor</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">No. of Issues</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Hard copy/ Soft copy</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal, Magazine, Newsletter</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Editor</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">No. of Issues</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Hard copy/ Soft copy</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4731-caym3-tbody"></tbody>
@@ -1055,13 +1055,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Publisher</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal/ Conference, etc.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Volume No. & Issue No.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Award if any</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Publisher</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal/ Conference, etc.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Volume No. & Issue No.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Award if any</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4741-caym1-tbody"></tbody>
@@ -1077,13 +1077,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Publisher</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal/ Conference, etc.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Volume No. & Issue No.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Award if any</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Publisher</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal/ Conference, etc.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Volume No. & Issue No.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Award if any</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4741-caym2-tbody"></tbody>
@@ -1099,13 +1099,13 @@
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Publisher</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal/ Conference, etc.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Volume No. & Issue No.</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6;">Name of the Award if any</th>
-                            <th style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 5%;">S.N.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Student & Semester</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Publisher</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Journal/ Conference, etc.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Volume No. & Issue No.</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6;">Name of the Award if any</th>
+                            <th scope="col" style="padding: 5px; border: 1px solid #dee2e6; width: 10%;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="t4741-caym3-tbody"></tbody>
@@ -1712,7 +1712,7 @@
             tr.innerHTML = `
                 <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">${index + 1}</td>
                 <td style="padding: 5px; border: 1px solid #dee2e6;">
-                    <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.name || ''}" onchange="updateT4711(${index}, 'name', this.value)">
+                    <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.name || ''}" onchange="updateT4711(${index}, 'name', this.value)">
                 </td>
                 <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">
                     <button type="button" onclick="removeT4711Row(${index})" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Remove</button>
@@ -1755,10 +1755,10 @@
                 tr.innerHTML = `
                     <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">${index + 1}</td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.society || ''}" onchange="updateT4712('${year}', ${index}, 'society', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.society || ''}" onchange="updateT4712('${year}', ${index}, 'society', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.event_name || ''}" onchange="updateT4712('${year}', ${index}, 'event_name', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.event_name || ''}" onchange="updateT4712('${year}', ${index}, 'event_name', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
                         <select style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" onchange="updateT4712('${year}', ${index}, 'level', this.value)">
@@ -1769,7 +1769,7 @@
                         </select>
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="date" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.date || ''}" onchange="updateT4712('${year}', ${index}, 'date', this.value)">
+                        <input aria-label="Date Input" type="date" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.date || ''}" onchange="updateT4712('${year}', ${index}, 'date', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">
                         <button type="button" onclick="removeT4712Row('${year}', ${index})" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Remove</button>
@@ -1814,10 +1814,10 @@
                 tr.innerHTML = `
                     <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">${index + 1}</td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.student_name || ''}" onchange="updateT4721('${year}', ${index}, 'student_name', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.student_name || ''}" onchange="updateT4721('${year}', ${index}, 'student_name', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.event_name || ''}" onchange="updateT4721('${year}', ${index}, 'event_name', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.event_name || ''}" onchange="updateT4721('${year}', ${index}, 'event_name', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
                         <select style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" onchange="updateT4721('${year}', ${index}, 'level', this.value)">
@@ -1828,10 +1828,10 @@
                         </select>
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="date" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.date || ''}" onchange="updateT4721('${year}', ${index}, 'date', this.value)">
+                        <input aria-label="Date Input" type="date" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.date || ''}" onchange="updateT4721('${year}', ${index}, 'date', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.award || ''}" onchange="updateT4721('${year}', ${index}, 'award', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.award || ''}" onchange="updateT4721('${year}', ${index}, 'award', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">
                         <button type="button" onclick="removeT4721Row('${year}', ${index})" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Remove</button>
@@ -1876,16 +1876,16 @@
                 tr.innerHTML = `
                     <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">${index + 1}</td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.journal_name || ''}" onchange="updateT4731('${year}', ${index}, 'journal_name', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.journal_name || ''}" onchange="updateT4731('${year}', ${index}, 'journal_name', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.editor || ''}" onchange="updateT4731('${year}', ${index}, 'editor', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.editor || ''}" onchange="updateT4731('${year}', ${index}, 'editor', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.student_semester || ''}" onchange="updateT4731('${year}', ${index}, 'student_semester', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.student_semester || ''}" onchange="updateT4731('${year}', ${index}, 'student_semester', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="number" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.issues || ''}" onchange="updateT4731('${year}', ${index}, 'issues', this.value)">
+                        <input aria-label="Number Input" type="number" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.issues || ''}" onchange="updateT4731('${year}', ${index}, 'issues', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
                         <select style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" onchange="updateT4731('${year}', ${index}, 'copy_type', this.value)">
@@ -1938,19 +1938,19 @@
                 tr.innerHTML = `
                     <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">${index + 1}</td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.student_semester || ''}" onchange="updateT4741('${year}', ${index}, 'student_semester', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.student_semester || ''}" onchange="updateT4741('${year}', ${index}, 'student_semester', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.publisher || ''}" onchange="updateT4741('${year}', ${index}, 'publisher', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.publisher || ''}" onchange="updateT4741('${year}', ${index}, 'publisher', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.journal || ''}" onchange="updateT4741('${year}', ${index}, 'journal', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.journal || ''}" onchange="updateT4741('${year}', ${index}, 'journal', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.volume_issue || ''}" onchange="updateT4741('${year}', ${index}, 'volume_issue', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.volume_issue || ''}" onchange="updateT4741('${year}', ${index}, 'volume_issue', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6;">
-                        <input type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.award || ''}" onchange="updateT4741('${year}', ${index}, 'award', this.value)">
+                        <input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ced4da; padding: 5px; box-sizing: border-box;" value="${row.award || ''}" onchange="updateT4741('${year}', ${index}, 'award', this.value)">
                     </td>
                     <td style="padding: 5px; border: 1px solid #dee2e6; text-align: center;">
                         <button type="button" onclick="removeT4741Row('${year}', ${index})" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Remove</button>

@@ -61,42 +61,42 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>Year</th>
-                            <th>Sanctioned intake (S4)</th>
-                            <th>Required faculty (RF4 = S4/20)</th>
-                            <th>Basic Sci/Hum faculty (NS1)</th>
-                            <th>Engg Sci faculty (NS2)</th>
-                            <th>Percentage</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Sanctioned intake (S4)</th>
+                            <th scope="col">Required faculty (RF4 = S4/20)</th>
+                            <th scope="col">Basic Sci/Hum faculty (NS1)</th>
+                            <th scope="col">Engg Sci faculty (NS2)</th>
+                            <th scope="col">Percentage</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>CAY</td>
-                            <td><input type="number" id="t91_s4_cay" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="text" id="t91_rf4_cay" class="calc-box" readonly style="background:#f8f9fa;"></td>
-                            <td><input type="number" id="t91_ns1_cay" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="number" id="t91_ns2_cay" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="text" id="t91_perc_cay" class="calc-box" readonly style="background:#f8f9fa;"></td>
+                            <td><input aria-label="T91 S4 Cay" type="number" id="t91_s4_cay" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Rf4 Cay" type="text" id="t91_rf4_cay" class="calc-box" readonly style="background:#f8f9fa;"></td>
+                            <td><input aria-label="T91 Ns1 Cay" type="number" id="t91_ns1_cay" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns2 Cay" type="number" id="t91_ns2_cay" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Perc Cay" type="text" id="t91_perc_cay" class="calc-box" readonly style="background:#f8f9fa;"></td>
                         </tr>
                         <tr>
                             <td>CAYm1</td>
-                            <td><input type="number" id="t91_s4_caym1" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="text" id="t91_rf4_caym1" class="calc-box" readonly style="background:#f8f9fa;"></td>
-                            <td><input type="number" id="t91_ns1_caym1" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="number" id="t91_ns2_caym1" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="text" id="t91_perc_caym1" class="calc-box" readonly style="background:#f8f9fa;"></td>
+                            <td><input aria-label="T91 S4 Caym1" type="number" id="t91_s4_caym1" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Rf4 Caym1" type="text" id="t91_rf4_caym1" class="calc-box" readonly style="background:#f8f9fa;"></td>
+                            <td><input aria-label="T91 Ns1 Caym1" type="number" id="t91_ns1_caym1" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns2 Caym1" type="number" id="t91_ns2_caym1" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Perc Caym1" type="text" id="t91_perc_caym1" class="calc-box" readonly style="background:#f8f9fa;"></td>
                         </tr>
                         <tr>
                             <td>CAYm2</td>
-                            <td><input type="number" id="t91_s4_caym2" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="text" id="t91_rf4_caym2" class="calc-box" readonly style="background:#f8f9fa;"></td>
-                            <td><input type="number" id="t91_ns1_caym2" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="number" id="t91_ns2_caym2" class="calc-box" oninput="calc91()"></td>
-                            <td><input type="text" id="t91_perc_caym2" class="calc-box" readonly style="background:#f8f9fa;"></td>
+                            <td><input aria-label="T91 S4 Caym2" type="number" id="t91_s4_caym2" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Rf4 Caym2" type="text" id="t91_rf4_caym2" class="calc-box" readonly style="background:#f8f9fa;"></td>
+                            <td><input aria-label="T91 Ns1 Caym2" type="number" id="t91_ns1_caym2" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns2 Caym2" type="number" id="t91_ns2_caym2" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Perc Caym2" type="text" id="t91_perc_caym2" class="calc-box" readonly style="background:#f8f9fa;"></td>
                         </tr>
                         <tr style="font-weight:bold; background:#e9ecef;">
                             <td colspan="5" style="text-align:right;">Average Percentage:</td>
-                            <td><input type="text" id="t91_avg_perc" class="calc-box" readonly style="background:transparent; border:none;"></td>
+                            <td><input aria-label="T91 Avg Perc" type="text" id="t91_avg_perc" class="calc-box" readonly style="background:transparent; border:none;"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -151,12 +151,12 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>S.N.</th>
-                            <th>Year</th>
-                            <th>Total Income (Fee/Gov/Grant/Other)</th>
-                            <th>Actual Expenditure</th>
-                            <th>Total Students</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Total Income (Fee/Gov/Grant/Other)</th>
+                            <th scope="col">Actual Expenditure</th>
+                            <th scope="col">Total Students</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-inst_budget"></tbody>
@@ -169,17 +169,17 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>S.N.</th>
-                            <th>Item Name (e.g. Library, Lab, Salaries)</th>
-                            <th>Budgeted CAY</th>
-                            <th>Actual CAY</th>
-                            <th>Budgeted CAYm1</th>
-                            <th>Actual CAYm1</th>
-                            <th>Budgeted CAYm2</th>
-                            <th>Actual CAYm2</th>
-                            <th>Budgeted CAYm3</th>
-                            <th>Actual CAYm3</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Item Name (e.g. Library, Lab, Salaries)</th>
+                            <th scope="col">Budgeted CAY</th>
+                            <th scope="col">Actual CAY</th>
+                            <th scope="col">Budgeted CAYm1</th>
+                            <th scope="col">Actual CAYm1</th>
+                            <th scope="col">Budgeted CAYm2</th>
+                            <th scope="col">Actual CAYm2</th>
+                            <th scope="col">Budgeted CAYm3</th>
+                            <th scope="col">Actual CAYm3</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-inst_expenditure"></tbody>
@@ -197,13 +197,13 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>S.N.</th>
-                            <th>Year</th>
-                            <th>Total Budget (Demanded | Allocated)</th>
-                            <th>Actual Expenditure</th>
-                            <th>% Spent</th>
-                            <th>Total Students</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Total Budget (Demanded | Allocated)</th>
+                            <th scope="col">Actual Expenditure</th>
+                            <th scope="col">% Spent</th>
+                            <th scope="col">Total Students</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-prog_budget"></tbody>
@@ -216,17 +216,17 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>S.N.</th>
-                            <th>Item Name</th>
-                            <th>Budget CAY</th>
-                            <th>Actual CAY</th>
-                            <th>Budget CAYm1</th>
-                            <th>Actual CAYm1</th>
-                            <th>Budget CAYm2</th>
-                            <th>Actual CAYm2</th>
-                            <th>Budget CAYm3</th>
-                            <th>Actual CAYm3</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Item Name</th>
+                            <th scope="col">Budget CAY</th>
+                            <th scope="col">Actual CAY</th>
+                            <th scope="col">Budget CAYm1</th>
+                            <th scope="col">Actual CAYm1</th>
+                            <th scope="col">Budget CAYm2</th>
+                            <th scope="col">Actual CAYm2</th>
+                            <th scope="col">Budget CAYm3</th>
+                            <th scope="col">Actual CAYm3</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-prog_expenditure"></tbody>
@@ -376,7 +376,7 @@ if (!isset($criteria_data)) {
                         <option value="CAYm3" ${row[k]==='CAYm3'?'selected':''}>CAYm3</option>
                     </select></td>`;
                 } else {
-                    html += `<td><input type="text" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
+                    html += `<td><input aria-label="Text Input" type="text" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
                 }
             });
             html += `<td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeRow('${listName}', ${idx})">&times;</button></td>`;

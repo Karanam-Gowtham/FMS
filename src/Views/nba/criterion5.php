@@ -84,22 +84,22 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;" border="1">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="min-width: 50px;">S.N.</th>
-                            <th style="min-width: 150px;">Name of the Faculty</th>
-                            <th style="min-width: 100px;">PAN No.</th>
-                            <th style="min-width: 120px;">APAAR faculty ID* (if any)</th>
-                            <th style="min-width: 100px;">Highest degree</th>
-                            <th style="min-width: 120px;">University</th>
-                            <th style="min-width: 150px;">Area of Specialization</th>
-                            <th style="min-width: 100px;">Date of Joining in this Institution</th>
-                            <th style="min-width: 100px;">Experience in years in current institute</th>
-                            <th style="min-width: 150px;">Designation at Time Joining in this Institution</th>
-                            <th style="min-width: 150px;">Present Designation</th>
-                            <th style="min-width: 120px;">The date on which Designated as Professor/ Associate Professor if any</th>
-                            <th style="min-width: 120px;">Nature of Association (Regular/ Contract/ Ad hoc)</th>
-                            <th style="min-width: 120px;">If contractual mention Full time or (Part time or hourly based)</th>
-                            <th style="min-width: 80px;">Currently Associated (Y/N)</th>
-                            <th style="min-width: 100px;">Date of Leaving if any</th>
+                            <th scope="col" style="min-width: 50px;">S.N.</th>
+                            <th scope="col" style="min-width: 150px;">Name of the Faculty</th>
+                            <th scope="col" style="min-width: 100px;">PAN No.</th>
+                            <th scope="col" style="min-width: 120px;">APAAR faculty ID* (if any)</th>
+                            <th scope="col" style="min-width: 100px;">Highest degree</th>
+                            <th scope="col" style="min-width: 120px;">University</th>
+                            <th scope="col" style="min-width: 150px;">Area of Specialization</th>
+                            <th scope="col" style="min-width: 100px;">Date of Joining in this Institution</th>
+                            <th scope="col" style="min-width: 100px;">Experience in years in current institute</th>
+                            <th scope="col" style="min-width: 150px;">Designation at Time Joining in this Institution</th>
+                            <th scope="col" style="min-width: 150px;">Present Designation</th>
+                            <th scope="col" style="min-width: 120px;">The date on which Designated as Professor/ Associate Professor if any</th>
+                            <th scope="col" style="min-width: 120px;">Nature of Association (Regular/ Contract/ Ad hoc)</th>
+                            <th scope="col" style="min-width: 120px;">If contractual mention Full time or (Part time or hourly based)</th>
+                            <th scope="col" style="min-width: 80px;">Currently Associated (Y/N)</th>
+                            <th scope="col" style="min-width: 100px;">Date of Leaving if any</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -139,64 +139,64 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="text-align: left;">Item</th>
-                            <th>CAY</th>
-                            <th>CAYm1</th>
-                            <th>CAYm2</th>
+                            <th scope="col" style="text-align: left;">Item</th>
+                            <th scope="col">CAY</th>
+                            <th scope="col">CAYm1</th>
+                            <th scope="col">CAYm2</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>DS = Total no. of students in all UG and PG programs in the Department</td>
-                            <td><input type="number" id="t51_DS_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_DS_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_DS_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 DS Cay" type="number" id="t51_DS_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 DS Caym1" type="number" id="t51_DS_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 DS Caym2" type="number" id="t51_DS_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>AS = Total no. of students of all UG and PG programs in allied departments</td>
-                            <td><input type="number" id="t51_AS_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_AS_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_AS_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 AS Cay" type="number" id="t51_AS_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 AS Caym1" type="number" id="t51_AS_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 AS Caym2" type="number" id="t51_AS_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr style="background:#f1f3f5; font-weight:bold;">
                             <td>S = Total no. of students (DS + AS)</td>
-                            <td><input type="text" id="t51_S_cay" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t51_S_caym1" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t51_S_caym2" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 S Cay" type="text" id="t51_S_cay" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 S Caym1" type="text" id="t51_S_caym1" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 S Caym2" type="text" id="t51_S_caym2" class="calc-box readonly-box" readonly></td>
                         </tr>
                         <tr>
                             <td>DF = Total no. of faculty members in the Department</td>
-                            <td><input type="number" id="t51_DF_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_DF_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_DF_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 DF Cay" type="number" id="t51_DF_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 DF Caym1" type="number" id="t51_DF_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 DF Caym2" type="number" id="t51_DF_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>AF = Total no. of faculty members in the allied Departments</td>
-                            <td><input type="number" id="t51_AF_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_AF_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_AF_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 AF Cay" type="number" id="t51_AF_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 AF Caym1" type="number" id="t51_AF_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 AF Caym2" type="number" id="t51_AF_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr style="background:#f1f3f5; font-weight:bold;">
                             <td>F = Total no. of faculty members (DF + AF)</td>
-                            <td><input type="text" id="t51_F_cay" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t51_F_caym1" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t51_F_caym2" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 F Cay" type="text" id="t51_F_cay" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 F Caym1" type="text" id="t51_F_caym1" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 F Caym2" type="text" id="t51_F_caym2" class="calc-box readonly-box" readonly></td>
                         </tr>
                         <tr>
                             <td>FF = Faculty members in F who have a 100% teaching load in first-year courses</td>
-                            <td><input type="number" id="t51_FF_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_FF_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t51_FF_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 FF Cay" type="number" id="t51_FF_cay" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 FF Caym1" type="number" id="t51_FF_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T51 FF Caym2" type="number" id="t51_FF_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr style="background:#e9ecef; font-weight:bold;">
                             <td>Student Faculty Ratio (SFR) = S / (F - FF)</td>
-                            <td><input type="text" id="t51_SFR_cay" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t51_SFR_caym1" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t51_SFR_caym2" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 SFR Cay" type="text" id="t51_SFR_cay" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 SFR Caym1" type="text" id="t51_SFR_caym1" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T51 SFR Caym2" type="text" id="t51_SFR_caym2" class="calc-box readonly-box" readonly></td>
                         </tr>
                         <tr style="background:#e9ecef;">
                             <td colspan="3" style="text-align:right;"><strong>Average SFR for three years:</strong></td>
-                            <td><input type="text" id="t51_SFR_avg" class="calc-box readonly-box" readonly style="font-size:1.1rem; color:#d9534f;"></td>
+                            <td><input aria-label="T51 SFR Avg" type="text" id="t51_SFR_avg" class="calc-box readonly-box" readonly style="font-size:1.1rem; color:#d9534f;"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -211,26 +211,26 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th>Year</th>
-                            <th>X (Ph.D)</th>
-                            <th>Y (Masters)</th>
-                            <th>RF (Required Faculty = S/20)</th>
-                            <th>FQI = 2.5 x [(10X + 4Y)/RF]</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">X (Ph.D)</th>
+                            <th scope="col">Y (Masters)</th>
+                            <th scope="col">RF (Required Faculty = S/20)</th>
+                            <th scope="col">FQI = 2.5 x [(10X + 4Y)/RF]</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach(['cay','caym1','caym2'] as $yr): ?>
                             <tr>
                                 <td style="text-align:center; font-weight:bold;"><?= strtoupper($yr) ?></td>
-                                <td><input type="number" id="t52_X_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
-                                <td><input type="number" id="t52_Y_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
-                                <td><input type="number" id="t52_RF_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
-                                <td><input type="text" id="t52_FQI_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
+                                <td><input aria-label="Number Input" type="number" id="t52_X_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
+                                <td><input aria-label="Number Input" type="number" id="t52_Y_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
+                                <td><input aria-label="Number Input" type="number" id="t52_RF_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
+                                <td><input aria-label="Text Input" type="text" id="t52_FQI_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
                             </tr>
                         <?php endforeach; ?>
                         <tr style="background:#e9ecef;">
                             <td colspan="4" style="text-align:right;"><strong>Average FQI:</strong></td>
-                            <td><input type="text" id="t52_FQI_avg" class="calc-box readonly-box" readonly style="font-size:1.1rem; color:#d9534f;"></td>
+                            <td><input aria-label="T52 FQI Avg" type="text" id="t52_FQI_avg" class="calc-box readonly-box" readonly style="font-size:1.1rem; color:#d9534f;"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -244,18 +244,18 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th rowspan="2">Year</th>
-                            <th colspan="2">Professors</th>
-                            <th colspan="2">Associate Professors</th>
-                            <th colspan="2">Assistant Professors</th>
+                            <th scope="col" rowspan="2">Year</th>
+                            <th scope="col" colspan="2">Professors</th>
+                            <th scope="col" colspan="2">Associate Professors</th>
+                            <th scope="col" colspan="2">Assistant Professors</th>
                         </tr>
                         <tr>
-                            <th>Required (RF1)</th>
-                            <th>Available (AF1)</th>
-                            <th>Required (RF2)</th>
-                            <th>Available (AF2)</th>
-                            <th>Required (RF3)</th>
-                            <th>Available (AF3)</th>
+                            <th scope="col">Required (RF1)</th>
+                            <th scope="col">Available (AF1)</th>
+                            <th scope="col">Required (RF2)</th>
+                            <th scope="col">Available (AF2)</th>
+                            <th scope="col">Required (RF3)</th>
+                            <th scope="col">Available (AF3)</th>
                         </tr>
                     </thead>
                     <tbody id="cadre-body">
@@ -263,12 +263,12 @@ if (!isset($criteria_data)) {
                         <?php foreach($years as $yr): ?>
                             <tr>
                                 <td style="text-align:center; font-weight:bold;"><?= $yr ?></td>
-                                <td><input type="number" id="t53_prof_req_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
-                                <td><input type="number" id="t53_prof_avl_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
-                                <td><input type="number" id="t53_asso_req_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
-                                <td><input type="number" id="t53_asso_avl_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
-                                <td><input type="number" id="t53_asst_req_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
-                                <td><input type="number" id="t53_asst_avl_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
+                                <td><input aria-label="Number Input" type="number" id="t53_prof_req_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
+                                <td><input aria-label="Number Input" type="number" id="t53_prof_avl_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
+                                <td><input aria-label="Number Input" type="number" id="t53_asso_req_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
+                                <td><input aria-label="Number Input" type="number" id="t53_asso_avl_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
+                                <td><input aria-label="Number Input" type="number" id="t53_asst_req_<?= $yr ?>" class="calc-box readonly-box" readonly></td>
+                                <td><input aria-label="Number Input" type="number" id="t53_asst_avl_<?= $yr ?>" class="calc-box" oninput="saveCurrentLevel()"></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -284,13 +284,13 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th>S.N.</th>
-                            <th>Year</th>
-                            <th>Name of the Person</th>
-                            <th>Designation & Organization</th>
-                            <th>Name of the Course</th>
-                            <th>No. of hours handled</th>
-                            <th>Action</th>
+                            <th scope="col">S.N.</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Name of the Person</th>
+                            <th scope="col">Designation & Organization</th>
+                            <th scope="col">Name of the Course</th>
+                            <th scope="col">No. of hours handled</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="visiting-body">
@@ -321,64 +321,64 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead style="background: #fff3cd;">
                         <tr>
-                            <th style="text-align: left;">Item</th>
-                            <th>CAYm1</th>
-                            <th>CAYm2</th>
-                            <th>CAYm3</th>
+                            <th scope="col" style="text-align: left;">Item</th>
+                            <th scope="col">CAYm1</th>
+                            <th scope="col">CAYm2</th>
+                            <th scope="col">CAYm3</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>RF = No. of required faculty to adhere to 20:1 ratio</td>
-                            <td><input type="number" id="t55_RF_caym1" class="calc-box readonly-box" readonly></td>
-                            <td><input type="number" id="t55_RF_caym2" class="calc-box readonly-box" readonly></td>
-                            <td><input type="number" id="t55_RF_caym3" class="calc-box" oninput="saveCurrentLevel()" placeholder="(Enter manually)"></td>
+                            <td><input aria-label="T55 RF Caym1" type="number" id="t55_RF_caym1" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T55 RF Caym2" type="number" id="t55_RF_caym2" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T55 RF Caym3" type="number" id="t55_RF_caym3" class="calc-box" oninput="saveCurrentLevel()" placeholder="(Enter manually)"></td>
                         </tr>
                         <tr>
                             <td>AF = The no. of available faculty members in Dept & allied</td>
-                            <td><input type="number" id="t55_AF_caym1" class="calc-box readonly-box" readonly></td>
-                            <td><input type="number" id="t55_AF_caym2" class="calc-box readonly-box" readonly></td>
-                            <td><input type="number" id="t55_AF_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 AF Caym1" type="number" id="t55_AF_caym1" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T55 AF Caym2" type="number" id="t55_AF_caym2" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T55 AF Caym3" type="number" id="t55_AF_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>A = Faculty with < 1 year experience</td>
-                            <td><input type="number" id="t55_A_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_A_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_A_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 A Caym1" type="number" id="t55_A_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 A Caym2" type="number" id="t55_A_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 A Caym3" type="number" id="t55_A_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>B = Faculty with > 1 year and < 2 years experience</td>
-                            <td><input type="number" id="t55_B_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_B_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_B_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 B Caym1" type="number" id="t55_B_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 B Caym2" type="number" id="t55_B_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 B Caym3" type="number" id="t55_B_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>C = Faculty with > 2 years and < 3 years experience</td>
-                            <td><input type="number" id="t55_C_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_C_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_C_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 C Caym1" type="number" id="t55_C_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 C Caym2" type="number" id="t55_C_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 C Caym3" type="number" id="t55_C_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>D = Faculty with > 3 years and < 4 years experience</td>
-                            <td><input type="number" id="t55_D_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_D_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_D_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 D Caym1" type="number" id="t55_D_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 D Caym2" type="number" id="t55_D_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 D Caym3" type="number" id="t55_D_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>E = Faculty with > 4 years experience</td>
-                            <td><input type="number" id="t55_E_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_E_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t55_E_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 E Caym1" type="number" id="t55_E_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 E Caym2" type="number" id="t55_E_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T55 E Caym3" type="number" id="t55_E_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr style="background:#f1f3f5; font-weight:bold;">
                             <td>FR = (((A*0)+(B*1)+(C*2)+(D*3)+(E*4))/RF) * 2.50</td>
-                            <td><input type="text" id="t55_FR_caym1" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t55_FR_caym2" class="calc-box readonly-box" readonly></td>
-                            <td><input type="text" id="t55_FR_caym3" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T55 FR Caym1" type="text" id="t55_FR_caym1" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T55 FR Caym2" type="text" id="t55_FR_caym2" class="calc-box readonly-box" readonly></td>
+                            <td><input aria-label="T55 FR Caym3" type="text" id="t55_FR_caym3" class="calc-box readonly-box" readonly></td>
                         </tr>
                         <tr style="background:#e9ecef; font-weight:bold;">
                             <td colspan="3" style="text-align:right;">Average FR (Limited to 10):</td>
-                            <td><input type="text" id="t55_FR_avg" class="calc-box readonly-box" readonly style="color:#d9534f; font-size:1.1rem;"></td>
+                            <td><input aria-label="T55 FR Avg" type="text" id="t55_FR_avg" class="calc-box readonly-box" readonly style="color:#d9534f; font-size:1.1rem;"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -489,10 +489,10 @@ if (!isset($criteria_data)) {
                         <option value="CAYm3" ${vf.year==='CAYm3'?'selected':''}>CAYm3</option>
                     </select>
                 </td>
-                <td><input type="text" style="width:100%" value="${vf.name}" onchange="updateVisiting(${idx}, 'name', this.value)"></td>
-                <td><input type="text" style="width:100%" value="${vf.org}" onchange="updateVisiting(${idx}, 'org', this.value)"></td>
-                <td><input type="text" style="width:100%" value="${vf.course}" onchange="updateVisiting(${idx}, 'course', this.value)"></td>
-                <td><input type="number" style="width:100%" value="${vf.hours}" onchange="updateVisiting(${idx}, 'hours', this.value); renderVisitingFaculty();"></td>
+                <td><input aria-label="Text Input" type="text" style="width:100%" value="${vf.name}" onchange="updateVisiting(${idx}, 'name', this.value)"></td>
+                <td><input aria-label="Text Input" type="text" style="width:100%" value="${vf.org}" onchange="updateVisiting(${idx}, 'org', this.value)"></td>
+                <td><input aria-label="Text Input" type="text" style="width:100%" value="${vf.course}" onchange="updateVisiting(${idx}, 'course', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" style="width:100%" value="${vf.hours}" onchange="updateVisiting(${idx}, 'hours', this.value); renderVisitingFaculty();"></td>
                 <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeVisitingFaculty(${idx})">&times;</button></td>
             `;
             tbody.appendChild(tr);

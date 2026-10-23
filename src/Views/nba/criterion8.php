@@ -60,7 +60,7 @@ if (!isset($criteria_data)) {
             <textarea name="text_8_1_1" id="text_8_1_1" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe actions taken for COs attainment..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>COs Attainment Actions Documentation PDF</strong></div>
-                <input type="file" name="file_8_1_1" accept=".pdf">
+                <input aria-label="File 8 1 1" type="file" name="file_8_1_1" accept=".pdf">
             </div>
         </div>
 
@@ -70,7 +70,7 @@ if (!isset($criteria_data)) {
             <textarea name="text_8_1_2" id="text_8_1_2" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe actions taken for POs/PSOs attainment..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>POs/PSOs Attainment Actions Documentation PDF</strong></div>
-                <input type="file" name="file_8_1_2" accept=".pdf">
+                <input aria-label="File 8 1 2" type="file" name="file_8_1_2" accept=".pdf">
             </div>
         </div>
 
@@ -82,7 +82,7 @@ if (!isset($criteria_data)) {
             <textarea name="text_8_2" id="text_8_2" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe the academic audit process and its findings..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>Academic Audit Reports PDF</strong></div>
-                <input type="file" name="file_8_2" accept=".pdf">
+                <input aria-label="File 8 2" type="file" name="file_8_2" accept=".pdf">
             </div>
         </div>
 
@@ -95,30 +95,30 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th style="text-align: left;">Item</th>
-                            <th>CAYm1</th>
-                            <th>CAYm2</th>
-                            <th>CAYm3</th>
+                            <th scope="col" style="text-align: left;">Item</th>
+                            <th scope="col">CAYm1</th>
+                            <th scope="col">CAYm2</th>
+                            <th scope="col">CAYm3</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>No. of faculty members with Ph.D. degree</td>
-                            <td><input type="number" id="t83_phd_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t83_phd_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t83_phd_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Phd Caym1" type="number" id="t83_phd_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Phd Caym2" type="number" id="t83_phd_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Phd Caym3" type="number" id="t83_phd_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>No. of publications in peer reviewed journals</td>
-                            <td><input type="number" id="t83_jour_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t83_jour_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t83_jour_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Jour Caym1" type="number" id="t83_jour_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Jour Caym2" type="number" id="t83_jour_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Jour Caym3" type="number" id="t83_jour_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>No. of publications in conferences</td>
-                            <td><input type="number" id="t83_conf_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t83_conf_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="number" id="t83_conf_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Conf Caym1" type="number" id="t83_conf_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Conf Caym2" type="number" id="t83_conf_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Conf Caym3" type="number" id="t83_conf_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -133,30 +133,30 @@ if (!isset($criteria_data)) {
                 <table class="nba-table" border="1" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th style="text-align: left;">Item</th>
-                            <th>CAYm1</th>
-                            <th>CAYm2</th>
-                            <th>CAYm3</th>
+                            <th scope="col" style="text-align: left;">Item</th>
+                            <th scope="col">CAYm1</th>
+                            <th scope="col">CAYm2</th>
+                            <th scope="col">CAYm3</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Academic Performance Index (API) of the First-Year Students in the Program (Refer to section 4.3)</td>
-                            <td><input type="text" id="t84_api1_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="text" id="t84_api1_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="text" id="t84_api1_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api1 Caym1" type="text" id="t84_api1_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api1 Caym2" type="text" id="t84_api1_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api1 Caym3" type="text" id="t84_api1_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>Academic Performance Index of the Second-Year Students in the Program (Refer to section 4.4)</td>
-                            <td><input type="text" id="t84_api2_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="text" id="t84_api2_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="text" id="t84_api2_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api2 Caym1" type="text" id="t84_api2_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api2 Caym2" type="text" id="t84_api2_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api2 Caym3" type="text" id="t84_api2_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>Academic Performance Index of the Third Year Students in the Program (Refer to section 4.5)</td>
-                            <td><input type="text" id="t84_api3_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="text" id="t84_api3_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input type="text" id="t84_api3_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api3 Caym1" type="text" id="t84_api3_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api3 Caym2" type="text" id="t84_api3_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T84 Api3 Caym3" type="text" id="t84_api3_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                     </tbody>
                 </table>

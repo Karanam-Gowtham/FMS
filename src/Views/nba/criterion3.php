@@ -49,7 +49,7 @@
             <h4>Click to Upload PDF for Section 3.1</h4>
             <p>Upload a single PDF document detailing continuous assessment evaluation.</p>
             <div class="upload-overlay" id="overlay_3_1">Uploading...</div>
-            <input type="file" id="pdfInput_3_1" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_1')">
+            <input aria-label="PdfInput 3 1" type="file" id="pdfInput_3_1" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_1')">
         </div>
         <div class="file-preview" id="preview_3_1">
             <a href="#" id="link_3_1" target="_blank">
@@ -72,7 +72,7 @@
             <h4>Click to Upload PDF for Section 3.2</h4>
             <p>Upload a single PDF document detailing SEE question paper evaluation.</p>
             <div class="upload-overlay" id="overlay_3_2">Uploading...</div>
-            <input type="file" id="pdfInput_3_2" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_2')">
+            <input aria-label="PdfInput 3 2" type="file" id="pdfInput_3_2" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_2')">
         </div>
         <div class="file-preview" id="preview_3_2">
             <a href="#" id="link_3_2" target="_blank">
@@ -95,7 +95,7 @@
             <h4>Click to Upload PDF for Section 3.3</h4>
             <p>Upload a single PDF document detailing laboratory evaluation rubrics.</p>
             <div class="upload-overlay" id="overlay_3_3">Uploading...</div>
-            <input type="file" id="pdfInput_3_3" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_3')">
+            <input aria-label="PdfInput 3 3" type="file" id="pdfInput_3_3" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_3')">
         </div>
         <div class="file-preview" id="preview_3_3">
             <a href="#" id="link_3_3" target="_blank">
@@ -118,7 +118,7 @@
             <h4>Click to Upload PDF for Section 3.4</h4>
             <p>Upload a single PDF document detailing internship evaluation rubrics.</p>
             <div class="upload-overlay" id="overlay_3_4">Uploading...</div>
-            <input type="file" id="pdfInput_3_4" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_4')">
+            <input aria-label="PdfInput 3 4" type="file" id="pdfInput_3_4" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_4')">
         </div>
         <div class="file-preview" id="preview_3_4">
             <a href="#" id="link_3_4" target="_blank">
@@ -141,7 +141,7 @@
             <h4>Click to Upload PDF for Section 3.5</h4>
             <p>Upload a single PDF document detailing project evaluation rubrics.</p>
             <div class="upload-overlay" id="overlay_3_5">Uploading...</div>
-            <input type="file" id="pdfInput_3_5" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_5')">
+            <input aria-label="PdfInput 3 5" type="file" id="pdfInput_3_5" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_5')">
         </div>
         <div class="file-preview" id="preview_3_5">
             <a href="#" id="link_3_5" target="_blank">
@@ -162,11 +162,11 @@
         <table class="matrix-table" style="width: 100%; font-size: 0.9rem;">
             <thead>
                 <tr>
-                    <th style="width: 20%;">Type of Activity</th>
-                    <th style="width: 25%;">Title</th>
-                    <th style="width: 25%;">Sustainable Goals Addressed</th>
-                    <th style="width: 20%;">PDF (Proof)</th>
-                    <th style="width: 10%;">Action</th>
+                    <th scope="col" style="width: 20%;">Type of Activity</th>
+                    <th scope="col" style="width: 25%;">Title</th>
+                    <th scope="col" style="width: 25%;">Sustainable Goals Addressed</th>
+                    <th scope="col" style="width: 20%;">PDF (Proof)</th>
+                    <th scope="col" style="width: 10%;">Action</th>
                 </tr>
             </thead>
             <tbody id="table-3-6-body">
@@ -188,7 +188,7 @@
             <h4>Click to Upload PDF for Section 3.7.1</h4>
             <p>Upload a single PDF document detailing assessment tools and processes.</p>
             <div class="upload-overlay" id="overlay_3_7_1">Uploading...</div>
-            <input type="file" id="pdfInput_3_7_1" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_7_1')">
+            <input aria-label="PdfInput 3 7 1" type="file" id="pdfInput_3_7_1" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_7_1')">
         </div>
         <div class="file-preview" id="preview_3_7_1">
             <a href="#" id="link_3_7_1" target="_blank">
@@ -211,7 +211,7 @@
             <h4>Click to Upload PDF for Section 3.7.2</h4>
             <p>Upload a single PDF document detailing attainment levels.</p>
             <div class="upload-overlay" id="overlay_3_7_2">Uploading...</div>
-            <input type="file" id="pdfInput_3_7_2" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_7_2')">
+            <input aria-label="PdfInput 3 7 2" type="file" id="pdfInput_3_7_2" style="display: none;" accept="application/pdf" onchange="handlePDFUpload(this, '3_7_2')">
         </div>
         <div class="file-preview" id="preview_3_7_2">
             <a href="#" id="link_3_7_2" target="_blank">
@@ -239,7 +239,7 @@
             <button type="button" class="btn-add" onclick="addRow3_8()">+ Add Course Row</button>
             <button type="button" class="btn-add" onclick="addColumn3_8()">+ Add Column (PSO)</button>
             <button type="button" class="btn-add" style="background-color: #28a745;" onclick="document.getElementById('excel_3_8_1').click()">Upload Excel</button>
-            <input type="file" id="excel_3_8_1" style="display: none;" accept=".xlsx, .xls, .csv" onchange="importExcel(this, 'table_3_8', 'course')">
+            <input aria-label="Excel 3 8 1" type="file" id="excel_3_8_1" style="display: none;" accept=".xlsx, .xls, .csv" onchange="importExcel(this, 'table_3_8', 'course')">
         </div>
         
         <p style="font-size: 0.85rem; color: #666; margin-top: 15px;">
@@ -263,7 +263,7 @@
             <button type="button" class="btn-add" onclick="addRow3_8_2()">+ Add Survey Row</button>
             <button type="button" class="btn-add" onclick="addColumn3_8_2()">+ Add Column (PSO)</button>
             <button type="button" class="btn-add" style="background-color: #28a745;" onclick="document.getElementById('excel_3_8_2').click()">Upload Excel</button>
-            <input type="file" id="excel_3_8_2" style="display: none;" accept=".xlsx, .xls, .csv" onchange="importExcel(this, 'table_3_8_2', 'survey')">
+            <input aria-label="Excel 3 8 2" type="file" id="excel_3_8_2" style="display: none;" accept=".xlsx, .xls, .csv" onchange="importExcel(this, 'table_3_8_2', 'survey')">
         </div>
 
         <p style="font-size: 0.85rem; color: #666; margin-top: 15px;">
@@ -288,7 +288,7 @@
             <button type="button" class="btn-add" onclick="addRow3_8_3()">+ Add Assessment Row</button>
             <button type="button" class="btn-add" onclick="addColumn3_8_3()">+ Add Column (PSO)</button>
             <button type="button" class="btn-add" style="background-color: #28a745;" onclick="document.getElementById('excel_3_8_3').click()">Upload Excel</button>
-            <input type="file" id="excel_3_8_3" style="display: none;" accept=".xlsx, .xls, .csv" onchange="importExcel(this, 'table_3_8_3', 'assessment')">
+            <input aria-label="Excel 3 8 3" type="file" id="excel_3_8_3" style="display: none;" accept=".xlsx, .xls, .csv" onchange="importExcel(this, 'table_3_8_3', 'assessment')">
         </div>
     </div>
 
@@ -359,14 +359,14 @@
         const table = document.getElementById('table-3-8');
         const data = levelData[currentLevel].table_3_8;
         
-        let html = '<thead><tr><th>Course</th>';
+        let html = '<thead><tr><th scope="col">Course</th>';
         data.columns.forEach((col, cIdx) => {
-            html += `<th>
+            html += `<th scope="col">
                         ${col}
                         ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8(${cIdx})">✖</button>` : ''}
                      </th>`;
         });
-        html += '<th>Action</th></tr></thead><tbody>';
+        html += '<th scope="col">Action</th></tr></thead><tbody>';
         
         const sums = {};
         const counts = {};
@@ -375,7 +375,7 @@
         data.rows.forEach((row, rIdx) => {
             html += `<tr>
                 <td style="padding: 4px;">
-                    <input type="text" value="${row.course || ''}" onchange="updateRow3_8(${rIdx}, 'course', this.value)" style="width: 100px; padding: 4px; box-sizing: border-box;" placeholder="e.g. C101">
+                    <input aria-label="Text Input" type="text" value="${row.course || ''}" onchange="updateRow3_8(${rIdx}, 'course', this.value)" style="width: 100px; padding: 4px; box-sizing: border-box;" placeholder="e.g. C101">
                 </td>`;
             
             data.columns.forEach(col => {
@@ -386,7 +386,7 @@
                 }
                 html += `
                     <td style="padding: 4px;">
-                        <input type="number" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });
@@ -490,14 +490,14 @@
         const table = document.getElementById('table-3-8-2');
         const data = levelData[currentLevel].table_3_8_2;
         
-        let html = '<thead><tr><th>Name of the Survey</th>';
+        let html = '<thead><tr><th scope="col">Name of the Survey</th>';
         data.columns.forEach((col, cIdx) => {
-            html += `<th>
+            html += `<th scope="col">
                         ${col}
                         ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8_2(${cIdx})">✖</button>` : ''}
                      </th>`;
         });
-        html += '<th>Action</th></tr></thead><tbody>';
+        html += '<th scope="col">Action</th></tr></thead><tbody>';
         
         const sums = {};
         const counts = {};
@@ -506,7 +506,7 @@
         data.rows.forEach((row, rIdx) => {
             html += `<tr>
                 <td style="padding: 4px;">
-                    <input type="text" value="${row.survey || ''}" onchange="updateRow3_8_2(${rIdx}, 'survey', this.value)" style="width: 150px; padding: 4px; box-sizing: border-box;" placeholder="e.g. Survey 1">
+                    <input aria-label="Text Input" type="text" value="${row.survey || ''}" onchange="updateRow3_8_2(${rIdx}, 'survey', this.value)" style="width: 150px; padding: 4px; box-sizing: border-box;" placeholder="e.g. Survey 1">
                 </td>`;
             
             data.columns.forEach(col => {
@@ -517,7 +517,7 @@
                 }
                 html += `
                     <td style="padding: 4px;">
-                        <input type="number" step="0.01" value="${val}" onchange="updateCell3_8_2(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8_2(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });
@@ -623,26 +623,26 @@
         
         const data = levelData[currentLevel].table_3_8_3;
         
-        let html = '<thead><tr><th>Assessment</th>';
+        let html = '<thead><tr><th scope="col">Assessment</th>';
         data.columns.forEach((col, cIdx) => {
-            html += `<th>
+            html += `<th scope="col">
                         ${col}
                         ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8_3(${cIdx})">✖</button>` : ''}
                      </th>`;
         });
-        html += '<th>Action</th></tr></thead><tbody>';
+        html += '<th scope="col">Action</th></tr></thead><tbody>';
 
         data.rows.forEach((row, rIdx) => {
             html += `<tr>
                 <td style="padding: 4px;">
-                    <input type="text" value="${row.assessment || ''}" onchange="updateRow3_8_3(${rIdx}, 'assessment', this.value)" style="width: 150px; padding: 4px; box-sizing: border-box;" placeholder="e.g. Direct Attainment">
+                    <input aria-label="Text Input" type="text" value="${row.assessment || ''}" onchange="updateRow3_8_3(${rIdx}, 'assessment', this.value)" style="width: 150px; padding: 4px; box-sizing: border-box;" placeholder="e.g. Direct Attainment">
                 </td>`;
             
             data.columns.forEach(col => {
                 let val = row.values ? (row.values[col] || '') : '';
                 html += `
                     <td style="padding: 4px;">
-                        <input type="number" step="0.01" value="${val}" onchange="updateCell3_8_3(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8_3(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });
@@ -792,14 +792,14 @@
         const table = document.getElementById('table-3-8');
         const data = levelData[currentLevel].table_3_8;
         
-        let html = '<thead><tr><th>Course</th>';
+        let html = '<thead><tr><th scope="col">Course</th>';
         data.columns.forEach((col, cIdx) => {
-            html += `<th>
+            html += `<th scope="col">
                         ${col}
                         ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8(${cIdx})">✖</button>` : ''}
                      </th>`;
         });
-        html += '<th>Action</th></tr></thead><tbody>';
+        html += '<th scope="col">Action</th></tr></thead><tbody>';
         
         const sums = {};
         const counts = {};
@@ -808,7 +808,7 @@
         data.rows.forEach((row, rIdx) => {
             html += `<tr>
                 <td style="padding: 4px;">
-                    <input type="text" value="${row.course || ''}" onchange="updateRow3_8(${rIdx}, 'course', this.value)" style="width: 100px; padding: 4px; box-sizing: border-box;" placeholder="e.g. C101">
+                    <input aria-label="Text Input" type="text" value="${row.course || ''}" onchange="updateRow3_8(${rIdx}, 'course', this.value)" style="width: 100px; padding: 4px; box-sizing: border-box;" placeholder="e.g. C101">
                 </td>`;
             
             data.columns.forEach(col => {
@@ -819,7 +819,7 @@
                 }
                 html += `
                     <td style="padding: 4px;">
-                        <input type="number" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });
@@ -922,7 +922,7 @@
                 pdfHtml = `
                     <div style="font-size: 0.8rem; color: #6c757d; margin-top: 5px;" id="row_uploading_${index}"></div>
                     <button type="button" class="btn-add" style="padding: 4px 8px; font-size: 0.8rem;" onclick="document.getElementById('row_pdf_${index}').click()">Upload PDF</button>
-                    <input type="file" id="row_pdf_${index}" style="display: none;" accept="application/pdf" onchange="handleRowPDFUpload(this, ${index})">
+                    <input aria-label="Row Pdf ${index}" type="file" id="row_pdf_${index}" style="display: none;" accept="application/pdf" onchange="handleRowPDFUpload(this, ${index})">
                 `;
             }
 
@@ -937,7 +937,7 @@
                         </select>
                     </td>
                     <td style="padding: 4px;">
-                        <input type="text" value="${row.title || ''}" onchange="updateRow3_6(${index}, 'title', this.value)" style="width: 100%; padding: 4px; box-sizing: border-box;" placeholder="Enter title">
+                        <input aria-label="Text Input" type="text" value="${row.title || ''}" onchange="updateRow3_6(${index}, 'title', this.value)" style="width: 100%; padding: 4px; box-sizing: border-box;" placeholder="Enter title">
                     </td>
                     <td style="padding: 4px; text-align: left;">
                         ${sdgSelect}
