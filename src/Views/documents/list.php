@@ -268,7 +268,7 @@
                 <h1 style="margin: 0; font-size: 1.5rem; color: #111827;"><?= htmlspecialchars($scope_label) ?></h1>
                 <p style="margin: 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;"><?= count($documents) ?> of <?= $total ?> documents</p>
             </div>
-            <a href="<?= BASE_URL ?>/public/index.php?<?= http_build_query(array_merge($_GET, ['export' => 'csv'])) ?>" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s;">
+            <a href="<?= BASE_URL ?>/public/index.php?<?= htmlspecialchars(http_build_query(array_merge($_GET, ['export' => 'csv'])), ENT_QUOTES, 'UTF-8') ?>" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s;">
                 <i class="fas fa-file-csv"></i> Export Filtered to CSV
             </a>
         </div>
@@ -734,7 +734,7 @@
                     $q_pp = $_GET;
                     $q_pp['per_page'] = $opt;
                     $q_pp['page'] = 1;
-                    $pp_url = "?" . http_build_query($q_pp);
+                    $pp_url = "?" . htmlspecialchars(http_build_query($q_pp), ENT_QUOTES, 'UTF-8');
                 ?>
                     <a href="<?= $pp_url ?>" style="padding: 2px 7px; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 0.82rem; <?= ($curr_pp === $opt) ? 'background: #003366; color: white;' : 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;' ?>"><?= ucfirst($opt) ?></a>
                 <?php endforeach; ?>
@@ -746,7 +746,7 @@
                 unset($q['page']);
                 ?>
                 <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                    <a href="?<?= http_build_query(array_merge($q, ['page' => $p])) ?>"
+                    <a href="?<?= htmlspecialchars(http_build_query(array_merge($q, ['page' => $p])), ENT_QUOTES, 'UTF-8') ?>"
                        class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
                 <?php endfor; ?>
             </div>

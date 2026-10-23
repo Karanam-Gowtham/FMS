@@ -422,7 +422,7 @@ function handleStudentActivityChange(select) {
     if (type) {
         var url = '<?= BASE_URL ?>/public/index.php?route=documents/upload&type=' + type + subtypeParam;
         <?php if (!empty($_GET['sub_type'])): ?>
-        url += '&sub_type=<?= urlencode($_GET['sub_type']) ?>';
+        url += '&sub_type=' + encodeURIComponent(<?= json_encode((string)$_GET['sub_type'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>);
         <?php endif; ?>
         window.location.href = url;
     }

@@ -6,20 +6,32 @@ ini_set('zlib.output_compression', 'Off');
 require_once __DIR__ . '/../core/bootstrap.php';
 global $conn;
 
-if (!isset($_GET['file_path'])) {
+if (!isset($_GET['file_path']) || trim((string)$_GET['file_path']) === '') {
     while (ob_get_level()) { ob_end_clean(); }
-    header("HTTP/1.1 400 Bad Request");
-    exit("No file path provided.");
+    http_response_code(400);
+    $error_message = "No valid file path parameter was provided in the request.";
+    if (file_exists(__DIR__ . '/404.php')) {
+        include __DIR__ . '/404.php';
+    } else {
+        echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+    }
+    exit;
 }
 
-$rawPath = $_GET['file_path'];
+$rawPath = (string)$_GET['file_path'];
 
 // Security: reject null bytes and only allow paths containing uploads/
 if (strpos($rawPath, "\0") !== false || 
     (strpos($rawPath, 'uploads/') === false && strpos($rawPath, 'uploads\\') === false)) {
     while (ob_get_level()) { ob_end_clean(); }
-    header("HTTP/1.1 403 Forbidden");
-    exit("Access denied. Unauthorized file path.");
+    http_response_code(403);
+    $error_message = "Access denied. Unauthorized file path traversal attempt detected.";
+    if (file_exists(__DIR__ . '/403.php')) {
+        include __DIR__ . '/403.php';
+    } else {
+        echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+    }
+    exit;
 }
 
 $tempPath = str_replace('\\', '/', $rawPath);
@@ -41,12 +53,13 @@ $candidatePaths = [
 ];
 
 $allowedBaseDir = realpath(__DIR__ . "/../uploads");
+$canonicalBase = $allowedBaseDir ? (rtrim($allowedBaseDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) : null;
 $resolvedPath = null;
 
 foreach ($candidatePaths as $cp) {
     if (file_exists($cp) && is_file($cp)) {
         $realCp = realpath($cp);
-        if ($realCp !== false && $allowedBaseDir !== false && stripos($realCp, $allowedBaseDir) === 0) {
+        if ($realCp !== false && $canonicalBase !== null && stripos($realCp, $canonicalBase) === 0) {
             $resolvedPath = $realCp;
             break;
         }
@@ -55,8 +68,14 @@ foreach ($candidatePaths as $cp) {
 
 if ($resolvedPath === null) {
     while (ob_get_level()) { ob_end_clean(); }
-    header("HTTP/1.1 404 Not Found");
-    exit("File not found.");
+    http_response_code(404);
+    $error_message = "The requested physical file was not found on the server.";
+    if (file_exists(__DIR__ . '/404.php')) {
+        include __DIR__ . '/404.php';
+    } else {
+        echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+    }
+    exit;
 }
 
 // Security: Verify authorization for file access
@@ -75,8 +94,14 @@ $stmt = $conn->prepare("
 ");
 if (!$stmt) {
     while (ob_get_level()) { ob_end_clean(); }
-    header("HTTP/1.1 500 Internal Server Error");
-    exit("Database query preparation failed.");
+    http_response_code(500);
+    $error_message = "Database query error while validating document file permissions.";
+    if (file_exists(__DIR__ . '/500.php')) {
+        include __DIR__ . '/500.php';
+    } else {
+        echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+    }
+    exit;
 }
 $stmt->bind_param("ssssssss", $relPath, $relPath, $altRelPath, $altRelPath, $bsRelPath, $bsRelPath, $altBsRelPath, $altBsRelPath);
 $stmt->execute();
@@ -110,14 +135,20 @@ if ($doc) {
     if (!$is_public) {
         if (!auth_is_logged_in()) {
             while (ob_get_level()) { ob_end_clean(); }
-            header("HTTP/1.1 401 Unauthorized");
-            exit("Access denied. Authentication required.");
+            header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
+            exit;
         }
         $auth = auth_context();
         if (!doc_can_view($conn, $auth, $doc)) {
             while (ob_get_level()) { ob_end_clean(); }
-            header("HTTP/1.1 403 Forbidden");
-            exit("Access denied. You do not have permission to view this file.");
+            http_response_code(403);
+            $error_message = "Access denied. You do not have permission to view this file.";
+            if (file_exists(__DIR__ . '/403.php')) {
+                include __DIR__ . '/403.php';
+            } else {
+                echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+            }
+            exit;
         }
     }
 } else {
@@ -125,14 +156,20 @@ if ($doc) {
     // Require active authenticated staff role
     if (!auth_is_logged_in()) {
         while (ob_get_level()) { ob_end_clean(); }
-        header("HTTP/1.1 401 Unauthorized");
-        exit("Access denied. Authentication required.");
+        header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
+        exit;
     }
     $active_role_id = auth_active_role_id();
     if (!$active_role_id || $active_role_id === ROLE_STUDENT || !auth_has_role($active_role_id)) {
         while (ob_get_level()) { ob_end_clean(); }
-        header("HTTP/1.1 403 Forbidden");
-        exit("Access denied. You do not have permission to view this file.");
+        http_response_code(403);
+        $error_message = "Access denied. Your active role does not have permission to view internal files.";
+        if (file_exists(__DIR__ . '/403.php')) {
+            include __DIR__ . '/403.php';
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
+        exit;
     }
 }
 
@@ -147,9 +184,10 @@ if (!$mime) {
 }
 
 $disposition = (strpos($mime, 'pdf') !== false || strpos($mime, 'image') !== false) ? 'inline' : 'attachment';
+$safe_filename = str_replace(['"', "\r", "\n"], '', basename($resolvedPath));
 
 header("Content-Type: $mime");
-header("Content-Disposition: $disposition; filename=\"" . basename($resolvedPath) . "\"");
+header("Content-Disposition: $disposition; filename=\"" . $safe_filename . "\"");
 header("Content-Length: " . filesize($resolvedPath));
 header("X-Content-Type-Options: nosniff");
 header("Cache-Control: private, must-revalidate, max-age=3600");

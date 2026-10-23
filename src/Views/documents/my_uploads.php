@@ -201,10 +201,9 @@
             <?php 
             $q = $_GET;
             unset($q['page']);
-            $page_url_base = "?" . http_build_query($q);
             ?>
             <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                <a href="<?= $page_url_base ?>&page=<?= $p ?>"
+                <a href="?<?= htmlspecialchars(http_build_query(array_merge($q, ['page' => $p])), ENT_QUOTES, 'UTF-8') ?>"
                    class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
             <?php endfor; ?>
         </div>
