@@ -76,29 +76,39 @@ sequenceDiagram
 ```text
 FMS/
 ├── public/
-│   └── index.php             # Central Entry Point & Router
+│   ├── index.php             # Central Entry Point & Router
+│   ├── 403.php               # Branded 403 Forbidden template
+│   ├── 404.php               # Branded 404 Page Not Found template
+│   ├── 500.php               # Branded 500 Server Error template
+│   └── view_public_file.php  # Public Streamer with Sandbox Boundary Defense
+│
 ├── core/
-│   ├── bootstrap.php         # Environment & Session Initialization
-│   ├── config.php            # DB Credentials & Base URL Constants
+│   ├── bootstrap.php         # Environment, Security Headers & Session Init
+│   ├── auth.php              # Centralized RBAC Authentication Library
 │   ├── document_service.php  # Unified Document CRUD & Metadata handling
 │   ├── workflow_engine.php   # Dynamic Workflow & State Machine logic
 │   ├── file_service.php      # File upload validation and storage logic
 │   └── constants.php         # RBAC Role Definitions
 │
 ├── src/
-│   ├── Controllers/          # Business Logic
+│   ├── Controllers/          # Business Logic & Endpoint Controllers
 │   │   ├── AuthController.php
 │   │   ├── DashboardController.php
-│   │   └── DocumentController.php
+│   │   ├── DocumentController.php
+│   │   └── DocumentActionController.php
 │   │
 │   └── Views/                # Modern UI Templates
-│       ├── auth/             # Login / Role Selection
+│       ├── auth/             # Login / Registration / Role Selection
 │       ├── documents/        # Unified List, Upload, and View templates
 │       └── dashboard.php     # Dynamic Role-Based Dashboard
 │
-├── includes/                 # Legacy Header, Breadcrumbs & Utilities
+├── bin/
+│   └── deploy_check.php      # Production Pre-Flight Diagnostic Health Check CLI
+├── config.php                # Database Credentials, Environment & Base URL
+├── .env.example              # Environment Configuration Template
+├── includes/                 # Navigation, Headers & DB Connection
 ├── database/                 # Schema Definitions & Migrations
-└── uploads/                  # User-uploaded files (organized by doc_id)
+└── uploads/                  # User-uploaded files (sandbox protected)
 ```
 
 ---
@@ -168,7 +178,7 @@ FMS uses a **Role-Based Access Control (RBAC)** system with 9 core roles:
    ```
 
 3. **Configuration**:
-   Copy `.env.example` to `.env` (or edit `core/config.php`):
+   Copy `.env.example` to `.env` (or edit `config.php`):
    - Update `BASE_URL` to match your environment (default: `http://localhost/mini/FMS/`)
    - Configure your DB credentials (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`).
 
