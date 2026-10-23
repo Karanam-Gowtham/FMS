@@ -224,8 +224,9 @@ class PublicController {
         $allowed_base = realpath(__DIR__ . '/../../uploads');
         $raw_target = __DIR__ . '/../../' . ltrim($file_path, '/\\');
         $canonical_path = realpath($raw_target);
+        $canonical_base = $allowed_base ? (rtrim($allowed_base, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) : null;
 
-        if (!$canonical_path || !$allowed_base || stripos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
+        if (!$canonical_path || !$canonical_base || stripos($canonical_path, $canonical_base) !== 0 || !is_file($canonical_path)) {
             include __DIR__ . '/../../public/404.php';
             exit;
         }

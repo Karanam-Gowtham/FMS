@@ -230,8 +230,9 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
     $raw_target = $base_dir . '/' . ltrim($file['file_path'], '/\\');
     $canonical_path = realpath($raw_target);
     $allowed_base = realpath($base_dir . '/uploads');
+    $canonical_base = $allowed_base ? (rtrim($allowed_base, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) : null;
 
-    if (!$canonical_path || !$allowed_base || stripos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
+    if (!$canonical_path || !$canonical_base || stripos($canonical_path, $canonical_base) !== 0 || !is_file($canonical_path)) {
         http_response_code(404);
         echo "File not found on disk.";
         return;

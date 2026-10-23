@@ -76,8 +76,9 @@ class AcademicYearController {
                     } else {
                         $_SESSION['error_msg'] = "Database error: unable to prepare statement.";
                     }
-                } catch (\Exception $e) {
-                    $_SESSION['error_msg'] = "Failed to add academic year: " . $e->getMessage();
+                } catch (\Throwable $e) {
+                    error_log("Failed to add academic year: " . $e->getMessage());
+                    $_SESSION['error_msg'] = "Failed to add academic year. Please ensure the year is valid and not a duplicate.";
                 }
             }
             header("Location: " . BASE_URL . "/public/index.php?route=academic_years/list");

@@ -105,11 +105,16 @@ class NAACAPIController {
                 } catch (\Throwable $t) {
                 }
             }
+            error_log("NAAC API save failed: " . $e->getMessage());
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number'))
+                ? $e->getMessage()
+                : 'An error occurred while saving NAAC accreditation data.';
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage()
+                'message' => $msg,
+                'error' => $msg
             ]);
         }
     }

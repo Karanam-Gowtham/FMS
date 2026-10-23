@@ -181,11 +181,16 @@ class NBAAPIController {
                     // Ignore rollback failures
                 }
             }
+            error_log("NBA API save failed: " . $e->getMessage());
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number'))
+                ? $e->getMessage()
+                : 'An error occurred while saving NBA accreditation data.';
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage()
+                'message' => $msg,
+                'error' => $msg
             ]);
         }
     }

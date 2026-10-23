@@ -725,6 +725,7 @@ class DocumentActionController {
 
         $hasFiles = false;
         $allowed_base = realpath(__DIR__ . '/../../uploads');
+        $canonical_base = $allowed_base ? (rtrim($allowed_base, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) : null;
 
         foreach ($valid_docs as $doc) {
             $doc_id = $doc['doc_id'];
@@ -740,7 +741,7 @@ class DocumentActionController {
                 while ($row = $res->fetch_assoc()) {
                     $path = file_exists($row['file_path']) ? $row['file_path'] : ($base_dir . '/' . ltrim($row['file_path'], '/\\'));
                     $real_file = realpath($path);
-                    if ($real_file && $allowed_base && stripos($real_file, $allowed_base) === 0 && is_file($real_file)) {
+                    if ($real_file && $canonical_base && stripos($real_file, $canonical_base) === 0 && is_file($real_file)) {
                         $safe_orig_name = str_replace(['"', "\r", "\n"], '', basename($row['original_name']));
                         $zip->addFile($real_file, $doc_folder . '/' . $safe_orig_name);
                         $hasFiles = true;
@@ -753,7 +754,7 @@ class DocumentActionController {
             if (!empty($doc['file_path'])) {
                 $mainPath = __DIR__ . '/../../' . ltrim($doc['file_path'], '/\\');
                 $real_main = realpath($mainPath);
-                if ($real_main && $allowed_base && stripos($real_main, $allowed_base) === 0 && is_file($real_main)) {
+                if ($real_main && $canonical_base && stripos($real_main, $canonical_base) === 0 && is_file($real_main)) {
                     $zip->addFile($real_main, $doc_folder . '/' . basename($real_main));
                     $hasFiles = true;
                 }

@@ -55,8 +55,8 @@ require_once __DIR__ . '/../includes/csrf.php';
 
 // Error handling for production
 if (!defined('FMS_DEBUG') || !FMS_DEBUG) {
-    ini_set('display_errors', 0);
-    ini_set('log_errors', 1);
+    ini_set('display_errors', '0');
+    ini_set('log_errors', '1');
 
     if (!defined('FMS_EXCEPTION_HANDLER_SET')) {
         define('FMS_EXCEPTION_HANDLER_SET', true);
@@ -71,7 +71,7 @@ if (!defined('FMS_DEBUG') || !FMS_DEBUG) {
 
             if ($is_api) {
                 header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(['success' => false, 'error' => 'An internal server error occurred. Please try again later.']);
+                echo json_encode(['success' => false, 'error' => 'An internal server error occurred. Please try again later.'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
                 exit(1);
             }
 
