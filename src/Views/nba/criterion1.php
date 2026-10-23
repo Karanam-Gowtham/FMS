@@ -36,7 +36,7 @@
             <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 15px;">(Vision statement typically indicates aspirations and Mission statement states the broad approach to achieve aspirations.)</p>
             
             <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-                <label style="font-weight: 600; color: #333; margin-right: 10px;">Select Entity Level:</label>
+                <label for="level-select" style="font-weight: 600; color: #333; margin-right: 10px;">Select Entity Level:</label>
                 <select id="level-select" onchange="changeDepartment()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.95rem;">
                     <?php foreach ($departments as $d): ?>
                         <option value="<?= $d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>Department: <?= htmlspecialchars($d['dept_name']) ?></option>

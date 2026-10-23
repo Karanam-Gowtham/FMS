@@ -123,20 +123,26 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllMyDocs"></th>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Department</th>
-                    <th>Year</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Actions</th>
+                    <th scope="col" style="width: 40px; text-align: center;">
+                        <input type="checkbox" id="selectAllMyDocs" aria-label="Select all my documents">
+                        <label for="selectAllMyDocs" class="visually-hidden">Select all my documents</label>
+                    </th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($documents as $doc): ?>
                 <tr>
-                    <td style="text-align: center;"><input type="checkbox" name="doc_ids[]" value="<?= (int)$doc['doc_id'] ?>" class="mydoc-checkbox"></td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" name="doc_ids[]" value="<?= (int)$doc['doc_id'] ?>" id="mydoc_chk_<?= (int)$doc['doc_id'] ?>" class="mydoc-checkbox" aria-label="Select document #<?= (int)$doc['doc_id'] ?>">
+                        <label for="mydoc_chk_<?= (int)$doc['doc_id'] ?>" class="visually-hidden">Select document #<?= (int)$doc['doc_id'] ?></label>
+                    </td>
                     <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
                     <td><?= htmlspecialchars($doc['type_label']) ?></td>
                     <td><?= htmlspecialchars($doc['dept_name']) ?></td>

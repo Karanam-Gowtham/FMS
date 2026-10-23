@@ -207,10 +207,10 @@
                                 <table class="author-table" style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden;">
                                     <thead>
                                         <tr style="background: #f1f5f9; color: #334155; font-size: 0.85rem;">
-                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Name of the <?= $personLabel ?></th>
-                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Affiliation</th>
-                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Position</th>
-                                            <th style="border: 1px solid #cbd5e1; padding: 8px 10px; width: 40px; text-align: center;"></th>
+                                            <th scope="col" style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Name of the <?= $personLabel ?></th>
+                                            <th scope="col" style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Affiliation</th>
+                                            <th scope="col" style="border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left;">Position</th>
+                                            <th scope="col" style="border: 1px solid #cbd5e1; padding: 8px 10px; width: 40px; text-align: center;"><span class="visually-hidden">Action</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -223,10 +223,17 @@
                                             $oldPos = $hasOldAuthors ? ($old_input['meta'][$field['name']]['position'][$i] ?? '') : '';
                                         ?>
                                         <tr>
-                                            <td style="border: 1px solid #cbd5e1; padding: 0;"><input type="text" name="meta[<?= $field['name'] ?>][name][]" value="<?= htmlspecialchars($oldName) ?>" placeholder="Full Name" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;"></td>
-                                            <td style="border: 1px solid #cbd5e1; padding: 0;"><input type="text" name="meta[<?= $field['name'] ?>][affiliation][]" value="<?= htmlspecialchars($oldAffil) ?>" placeholder="e.g. GMRIT" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;"></td>
                                             <td style="border: 1px solid #cbd5e1; padding: 0;">
-                                                <select name="meta[<?= $field['name'] ?>][position][]" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent; cursor:pointer;">
+                                                <label for="upload_author_name_<?= $i ?>" class="visually-hidden">Name of <?= htmlspecialchars($personLabel) ?> row <?= $i + 1 ?></label>
+                                                <input type="text" id="upload_author_name_<?= $i ?>" name="meta[<?= $field['name'] ?>][name][]" value="<?= htmlspecialchars($oldName) ?>" placeholder="Full Name" aria-label="Name of <?= htmlspecialchars($personLabel) ?> row <?= $i + 1 ?>" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;">
+                                            </td>
+                                            <td style="border: 1px solid #cbd5e1; padding: 0;">
+                                                <label for="upload_author_affil_<?= $i ?>" class="visually-hidden">Affiliation row <?= $i + 1 ?></label>
+                                                <input type="text" id="upload_author_affil_<?= $i ?>" name="meta[<?= $field['name'] ?>][affiliation][]" value="<?= htmlspecialchars($oldAffil) ?>" placeholder="e.g. GMRIT" aria-label="Affiliation row <?= $i + 1 ?>" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent;">
+                                            </td>
+                                            <td style="border: 1px solid #cbd5e1; padding: 0;">
+                                                <label for="upload_author_pos_<?= $i ?>" class="visually-hidden">Position row <?= $i + 1 ?></label>
+                                                <select id="upload_author_pos_<?= $i ?>" name="meta[<?= $field['name'] ?>][position][]" aria-label="Position row <?= $i + 1 ?>" style="width:100%; border:none; padding:7px 10px; font-size:0.9rem; outline:none; background:transparent; cursor:pointer;">
                                                     <?php if ($isInventor): ?>
                                                         <option value="Main Inventor" <?= $oldPos === 'Main Inventor' ? 'selected' : '' ?>>Main Inventor</option>
                                                         <option value="Co-Inventor" <?= $oldPos === 'Co-Inventor' ? 'selected' : '' ?>>Co-Inventor</option>

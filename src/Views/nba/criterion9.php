@@ -41,7 +41,7 @@ if (!isset($criteria_data)) {
     </div>
 
     <div style="margin-bottom: 2rem; background: #fff; padding: 1rem; border-radius: 8px; border: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px;">
-        <label style="font-weight: 600; color: #495057;">Select Department:</label>
+        <label for="level-select" style="font-weight: 600; color: #495057;">Select Department:</label>
         <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="changeDepartment()">
             <?php foreach ($departments as $d): ?>
                 <option value="<?= $d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>

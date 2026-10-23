@@ -50,8 +50,8 @@
 
             <!-- Search -->
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Search</label>
-                <input type="text" name="search" placeholder="Search title..." value="<?= htmlspecialchars($filter_search) ?>" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;">
+                <label for="filter-search-input" style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Search</label>
+                <input type="text" id="filter-search-input" name="search" placeholder="Search title..." value="<?= htmlspecialchars($filter_search) ?>" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;">
             </div>
 
             <!-- Types Checkboxes -->
@@ -89,6 +89,7 @@
             <div style="margin-bottom: 1.5rem;">
                 <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Categories</label>
                 
+                <label for="category-search" class="visually-hidden">Filter categories</label>
                 <input type="text" id="category-search" placeholder="Filter categories..." style="width: 100%; padding: 0.4rem; margin-bottom: 0.8rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 0.85rem;">
 
                 <div id="category-tree" style="max-height: 400px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
@@ -316,26 +317,32 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllDocs"></th>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Uploaded By</th>
-                    <th>Department</th>
-                    <th>Year</th>
+                    <th scope="col" style="width: 40px; text-align: center;">
+                        <input type="checkbox" id="selectAllDocs" aria-label="Select all documents">
+                        <label for="selectAllDocs" class="visually-hidden">Select all documents</label>
+                    </th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Uploaded By</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Year</th>
                     <?php if (!empty($meta_fields)): ?>
                         <?php foreach ($meta_fields as $mf): ?>
-                            <th><?= htmlspecialchars($mf['label']) ?></th>
+                            <th scope="col"><?= htmlspecialchars($mf['label']) ?></th>
                         <?php endforeach; ?>
                     <?php endif; ?>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Action</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($documents as $doc): ?>
                 <tr>
-                    <td style="text-align: center;"><input type="checkbox" name="doc_ids[]" value="<?= (int)$doc['doc_id'] ?>" class="doc-checkbox"></td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" name="doc_ids[]" value="<?= (int)$doc['doc_id'] ?>" id="doc_chk_<?= (int)$doc['doc_id'] ?>" class="doc-checkbox" aria-label="Select document #<?= (int)$doc['doc_id'] ?>">
+                        <label for="doc_chk_<?= (int)$doc['doc_id'] ?>" class="visually-hidden">Select document #<?= (int)$doc['doc_id'] ?></label>
+                    </td>
                     <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
                     <td><?= htmlspecialchars($doc['type_label']) ?></td>
                     <td><?= htmlspecialchars($doc['uploader_name']) ?></td>
@@ -400,11 +407,11 @@
                     <!-- STEP 1: Accreditation Heading Presets & Customization -->
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
-                            <label style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
+                            <strong style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
                                 <i class="fas fa-heading text-primary me-1"></i> 1. Document Headings Hierarchy
-                            </label>
+                            </strong>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Load Standard Preset:</span>
+                                <label for="accreditationPresetSelect" style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Load Standard Preset:</label>
                                 <select id="accreditationPresetSelect" style="padding: 0.4rem 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; font-weight: 500; background: #fff; cursor: pointer;">
                                     <option value="">— Select Standard Metric Preset —</option>
                                 </select>
@@ -413,31 +420,31 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.8rem;">
                             <div>
-                                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Criterion Title (Centered, Bold)</label>
+                                <label for="inputCriterion" style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Criterion Title (Centered, Bold)</label>
                                 <input type="text" name="criterion" id="inputCriterion" value="Criterion V - Student Support and Progression" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box;" required>
                             </div>
                             <div>
-                                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Key Indicator (Centered, Bold)</label>
+                                <label for="inputKeyIndicator" style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Key Indicator (Centered, Bold)</label>
                                 <input type="text" name="key_indicator" id="inputKeyIndicator" value="Key Indicator - 5.1 Student Support" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box;" required>
                             </div>
                         </div>
 
                         <div style="margin-bottom: 0.8rem;">
-                            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Metric Statement (Left-aligned, Bold)</label>
+                            <label for="inputMetric" style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Metric Statement (Left-aligned, Bold)</label>
                             <textarea name="metric" id="inputMetric" rows="2" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box; resize: vertical;" required>5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY 2023-24</textarea>
                         </div>
 
                         <div>
-                            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Sub-Indicator / Domain Heading (Left-aligned, Bold)</label>
+                            <label for="inputSubHeading" style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">Sub-Indicator / Domain Heading (Left-aligned, Bold)</label>
                             <input type="text" name="sub_heading" id="inputSubHeading" value="5.1.3.4 Awareness of trends in technology" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; box-sizing: border-box;" required>
                         </div>
                     </div>
 
                     <!-- STEP 2: Table Column Selection -->
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem;">
-                        <label style="font-weight: 700; color: #1e293b; font-size: 0.95rem; display: block; margin-bottom: 0.6rem;">
+                        <strong style="font-weight: 700; color: #1e293b; font-size: 0.95rem; display: block; margin-bottom: 0.6rem;">
                             <i class="fas fa-columns text-primary me-1"></i> 2. Table Columns to Include in Generated PDF
-                        </label>
+                        </strong>
                         <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;" id="columnCheckboxesContainer">
                             <input type="hidden" name="columns[]" value="sno">
                             <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: default;">
@@ -468,9 +475,9 @@
                     <!-- STEP 3: Data Verification & Inline Edit Table -->
                     <div style="margin-bottom: 1.2rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-                            <label style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
+                            <strong style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
                                 <i class="fas fa-table text-primary me-1"></i> 3. Data Retrieved from Database (<span id="previewRecordCount">0</span> Activities)
-                            </label>
+                            </strong>
                             <small style="color: #64748b; font-size: 0.8rem;">You may fine-tune credentials or contact details before generating.</small>
                         </div>
 
@@ -478,11 +485,11 @@
                             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;" id="modalPreviewTable">
                                 <thead style="background: #f1f5f9; position: sticky; top: 0; z-index: 10;">
                                     <tr>
-                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 40px; text-align: center;">#</th>
-                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Programme / Activity Name</th>
-                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 100px;">AY</th>
-                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 80px;">Students</th>
-                                        <th style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Agencies / Consultants & Contact Details</th>
+                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 40px; text-align: center;">#</th>
+                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Programme / Activity Name</th>
+                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 100px;">AY</th>
+                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 80px;">Students</th>
+                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Agencies / Consultants & Contact Details</th>
                                     </tr>
                                 </thead>
                                 <tbody id="modalPreviewTbody">
