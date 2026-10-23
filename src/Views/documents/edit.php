@@ -59,7 +59,7 @@ $active_role = auth_active_role();
                     <label class="required" for="academic_year_id">Academic Year</label>
                     <select id="academic_year_id" name="academic_year_id" required>
                         <?php foreach($academic_years as $ay): ?>
-                            <option value="<?= $ay['year_id'] ?>" <?= ($ay['year_id'] == $document['academic_year_id']) ? 'selected' : '' ?>>
+                            <option value="<?= (int)$ay['year_id'] ?>" <?= ((int)$ay['year_id'] === (int)$document['academic_year_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($ay['year_label']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -70,7 +70,7 @@ $active_role = auth_active_role();
                     <label class="required" for="dept_id">Department</label>
                     <select id="dept_id" name="dept_id" required>
                         <?php foreach($user_depts as $id => $name): ?>
-                            <option value="<?= $id ?>" <?= ($id == $document['dept_id']) ? 'selected' : '' ?>>
+                            <option value="<?= (int)$id ?>" <?= ((int)$id === (int)$document['dept_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($name) ?>
                             </option>
                         <?php endforeach; ?>
@@ -226,7 +226,7 @@ $active_role = auth_active_role();
         </div>
 
         <button type="submit" class="btn-update">Update Document</button>
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $document['doc_id'] ?>" style="display:block; text-align:center; margin-top: 1rem; color: #6c757d;">Cancel</a>
+        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$document['doc_id'] ?>" style="display:block; text-align:center; margin-top: 1rem; color: #6c757d;">Cancel</a>
     </form>
 </div>
 

@@ -47,11 +47,12 @@ class AccreditationFpdi extends Fpdi {
 
     // Helper: calculate number of lines a text will occupy in a cell of width $w
     public function NbLines($w, $txt) {
-        $cw = &$this->CurrentFont['cw'];
-        if ($w == 0) {
+        $cw = $this->CurrentFont['cw'] ?? [];
+        if ($w <= 0) {
             $w = $this->w - $this->rMargin - $this->x;
         }
-        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+        $fontSize = ($this->FontSize > 0) ? $this->FontSize : 12;
+        $wmax = ($w - 2 * $this->cMargin) * 1000 / $fontSize;
         $s = str_replace("\r", '', (string)$txt);
         $nb = strlen($s);
         if ($nb > 0 && $s[$nb - 1] == "\n") {

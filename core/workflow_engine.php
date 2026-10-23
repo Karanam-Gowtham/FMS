@@ -364,15 +364,28 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
         $rejection_reason = ($action_key === 'reject') ? $remarks : null;
 
         if ($table_name === 'documents') {
-            $upd = $conn->prepare(
-                "UPDATE `documents`
-                 SET status = ?, current_step = ?, rejection_reason = ?, updated_at = NOW()
-                 WHERE `doc_id` = ?"
-            );
-            if (!$upd) {
-                throw new \RuntimeException('Failed to prepare document update: ' . $conn->error);
+            if ($new_step === null) {
+                $upd = $conn->prepare(
+                    "UPDATE `documents`
+                     SET status = ?, current_step = NULL, rejection_reason = ?, updated_at = NOW()
+                     WHERE `doc_id` = ?"
+                );
+                if (!$upd) {
+                    throw new \RuntimeException('Failed to prepare document update: ' . $conn->error);
+                }
+                $upd->bind_param('ssi', $new_status, $rejection_reason, $doc_id);
+            } else {
+                $new_step_int = (int)$new_step;
+                $upd = $conn->prepare(
+                    "UPDATE `documents`
+                     SET status = ?, current_step = ?, rejection_reason = ?, updated_at = NOW()
+                     WHERE `doc_id` = ?"
+                );
+                if (!$upd) {
+                    throw new \RuntimeException('Failed to prepare document update: ' . $conn->error);
+                }
+                $upd->bind_param('sisi', $new_status, $new_step_int, $rejection_reason, $doc_id);
             }
-            $upd->bind_param('sisi', $new_status, $new_step, $rejection_reason, $doc_id);
             $upd->execute();
             $upd->close();
 

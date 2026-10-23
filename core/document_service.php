@@ -1225,7 +1225,7 @@ function doc_can_edit(mysqli $conn, array $auth, array $doc): bool
         return false;
     }
 
-    if ($status === 'rejected') {
+    if ($status === 'draft' || $status === 'rejected') {
         return true;
     }
 

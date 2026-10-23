@@ -206,8 +206,8 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
         <?php
         $role_id = $active_role ? (int)$active_role['role_id'] : 0;
         $is_faculty = ($role_id === ROLE_FACULTY);
-        $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR]);
-        $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR]);
+        $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+        $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
         ?>
         
         <?php if ($is_faculty): ?>
@@ -547,7 +547,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                     
                     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; position: relative; z-index: 2; gap: 2rem;">
                         <div>
-                            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC]) ? 'College Overview' : 'Department Overview' ?></h1>
+                            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true) ? 'College Overview' : 'Department Overview' ?></h1>
                             <p style="font-size: 1.1rem; color: #94a3b8; margin: 0;">Analytics & Activity Summary</p>
                         </div>
                         

@@ -96,25 +96,25 @@
             <?php if (function_exists('csrfField')) echo csrfField(); ?>
             <input type="hidden" name="doc_id" value="<?= (int)$doc_id ?>">
 
-            <?php if (in_array('approve', $allowed_actions) || in_array('reject', $allowed_actions)): ?>
+            <?php if (in_array('approve', $allowed_actions, true) || in_array('reject', $allowed_actions, true)): ?>
                 <label for="remarks" style="font-weight: 600; display: block; margin-bottom: 0.3rem;">Remarks (required for rejection):</label>
                 <textarea name="remarks" id="remarks" class="remarks-input" placeholder="Enter remarks..."></textarea>
             <?php endif; ?>
 
             <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                <?php if (in_array('approve', $allowed_actions)): ?>
+                <?php if (in_array('approve', $allowed_actions, true)): ?>
                     <button type="submit" name="action" value="approve" class="btn btn-approve"
                             onclick="return confirm('Are you sure you want to approve this document?')">
                         ✓ Approve
                     </button>
                 <?php endif; ?>
-                <?php if (in_array('reject', $allowed_actions)): ?>
+                <?php if (in_array('reject', $allowed_actions, true)): ?>
                     <button type="submit" name="action" value="reject" class="btn btn-reject"
                             onclick="if(!document.getElementById('remarks').value.trim()){alert('Remarks are required for rejection.');return false;}return confirm('Are you sure you want to reject this document?')">
                         ✕ Reject
                     </button>
                 <?php endif; ?>
-                <?php if (in_array('resubmit', $allowed_actions)): ?>
+                <?php if (in_array('resubmit', $allowed_actions, true)): ?>
                     <button type="submit" name="action" value="resubmit" class="btn btn-resubmit"
                             onclick="return confirm('Are you sure you want to resubmit this document for review?')">
                         ↻ Resubmit for Review

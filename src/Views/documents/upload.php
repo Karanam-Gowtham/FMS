@@ -116,7 +116,7 @@
             <!-- Base meta fields -->
             <div class="meta-section" style="background: transparent; border: none; padding: 0; margin-bottom: 0; box-shadow: none; <?= ($type_key === 'dept_file' && $preselected_subtype === 'Student Activities Files') ? 'display: none;' : '' ?>">
                 
-                <?php $has_custom_title = (strpos($type_key, 'student_') === 0 || in_array($type_key, ['exam_qual', 'journal', 'conference', 'patent'])); ?>
+                <?php $has_custom_title = (strpos($type_key, 'student_') === 0 || in_array($type_key, ['exam_qual', 'journal', 'conference', 'patent'], true)); ?>
                 <div class="form-group" <?= $has_custom_title ? 'style="display: none;"' : '' ?>>
                     <label class="<?= $has_custom_title ? '' : 'required' ?>" for="title">Title</label>
                     <input type="text" id="title" name="title" value="<?= htmlspecialchars($old_input['title'] ?? '') ?>" <?= $has_custom_title ? '' : 'required' ?>>
@@ -127,7 +127,7 @@
                     <select id="year_id" name="year_id">
                         <option value="">Select an academic year</option>
                         <?php foreach ($academic_years as $yr): ?>
-                            <option value="<?= $yr['year_id'] ?>"<?= (($old_input['year_id'] ?? ($active_year['year_id'] ?? null)) == $yr['year_id']) ? ' selected' : '' ?>>
+                            <option value="<?= (int)$yr['year_id'] ?>"<?= ((int)($old_input['year_id'] ?? ($active_year['year_id'] ?? 0)) === (int)$yr['year_id']) ? ' selected' : '' ?>>
                                 <?= htmlspecialchars($yr['year_label']) ?>
                             </option>
                         <?php endforeach; ?>

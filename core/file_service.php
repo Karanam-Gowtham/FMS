@@ -8,6 +8,9 @@ declare(strict_types=1);
  * All file operations go through this service.
  */
 
+require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/document_service.php';
+
 /**
  * Allowed MIME types for uploaded files.
  */
@@ -189,7 +192,15 @@ function file_save_record(mysqli $conn, int $doc_id, array $file_data, string $f
  */
 function file_download(mysqli $conn, int $file_id, bool $inline = false): void
 {
-    $stmt = $conn->prepare("SELECT original_name, file_path, mime_type FROM document_files WHERE file_id = ?");
+    require_login();
+    $auth = auth_context();
+    if (!$auth) {
+        http_response_code(403);
+        echo "Access denied.";
+        return;
+    }
+
+    $stmt = $conn->prepare("SELECT doc_id, original_name, file_path, mime_type FROM document_files WHERE file_id = ?");
     if (!$stmt) {
         http_response_code(500);
         echo "Database query error.";
@@ -204,6 +215,14 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
     if (!$file) {
         http_response_code(404);
         echo "File not found.";
+        return;
+    }
+
+    $doc_id = (int)$file['doc_id'];
+    $doc = doc_get_by_id($conn, $doc_id);
+    if (!$doc || !doc_can_view($conn, $auth, $doc)) {
+        http_response_code(403);
+        echo "Access denied.";
         return;
     }
 
