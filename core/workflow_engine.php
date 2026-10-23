@@ -555,7 +555,7 @@ function wf_initialize_document(mysqli $conn, int $doc_id, int $doc_type_id, int
  */
 function wf_status_label(mysqli $conn, array $document): string
 {
-    $status = $document['status'];
+    $status = $document['status'] ?? 'unknown';
 
     if ($status === 'accepted') {
         return 'Accepted';
@@ -565,14 +565,15 @@ function wf_status_label(mysqli $conn, array $document): string
         return 'Rejected';
     }
 
-    if ($status === 'pending' && $document['current_step'] !== null) {
-        $step = wf_get_step($conn, (int)$document['current_step']);
+    $current_step = $document['current_step'] ?? null;
+    if ($status === 'pending' && $current_step !== null) {
+        $step = wf_get_step($conn, (int)$current_step);
         if ($step) {
-            return 'Pending - ' . htmlspecialchars($step['step_label']);
+            return 'Pending - ' . htmlspecialchars($step['step_label'] ?? '');
         }
     }
 
-    return ucfirst($status);
+    return ucfirst((string)$status);
 }
 
 /**

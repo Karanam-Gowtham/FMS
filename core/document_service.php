@@ -330,7 +330,7 @@ function doc_create(
         if (isset($stored_paths) && is_array($stored_paths)) {
             foreach ($stored_paths as $path) {
                 if (file_exists($path) && is_file($path)) {
-                    unlink($path);
+                    @unlink($path);
                 }
             }
         }
