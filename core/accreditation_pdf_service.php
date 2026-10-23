@@ -235,7 +235,9 @@ class AccreditationPdfService {
                       . "    print('ERROR:', ex)\n";
 
             $scriptPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'norm_runner_' . uniqid() . '.py';
-            file_put_contents($scriptPath, $pyScript);
+            if (@file_put_contents($scriptPath, $pyScript) === false) {
+                return $filePath;
+            }
 
             $cmd = "\"{$pythonExec}\" \"{$scriptPath}\" " . escapeshellarg($filePath) . " " . escapeshellarg($normalizedTemp);
             $output = [];
@@ -426,10 +428,10 @@ class AccreditationPdfService {
         }
 
         // Always ensure sno and page_no are present
-        if (!in_array('sno', $selected_column_keys)) {
+        if (!in_array('sno', $selected_column_keys, true)) {
             array_unshift($selected_column_keys, 'sno');
         }
-        if (!in_array('page_no', $selected_column_keys)) {
+        if (!in_array('page_no', $selected_column_keys, true)) {
             $selected_column_keys[] = 'page_no';
         }
 
@@ -481,7 +483,7 @@ class AccreditationPdfService {
             $pageCount = 0;
             if (!empty($filePath) && file_exists($filePath)) {
                 $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'], true)) {
                     $pageCount = 1;
                 } elseif ($ext === 'pdf') {
                     $normPath = self::normalizePdfIfNeeded($filePath, $tempTrackedFiles);
@@ -561,7 +563,7 @@ class AccreditationPdfService {
                 $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
                 // 1. Direct Image Attachment Support (JPG, PNG)
-                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'], true)) {
                     $imgInfo = @getimagesize($filePath);
                     if ($imgInfo && $imgInfo[0] > 0 && $imgInfo[1] > 0) {
                         $imgW = $imgInfo[0];
@@ -665,7 +667,9 @@ class AccreditationPdfService {
      */
     protected function renderHeaderAndHeadings(AccreditationFpdi $pdf, array $headings): void {
         $startY = $pdf->GetY();
-        $logoPath = realpath(__DIR__ . '/../assets/img/gmr_logo.png') ?: realpath(__DIR__ . '/../assets/img/logo.png');
+        $logoPath = realpath(__DIR__ . '/../assets/img/gmr_logo.png') 
+            ?: (realpath(__DIR__ . '/../assets/img/logo.png') 
+            ?: (defined('ROOT_PATH') ? (realpath(ROOT_PATH . '/assets/img/gmr_logo.png') ?: realpath(ROOT_PATH . '/assets/img/logo.png')) : false));
         $font = $pdf->getPrimaryFont();
 
         $startX = 41.5;
