@@ -137,7 +137,7 @@
                 <?php foreach ($documents as $doc): ?>
                 <tr>
                     <td style="text-align: center;"><input type="checkbox" name="doc_ids[]" value="<?= (int)$doc['doc_id'] ?>" class="mydoc-checkbox"></td>
-                    <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
+                    <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
                     <td><?= htmlspecialchars($doc['type_label']) ?></td>
                     <td><?= htmlspecialchars($doc['dept_name']) ?></td>
                     <td><?= htmlspecialchars(str_replace(' ', '-', $doc['year_label'] ?? '—')) ?></td>
@@ -159,11 +159,11 @@
                     </td>
                     <td>
                         <?php if (doc_can_approve($conn, $auth, $doc)): ?>
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>&mode=review" style="color: #10b981; font-weight: 600;">Review</a> | 
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="color: #10b981; font-weight: 600;">Review</a> | 
                         <?php endif; ?>
-                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>">View</a>
+                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>">View</a>
                         <?php if (doc_can_edit($conn, $auth, $doc)): ?>
-                            | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$doc['doc_id'] ?>" style="color: #007bff;">Edit</a>
+                            | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$doc['doc_id'] ?>" style="color: #007bff;">Edit</a>
                         <?php endif; ?>
                     </td>
                 </tr>

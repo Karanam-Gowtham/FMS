@@ -490,6 +490,28 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeSelect) {
         typeSelect.addEventListener('change', handleChange);
     }
+
+    const selectAllStudentDocs = document.getElementById('selectAllStudentDocs');
+    if (selectAllStudentDocs) {
+        selectAllStudentDocs.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.student-doc-checkbox');
+            for (let cb of checkboxes) {
+                cb.checked = this.checked;
+            }
+        });
+    }
+
+    const bulkActionFormStudent = document.getElementById('bulkActionFormStudent');
+    if (bulkActionFormStudent) {
+        bulkActionFormStudent.addEventListener('submit', function(e) {
+            const checked = document.querySelectorAll('.student-doc-checkbox:checked');
+            if (checked.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one document before performing a bulk action.');
+                return false;
+            }
+        });
+    }
 });
 </script>
 

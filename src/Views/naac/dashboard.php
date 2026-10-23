@@ -98,11 +98,11 @@
                 <?php
                 // We'll mark them all as built since the views exist now
                 $is_built = true; 
-                $link = $is_built ? BASE_URL . "/public/index.php?route=naac/criterion&id=" . (int)$num . "&year=" . urlencode($filter_year) : "#";
+                $link = $is_built ? BASE_URL . "/public/index.php?route=naac/criterion&amp;id=" . (int)$num . "&amp;year=" . urlencode($filter_year) : "#";
                 $status_class = $is_built ? "in-progress" : "pending";
                 $status_text = $is_built ? "In Progress" : "Pending Config";
                 ?>
-                <a href="<?= $link ?>" class="criteria-card" <?= !$is_built ? 'onclick="alert(\'This criterion module is pending configuration.\'); return false;"' : '' ?>>
+                <a href="<?= htmlspecialchars($link, ENT_QUOTES, 'UTF-8') ?>" class="criteria-card" <?= !$is_built ? 'onclick="alert(\'This criterion module is pending configuration.\'); return false;"' : '' ?>>
                     <div class="criteria-number">Criterion <?= $num ?></div>
                     <h3 class="criteria-title"><?= htmlspecialchars($title) ?></h3>
                     <div class="criteria-status">

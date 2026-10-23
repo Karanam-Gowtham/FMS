@@ -233,6 +233,11 @@ class DocumentActionController {
             $this->safeRedirectBack();
         }
 
+        if ($action === 'reject' && $comments === '') {
+            $_SESSION['error_msg'] = "Remarks are required when rejecting a document.";
+            $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id={$doc_id}");
+        }
+
         $doc = doc_get($conn, $doc_id);
         if (!$doc) {
             $_SESSION['error_msg'] = "Document not found.";
