@@ -527,28 +527,7 @@ class DocumentActionController {
                                 $upd_stmt->execute();
                                 $upd_stmt->close();
                             }
-
-                            $del_merge_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                            if ($del_merge_stmt) {
-                                $del_merge_stmt->bind_param('i', $doc_id);
-                                $del_merge_stmt->execute();
-                                $res_merge_old = $del_merge_stmt->get_result();
-                                $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
-                                while ($old_row = $res_merge_old->fetch_assoc()) {
-                                    $old_path = $base_dir . '/' . ltrim($old_row['file_path'], '/\\');
-                                    if (file_exists($old_path) && is_file($old_path)) {
-                                        @unlink($old_path);
-                                    }
-                                }
-                                $del_merge_stmt->close();
-                            }
-
-                            $del_merge_stmt2 = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                            if ($del_merge_stmt2) {
-                                $del_merge_stmt2->bind_param('i', $doc_id);
-                                $del_merge_stmt2->execute();
-                                $del_merge_stmt2->close();
-                            }
+                            self::cleanupPreviousMergedPdf($conn, $doc_id);
                             
                             $merged_data = [
                                 'original_name' => 'Merged_Document.pdf',
@@ -574,27 +553,7 @@ class DocumentActionController {
                     }
 
                     // Clean up any previously generated merged_pdf record and file
-                    $del_merge_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                    if ($del_merge_stmt) {
-                        $del_merge_stmt->bind_param('i', $doc_id);
-                        $del_merge_stmt->execute();
-                        $res_merge_old = $del_merge_stmt->get_result();
-                        $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
-                        while ($old_row = $res_merge_old->fetch_assoc()) {
-                            $old_path = $base_dir . '/' . ltrim($old_row['file_path'], '/\\');
-                            if (file_exists($old_path) && is_file($old_path)) {
-                                @unlink($old_path);
-                            }
-                        }
-                        $del_merge_stmt->close();
-                    }
-
-                    $del_merge_stmt2 = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                    if ($del_merge_stmt2) {
-                        $del_merge_stmt2->bind_param('i', $doc_id);
-                        $del_merge_stmt2->execute();
-                        $del_merge_stmt2->close();
-                    }
+                            self::cleanupPreviousMergedPdf($conn, $doc_id);
                 } elseif (count($pdfs_to_merge) === 0) {
                     $upd_stmt = $conn->prepare("UPDATE documents SET file_path = NULL WHERE doc_id = ?");
                     if ($upd_stmt) {
@@ -602,28 +561,7 @@ class DocumentActionController {
                         $upd_stmt->execute();
                         $upd_stmt->close();
                     }
-
-                    $del_merge_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                    if ($del_merge_stmt) {
-                        $del_merge_stmt->bind_param('i', $doc_id);
-                        $del_merge_stmt->execute();
-                        $res_merge_old = $del_merge_stmt->get_result();
-                        $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
-                        while ($old_row = $res_merge_old->fetch_assoc()) {
-                            $old_path = $base_dir . '/' . ltrim($old_row['file_path'], '/\\');
-                            if (file_exists($old_path) && is_file($old_path)) {
-                                @unlink($old_path);
-                            }
-                        }
-                        $del_merge_stmt->close();
-                    }
-
-                    $del_merge_stmt2 = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
-                    if ($del_merge_stmt2) {
-                        $del_merge_stmt2->bind_param('i', $doc_id);
-                        $del_merge_stmt2->execute();
-                        $del_merge_stmt2->close();
-                    }
+                            self::cleanupPreviousMergedPdf($conn, $doc_id);
                 }
             }
         }
@@ -1105,5 +1043,32 @@ class DocumentActionController {
         }
         header("Location: " . $target);
         exit;
+    }
+
+    /**
+     * Clean up previously generated merged_pdf file and its database record.
+     */
+    private static function cleanupPreviousMergedPdf(\mysqli $conn, int $doc_id): void {
+        $del_merge_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
+        if ($del_merge_stmt) {
+            $del_merge_stmt->bind_param('i', $doc_id);
+            $del_merge_stmt->execute();
+            $res_merge_old = $del_merge_stmt->get_result();
+            $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
+            while ($old_row = $res_merge_old->fetch_assoc()) {
+                $old_path = $base_dir . '/' . ltrim($old_row['file_path'], '/\\');
+                if (file_exists($old_path) && is_file($old_path)) {
+                    @unlink($old_path);
+                }
+            }
+            $del_merge_stmt->close();
+        }
+
+        $del_merge_stmt2 = $conn->prepare("DELETE FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf'");
+        if ($del_merge_stmt2) {
+            $del_merge_stmt2->bind_param('i', $doc_id);
+            $del_merge_stmt2->execute();
+            $del_merge_stmt2->close();
+        }
     }
 }

@@ -39,11 +39,11 @@
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                         <tr style="border-bottom: 2px solid #e5e7eb; background: #f8fafc;">
-                            <th style="padding: 12px 16px; font-weight: 600; color: #475569;">File Title</th>
-                            <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Type</th>
-                            <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Uploaded By</th>
-                            <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Date</th>
-                            <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Actions</th>
+                            <th scope="col" style="padding: 12px 16px; font-weight: 600; color: #475569;">File Title</th>
+                            <th scope="col" style="padding: 12px 16px; font-weight: 600; color: #475569;">Type</th>
+                            <th scope="col" style="padding: 12px 16px; font-weight: 600; color: #475569;">Uploaded By</th>
+                            <th scope="col" style="padding: 12px 16px; font-weight: 600; color: #475569;">Date</th>
+                            <th scope="col" style="padding: 12px 16px; font-weight: 600; color: #475569;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
