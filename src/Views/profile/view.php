@@ -92,11 +92,11 @@
                 </div>
                 <div class="info-group">
                     <div class="info-label">Date of Joining Institution</div>
-                    <div class="info-value"><?= !empty($profile['doj_institution']) ? date('d-m-Y', strtotime($profile['doj_institution'])) : '—' ?></div>
+                    <div class="info-value"><?= (!empty($profile['doj_institution']) && $profile['doj_institution'] !== '0000-00-00' && strtotime($profile['doj_institution'])) ? date('d-m-Y', strtotime($profile['doj_institution'])) : '—' ?></div>
                 </div>
                 <div class="info-group">
                     <div class="info-label">Date of Joining Department</div>
-                    <div class="info-value"><?= !empty($profile['doj_department']) ? date('d-m-Y', strtotime($profile['doj_department'])) : '—' ?></div>
+                    <div class="info-value"><?= (!empty($profile['doj_department']) && $profile['doj_department'] !== '0000-00-00' && strtotime($profile['doj_department'])) ? date('d-m-Y', strtotime($profile['doj_department'])) : '—' ?></div>
                 </div>
                 <div class="info-group">
                     <div class="info-label">Total Experience (Years)</div>
@@ -112,7 +112,7 @@
                         <?php if (!isset($profile['is_currently_associated']) || $profile['is_currently_associated'] == 1): ?>
                             <span class="badge-status badge-active"><i class="fas fa-check-circle me-1"></i> Currently Associated</span>
                         <?php else: ?>
-                            <span class="badge-status badge-inactive"><i class="fas fa-times-circle me-1"></i> Relieved on <?= htmlspecialchars($profile['date_of_leaving'] ?? '') ?></span>
+                            <span class="badge-status badge-inactive"><i class="fas fa-times-circle me-1"></i> Relieved on <?= (!empty($profile['date_of_leaving']) && $profile['date_of_leaving'] !== '0000-00-00' && strtotime($profile['date_of_leaving'])) ? date('d-m-Y', strtotime($profile['date_of_leaving'])) : '—' ?></span>
                         <?php endif; ?>
                     </div>
                 </div>

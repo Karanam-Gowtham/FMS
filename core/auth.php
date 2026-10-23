@@ -136,6 +136,9 @@ function auth_switch_role(int $user_role_id): bool
 
     foreach ($auth['roles'] as $role) {
         if ((int)$role['user_role_id'] === $user_role_id) {
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
             $_SESSION[SESSION_AUTH_KEY]['active_role'] = $role;
             return true;
         }

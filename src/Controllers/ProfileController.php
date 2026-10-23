@@ -227,7 +227,7 @@ class ProfileController {
                     $success = 'Profile updated successfully!';
                     
                     // Update auth context name
-                    $_SESSION['_fms_auth']['full_name'] = $name;
+                    $_SESSION[SESSION_AUTH_KEY]['full_name'] = $name;
                 } catch (\Exception $e) {
                     $conn->rollback();
                     $error = 'Failed to update profile: ' . $e->getMessage();

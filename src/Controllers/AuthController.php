@@ -343,7 +343,9 @@ class AuthController {
         auth_logout();
         
         // Start a new session just to set a flash message
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['_flash_logout'] = true;
         
         header("Location: " . BASE_URL . "/public/index.php?route=auth/login");

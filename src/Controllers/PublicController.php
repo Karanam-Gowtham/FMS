@@ -4,6 +4,7 @@ namespace App\Controllers;
 class PublicController {
 
     public function department() {
+        require_once __DIR__ . '/../../core/bootstrap.php';
         $dept_param = isset($_GET['dept']) ? trim($_GET['dept']) : '';
         global $conn;
 
@@ -137,7 +138,7 @@ class PublicController {
             $faculty_performance[$uploader]['total']++;
             $tCode = $doc['type_code'] ?? '';
             
-            if (in_array($tCode, ['journal', 'conference', 'student_journal', 'student_conference'])) {
+            if (in_array($tCode, ['journal', 'conference', 'student_journal', 'student_conference'], true)) {
                 $faculty_performance[$uploader]['papers']++;
                 $papers_count++;
             } elseif ($tCode === 'patent') {

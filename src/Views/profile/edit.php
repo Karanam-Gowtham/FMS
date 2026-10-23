@@ -89,12 +89,12 @@
 
             <div class="form-group">
                 <label for="doj_institution">Date of Joining (Institution) *</label>
-                <input type="date" id="doj_institution" name="doj_institution" value="<?= htmlspecialchars($profile['doj_institution'] ?? '') ?>" required max="<?= date('Y-m-d') ?>">
+                <input type="date" id="doj_institution" name="doj_institution" value="<?= (!empty($profile['doj_institution']) && $profile['doj_institution'] !== '0000-00-00') ? htmlspecialchars($profile['doj_institution']) : '' ?>" required max="<?= date('Y-m-d') ?>">
             </div>
 
             <div class="form-group">
                 <label for="doj_department">Date of Joining (Department)</label>
-                <input type="date" id="doj_department" name="doj_department" value="<?= htmlspecialchars($profile['doj_department'] ?? '') ?>" title="In case of transfer from one Department to another" max="<?= date('Y-m-d') ?>">
+                <input type="date" id="doj_department" name="doj_department" value="<?= (!empty($profile['doj_department']) && $profile['doj_department'] !== '0000-00-00') ? htmlspecialchars($profile['doj_department']) : '' ?>" title="In case of transfer from one Department to another" max="<?= date('Y-m-d') ?>">
             </div>
 
             <div class="form-group">
@@ -114,7 +114,7 @@
 
             <div class="form-group">
                 <label for="date_designated_prof">Date Designated as Prof/Assoc. Prof (if any)</label>
-                <input type="date" id="date_designated_prof" name="date_designated_prof" value="<?= htmlspecialchars($profile['date_designated_prof'] ?? '') ?>" max="<?= date('Y-m-d') ?>">
+                <input type="date" id="date_designated_prof" name="date_designated_prof" value="<?= (!empty($profile['date_designated_prof']) && $profile['date_designated_prof'] !== '0000-00-00') ? htmlspecialchars($profile['date_designated_prof']) : '' ?>" max="<?= date('Y-m-d') ?>">
             </div>
 
             <div class="form-group">
@@ -147,7 +147,7 @@
 
             <div class="form-group" id="date_leaving_grp" style="display: none;">
                 <label for="date_of_leaving">Date of Leaving (If not associated) *</label>
-                <input type="date" id="date_of_leaving" name="date_of_leaving" value="<?= htmlspecialchars($profile['date_of_leaving'] ?? '') ?>">
+                <input type="date" id="date_of_leaving" name="date_of_leaving" value="<?= (!empty($profile['date_of_leaving']) && $profile['date_of_leaving'] !== '0000-00-00') ? htmlspecialchars($profile['date_of_leaving']) : '' ?>">
             </div>
 
             <div class="form-group full-width" style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">

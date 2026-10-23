@@ -610,6 +610,26 @@ class DocumentActionController {
                 }
             }
             $_SESSION['success_msg'] = "Document updated and resubmitted for review successfully.";
+        } elseif (strtolower($doc['status']) === 'draft') {
+            $init_res = wf_initialize_document($conn, $doc_id, (int)$doc['type_id'], (int)$auth['user_id']);
+            if (!$init_res['success']) {
+                $wf = wf_get_workflow_for_type($conn, (int)$doc['type_id']);
+                $first_step = $wf ? wf_get_first_step($conn, (int)$wf['workflow_id']) : null;
+                $step_id = $first_step ? (int)$first_step['step_id'] : 1;
+                $rst = $conn->prepare("UPDATE documents SET status = 'pending', current_step = ?, updated_at = NOW() WHERE doc_id = ?");
+                if ($rst) {
+                    $rst->bind_param('ii', $step_id, $doc_id);
+                    $rst->execute();
+                    $rst->close();
+                }
+            }
+            $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'submitted', ?, 'Author completed draft and submitted document for review.', NOW())");
+            if ($log_stmt) {
+                $log_stmt->bind_param('ii', $doc_id, $auth['user_id']);
+                $log_stmt->execute();
+                $log_stmt->close();
+            }
+            $_SESSION['success_msg'] = "Draft document updated and submitted for review successfully.";
         } else {
             $log_stmt = $conn->prepare("INSERT INTO document_actions (doc_id, action, acted_by, remarks, acted_at) VALUES (?, 'updated', ?, 'Author updated the document.', NOW())");
             if ($log_stmt) {
