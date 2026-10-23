@@ -39,8 +39,8 @@
             <?= csrfField() ?>
             
             <div class="form-group full-width">
-                <label for="profile_photo">Profile Photo (Leave blank to keep existing)</label>
-                <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
+                <label for="profile_photo">Profile Photo (Leave blank to keep existing, Max 2 MB: JPG, PNG, WebP)</label>
+                <input type="file" id="profile_photo" name="profile_photo" accept="image/jpeg,image/png,image/webp">
                 <?php if (!empty($profile['profile_photo'])): ?>
                     <div style="margin-top: 10px;">
                         <img src="<?= BASE_URL ?>/<?= htmlspecialchars($profile['profile_photo']) ?>" alt="Current Photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
@@ -200,15 +200,43 @@
         }
     });
 
-    // Double-submit prevention
+    // Instant client-side file size guard for profile photo (2 MB)
+    const photoInput = document.getElementById('profile_photo');
+    if (photoInput) {
+        photoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const maxBytes = 2 * 1024 * 1024;
+                if (this.files[0].size > maxBytes) {
+                    alert('Profile photo exceeds the 2 MB limit (' + (this.files[0].size / (1024 * 1024)).toFixed(2) + ' MB). Please choose a smaller image.');
+                    this.value = '';
+                }
+            }
+        });
+    }
+
+    // Double-submit and file size guard on submission
     const profileForm = document.getElementById('profileEditForm');
     if (profileForm) {
-        profileForm.addEventListener('submit', function() {
+        let isSubmitting = false;
+        profileForm.addEventListener('submit', function(e) {
+            if (photoInput && photoInput.files && photoInput.files[0]) {
+                if (photoInput.files[0].size > 2 * 1024 * 1024) {
+                    alert('Profile photo exceeds the 2 MB limit. Please select a smaller image.');
+                    photoInput.value = '';
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
             if (profileForm.checkValidity()) {
+                isSubmitting = true;
                 const btn = document.getElementById('btnUpdateProfile');
                 if (btn) {
                     btn.disabled = true;
-                    btn.innerText = 'Updating Profile...';
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating Profile...';
                 }
             }
         });

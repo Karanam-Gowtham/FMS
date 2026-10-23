@@ -70,7 +70,7 @@
                                 <?php endif; ?>
                             </td>
                             <td style="padding: 12px 16px;">
-                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">Review</a>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem;">Review</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>

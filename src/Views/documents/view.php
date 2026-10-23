@@ -75,7 +75,7 @@
                 <?= htmlspecialchars($status_label) ?>
             </span>
             <?php if (doc_can_edit($conn, $auth, $document)): ?>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$doc_id ?>" class="btn" style="background: #007bff; color: white; text-decoration: none; padding: 0.35rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$doc_id ?>" class="btn" style="background: #007bff; color: white; text-decoration: none; padding: 0.35rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">
                     ✏ Edit Document
                 </a>
             <?php endif; ?>

@@ -19,7 +19,7 @@
             <p class="text-muted mb-0">Analytics and engagement tracking for all student-driven initiatives and events.</p>
         </div>
         <div>
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&type_keys[]=student_activity_file" class="btn text-white fw-semibold shadow-sm" style="background: #003366;">
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&amp;type_keys[]=student_activity_file" class="btn text-white fw-semibold shadow-sm" style="background: #003366;">
                 <i class="fas fa-file-pdf me-2"></i> Generate NAAC Report PDF
             </a>
         </div>

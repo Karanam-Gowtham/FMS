@@ -244,9 +244,9 @@ require __DIR__ . '/../../../includes/header.php';
                                 </td>
                                 <td><span class="badge <?= $badge_class ?> text-uppercase"><?= $sub['status'] ?></span></td>
                                 <td>
-                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
                                     <?php if ($sub['status'] === 'rejected' || $sub['status'] === 'draft'): ?>
-                                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</a>
+                                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>

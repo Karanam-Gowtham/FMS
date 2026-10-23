@@ -59,7 +59,7 @@
 <div class="container">
 
     <div style="margin-bottom: 1rem;">
-        <a href="<?= BASE_URL ?>/public/index.php?route=naac/dashboard&year=<?= urlencode($year) ?>" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
+        <a href="<?= BASE_URL ?>/public/index.php?route=naac/dashboard&amp;year=<?= urlencode($year) ?>" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
             &larr; Back to NAAC Dashboard (<?= htmlspecialchars($year) ?>)
         </a>
     </div>

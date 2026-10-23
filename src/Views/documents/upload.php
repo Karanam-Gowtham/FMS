@@ -69,7 +69,7 @@
             <h3 style="text-transform: capitalize; margin-top: 1.5rem;"><?= htmlspecialchars($cat) ?></h3>
             <div class="type-selector">
                 <?php foreach ($cat_types as $t): ?>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=<?= urlencode($t['type_key']) ?>" class="type-card">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=<?= urlencode($t['type_key']) ?>" class="type-card">
                         <div class="type-label"><?= htmlspecialchars($t['type_label']) ?></div>
                         <div class="type-category"><?= htmlspecialchars($t['category']) ?></div>
                     </a>

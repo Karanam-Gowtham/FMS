@@ -11,7 +11,7 @@
         <div class="brand">FMS <span style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">(File Management System)</span></div>
         <div class="user-info">
             <span class="user-name"><?= htmlspecialchars($auth['full_name']) ?></span>
-            <a href="<?= htmlspecialchars(!empty($auth['active_role']) ? get_role_landing_url($auth['active_role']) : BASE_URL . '/public/index.php?route=dashboard') ?>" class="btn-switch">Back to Dashboard</a>
+            <a href="<?= htmlspecialchars(is_array($auth['active_role'] ?? null) ? get_role_landing_url($auth['active_role']) : BASE_URL . '/public/index.php?route=dashboard') ?>" class="btn-switch">Back to Dashboard</a>
             <a href="<?= BASE_URL ?>/public/index.php?route=auth/logout" class="btn-logout">Logout</a>
         </div>
     </div>
@@ -35,7 +35,7 @@
 
         <?php if ($can_manage): ?>
         <div style="margin-bottom: 2rem;">
-            <form action="" method="POST" id="addYearForm" style="display: flex; gap: 1rem; align-items: center; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" onsubmit="const b=this.querySelector('button[type=submit]'); if(b && this.checkValidity()){b.disabled=true; b.innerText='Adding...';}">
+            <form action="" method="POST" id="addYearForm" style="display: flex; gap: 1rem; align-items: center; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <?= csrfField() ?>
                 <label for="new_year"><strong>Add Academic Year:</strong></label>
                 <input type="text" name="academic_year" id="new_year" placeholder="e.g. 2026-27" required style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
@@ -46,11 +46,34 @@
 
         <div class="nav-grid">
             <?php foreach ($academic_years as $year): ?>
-            <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&year=<?= urlencode($year['year_label']) ?>" class="nav-link" style="justify-content: center; text-align: center; font-size: 1.1rem; padding: 2rem;">
+            <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&amp;year=<?= urlencode($year['year_label']) ?>" class="nav-link" style="justify-content: center; text-align: center; font-size: 1.1rem; padding: 2rem;">
                 <strong><?= htmlspecialchars($year['year_label']) ?></strong>
             </a>
             <?php endforeach; ?>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addYearForm = document.getElementById('addYearForm');
+        if (addYearForm) {
+            let isSubmitting = false;
+            addYearForm.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                if (addYearForm.checkValidity()) {
+                    isSubmitting = true;
+                    const btn = addYearForm.querySelector('button[type="submit"]');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerText = 'Adding...';
+                    }
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>
