@@ -47,7 +47,7 @@
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php foreach ($all_types as $t): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <input type="checkbox" name="type_keys[]" value="<?= htmlspecialchars($t['type_key']) ?>" id="my_tk_<?= $t['type_key'] ?>" <?= in_array($t['type_key'], $filter_type_keys) ? 'checked' : '' ?>>
+                            <input type="checkbox" name="type_keys[]" value="<?= htmlspecialchars($t['type_key']) ?>" id="my_tk_<?= $t['type_key'] ?>" <?= in_array($t['type_key'], $filter_type_keys, true) ? 'checked' : '' ?>>
                             <label for="my_tk_<?= $t['type_key'] ?>" style="margin: 0; font-weight: normal; cursor: pointer;"><?= htmlspecialchars($t['type_label']) ?></label>
                         </div>
                     <?php endforeach; ?>
@@ -60,7 +60,7 @@
                 <div style="font-size: 0.9rem; color: #374151;">
                     <?php foreach (['pending', 'accepted', 'rejected'] as $st): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <input type="checkbox" name="statuses[]" value="<?= $st ?>" id="my_status_<?= $st ?>" <?= in_array($st, $filter_statuses) ? 'checked' : '' ?>>
+                            <input type="checkbox" name="statuses[]" value="<?= $st ?>" id="my_status_<?= $st ?>" <?= in_array($st, $filter_statuses, true) ? 'checked' : '' ?>>
                             <label for="my_status_<?= $st ?>" style="margin: 0; font-weight: normal; cursor: pointer;"><?= ucfirst($st) ?></label>
                         </div>
                     <?php endforeach; ?>
@@ -73,8 +73,8 @@
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php foreach ($academic_years as $yr): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <input type="checkbox" name="year_ids[]" value="<?= $yr['year_id'] ?>" id="my_yr_<?= $yr['year_id'] ?>" <?= in_array($yr['year_id'], $filter_year_ids) ? 'checked' : '' ?>>
-                            <label for="my_yr_<?= $yr['year_id'] ?>" style="margin: 0; font-weight: normal; cursor: pointer;"><?= htmlspecialchars($yr['year_label']) ?></label>
+                            <input type="checkbox" name="year_ids[]" value="<?= (int)$yr['year_id'] ?>" id="my_yr_<?= (int)$yr['year_id'] ?>" <?= in_array((int)$yr['year_id'], $filter_year_ids, true) ? 'checked' : '' ?>>
+                            <label for="my_yr_<?= (int)$yr['year_id'] ?>" style="margin: 0; font-weight: normal; cursor: pointer;"><?= htmlspecialchars($yr['year_label']) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -136,8 +136,8 @@
             <tbody>
                 <?php foreach ($documents as $doc): ?>
                 <tr>
-                    <td style="text-align: center;"><input type="checkbox" name="doc_ids[]" value="<?= $doc['doc_id'] ?>" class="mydoc-checkbox"></td>
-                    <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
+                    <td style="text-align: center;"><input type="checkbox" name="doc_ids[]" value="<?= (int)$doc['doc_id'] ?>" class="mydoc-checkbox"></td>
+                    <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
                     <td><?= htmlspecialchars($doc['type_label']) ?></td>
                     <td><?= htmlspecialchars($doc['dept_name']) ?></td>
                     <td><?= htmlspecialchars(str_replace(' ', '-', $doc['year_label'] ?? '—')) ?></td>
@@ -147,21 +147,23 @@
                         </span>
                     </td>
                     <?php 
-                    $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : $doc['created_at'];
+                    $event_dt = (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00') ? $doc['event_date'] : ($doc['created_at'] ?? '');
+                    $event_ts = !empty($event_dt) ? strtotime($event_dt) : false;
+                    $created_ts = !empty($doc['created_at']) ? strtotime($doc['created_at']) : false;
                     ?>
                     <td>
-                        <div style="font-weight: 600; color: #1e293b;"><?= date('d M Y', strtotime($event_dt)) ?></div>
-                        <?php if (!empty($doc['event_date']) && date('Y-m-d', strtotime($doc['event_date'])) !== date('Y-m-d', strtotime($doc['created_at']))): ?>
-                            <div style="font-size: 0.72rem; color: #94a3b8;" title="Uploaded on <?= date('d M Y, h:i A', strtotime($doc['created_at'])) ?>">Up: <?= date('d M Y', strtotime($doc['created_at'])) ?></div>
+                        <div style="font-weight: 600; color: #1e293b;"><?= $event_ts ? date('d M Y', $event_ts) : '—' ?></div>
+                        <?php if (!empty($doc['event_date']) && $event_ts && $created_ts && date('Y-m-d', $event_ts) !== date('Y-m-d', $created_ts)): ?>
+                            <div style="font-size: 0.72rem; color: #94a3b8;" title="Uploaded on <?= date('d M Y, h:i A', $created_ts) ?>">Up: <?= date('d M Y', $created_ts) ?></div>
                         <?php endif; ?>
                     </td>
                     <td>
                         <?php if (doc_can_approve($conn, $auth, $doc)): ?>
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>&mode=review" style="color: #10b981; font-weight: 600;">Review</a> | 
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>&mode=review" style="color: #10b981; font-weight: 600;">Review</a> | 
                         <?php endif; ?>
-                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= $doc['doc_id'] ?>">View</a>
+                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>">View</a>
                         <?php if (doc_can_edit($conn, $auth, $doc)): ?>
-                            | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= $doc['doc_id'] ?>" style="color: #007bff;">Edit</a>
+                            | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$doc['doc_id'] ?>" style="color: #007bff;">Edit</a>
                         <?php endif; ?>
                     </td>
                 </tr>

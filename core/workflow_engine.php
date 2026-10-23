@@ -261,7 +261,7 @@ function wf_get_allowed_actions(mysqli $conn, array $document, array $auth): arr
             $effective_step = $step_id;
             if ($effective_step === null && isset($document['doc_id'])) {
                 $doc_id_val = (int)$document['doc_id'];
-                $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action = 'reject' ORDER BY action_id DESC LIMIT 1");
+                $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action IN ('reject', 'rejected') ORDER BY action_id DESC LIMIT 1");
                 if ($act_s) {
                     $act_s->bind_param("i", $doc_id_val);
                     $act_s->execute();
@@ -361,7 +361,7 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
     $current_step = $doc['current_step'] ?? null;
     if ($current_step === null) {
         if ($action_key === 'resubmit' && ($doc['status'] ?? '') === 'rejected') {
-            $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action = 'reject' ORDER BY action_id DESC LIMIT 1");
+            $act_s = $conn->prepare("SELECT step_id FROM document_actions WHERE doc_id = ? AND action IN ('reject', 'rejected') ORDER BY action_id DESC LIMIT 1");
             if ($act_s) {
                 $act_s->bind_param("i", $doc_id);
                 $act_s->execute();
@@ -428,7 +428,13 @@ function wf_execute_action(mysqli $conn, int $doc_id, int $actor_user_id, string
                 throw new \RuntimeException('Failed to prepare action audit statement: ' . $conn->error);
             }
             $current_step_int = (int)$current_step;
-            $act_stmt->bind_param('iisis', $doc_id, $actor_user_id, $action_key, $current_step_int, $remarks);
+            $normalized_action = match ($action_key) {
+                'approve'  => 'approved',
+                'reject'   => 'rejected',
+                'resubmit' => 'resubmitted',
+                default    => $action_key
+            };
+            $act_stmt->bind_param('iisis', $doc_id, $actor_user_id, $normalized_action, $current_step_int, $remarks);
             $act_stmt->execute();
             $act_stmt->close();
         } else {

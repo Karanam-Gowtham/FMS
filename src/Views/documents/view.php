@@ -151,7 +151,7 @@
             </div>
             <div class="detail-item">
                 <div class="detail-label">Uploaded On</div>
-                <div class="detail-value"><?= date('d M Y, h:i A', strtotime($document['created_at'])) ?></div>
+                <div class="detail-value"><?= !empty($document['created_at']) && strtotime($document['created_at']) ? date('d M Y, h:i A', strtotime($document['created_at'])) : '—' ?></div>
             </div>
         </div>
     </div>
@@ -275,7 +275,7 @@
                     <td><?= htmlspecialchars($h['actor_name']) ?></td>
                     <td><?= htmlspecialchars($h['step_label'] ?? '—') ?></td>
                     <td><?= htmlspecialchars($h['remarks'] ?? '—') ?></td>
-                    <td><?= date('d M Y, h:i A', strtotime($h['acted_at'])) ?></td>
+                    <td><?= !empty($h['acted_at']) && strtotime($h['acted_at']) ? date('d M Y, h:i A', strtotime($h['acted_at'])) : '—' ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

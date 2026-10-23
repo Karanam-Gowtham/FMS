@@ -1244,7 +1244,8 @@ function doc_can_edit(mysqli $conn, array $auth, array $doc): bool
     if ($status === 'pending') {
         $history = doc_get_history($conn, (int)$doc['doc_id']);
         foreach ($history as $h) {
-            if (($h['action'] ?? '') === 'approve') {
+            $act = strtolower($h['action'] ?? '');
+            if ($act === 'approve' || $act === 'approved') {
                 return false;
             }
         }
