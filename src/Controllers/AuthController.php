@@ -94,6 +94,9 @@ class AuthController {
                 }
             }
 
+            $is_ajax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+                || (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json'));
+
             if ($valid_role) {
                 global $conn;
                 auth_create_session($user, $valid_role);
@@ -101,10 +104,28 @@ class AuthController {
 
                 unset($_SESSION['_pending_auth']);
 
+                if ($is_ajax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode([
+                        'status' => 'success',
+                        'redirect_url' => get_role_landing_url($valid_role)
+                    ]);
+                    exit();
+                }
+
                 header("Location: " . get_role_landing_url($valid_role));
                 exit();
             } else {
                 $error = 'Invalid role selected. Please try again.';
+                if ($is_ajax) {
+                    http_response_code(400);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => $error
+                    ]);
+                    exit();
+                }
             }
         }
 

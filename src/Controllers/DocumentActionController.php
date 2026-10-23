@@ -290,11 +290,15 @@ class DocumentActionController {
 
         $raw_file_path = $file_record['file_path'];
         $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
-        $real_path = file_exists($raw_file_path) ? $raw_file_path : ($base_dir . '/' . ltrim($raw_file_path, '/\\'));
-        if (!file_exists($real_path)) {
-            $_SESSION['error_msg'] = "The physical file is missing from the server.";
+        $target_file = file_exists($raw_file_path) ? $raw_file_path : ($base_dir . '/' . ltrim($raw_file_path, '/\\'));
+        $canonical_path = realpath($target_file);
+        $allowed_base = realpath($base_dir . '/uploads');
+
+        if (!$canonical_path || !$allowed_base || stripos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
+            $_SESSION['error_msg'] = "The physical file is missing or invalid on the server.";
             $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . (int)$file_record['doc_id']);
         }
+        $real_path = $canonical_path;
 
         // Stream file - clean all nested output buffers
         while (ob_get_level()) {
@@ -303,11 +307,12 @@ class DocumentActionController {
         
         $is_inline = !empty($_GET['inline']);
         $disposition = $is_inline ? 'inline' : 'attachment';
+        $safe_filename = str_replace(['"', "\r", "\n"], '', basename($file_record['original_filename']));
 
         header('Content-Description: File Transfer');
         header('X-Content-Type-Options: nosniff');
         header('Content-Type: ' . ($file_record['mime_type'] ?: 'application/octet-stream'));
-        header('Content-Disposition: ' . $disposition . '; filename="' . basename($file_record['original_filename']) . '"');
+        header('Content-Disposition: ' . $disposition . '; filename="' . $safe_filename . '"');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
@@ -354,19 +359,23 @@ class DocumentActionController {
         $post_dept_id = (int)($_POST['dept_id'] ?? 0);
         $post_year_id = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : null);
         
+        if ($post_title === '' || $post_dept_id <= 0) {
+            $_SESSION['error_msg'] = "Document Title and Department are required.";
+            header("Location: " . BASE_URL . "/public/index.php?route=documents/edit&id=" . $doc_id);
+            exit;
+        }
+
         if ($post_dept_id > 0 && validate_dept_filter($post_dept_id) === null) {
             $_SESSION['error_msg'] = "Unauthorized department selection.";
             header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
             exit;
         }
 
-        if ($post_title !== '' && $post_dept_id > 0) {
-            $stmt = $conn->prepare("UPDATE documents SET title = ?, dept_id = ?, academic_year_id = ?, updated_at = NOW() WHERE doc_id = ?");
-            if ($stmt) {
-                $stmt->bind_param('siii', $post_title, $post_dept_id, $post_year_id, $doc_id);
-                $stmt->execute();
-                $stmt->close();
-            }
+        $stmt = $conn->prepare("UPDATE documents SET title = ?, dept_id = ?, academic_year_id = ?, updated_at = NOW() WHERE doc_id = ?");
+        if ($stmt) {
+            $stmt->bind_param('siii', $post_title, $post_dept_id, $post_year_id, $doc_id);
+            $stmt->execute();
+            $stmt->close();
         }
 
         // Update meta
@@ -618,6 +627,8 @@ class DocumentActionController {
         }
 
         $hasFiles = false;
+        $allowed_base = realpath(__DIR__ . '/../../uploads');
+
         foreach ($valid_docs as $doc) {
             $doc_id = $doc['doc_id'];
             $doc_folder = preg_replace('/[^a-zA-Z0-9]/', '_', $doc['title']) . '_' . $doc_id;
@@ -630,9 +641,10 @@ class DocumentActionController {
 
                 while ($row = $res->fetch_assoc()) {
                     $path = __DIR__ . '/../../' . $row['file_path'];
-                    if (file_exists($path) && is_file($path)) {
-                        $safe_orig_name = basename($row['original_name']);
-                        $zip->addFile($path, $doc_folder . '/' . $safe_orig_name);
+                    $real_file = realpath($path);
+                    if ($real_file && $allowed_base && stripos($real_file, $allowed_base) === 0 && is_file($real_file)) {
+                        $safe_orig_name = str_replace(['"', "\r", "\n"], '', basename($row['original_name']));
+                        $zip->addFile($real_file, $doc_folder . '/' . $safe_orig_name);
                         $hasFiles = true;
                     }
                 }
@@ -642,8 +654,9 @@ class DocumentActionController {
             // Fallback: Check main document file_path if present
             if (!empty($doc['file_path'])) {
                 $mainPath = __DIR__ . '/../../' . ltrim($doc['file_path'], '/\\');
-                if (file_exists($mainPath) && is_file($mainPath)) {
-                    $zip->addFile($mainPath, $doc_folder . '/' . basename($mainPath));
+                $real_main = realpath($mainPath);
+                if ($real_main && $allowed_base && stripos($real_main, $allowed_base) === 0 && is_file($real_main)) {
+                    $zip->addFile($real_main, $doc_folder . '/' . basename($real_main));
                     $hasFiles = true;
                 }
             }
@@ -682,16 +695,18 @@ class DocumentActionController {
         
         $pdfs_to_merge = [];
         $supported_exts = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
+        $allowed_base = realpath(__DIR__ . '/../../uploads');
 
         foreach ($valid_docs as $doc) {
             // Prefer the main merged/compiled PDF for the document if available
             $main_file_path = $doc['file_path'] ?? '';
             $full_path = __DIR__ . '/../../' . $main_file_path;
+            $real_main = realpath($full_path);
             
             $main_ext = strtolower(pathinfo($full_path, PATHINFO_EXTENSION));
-            if (!empty($main_file_path) && file_exists($full_path) && in_array($main_ext, $supported_exts, true)) {
+            if (!empty($main_file_path) && $real_main && $allowed_base && stripos($real_main, $allowed_base) === 0 && in_array($main_ext, $supported_exts, true)) {
                 $pdfs_to_merge[] = [
-                    'path' => $full_path,
+                    'path' => $real_main,
                     'title' => $doc['title'] ?: $doc['type_label']
                 ];
             } else {
@@ -704,10 +719,11 @@ class DocumentActionController {
                     $res = $stmt->get_result();
                     while ($row = $res->fetch_assoc()) {
                         $path = __DIR__ . '/../../' . $row['file_path'];
+                        $real_path = realpath($path);
                         $att_ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                        if (file_exists($path) && in_array($att_ext, $supported_exts, true)) {
+                        if ($real_path && $allowed_base && stripos($real_path, $allowed_base) === 0 && in_array($att_ext, $supported_exts, true)) {
                             $pdfs_to_merge[] = [
-                                'path' => $path,
+                                'path' => $real_path,
                                 'title' => ($doc['title'] ?: $doc['type_label']) . ' - ' . ucfirst(str_replace('_', ' ', $row['file_label']))
                             ];
                         }

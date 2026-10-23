@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?> &mdash; FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -36,9 +37,9 @@
             
             <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
                 <label style="font-weight: 600; color: #333; margin-right: 10px;">Select Entity Level:</label>
-                <select id="level-select" onchange="switchLevel()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.95rem;">
+                <select id="level-select" onchange="changeDepartment()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.95rem;">
                     <?php foreach ($departments as $d): ?>
-                        <option value="dept_<?= $d['dept_id'] ?>">Department: <?= htmlspecialchars($d['dept_name']) ?></option>
+                        <option value="<?= $d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>Department: <?= htmlspecialchars($d['dept_name']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -359,9 +360,13 @@
             matrix: matrixData
         };
 
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
         const formData = new FormData();
         formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('json_data', JSON.stringify(payload));
         
         fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/generate_pdf&id=1', {
@@ -864,10 +869,19 @@
         renderProgramArticulation();
     }
 
+    function changeDepartment() {
+        const select = document.getElementById('level-select');
+        const newDeptId = select.value.replace('dept_', '');
+        if (newDeptId != '<?= $dept_id ?>') {
+            window.location.href = '?route=nba/criterion&id=1&year=<?= urlencode($year) ?>&dept_id=' + encodeURIComponent(newDeptId);
+        }
+    }
+
     function switchLevel() {
         const select = document.getElementById('level-select');
-        currentLevel = select.value;
-        const text = select.options[select.selectedIndex].text;
+        const rawVal = select ? select.value : '<?= $dept_id ?>';
+        currentLevel = rawVal.startsWith('dept_') ? rawVal : ('dept_' + rawVal);
+        const text = (select && select.selectedIndex >= 0) ? select.options[select.selectedIndex].text : '';
         const deptName = text.replace('Department: ', '').trim();
         
         document.getElementById('dept-vm-title').innerText = text;
@@ -1198,8 +1212,12 @@
             matrix: matrixData
         };
 
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
         const formData = new FormData();
-        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('json_data', JSON.stringify(payload));
 
         // Append files if they exist

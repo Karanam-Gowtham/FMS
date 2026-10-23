@@ -45,7 +45,8 @@ function meta_get_table(string $type_key): ?string
         'student_activity_file' => 'meta_student_activity_file',
     ];
 
-    return $registry[$type_key] ?? null;
+    $clean_key = strtolower(trim($type_key));
+    return $registry[$clean_key] ?? null;
 }
 
 /**
@@ -239,7 +240,8 @@ function meta_get_fields(string $type_key): array
         ],
     ];
 
-    return $fields[$type_key] ?? [];
+    $clean_key = strtolower(trim($type_key));
+    return $fields[$clean_key] ?? [];
 }
 
 /**
@@ -313,7 +315,8 @@ function meta_get_file_slots(string $type_key): array
         ],
     ];
 
-    return $slots[$type_key] ?? [['name' => 'document_file', 'label' => 'Document File', 'required' => true, 'accept' => '.pdf,.doc,.docx']];
+    $clean_key = strtolower(trim($type_key));
+    return $slots[$clean_key] ?? [['name' => 'document_file', 'label' => 'Document File', 'required' => true, 'accept' => '.pdf,.doc,.docx']];
 }
 
 /**

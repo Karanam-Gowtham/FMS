@@ -32,3 +32,24 @@
     margin-bottom: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+@media (max-width: 768px) {
+    .container {
+        margin: 1rem auto;
+        padding: 0 0.75rem;
+    }
+
+    .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .header-row h1 {
+        font-size: 1.3rem;
+    }
+
+    .section-card {
+        padding: 1rem;
+    }
+}

@@ -34,7 +34,7 @@ class NAACDashboardController {
 
         // Fetch pending approvals for reviewer roles
         $pending_approvals = [];
-        if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+        if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             require_once __DIR__ . '/../../core/document_service.php';
             global $conn;
             $pending_res = doc_list_pending_for_user($conn, $auth, 10, 0);

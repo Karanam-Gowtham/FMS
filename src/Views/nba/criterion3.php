@@ -28,9 +28,9 @@
 
     <div style="margin-bottom: 2rem; background: #fff; padding: 1rem; border-radius: 8px; border: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px;">
         <label style="font-weight: 600; color: #495057;">Select Department:</label>
-        <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="switchLevel()">
+        <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="changeDepartment()">
             <?php foreach ($departments as $d): ?>
-                <option value="dept_<?= $d['dept_id'] ?>" <?= $d['dept_id'] == $dept_id ? 'selected' : '' ?>>
+                <option value="<?= $d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>
                     Department: <?= htmlspecialchars($d['dept_name']) ?>
                 </option>
             <?php endforeach; ?>
@@ -323,9 +323,18 @@
         switchLevel();
     }
 
+    function changeDepartment() {
+        const select = document.getElementById('level-select');
+        const newDeptId = select.value.replace('dept_', '');
+        if (newDeptId != '<?= $dept_id ?>') {
+            window.location.href = '?route=nba/criterion&id=3&year=<?= urlencode($year) ?>&dept_id=' + encodeURIComponent(newDeptId);
+        }
+    }
+
     function switchLevel() {
         const select = document.getElementById('level-select');
-        currentLevel = select.value;
+        const rawVal = select ? select.value : '<?= $dept_id ?>';
+        currentLevel = rawVal.startsWith('dept_') ? rawVal : ('dept_' + rawVal);
         
         if (!levelData[currentLevel]) {
             levelData[currentLevel] = { pdf_3_1: '', pdf_3_2: '', pdf_3_3: '', pdf_3_4: '', pdf_3_5: '', table_3_6: [], pdf_3_7_1: '', pdf_3_7_2: '', table_3_8: { columns: ['PO1','PO2','PO3','PO4','PO5','PO6','PO7','PO8','PO9','PO10','PO11'], rows: [] }, table_3_8_2: { columns: ['PO1','PO2','PO3','PO4','PO5','PO6','PO7','PO8','PO9','PO10','PO11'], rows: [] }, table_3_8_3: { columns: ['PO1','PO2','PO3','PO4','PO5','PO6','PO7','PO8','PO9','PO10','PO11'], rows: [] } };
@@ -973,9 +982,12 @@
 
         document.getElementById('row_uploading_' + index).innerText = 'Uploading...';
 
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
         const formData = new FormData();
         formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', '<?= $dept_id ?>');
+        formData.append('dept_id', activeDeptId);
         formData.append('pdf_file', file);
         formData.append('section', '3_6_row_' + index);
 
@@ -1039,9 +1051,12 @@
         const overlay = document.getElementById('overlay_' + section);
         overlay.style.display = 'flex';
 
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
         const formData = new FormData();
         formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', '<?= $dept_id ?>');
+        formData.append('dept_id', activeDeptId);
         formData.append('pdf_file', file);
         formData.append('section', section);
 
@@ -1077,8 +1092,12 @@
     }
 
     function saveData(silent = false) {
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
         const formData = new URLSearchParams();
-        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', year);
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', year);
         
         const payload = { levelData: levelData };
         formData.append('json_data', JSON.stringify(payload));

@@ -5,9 +5,9 @@ $dept_name_display = $active_role ? $active_role['dept_name'] : 'Unknown';
 $role_name_display = $active_role ? $active_role['role_name'] : 'Unknown';
 
 // Determine breadcrumb based on role
-if ($active_role && in_array($active_role['role_id'], [ROLE_FACULTY])) {
+if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)) {
     $breadcrumb = "Faculty Dashboard ($dept_name_display)";
-} else if ($active_role && in_array($active_role['role_id'], [ROLE_HOD])) {
+} else if ($active_role && in_array((int)$active_role['role_id'], [ROLE_HOD], true)) {
     $breadcrumb = "HOD Dashboard ($dept_name_display)";
 } else if ($active_role) {
     $breadcrumb = "$role_name_display Dashboard ($dept_name_display)";
@@ -857,20 +857,32 @@ function activateRole(userRoleId, baseUrl, csrfToken) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
         },
         body: 'user_role_id=' + encodeURIComponent(userRoleId) + '&_csrf_token=' + encodeURIComponent(csrfToken) + '&csrf_token=' + encodeURIComponent(csrfToken)
-    }).then(response => {
+    }).then(async response => {
         if (!response.ok) {
-            throw new Error('Server returned HTTP ' + response.status);
+            let errorText = 'Server returned HTTP ' + response.status;
+            try {
+                const data = await response.json();
+                if (data && data.message) errorText = data.message;
+            } catch (_) {}
+            throw new Error(errorText);
         }
-        if(response.redirected) {
+        if (response.redirected) {
             window.location.href = response.url;
         } else {
-            window.location.href = baseUrl + '/public/index.php?route=dashboard';
+            try {
+                const resData = await response.json();
+                window.location.href = resData.redirect_url || (baseUrl + '/public/index.php?route=dashboard');
+            } catch (_) {
+                window.location.href = baseUrl + '/public/index.php?route=dashboard';
+            }
         }
     }).catch(err => {
         console.error('Role switch failed:', err);
-        alert('Failed to switch role. Please check network connection and try again.');
+        alert(err.message || 'Failed to switch role. Please check network connection and try again.');
     });
 }
 </script>

@@ -17,7 +17,7 @@ class AcademicYearController {
         global $conn;
         
         // Only Admin and HOD can manage academic years globally
-        $can_manage = in_array($active_role['role_id'], [ROLE_ADMIN, ROLE_HOD]);
+        $can_manage = in_array((int)$active_role['role_id'], [ROLE_ADMIN, ROLE_HOD], true);
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             if (!$can_manage) {
@@ -41,6 +41,15 @@ class AcademicYearController {
 
             if (!preg_match('/^\d{4}-\d{2}$/', $new_year)) {
                 $_SESSION['error_msg'] = "Invalid Academic Year format. Please use YYYY-YY (e.g. 2025-26).";
+                header("Location: " . BASE_URL . "/public/index.php?route=academic_years/list");
+                exit();
+            }
+
+            $start_yr = (int)substr($new_year, 0, 4);
+            $end_yy = (int)substr($new_year, 5, 2);
+            $expected_end_yy = ($start_yr + 1) % 100;
+            if ($end_yy !== $expected_end_yy || $start_yr < 1950 || $start_yr > 2100) {
+                $_SESSION['error_msg'] = "Invalid Academic Year. Years must be consecutive (e.g. " . $start_yr . "-" . sprintf('%02d', $expected_end_yy) . ").";
                 header("Location: " . BASE_URL . "/public/index.php?route=academic_years/list");
                 exit();
             }

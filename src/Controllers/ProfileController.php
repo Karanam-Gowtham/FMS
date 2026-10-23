@@ -83,6 +83,11 @@ class ProfileController {
                     $params[] = $pan_no;
                     $types .= "s";
                 }
+                if ($apaar_id !== '' && $apaar_id !== null) {
+                    $conditions[] = "apaar_id = ?";
+                    $params[] = $apaar_id;
+                    $types .= "s";
+                }
                 
                 if (!empty($conditions)) {
                     $check_sql .= implode(" OR ", $conditions) . ")";
@@ -91,7 +96,7 @@ class ProfileController {
                         $stmt->bind_param($types, ...$params);
                         $stmt->execute();
                         if ($stmt->get_result()->num_rows > 0) {
-                            $error = 'Another user is already using this Per No or PAN No.';
+                            $error = 'Another user is already using this Per No, PAN No, or APAAR ID.';
                         }
                         $stmt->close();
                     } else {

@@ -49,10 +49,10 @@ class DocumentController {
                     $dept_name = ($dres && $drow = $dres->fetch_assoc()) ? ($drow['dept_name'] ?? 'Unknown') : 'Unknown';
                     $dept_stmt->close();
                 }
-                $scope_label = htmlspecialchars($dept_name) . ' Documents';
+                $scope_label = $dept_name . ' Documents';
                 if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
                     $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
-                    $scope_label = htmlspecialchars($dept_name) . ' Department Files';
+                    $scope_label = $dept_name . ' Department Files';
                 }
                 break;
             case ROLE_CENTRAL_COORDINATOR:
@@ -94,7 +94,7 @@ class DocumentController {
         $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? $_GET['global_event_types'] : [];
         
         if ($filter_subtype !== '') {
-            $scope_label = htmlspecialchars($filter_subtype) . ' - ' . $scope_label;
+            $scope_label = $filter_subtype . ' - ' . $scope_label;
         } elseif (!empty($filter_sub_types)) {
             $scope_label = 'Multiple Subtypes - ' . $scope_label;
         }

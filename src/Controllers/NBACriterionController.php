@@ -35,8 +35,10 @@ class NBACriterionController {
         $excluded_depts = "'Antiragging', 'Clubs', 'Exam_Section', 'IIC', 'IQAC', 'NAAC', 'NBA', 'NCC', 'NSS', 'PASH', 'PE', 'PG', 'R&D', 'SAC', 'Sports', 'Women_Empowerment'";
         $dept_result = $conn->query("SELECT dept_id, dept_name FROM departments WHERE dept_name NOT IN ($excluded_depts) ORDER BY dept_name");
         $departments = [];
-        while ($row = $dept_result->fetch_assoc()) {
-            $departments[] = $row;
+        if ($dept_result) {
+            while ($row = $dept_result->fetch_assoc()) {
+                $departments[] = $row;
+            }
         }
 
         $submission = null;

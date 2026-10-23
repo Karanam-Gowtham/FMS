@@ -7,6 +7,13 @@ class StudentActivityDashboardController
     {
         require_once __DIR__ . '/../../core/bootstrap.php';
         require_login();
+        $auth = auth_context();
+        $active_role = auth_active_role();
+
+        if (!$active_role) {
+            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
+            exit();
+        }
         
         global $conn;
         

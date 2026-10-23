@@ -27,9 +27,9 @@
 
     <div style="margin-bottom: 2rem; background: #fff; padding: 1rem; border-radius: 8px; border: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px;">
         <label style="font-weight: 600; color: #495057;">Select Department:</label>
-        <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="switchLevel()">
+        <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="changeDepartment()">
             <?php foreach ($departments as $d): ?>
-                <option value="dept_<?= $d['dept_id'] ?>" <?= $d['dept_id'] == $dept_id ? 'selected' : '' ?>>
+                <option value="<?= $d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>
                     Department: <?= htmlspecialchars($d['dept_name']) ?>
                 </option>
             <?php endforeach; ?>
@@ -1137,9 +1137,18 @@
         switchLevel();
     }
 
+    function changeDepartment() {
+        const select = document.getElementById('level-select');
+        const newDeptId = select.value.replace('dept_', '');
+        if (newDeptId != '<?= $dept_id ?>') {
+            window.location.href = '?route=nba/criterion&id=4&year=<?= urlencode($year) ?>&dept_id=' + encodeURIComponent(newDeptId);
+        }
+    }
+
     function switchLevel() {
         const select = document.getElementById('level-select');
-        currentLevel = select.value;
+        const rawVal = select ? select.value : '<?= $dept_id ?>';
+        currentLevel = rawVal.startsWith('dept_') ? rawVal : ('dept_' + rawVal);
         
         if (!levelData[currentLevel]) {
             levelData[currentLevel] = { pdf_4_1: '', pdf_4_2: '', pdf_4_3: '', pdf_4_4: '', pdf_4_5: '', pdf_4_6: '', table4a: {}, t4711: [], t4712: {caym1: [], caym2: [], caym3: []}, t4721: {caym1: [], caym2: [], caym3: []}, t4731: {caym1: [], caym2: [], caym3: []}, t4741: {caym1: [], caym2: [], caym3: []} };
@@ -1610,9 +1619,12 @@
         const overlay = document.getElementById('overlay_' + section);
         overlay.style.display = 'flex';
 
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
         const formData = new FormData();
         formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', '<?= $dept_id ?>');
+        formData.append('dept_id', activeDeptId);
         formData.append('pdf_file', file);
         formData.append('section', section);
 
@@ -1648,8 +1660,12 @@
     }
 
     function saveData(silent = false) {
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
         const formData = new URLSearchParams();
-        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', year);
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', year);
         
         const payload = { levelData: levelData };
         formData.append('json_data', JSON.stringify(payload));
