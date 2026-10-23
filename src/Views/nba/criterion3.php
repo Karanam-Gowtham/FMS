@@ -44,7 +44,7 @@
             (Describe the process of evaluation followed during continuous assessment to maintain quality of assessment; constructive alignment of questions with COs and hence POs/ PSOs. Details to be kept in course files for evaluation.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_3_1').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_3_1').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 3.1</h4>
             <p>Upload a single PDF document detailing continuous assessment evaluation.</p>
@@ -67,7 +67,7 @@
             (Describe the process of setting of SEE papers & their evaluation to maintain quality of assessment, constructive alignment of questions with COs and POs/PSOs. Details to be kept in course files for evaluation.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_3_2').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_3_2').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 3.2</h4>
             <p>Upload a single PDF document detailing SEE question paper evaluation.</p>
@@ -90,7 +90,7 @@
             (Provide details of rubrics used to assess learnings in laboratories and workshops linking with COs and POs/PSOs targeted. Evidence of student assessments through rubrics to be kept in course files for evaluation.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_3_3').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_3_3').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 3.3</h4>
             <p>Upload a single PDF document detailing laboratory evaluation rubrics.</p>
@@ -113,7 +113,7 @@
             (Provide details of rubrics used to assess learnings in internships/industrial trainings linking POs/PSOs targeted for attainment. Evidence of student assessments through rubrics to be kept in course files for evaluation.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_3_4').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_3_4').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 3.4</h4>
             <p>Upload a single PDF document detailing internship evaluation rubrics.</p>
@@ -136,7 +136,7 @@
             (Provide details of rubrics used to assess learnings in projects linking POs/PSOs targeted for attainment. Evidence of student assessments through rubrics to be kept in course files for evaluation.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_3_5').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_3_5').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 3.5</h4>
             <p>Upload a single PDF document detailing project evaluation rubrics.</p>
@@ -183,7 +183,7 @@
             (Describe different assessment tools (semester end examinations, mid-semester tests, laboratory examinations, student portfolios etc.,) to measure the student learning and hence attainment of course outcomes.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_3_7_1').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_3_7_1').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 3.7.1</h4>
             <p>Upload a single PDF document detailing assessment tools and processes.</p>
@@ -206,7 +206,7 @@
             (Program shall set course outcome attainment levels for each course. Measuring CO attainment through Continuous Internal Examinations (CIE) and Semester End Examination (SEE) needs to be detailed. Target may be stated in terms of percentage of students getting more than class average marks or set by the program in each of the associated COs in the assessment instruments (midterm tests, assignments, mini projects, reports and presentations etc. as mapped with the COs.))
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_3_7_2').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_3_7_2').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 3.7.2</h4>
             <p>Upload a single PDF document detailing attainment levels.</p>

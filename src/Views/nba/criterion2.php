@@ -44,7 +44,7 @@
             (Processes may include adherence to academic calendar and instruction methods using pedagogical initiatives such as real-world examples, collaborative learning, quality of laboratory experience with regard to conducting experiments, recording observations, analysis of data etc. encouraging fast learners, assisting slow learners etc. The implementation details and impact analysis need to be documented.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_1').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_1').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.1</h4>
             <p>Upload a single PDF document detailing the teaching & learning processes.</p>
@@ -67,7 +67,7 @@
             (Quality of the capstone/major project is measured in terms of consideration to factors including, but not limited to, environment, sustainability, safety, ethics, cost, type (application, product, research, review etc.) and standards. Processes related to project identification, allotment, continuous monitoring, evaluation including demonstration of working prototypes and enhancing the relevance of projects. Mention implementation details including details of POs and PSOs addressed through the projects with justification.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_2').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_2').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.2</h4>
             <p>Upload a single PDF document detailing capstone projects.</p>
@@ -90,7 +90,7 @@
             (Describe process, duration, POs/PSOs addressed.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_3').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_3').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.3</h4>
             <p>Upload a single PDF document detailing internship processes.</p>
@@ -113,7 +113,7 @@
             (Describe process, POs/PSOs addressed.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_4').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_4').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.4</h4>
             <p>Upload a single PDF document detailing seminar and project processes.</p>
@@ -136,7 +136,7 @@
             (Type and complexity, POs/PSOs addressed.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_5').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_5').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.5</h4>
             <p>Upload a single PDF document detailing case studies.</p>
@@ -159,7 +159,7 @@
             (Number of students registered, certification and POs/PSOs addressed.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_6').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_6').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.6</h4>
             <p>Upload a single PDF document detailing MOOC/Self Learning.</p>
@@ -182,7 +182,7 @@
             (Provide details of core courses (Project based learning, problem-based learning), mini projects, integrated design projects, capstone projects, hackathon or any other activity-based learning towards solving complex engineering problems targeting relevant SDGs.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_7').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_7').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.7</h4>
             <p>Upload a single PDF document detailing complex engineering problem solving.</p>
@@ -205,7 +205,7 @@
             (Provide details of partial delivery of courses, industry supported labs, industry offered short-term programs/training etc.)
         </div>
         
-        <div class="pdf-dropzone" onclick="document.getElementById('pdfInput_2_8').click()">
+        <div class="pdf-dropzone" role="button" tabindex="0" onclick="document.getElementById('pdfInput_2_8').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <h4>Click to Upload PDF for Section 2.8</h4>
             <p>Upload a single PDF document detailing industry partnerships.</p>
