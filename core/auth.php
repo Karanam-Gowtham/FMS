@@ -234,7 +234,7 @@ function auth_logout(): void
 {
     $_SESSION = [];
 
-    if (ini_get('session.use_cookies')) {
+    if (ini_get('session.use_cookies') && !headers_sent()) {
         $params = session_get_cookie_params();
         setcookie(
             session_name(),
@@ -247,7 +247,9 @@ function auth_logout(): void
         );
     }
 
-    session_destroy();
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
+    }
 }
 
 /**

@@ -70,7 +70,7 @@ if (!in_array($route, $institutional_routes)) {
 
 
 if (isset($custom_breadcrumb_title)) {
-    $page_name = $custom_breadcrumb_title;
+    $page_name = htmlspecialchars($custom_breadcrumb_title, ENT_QUOTES, 'UTF-8');
 } elseif (!empty($route)) {
     $route_map = [
         'dashboard'                     => 'Main Dashboard',
@@ -92,24 +92,24 @@ if (isset($custom_breadcrumb_title)) {
     if ($route === 'naac/criterion') {
         $year_param = !empty($_GET['year']) ? '&year=' . urlencode($_GET['year']) : '';
         $breadcrumbs[] = ['label' => 'NAAC Dashboard', 'url' => $bc_base_url . '/public/index.php?route=naac/dashboard' . $year_param];
-        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1');
+        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1', ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'nba/criterion') {
         $year_param = !empty($_GET['year']) ? '&year=' . urlencode($_GET['year']) : '';
         $breadcrumbs[] = ['label' => 'NBA Dashboard', 'url' => $bc_base_url . '/public/index.php?route=nba/dashboard' . $year_param];
-        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1');
+        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1', ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'documents/upload' && !empty($_GET['activity'])) {
-        $page_name = 'Upload: ' . htmlspecialchars($_GET['activity']);
+        $page_name = 'Upload: ' . htmlspecialchars($_GET['activity'], ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'documents/list' && isset($_GET['context']) && $_GET['context'] === 'dept_file') {
         $page_name = 'Department Files';
     } elseif ($route === 'public/department' && !empty($_GET['dept'])) {
-        $page_name = htmlspecialchars($_GET['dept']) . ' Department';
+        $page_name = htmlspecialchars($_GET['dept'], ENT_QUOTES, 'UTF-8') . ' Department';
     } elseif (isset($route_map[$route])) {
         $page_name = $route_map[$route];
     } else {
-        $page_name = ucwords(str_replace(['/', '_'], ' ', $route));
+        $page_name = htmlspecialchars(ucwords(str_replace(['/', '_'], ' ', $route)), ENT_QUOTES, 'UTF-8');
     }
 } else {
-    $page_name = ucwords(str_replace(['_', '.php'], [' ', ''], $current_script));
+    $page_name = htmlspecialchars(ucwords(str_replace(['_', '.php'], [' ', ''], $current_script)), ENT_QUOTES, 'UTF-8');
 }
 
 // Only append page_name if current script/route is not the role dashboard itself

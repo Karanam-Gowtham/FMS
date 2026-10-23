@@ -716,7 +716,7 @@ class DocumentActionController {
 
     private function downloadAsZip($valid_docs, $conn) {
         $zip = new \ZipArchive();
-        $zipName = sys_get_temp_dir() . '/FMS_Bulk_Download_' . time() . '.zip';
+        $zipName = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'FMS_Bulk_Download_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.zip';
 
         if ($zip->open($zipName, \ZipArchive::CREATE) !== TRUE) {
             $_SESSION['error_msg'] = "Could not create ZIP file.";

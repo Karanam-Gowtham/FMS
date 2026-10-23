@@ -1151,14 +1151,18 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
     }
     
     // Check if they previously took action on this document
-    $stmt = $conn->prepare("SELECT 1 FROM document_actions WHERE doc_id = ? AND acted_by = ?");
-    if ($stmt) {
-        $stmt->bind_param("ii", $doc['doc_id'], $auth['user_id']);
-        $stmt->execute();
-        $acted = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        if ($acted) {
-            return true;
+    $d_id = (int)($doc['doc_id'] ?? 0);
+    $u_id = (int)($auth['user_id'] ?? 0);
+    if ($d_id > 0 && $u_id > 0) {
+        $stmt = $conn->prepare("SELECT 1 FROM document_actions WHERE doc_id = ? AND acted_by = ?");
+        if ($stmt) {
+            $stmt->bind_param("ii", $d_id, $u_id);
+            $stmt->execute();
+            $acted = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            if ($acted) {
+                return true;
+            }
         }
     }
     
