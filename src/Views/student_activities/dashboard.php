@@ -70,13 +70,13 @@
                     <label class="form-label fw-bold">Event Type</label>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                            <?= !empty($filter_global_event_types) ? count($filter_global_event_types).' Selected' : 'All Types' ?>
+                            <?= (!empty($filter_global_event_types) && is_array($filter_global_event_types)) ? count($filter_global_event_types).' Selected' : 'All Types' ?>
                         </button>
                         <ul class="dropdown-menu w-100 p-2 shadow-sm" style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
                             <?php foreach(($global_filter_options['event_types'] ?? []) as $et): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
-                                    <input type="checkbox" class="form-check-input mt-1" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" <?= in_array($et, $filter_global_event_types, true) ? 'checked' : '' ?>>
+                                    <input type="checkbox" class="form-check-input mt-1" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" <?= in_array($et, is_array($filter_global_event_types ?? null) ? $filter_global_event_types : [], true) ? 'checked' : '' ?>>
                                     <span style="word-break: break-word;"><?= htmlspecialchars($et) ?></span>
                                 </label>
                             </li>
@@ -89,13 +89,13 @@
                     <label class="form-label fw-bold">Domain / Topic</label>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                            <?= !empty($filter_global_domains) ? count($filter_global_domains).' Selected' : 'All Domains' ?>
+                            <?= (!empty($filter_global_domains) && is_array($filter_global_domains)) ? count($filter_global_domains).' Selected' : 'All Domains' ?>
                         </button>
                         <ul class="dropdown-menu w-100 p-2 shadow-sm" style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
                             <?php foreach(($global_filter_options['domains'] ?? []) as $dom): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
-                                    <input type="checkbox" class="form-check-input mt-1" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" <?= in_array($dom, $filter_global_domains, true) ? 'checked' : '' ?>>
+                                    <input type="checkbox" class="form-check-input mt-1" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" <?= in_array($dom, is_array($filter_global_domains ?? null) ? $filter_global_domains : [], true) ? 'checked' : '' ?>>
                                     <span style="word-break: break-word;"><?= htmlspecialchars($dom) ?></span>
                                 </label>
                             </li>
@@ -108,13 +108,13 @@
                     <label class="form-label fw-bold">Event Mode</label>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                            <?= !empty($filter_global_modes) ? count($filter_global_modes).' Selected' : 'All Modes' ?>
+                            <?= (!empty($filter_global_modes) && is_array($filter_global_modes)) ? count($filter_global_modes).' Selected' : 'All Modes' ?>
                         </button>
                         <ul class="dropdown-menu w-100 p-2 shadow-sm" style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
                             <?php foreach(($global_filter_options['modes'] ?? []) as $md): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
-                                    <input type="checkbox" class="form-check-input mt-1" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" <?= in_array($md, $filter_global_modes, true) ? 'checked' : '' ?>>
+                                    <input type="checkbox" class="form-check-input mt-1" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" <?= in_array($md, is_array($filter_global_modes ?? null) ? $filter_global_modes : [], true) ? 'checked' : '' ?>>
                                     <span style="word-break: break-word;"><?= htmlspecialchars($md) ?></span>
                                 </label>
                             </li>
@@ -242,8 +242,10 @@
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush mt-3">
                         <?php 
-                        $clubs = $stats['club_activity'];
-                        arsort($clubs);
+                        $clubs = isset($stats['club_activity']) && is_array($stats['club_activity']) ? $stats['club_activity'] : [];
+                        if (!empty($clubs)) {
+                            arsort($clubs);
+                        }
                         $top_clubs = array_slice($clubs, 0, 5, true);
                         if(empty($top_clubs)): ?>
                             <li class="list-group-item text-muted border-0">No club data available.</li>
@@ -307,7 +309,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const palette = ['#1A365D', '#2B6CB0', '#2F855A', '#C05621', '#805AD5', '#319795', '#D69E2E', '#E53E3E'];
 
     // 1. Timeline Chart
-    const tlData = <?= json_encode($stats['timeline'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const tlData = <?= json_encode($stats['timeline'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const ctxTL = document.getElementById('timelineChart')?.getContext('2d');
     
     if (ctxTL) {
@@ -344,7 +346,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 2. Category Doughnut Chart
-    const catData = <?= json_encode($stats['category_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const catData = <?= json_encode($stats['category_dist'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const catEl = document.getElementById('categoryChart');
     if (catEl) {
         new Chart(catEl, {
@@ -367,7 +369,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 3. Event Scope Doughnut Chart
-    const scopeData = <?= json_encode($stats['scope_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const scopeData = <?= json_encode($stats['scope_dist'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const scopeEl = document.getElementById('scopeChart');
     if (scopeEl) {
         new Chart(scopeEl, {
@@ -390,7 +392,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 4. Delivery Mode Doughnut
-    const modeData = <?= json_encode($stats['mode_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const modeData = <?= json_encode($stats['mode_dist'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const modeEl = document.getElementById('modeChart');
     if (modeEl) {
         new Chart(modeEl, {
@@ -413,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 5. Topic Bar Chart
-    const topicData = <?= json_encode($stats['topic_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const topicData = <?= json_encode($stats['topic_dist'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const topicEl = document.getElementById('topicRadarChart');
     if (topicEl) {
         new Chart(topicEl, {
@@ -441,7 +443,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 6. Department Comparison Bar Chart
-    const deptData = <?= json_encode($stats['dept_compare'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const deptData = <?= json_encode($stats['dept_compare'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const deptEl = document.getElementById('deptCompareChart');
     if (deptEl) {
         const deptLabels = Object.keys(deptData);

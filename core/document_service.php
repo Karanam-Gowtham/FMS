@@ -207,7 +207,7 @@ function doc_create(
         // 5. Store files
         $file_slots = meta_get_file_slots($type_key);
         $stored_paths = []; // Track physical paths to cleanup on rollback
-        $is_stepcone = ($type_key === 'student_activity_file' && strcasecmp(trim($meta_data['activity_category'] ?? ''), 'stepcone') === 0);
+        $is_stepcone = ($type_key === 'student_activity_file' && isset($meta_data['activity_category']) && is_string($meta_data['activity_category']) && strcasecmp(trim($meta_data['activity_category']), 'stepcone') === 0);
 
         foreach ($file_slots as $slot) {
             $slot_name = $slot['name'];
@@ -373,20 +373,21 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
 
     // Ensure event_title is never empty/null for student_activity_file (DB column is VARCHAR NOT NULL)
     if ($type_key === 'student_activity_file' && empty($meta_data['event_title'])) {
-        $meta_data['event_title'] = !empty($meta_data['activity_category']) ? $meta_data['activity_category'] . ' Event' : 'Event';
+        $meta_data['event_title'] = (!empty($meta_data['activity_category']) && is_string($meta_data['activity_category'])) ? $meta_data['activity_category'] . ' Event' : 'Event';
     }
 
     // Ensure target_audience (Event Scope) defaults safely for student_activity_file
     if ($type_key === 'student_activity_file') {
+        $act_cat = (isset($meta_data['activity_category']) && is_string($meta_data['activity_category'])) ? $meta_data['activity_category'] : '';
         if (empty($meta_data['target_audience'])) {
-            if (($meta_data['activity_category'] ?? '') === 'Clubs' || ($meta_data['activity_category'] ?? '') === 'Stepcone') {
+            if ($act_cat === 'Clubs' || $act_cat === 'Stepcone') {
                 $meta_data['target_audience'] = 'Central / University Wide';
             } else {
                 $meta_data['target_audience'] = 'Department Wise';
             }
-        } elseif (($meta_data['activity_category'] ?? '') === 'Clubs') {
+        } elseif ($act_cat === 'Clubs') {
             // Clubs are inherently college/university-wide
-            if ($meta_data['target_audience'] === 'Department Wise') {
+            if (isset($meta_data['target_audience']) && $meta_data['target_audience'] === 'Department Wise') {
                 $meta_data['target_audience'] = 'Central / University Wide';
             }
         }
@@ -402,7 +403,7 @@ function doc_insert_meta(mysqli $conn, string $meta_table, int $doc_id, string $
             if ($val === '' || $val === null) {
                 if ($type_key === 'student_activity_file' && $name === 'event_title') {
                     $types_str .= 's';
-                    $values[] = !empty($meta_data['activity_category']) ? $meta_data['activity_category'] . ' Event' : 'Event';
+                    $values[] = (!empty($meta_data['activity_category']) && is_string($meta_data['activity_category'])) ? $meta_data['activity_category'] . ' Event' : 'Event';
                 } else {
                     $types_str .= 's';
                     $values[] = null;
@@ -561,7 +562,12 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['dept_ids']) && is_array($filters['dept_ids'])) {
-        $clean_ids = array_filter(array_map('intval', $filters['dept_ids']));
+        $clean_ids = [];
+        foreach ($filters['dept_ids'] as $id) {
+            if (is_numeric($id) && (int)$id > 0) {
+                $clean_ids[] = (int)$id;
+            }
+        }
         if (!empty($clean_ids)) {
             $placeholders = str_repeat('?,', count($clean_ids) - 1) . '?';
             $where_clauses[] = 'd.dept_id IN (' . $placeholders . ')';
@@ -583,24 +589,37 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         $types .= 'i';
     }
 
-    if (!empty($filters['type_key'])) {
+    if (!empty($filters['type_key']) && is_string($filters['type_key'])) {
         $where_clauses[] = 'dt.type_code = ?';
-        $params[] = $filters['type_key'];
+        $params[] = trim($filters['type_key']);
         $types .= 's';
     }
     
     // Support filtering by an array of type keys (instead of category)
     if (!empty($filters['type_keys']) && is_array($filters['type_keys'])) {
-        $placeholders = str_repeat('?,', count($filters['type_keys']) - 1) . '?';
-        $where_clauses[] = 'dt.type_code IN (' . $placeholders . ')';
+        $clean_type_keys = [];
         foreach ($filters['type_keys'] as $tk) {
-            $params[] = $tk;
-            $types .= 's';
+            if (is_string($tk) && trim($tk) !== '') {
+                $clean_type_keys[] = trim($tk);
+            }
+        }
+        if (!empty($clean_type_keys)) {
+            $placeholders = str_repeat('?,', count($clean_type_keys) - 1) . '?';
+            $where_clauses[] = 'dt.type_code IN (' . $placeholders . ')';
+            foreach ($clean_type_keys as $tk) {
+                $params[] = $tk;
+                $types .= 's';
+            }
         }
     }
 
     if (!empty($filters['statuses']) && is_array($filters['statuses'])) {
-        $clean_statuses = array_filter(array_map('trim', $filters['statuses']));
+        $clean_statuses = [];
+        foreach ($filters['statuses'] as $st) {
+            if (is_string($st) && trim($st) !== '') {
+                $clean_statuses[] = trim($st);
+            }
+        }
         if (!empty($clean_statuses)) {
             $placeholders = str_repeat('?,', count($clean_statuses) - 1) . '?';
             $where_clauses[] = 'd.status IN (' . $placeholders . ')';
@@ -609,14 +628,19 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
                 $types .= 's';
             }
         }
-    } elseif (!empty($filters['status'])) {
+    } elseif (!empty($filters['status']) && is_string($filters['status'])) {
         $where_clauses[] = 'd.status = ?';
-        $params[] = $filters['status'];
+        $params[] = trim($filters['status']);
         $types .= 's';
     }
 
     if (!empty($filters['year_ids']) && is_array($filters['year_ids'])) {
-        $clean_ids = array_filter(array_map('intval', $filters['year_ids']));
+        $clean_ids = [];
+        foreach ($filters['year_ids'] as $id) {
+            if (is_numeric($id) && (int)$id > 0) {
+                $clean_ids[] = (int)$id;
+            }
+        }
         if (!empty($clean_ids)) {
             $placeholders = str_repeat('?,', count($clean_ids) - 1) . '?';
             $where_clauses[] = 'd.academic_year_id IN (' . $placeholders . ')';
@@ -631,16 +655,21 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
         $types .= 'i';
     }
 
-    if (!empty($filters['search'])) {
+    if (!empty($filters['search']) && is_string($filters['search'])) {
         $where_clauses[] = 'd.title LIKE ?';
-        $params[] = '%' . $filters['search'] . '%';
+        $params[] = '%' . trim($filters['search']) . '%';
         $types .= 's';
     }
 
     $join_sql = '';
     $meta_select = '';
     if (!empty($filters['sub_types']) && is_array($filters['sub_types'])) {
-        $clean_subtypes = array_filter(array_map('trim', $filters['sub_types']));
+        $clean_subtypes = [];
+        foreach ($filters['sub_types'] as $st) {
+            if (is_string($st) && trim($st) !== '') {
+                $clean_subtypes[] = trim($st);
+            }
+        }
         if (!empty($clean_subtypes)) {
             $subtype_conditions = [];
             $has_dept_file_subtypes = false;
@@ -678,7 +707,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
                 $where_clauses[] = '(' . implode(' OR ', $or_clauses) . ')';
             }
         }
-    } elseif (!empty($filters['sub_type'])) {
+    } elseif (!empty($filters['sub_type']) && is_string($filters['sub_type'])) {
         $st = trim($filters['sub_type']);
         if ($st === 'Student Activities Files') {
             $where_clauses[] = "dt.type_code = 'student_activity_file'";
@@ -697,7 +726,12 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['sub_file_types']) && is_array($filters['sub_file_types'])) {
-        $clean_subfiletypes = array_filter(array_map('trim', $filters['sub_file_types']));
+        $clean_subfiletypes = [];
+        foreach ($filters['sub_file_types'] as $st) {
+            if (is_string($st) && trim($st) !== '') {
+                $clean_subfiletypes[] = trim($st);
+            }
+        }
         if (!empty($clean_subfiletypes)) {
             $or_clauses = [];
             $mdf_types = [];
@@ -717,11 +751,11 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
                     $or_clauses[] = "dt.type_code = '" . $type_code_mappings[$st] . "'";
                 }
                 
-                if (in_array($st, $saf_known_types)) {
+                if (in_array($st, $saf_known_types, true)) {
                     $saf_types[] = $st;
                 }
                 
-                if (!isset($type_code_mappings[$st]) && !in_array($st, $saf_known_types)) {
+                if (!isset($type_code_mappings[$st]) && !in_array($st, $saf_known_types, true)) {
                     $mdf_types[] = $st;
                 }
             }
@@ -757,7 +791,12 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['global_event_mode']) && is_array($filters['global_event_mode'])) {
-        $clean_modes = array_filter(array_map('trim', $filters['global_event_mode']));
+        $clean_modes = [];
+        foreach ($filters['global_event_mode'] as $md) {
+            if (is_string($md) && trim($md) !== '') {
+                $clean_modes[] = trim($md);
+            }
+        }
         if (!empty($clean_modes)) {
             if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
                 $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
@@ -772,7 +811,12 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['global_topic_domain']) && is_array($filters['global_topic_domain'])) {
-        $clean_domains = array_filter(array_map('trim', $filters['global_topic_domain']));
+        $clean_domains = [];
+        foreach ($filters['global_topic_domain'] as $td) {
+            if (is_string($td) && trim($td) !== '') {
+                $clean_domains[] = trim($td);
+            }
+        }
         if (!empty($clean_domains)) {
             if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
                 $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
@@ -787,7 +831,12 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['global_event_type']) && is_array($filters['global_event_type'])) {
-        $clean_etypes = array_filter(array_map('trim', $filters['global_event_type']));
+        $clean_etypes = [];
+        foreach ($filters['global_event_type'] as $et) {
+            if (is_string($et) && trim($et) !== '') {
+                $clean_etypes[] = trim($et);
+            }
+        }
         if (!empty($clean_etypes)) {
             if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
                 $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
@@ -936,10 +985,11 @@ function doc_list_pending_for_user(mysqli $conn, array $auth, int $limit = 50, i
     $params = [];
     $types = '';
 
-    $user_id = (int)$auth['user_id'];
-    foreach ($auth['roles'] as $role) {
-        $role_id = (int)$role['role_id'];
-        $dept_id = (int)$role['dept_id'];
+    $user_id = (int)($auth['user_id'] ?? 0);
+    $roles = isset($auth['roles']) && is_array($auth['roles']) ? $auth['roles'] : [];
+    foreach ($roles as $role) {
+        $role_id = is_array($role) ? (int)($role['role_id'] ?? 0) : (int)$role;
+        $dept_id = is_array($role) ? (int)($role['dept_id'] ?? 0) : (int)($auth['dept_id'] ?? 0);
 
         // Match steps where this role is responsible
         // For department scope: also match dept

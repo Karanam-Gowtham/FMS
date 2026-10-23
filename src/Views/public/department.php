@@ -68,8 +68,8 @@ include_once HEADER;
 <div class="dept-hero">
     <div class="dept-hero-left">
         <span class="tagline">Department Public Profile</span>
-        <h1><?= htmlspecialchars($dept_name) ?></h1>
-        <p>Explore the complete research and publication repository for the Department of <?= htmlspecialchars($dept_name) ?>.</p>
+        <h1><?= htmlspecialchars(is_string($dept_name ?? null) ? $dept_name : 'Department') ?></h1>
+        <p>Explore the complete research and publication repository for the Department of <?= htmlspecialchars(is_string($dept_name ?? null) ? $dept_name : 'Department') ?>.</p>
     </div>
     
     <div class="dept-hero-right">
@@ -149,16 +149,16 @@ include_once HEADER;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($public_docs as $doc): ?>
+                        <?php foreach (($public_docs ?? []) as $doc): ?>
                             <tr>
                                 <td>
-                                    <strong><?= htmlspecialchars(!empty($doc['original_file_name']) ? $doc['original_file_name'] : 'Untitled Document') ?></strong>
+                                    <strong><?= htmlspecialchars((!empty($doc['original_file_name']) && is_string($doc['original_file_name'])) ? $doc['original_file_name'] : 'Untitled Document') ?></strong>
                                 </td>
-                                <td><span class="type-badge"><?= htmlspecialchars(!empty($doc['type_name']) ? $doc['type_name'] : 'Document') ?></span></td>
-                                <td><?= htmlspecialchars(!empty($doc['uploader_name']) ? $doc['uploader_name'] : 'System') ?></td>
-                                <td><?= htmlspecialchars(!empty($doc['year_name']) ? $doc['year_name'] : 'N/A') ?></td>
+                                <td><span class="type-badge"><?= htmlspecialchars((!empty($doc['type_name']) && is_string($doc['type_name'])) ? $doc['type_name'] : 'Document') ?></span></td>
+                                <td><?= htmlspecialchars((!empty($doc['uploader_name']) && is_string($doc['uploader_name'])) ? $doc['uploader_name'] : 'System') ?></td>
+                                <td><?= htmlspecialchars((!empty($doc['year_name']) && is_string($doc['year_name'])) ? $doc['year_name'] : 'N/A') ?></td>
                                 <td>
-                                    <?php if (!empty($doc['file_path']) && $doc['file_path'] !== '#'): ?>
+                                    <?php if (!empty($doc['file_path']) && is_string($doc['file_path']) && $doc['file_path'] !== '#'): ?>
                                         <a href="<?= BASE_URL ?>/public/index.php?route=public/download&amp;doc_id=<?= (int)($doc['doc_id'] ?? 0) ?>" target="_blank" class="download-btn">
                                             View File
                                         </a>
@@ -182,7 +182,7 @@ $top_faculty = !empty($top_faculty) && is_array($top_faculty) ? $top_faculty : [
 
 $type_counts = [];
 foreach($public_docs as $doc) {
-    $t = !empty($doc['type_name']) ? $doc['type_name'] : 'Other';
+    $t = (!empty($doc['type_name']) && is_string($doc['type_name'])) ? $doc['type_name'] : 'Other';
     if(!isset($type_counts[$t])) $type_counts[$t] = 0;
     $type_counts[$t]++;
 }

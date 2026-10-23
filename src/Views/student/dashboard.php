@@ -17,14 +17,14 @@ require __DIR__ . '/../../../includes/header.php';
 
 <div class="student-dashboard-wrapper container-fluid">
 
-    <?php if (!empty($success_msg)): ?>
+    <?php if (!empty($success_msg) && is_string($success_msg)): ?>
         <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             <div><?= htmlspecialchars($success_msg) ?></div>
         </div>
     <?php endif; ?>
 
-    <?php if (!empty($error_msg)): ?>
+    <?php if (!empty($error_msg) && is_string($error_msg)): ?>
         <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
             <div><?= htmlspecialchars($error_msg) ?></div>
@@ -40,14 +40,14 @@ require __DIR__ . '/../../../includes/header.php';
         <div style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; position: relative; z-index: 2;">
             <!-- Avatar -->
             <div style="width: 130px; height: 130px; border-radius: 50%; background: white; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['full_name'] ?? 'Student') ?>&amp;background=random&amp;size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
+                <img src="https://ui-avatars.com/api/?name=<?= urlencode(is_string($auth['full_name'] ?? null) ? $auth['full_name'] : 'Student') ?>&amp;background=random&amp;size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
             </div>
             
             <!-- Info -->
             <div style="flex-grow: 1;">
-                <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= htmlspecialchars($auth['full_name'] ?? 'Student Name') ?></h1>
+                <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;"><?= htmlspecialchars(is_string($auth['full_name'] ?? null) ? $auth['full_name'] : 'Student Name') ?></h1>
                 <h3 style="font-size: 1.1rem; font-weight: 400; margin: 0 0 0.2rem 0; color: #93c5fd;"><i class="fas fa-user-graduate me-2"></i>Student</h3>
-                <p style="font-size: 1rem; margin: 0 0 1.2rem 0; color: #cbd5e1;"><i class="fas fa-id-card me-2"></i><?= htmlspecialchars($roll_number ?? ($auth['username'] ?? (!empty($auth['email']) ? strtoupper(explode('@', $auth['email'])[0]) : 'Student'))) ?></p>
+                <p style="font-size: 1rem; margin: 0 0 1.2rem 0; color: #cbd5e1;"><i class="fas fa-id-card me-2"></i><?= htmlspecialchars(is_string($roll_number ?? null) ? $roll_number : (is_string($auth['username'] ?? null) ? $auth['username'] : (!empty($auth['email']) && is_string($auth['email']) ? strtoupper(explode('@', $auth['email'])[0]) : 'Student'))) ?></p>
                 
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button type="button" data-bs-toggle="modal" data-bs-target="#uploadActivityModal" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
@@ -59,17 +59,17 @@ require __DIR__ . '/../../../includes/header.php';
             <!-- Hero Stats -->
             <div style="display: flex; gap: 1.5rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05);">
                 <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: #60a5fa; line-height: 1;"><?= array_sum($stats) ?></div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #60a5fa; line-height: 1;"><?= is_array($stats ?? null) ? array_sum(array_filter($stats, 'is_numeric')) : 0 ?></div>
                     <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 0.5rem;">Total Submissions</div>
                 </div>
                 <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
                 <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: #34d399; line-height: 1;"><?= $stats['accepted'] ?? 0 ?></div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #34d399; line-height: 1;"><?= (int)($stats['accepted'] ?? 0) ?></div>
                     <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 0.5rem;">Approved</div>
                 </div>
                 <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
                 <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: #fbbf24; line-height: 1;"><?= $stats['pending'] ?? 0 ?></div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #fbbf24; line-height: 1;"><?= (int)($stats['pending'] ?? 0) ?></div>
                     <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 0.5rem;">In Review</div>
                 </div>
             </div>
@@ -218,23 +218,22 @@ require __DIR__ . '/../../../includes/header.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($submissions as $sub): 
+                        <?php foreach (($submissions ?? []) as $sub): 
                             $badge_class = 'bg-secondary';
-                            if ($sub['status'] === 'pending') $badge_class = 'bg-warning text-dark';
-                            if ($sub['status'] === 'accepted') $badge_class = 'bg-success';
-                            if ($sub['status'] === 'rejected') $badge_class = 'bg-danger';
-                            $sub_event_date = (!empty($sub['event_date']) && $sub['event_date'] !== '0000-00-00') ? $sub['event_date'] : ($sub['created_at'] ?? '');
+                            $status_str = is_string($sub['status'] ?? null) ? $sub['status'] : '';
+                            if ($status_str === 'pending') $badge_class = 'bg-warning text-dark';
+                            if ($status_str === 'accepted') $badge_class = 'bg-success';
+                            if ($status_str === 'rejected') $badge_class = 'bg-danger';
+                            $sub_event_date = (!empty($sub['event_date']) && is_string($sub['event_date']) && $sub['event_date'] !== '0000-00-00') ? $sub['event_date'] : ((isset($sub['created_at']) && is_string($sub['created_at'])) ? $sub['created_at'] : '');
                             $sub_event_ts = !empty($sub_event_date) ? strtotime($sub_event_date) : false;
-                            $sub_created_ts = !empty($sub['created_at']) ? strtotime($sub['created_at']) : false;
+                            $sub_created_ts = (!empty($sub['created_at']) && is_string($sub['created_at'])) ? strtotime($sub['created_at']) : false;
                         ?>
                             <tr>
-                                <td class="text-center"><input type="checkbox" name="doc_ids[]" value="<?= (int)$sub['doc_id'] ?>" class="student-doc-checkbox"></td>
-                                <td>#<?= (int)$sub['doc_id'] ?></td>
-                                <td><strong><?= htmlspecialchars($sub['activity_category']) ?></strong></td>
+                                <td class="text-center"><input type="checkbox" name="doc_ids[]" value="<?= (int)($sub['doc_id'] ?? 0) ?>" class="student-doc-checkbox"></td>
+                                <td>#<?= (int)($sub['doc_id'] ?? 0) ?></td>
+                                <td><strong><?= htmlspecialchars(is_string($sub['activity_category'] ?? null) ? $sub['activity_category'] : '') ?></strong></td>
                                 <td>
-                                    <?php
-                                        echo htmlspecialchars($sub['event_title'] ?? 'N/A');
-                                    ?>
+                                    <?= htmlspecialchars(is_string($sub['event_title'] ?? null) ? $sub['event_title'] : 'N/A') ?>
                                 </td>
                                 <td>
                                     <div class="fw-semibold"><?= $sub_event_ts ? date('M d, Y', $sub_event_ts) : '—' ?></div>
@@ -242,11 +241,11 @@ require __DIR__ . '/../../../includes/header.php';
                                         <small class="text-muted" title="Uploaded on <?= date('M d, Y', $sub_created_ts) ?>">Uploaded: <?= date('M d, Y', $sub_created_ts) ?></small>
                                     <?php endif; ?>
                                 </td>
-                                <td><span class="badge <?= $badge_class ?> text-uppercase"><?= $sub['status'] ?></span></td>
+                                <td><span class="badge <?= $badge_class ?> text-uppercase"><?= htmlspecialchars($status_str) ?></span></td>
                                 <td>
-                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
-                                    <?php if ($sub['status'] === 'rejected' || $sub['status'] === 'draft'): ?>
-                                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$sub['doc_id'] ?>" class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</a>
+                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)($sub['doc_id'] ?? 0) ?>" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <?php if ($status_str === 'rejected' || $status_str === 'draft'): ?>
+                                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)($sub['doc_id'] ?? 0) ?>" class="btn btn-sm btn-outline-danger" title="Edit & Resubmit"><i class="fas fa-edit"></i> Edit</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>

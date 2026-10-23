@@ -52,6 +52,9 @@ function file_max_size(): int
 function file_validate(array $file): array
 {
     // Check upload error
+    if (!isset($file['error']) || !is_int($file['error'])) {
+        return ['valid' => false, 'error' => 'Invalid upload structure.'];
+    }
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $messages = [
             UPLOAD_ERR_INI_SIZE   => 'File exceeds maximum upload size.',
@@ -66,18 +69,21 @@ function file_validate(array $file): array
     }
 
     // Check file size
-    if ($file['size'] > file_max_size()) {
+    if (!isset($file['size']) || !is_numeric($file['size']) || (int)$file['size'] > file_max_size()) {
         return ['valid' => false, 'error' => 'File size exceeds ' . (file_max_size() / 1024 / 1024) . ' MB limit.'];
     }
 
     // Check extension
+    if (empty($file['name']) || !is_string($file['name'])) {
+        return ['valid' => false, 'error' => 'Invalid filename.'];
+    }
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     if (!in_array($ext, file_allowed_extensions(), true)) {
         return ['valid' => false, 'error' => 'File type .' . $ext . ' is not allowed.'];
     }
 
     // Check MIME type (using finfo for reliability)
-    if (class_exists('finfo') && !empty($file['tmp_name']) && file_exists($file['tmp_name'])) {
+    if (class_exists('finfo') && !empty($file['tmp_name']) && is_string($file['tmp_name']) && file_exists($file['tmp_name'])) {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mime = $finfo->file($file['tmp_name']);
         if ($mime !== false && !in_array($mime, file_allowed_mimes(), true)) {
@@ -107,17 +113,26 @@ function file_store(array $file, string $type_key, string $file_label): array
 
     // Build target directory: uploads/{type_key}/
     $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__);
-    $upload_dir = $base_dir . '/uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/';
+    $clean_type = preg_replace('/[^a-z0-9_]/', '', strtolower($type_key));
+    if ($clean_type === '') {
+        $clean_type = 'general';
+    }
+    $upload_dir = $base_dir . '/uploads/' . $clean_type . '/';
 
     if (!is_dir($upload_dir)) {
-        if (!mkdir($upload_dir, 0755, true)) {
+        @mkdir($upload_dir, 0755, true);
+        if (!is_dir($upload_dir)) {
             return ['success' => false, 'data' => null, 'error' => 'Failed to create upload directory.'];
         }
     }
 
     // Generate unique filename: {type_key}_{label}_{uniqid}.{ext}
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $stored_name = $type_key . '_' . preg_replace('/[^a-z0-9_]/', '', $file_label) . '_' . uniqid() . '.' . $ext;
+    $clean_label = preg_replace('/[^a-z0-9_]/', '', strtolower($file_label));
+    if ($clean_label === '') {
+        $clean_label = 'file';
+    }
+    $stored_name = $clean_type . '_' . $clean_label . '_' . uniqid('', true) . '.' . $ext;
     $full_path = $upload_dir . $stored_name;
 
     // Move the uploaded file
@@ -126,13 +141,16 @@ function file_store(array $file, string $type_key, string $file_label): array
     }
 
     // Compute relative path from project root
-    $relative_path = 'uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/' . $stored_name;
+    $relative_path = 'uploads/' . $clean_type . '/' . $stored_name;
 
     // Detect MIME type
     $mime = 'application/octet-stream';
     if (class_exists('finfo')) {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime = $finfo->file($full_path);
+        $detected_mime = $finfo->file($full_path);
+        if ($detected_mime !== false) {
+            $mime = $detected_mime;
+        }
     }
 
     return [
