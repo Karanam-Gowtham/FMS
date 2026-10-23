@@ -158,5 +158,26 @@
             New faculty or student? <a href="<?= BASE_URL ?>/public/index.php?route=auth/register">Register here</a>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            let isSubmitting = false;
+            loginForm.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                const btn = loginForm.querySelector('button[type="submit"]');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                }
+                isSubmitting = true;
+            });
+        }
+    });
+    </script>
 </body>
 </html>

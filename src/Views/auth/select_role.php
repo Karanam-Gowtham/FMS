@@ -176,5 +176,26 @@
             <?php endif; ?>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleForm = document.getElementById('roleForm');
+        if (roleForm) {
+            let isSubmitting = false;
+            roleForm.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                const btn = roleForm.querySelector('button[type="submit"]');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = 'Switching Role...';
+                }
+                isSubmitting = true;
+            });
+        }
+    });
+    </script>
 </body>
 </html>

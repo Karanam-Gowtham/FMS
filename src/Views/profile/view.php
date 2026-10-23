@@ -119,7 +119,7 @@
             </div>
 
             <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="javascript:history.back()" class="btn btn-secondary" style="background: #64748b; color: #fff; padding: 0.6rem 1.4rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }" class="btn btn-secondary" style="background: #64748b; color: #fff; padding: 0.6rem 1.4rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
                 <?php if (!isset($is_own_profile) || $is_own_profile): ?>

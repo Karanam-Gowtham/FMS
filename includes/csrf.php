@@ -28,7 +28,14 @@ function csrfValidate(): void
 
     if (empty($stored) || !hash_equals($stored, $submitted)) {
         http_response_code(403);
-        die('CSRF validation failed. Please reload the form and try again.');
+        $error_message = 'CSRF validation failed. Security token expired or invalid. Please reload the page and try again.';
+        $page_403 = __DIR__ . '/../public/403.php';
+        if (file_exists($page_403)) {
+            include $page_403;
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
+        exit();
     }
 }
 ?>

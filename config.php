@@ -74,7 +74,7 @@ if (!defined('DB_PASS')) {
    define('DB_PASS', getenv('DB_PASS') ?: '');
 }
 if (!defined('DB_PORT')) {
-   define('DB_PORT', getenv('DB_PORT') ?: 3306);
+   define('DB_PORT', (int)(getenv('DB_PORT') ?: 3306));
 }
 
 /* =========================================================
