@@ -137,8 +137,9 @@ function auth_switch_role(int $user_role_id): bool
         return false;
     }
 
-    foreach ($auth['roles'] as $role) {
-        if ((int)$role['user_role_id'] === $user_role_id) {
+    $roles = isset($auth['roles']) && is_array($auth['roles']) ? $auth['roles'] : [];
+    foreach ($roles as $role) {
+        if (is_array($role) && (int)($role['user_role_id'] ?? 0) === $user_role_id) {
             if (session_status() === PHP_SESSION_ACTIVE && !headers_sent()) {
                 session_regenerate_id(true);
             }
@@ -315,8 +316,10 @@ function auth_has_role(int $role_id): bool
         return false;
     }
 
-    foreach ($auth['roles'] as $role) {
-        if ((int)$role['role_id'] === $role_id) {
+    $roles = isset($auth['roles']) && is_array($auth['roles']) ? $auth['roles'] : [];
+    foreach ($roles as $role) {
+        $r_id = is_array($role) ? (int)($role['role_id'] ?? 0) : (int)$role;
+        if ($r_id === $role_id) {
             return true;
         }
     }
@@ -334,10 +337,14 @@ function get_authorized_depts(): array
     }
 
     $depts = [];
-    foreach ($auth['roles'] as $role) {
-        $dept_id = (int)$role['dept_id'];
+    $roles = isset($auth['roles']) && is_array($auth['roles']) ? $auth['roles'] : [];
+    foreach ($roles as $role) {
+        if (!is_array($role)) {
+            continue;
+        }
+        $dept_id = (int)($role['dept_id'] ?? 0);
         if ($dept_id > 0 && !isset($depts[$dept_id])) {
-            $depts[$dept_id] = $role['dept_name'];
+            $depts[$dept_id] = (string)($role['dept_name'] ?? '');
         }
     }
     return $depts;
@@ -415,6 +422,9 @@ function get_distinct_role_assignments(array $roles): array
     // But for display, group same role_id entries
     $grouped = [];
     foreach ($roles as $role) {
+        if (!is_array($role)) {
+            continue;
+        }
         $roleId = (int)($role['role_id'] ?? 0);
         $deptId = (int)($role['dept_id'] ?? 0);
         $key = $roleId . '_' . $deptId;

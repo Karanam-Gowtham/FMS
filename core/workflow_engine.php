@@ -200,17 +200,21 @@ function wf_get_transitions_for_step(mysqli $conn, int $step_id): array
  */
 function wf_can_user_act(array $step, array $auth, array $document): bool
 {
-    $required_role = (int)$step['responsible_role_id'];
+    $required_role = (int)($step['responsible_role_id'] ?? 0);
     $scope = trim((string)($step['scope'] ?? ''));
     $doc_dept_id = (int)($document['dept_id'] ?? 0);
     
     // If this step requires Faculty (Mentor) and a mentor is assigned to the document:
     if ($required_role === ROLE_FACULTY && !empty($document['mentor_id'])) {
-        return (int)$auth['user_id'] === (int)$document['mentor_id'];
+        return (int)($auth['user_id'] ?? 0) === (int)$document['mentor_id'];
     }
 
-    foreach ($auth['roles'] as $user_role) {
-        if ((int)$user_role['role_id'] !== $required_role) {
+    $roles = isset($auth['roles']) && is_array($auth['roles']) ? $auth['roles'] : [];
+    foreach ($roles as $user_role) {
+        $r_id = is_array($user_role) ? (int)($user_role['role_id'] ?? 0) : (int)$user_role;
+        $d_id = is_array($user_role) ? (int)($user_role['dept_id'] ?? 0) : (int)($auth['dept_id'] ?? 0);
+
+        if ($r_id !== $required_role) {
             continue;
         }
 
@@ -220,7 +224,7 @@ function wf_can_user_act(array $step, array $auth, array $document): bool
         }
 
         // scope === 'department': user's dept_id for this role must match document's dept_id
-        if ((int)$user_role['dept_id'] === $doc_dept_id) {
+        if ($d_id === $doc_dept_id) {
             return true;
         }
     }
@@ -244,11 +248,11 @@ function wf_can_user_act(array $step, array $auth, array $document): bool
  */
 function wf_get_allowed_actions(mysqli $conn, array $document, array $auth): array
 {
-    $status     = $document['status'];
-    $step_id    = $document['current_step'];
-    $uploader   = (int)$document['uploaded_by'];
-    $user_id    = (int)$auth['user_id'];
-    $doc_dept   = (int)$document['dept_id'];
+    $status     = (string)($document['status'] ?? '');
+    $step_id    = $document['current_step'] ?? null;
+    $uploader   = (int)($document['uploaded_by'] ?? ($document['created_by'] ?? 0));
+    $user_id    = (int)($auth['user_id'] ?? 0);
+    $doc_dept   = (int)($document['dept_id'] ?? 0);
 
     // Terminal state: no actions
     if ($status === 'accepted') {

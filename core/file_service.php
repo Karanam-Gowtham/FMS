@@ -286,12 +286,18 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
         ob_end_clean();
     }
 
-    $safe_name = str_replace(['"', "\r", "\n"], '', basename($file['original_name']));
+    $safe_name = str_replace(['"', ';', "\r", "\n"], '', basename((string)($file['original_name'] ?? '')));
+    if ($safe_name === '') {
+        $safe_name = 'downloaded_file';
+    }
     $disposition = $inline ? 'inline' : 'attachment';
     header('X-Content-Type-Options: nosniff');
-    header('Content-Type: ' . ($file['mime_type'] ?: 'application/octet-stream'));
-    header('Content-Disposition: ' . $disposition . '; filename="' . $safe_name . '"');
-    header('Content-Length: ' . filesize($canonical_path));
+    header('Content-Type: ' . (!empty($file['mime_type']) && is_string($file['mime_type']) ? $file['mime_type'] : 'application/octet-stream'));
+    header('Content-Disposition: ' . $disposition . '; filename="' . $safe_name . '"; filename*=UTF-8\'\'' . rawurlencode($safe_name));
+    $fsize = @filesize($canonical_path);
+    if ($fsize !== false && $fsize >= 0) {
+        header('Content-Length: ' . $fsize);
+    }
     header('Cache-Control: no-cache, must-revalidate');
 
     readfile($canonical_path);
