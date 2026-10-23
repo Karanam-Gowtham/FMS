@@ -84,14 +84,14 @@ class DocumentController {
                 break;
         }
 
-        $filter_type   = isset($_GET['type'])   ? trim($_GET['type'])   : '';
-        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? $_GET['type_keys'] : [];
-        $filter_subtype= isset($_GET['sub_type']) ? trim($_GET['sub_type']) : '';
-        $filter_sub_types = isset($_GET['sub_types']) && is_array($_GET['sub_types']) ? $_GET['sub_types'] : [];
-        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? $_GET['sub_file_types'] : [];
-        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? $_GET['global_modes'] : [];
-        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? $_GET['global_domains'] : [];
-        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? $_GET['global_event_types'] : [];
+        $filter_type   = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
+        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? array_values(array_filter($_GET['type_keys'], 'is_string')) : [];
+        $filter_subtype= (isset($_GET['sub_type']) && is_string($_GET['sub_type'])) ? trim($_GET['sub_type']) : '';
+        $filter_sub_types = isset($_GET['sub_types']) && is_array($_GET['sub_types']) ? array_values(array_filter($_GET['sub_types'], 'is_string')) : [];
+        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? array_values(array_filter($_GET['sub_file_types'], 'is_string')) : [];
+        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? array_values(array_filter($_GET['global_modes'], 'is_string')) : [];
+        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? array_values(array_filter($_GET['global_domains'], 'is_string')) : [];
+        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? array_values(array_filter($_GET['global_event_types'], 'is_string')) : [];
         
         if ($filter_subtype !== '') {
             $scope_label = $filter_subtype . ' - ' . $scope_label;
@@ -99,15 +99,15 @@ class DocumentController {
             $scope_label = 'Multiple Subtypes - ' . $scope_label;
         }
 
-        $filter_status = isset($_GET['status']) ? trim($_GET['status']) : '';
-        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? $_GET['statuses'] : [];
+        $filter_status = (isset($_GET['status']) && is_string($_GET['status'])) ? trim($_GET['status']) : '';
+        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? array_values(array_filter($_GET['statuses'], 'is_string')) : [];
         $filter_year   = isset($_GET['year'])   ? (int)$_GET['year']   : 0;
-        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_map('intval', $_GET['year_ids']) : [];
-        $filter_search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_values(array_filter(array_map('intval', $_GET['year_ids']), fn($y) => $y > 0)) : [];
+        $filter_search = (isset($_GET['search']) && is_string($_GET['search'])) ? trim($_GET['search']) : '';
         $filter_dept   = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : 0;
-        $filter_dept_ids = isset($_GET['dept_ids']) && is_array($_GET['dept_ids']) ? array_map('intval', $_GET['dept_ids']) : [];
+        $filter_dept_ids = isset($_GET['dept_ids']) && is_array($_GET['dept_ids']) ? array_values(array_filter(array_map('intval', $_GET['dept_ids']), fn($d) => $d > 0)) : [];
         $page_num      = max(1, (int)($_GET['page'] ?? 1));
-        $per_page_param = $_GET['per_page'] ?? '25';
+        $per_page_param = (isset($_GET['per_page']) && is_string($_GET['per_page'])) ? trim($_GET['per_page']) : '25';
         if ($per_page_param === 'all') {
             $per_page = 10000;
         } else {
@@ -172,7 +172,7 @@ class DocumentController {
             }
         }
 
-        $mode = isset($_GET['mode']) ? trim($_GET['mode']) : '';
+        $mode = (isset($_GET['mode']) && is_string($_GET['mode'])) ? trim($_GET['mode']) : '';
         if ($mode === 'pending_approval') {
             $result = doc_list_pending_for_user($conn, $auth, $per_page, $offset);
             $documents = $result['rows'];
@@ -360,13 +360,13 @@ class DocumentController {
         $user_id = (int)$auth['user_id'];
         global $conn;
 
-        $filter_type   = isset($_GET['type'])   ? trim($_GET['type'])   : '';
-        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? $_GET['type_keys'] : [];
-        $filter_status = isset($_GET['status']) ? trim($_GET['status']) : '';
-        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? $_GET['statuses'] : [];
+        $filter_type   = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
+        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? array_values(array_filter($_GET['type_keys'], 'is_string')) : [];
+        $filter_status = (isset($_GET['status']) && is_string($_GET['status'])) ? trim($_GET['status']) : '';
+        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? array_values(array_filter($_GET['statuses'], 'is_string')) : [];
         $filter_year   = isset($_GET['year'])   ? (int)$_GET['year']   : 0;
-        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_map('intval', $_GET['year_ids']) : [];
-        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? $_GET['sub_file_types'] : [];
+        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_values(array_filter(array_map('intval', $_GET['year_ids']), fn($y) => $y > 0)) : [];
+        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? array_values(array_filter($_GET['sub_file_types'], 'is_string')) : [];
 
         $page_num = max(1, (int)($_GET['page'] ?? 1));
         $per_page = 20;
@@ -423,8 +423,8 @@ class DocumentController {
         $types = doc_get_types($conn);
         $academic_years = doc_get_academic_years($conn);
 
-        $preselected_type = isset($_GET['type']) ? trim($_GET['type']) : '';
-        $preselected_subtype = isset($_GET['sub_type']) ? trim($_GET['sub_type']) : '';
+        $preselected_type = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
+        $preselected_subtype = (isset($_GET['sub_type']) && is_string($_GET['sub_type'])) ? trim($_GET['sub_type']) : '';
         
         $doc_type = null;
         $type_key = '';
@@ -438,9 +438,9 @@ class DocumentController {
                     $doc_type = $t;
                     $type_key = $t['type_key'];
                     $page_title = 'Upload: ' . $t['type_label'];
-                    if (isset($_GET['activity'])) {
+                    if (isset($_GET['activity']) && is_string($_GET['activity'])) {
                         $page_title = 'Upload: ' . trim($_GET['activity']);
-                    } elseif (isset($_GET['exam'])) {
+                    } elseif (isset($_GET['exam']) && is_string($_GET['exam'])) {
                         $page_title = 'Upload: ' . trim($_GET['exam']);
                     } elseif ($preselected_subtype !== '' && $preselected_subtype !== $t['type_label']) {
                         $page_title .= ' - ' . $preselected_subtype;
@@ -618,7 +618,7 @@ class DocumentController {
 
         $doc_ids = $_POST['doc_ids'] ?? [];
         if (empty($doc_ids) && isset($_GET['doc_ids'])) {
-            $doc_ids = is_array($_GET['doc_ids']) ? $_GET['doc_ids'] : explode(',', $_GET['doc_ids']);
+            $doc_ids = is_array($_GET['doc_ids']) ? $_GET['doc_ids'] : (is_string($_GET['doc_ids']) ? explode(',', $_GET['doc_ids']) : []);
         }
 
         if (empty($doc_ids)) {

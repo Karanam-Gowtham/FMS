@@ -52,10 +52,10 @@ class StudentActivityDashboardController
         }
 
         // Default Filters
-        $year_filter = $_GET['year_id'] ?? 'all';
-        $scope_filter = $_GET['scope'] ?? 'all';
+        $year_filter = (isset($_GET['year_id']) && is_string($_GET['year_id'])) ? trim($_GET['year_id']) : 'all';
+        $scope_filter = (isset($_GET['scope']) && is_string($_GET['scope'])) ? trim($_GET['scope']) : 'all';
         
-        $requested_dept = $_GET['dept_id'] ?? 'all';
+        $requested_dept = (isset($_GET['dept_id']) && is_string($_GET['dept_id'])) ? trim($_GET['dept_id']) : 'all';
         if ($is_college_wide) {
             $dept_filter = ($requested_dept === 'all') ? 'all' : (int)$requested_dept;
         } else {
@@ -68,9 +68,30 @@ class StudentActivityDashboardController
             }
         }
         
-        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? array_values(array_filter(array_map('trim', $_GET['global_modes']))) : [];
-        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? array_values(array_filter(array_map('trim', $_GET['global_domains']))) : [];
-        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? array_values(array_filter(array_map('trim', $_GET['global_event_types']))) : [];
+        $filter_global_modes = [];
+        if (isset($_GET['global_modes']) && is_array($_GET['global_modes'])) {
+            foreach ($_GET['global_modes'] as $val) {
+                if (is_string($val) && trim($val) !== '') {
+                    $filter_global_modes[] = trim($val);
+                }
+            }
+        }
+        $filter_global_domains = [];
+        if (isset($_GET['global_domains']) && is_array($_GET['global_domains'])) {
+            foreach ($_GET['global_domains'] as $val) {
+                if (is_string($val) && trim($val) !== '') {
+                    $filter_global_domains[] = trim($val);
+                }
+            }
+        }
+        $filter_global_event_types = [];
+        if (isset($_GET['global_event_types']) && is_array($_GET['global_event_types'])) {
+            foreach ($_GET['global_event_types'] as $val) {
+                if (is_string($val) && trim($val) !== '') {
+                    $filter_global_event_types[] = trim($val);
+                }
+            }
+        }
 
         // Fetch dynamic global filter options
         $global_filter_options = ['modes' => [], 'domains' => [], 'event_types' => []];

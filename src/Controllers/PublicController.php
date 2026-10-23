@@ -5,7 +5,7 @@ class PublicController {
 
     public function department() {
         require_once __DIR__ . '/../../core/bootstrap.php';
-        $dept_param = isset($_GET['dept']) ? trim($_GET['dept']) : '';
+        $dept_param = (isset($_GET['dept']) && is_string($_GET['dept'])) ? trim($_GET['dept']) : '';
         global $conn;
 
         // Lookup department in database with alias support (e.g. AIML <-> CSE-AI&ML)

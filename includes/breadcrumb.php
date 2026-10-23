@@ -47,7 +47,7 @@ $breadcrumbs[] = [
 
 $role_label = $role;
 if ($dept !== '') {
-    $role_label .= ' (' . htmlspecialchars($dept) . ')';
+    $role_label .= ' (' . htmlspecialchars($dept, ENT_QUOTES, 'UTF-8') . ')';
     if ($role_url !== '#') {
         $role_url .= (strpos($role_url, '?') !== false ? '&' : '?') . "dept=" . urlencode($dept);
     }
@@ -173,7 +173,7 @@ if (!$is_dashboard_page) {
         if ($index === $count - 1) {
             echo '<span class="current-page">' . $crumb['label'] . '</span>';
         } else {
-            echo '<a href="' . htmlspecialchars($crumb['url']) . '"' . (isset($crumb['title']) ? ' title="' . htmlspecialchars($crumb['title']) . '"' : '') . '>' . $crumb['label'] . '</a>';
+            echo '<a href="' . htmlspecialchars($crumb['url'], ENT_QUOTES, 'UTF-8') . '"' . (isset($crumb['title']) ? ' title="' . htmlspecialchars($crumb['title'], ENT_QUOTES, 'UTF-8') . '"' : '') . '>' . $crumb['label'] . '</a>';
             echo '<span class="separator"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>';
         }
     }

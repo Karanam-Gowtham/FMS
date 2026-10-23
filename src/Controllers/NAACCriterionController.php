@@ -13,7 +13,7 @@ class NAACCriterionController {
 
         $active_ay = function_exists('doc_get_active_year') ? doc_get_active_year($conn) : null;
         $default_year = $active_ay ? $active_ay['year_label'] : '2025-26';
-        $year = !empty($_GET['year']) ? trim($_GET['year']) : $default_year;
+        $year = (!empty($_GET['year']) && is_string($_GET['year'])) ? trim($_GET['year']) : $default_year;
         $crit_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
         if ($crit_id < 1 || $crit_id > 7) {
             include __DIR__ . '/../../public/404.php';

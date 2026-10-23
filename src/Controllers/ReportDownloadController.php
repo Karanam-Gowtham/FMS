@@ -15,8 +15,8 @@ class ReportDownloadController {
             $this->renderError(403, "Access denied. You do not have permission to download accreditation reports.");
         }
 
-        $type = $_GET['type'] ?? '';
-        $filename = $_GET['file'] ?? '';
+        $type = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
+        $filename = (isset($_GET['file']) && is_string($_GET['file'])) ? trim($_GET['file']) : '';
 
         // Accept only 'nba' or 'naac'
         if (!in_array($type, ['nba', 'naac'], true)) {
@@ -31,7 +31,7 @@ class ReportDownloadController {
         // Map type to fixed server-side directory
         $raw_dir = __DIR__ . '/../../uploads/' . $type . '_pdfs';
         if (!is_dir($raw_dir)) {
-            mkdir($raw_dir, 0755, true);
+            @mkdir($raw_dir, 0755, true);
         }
         $base_dir = realpath($raw_dir);
         if (!$base_dir) {

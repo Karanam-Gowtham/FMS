@@ -29,7 +29,7 @@ class NAACDashboardController {
         if (empty($academic_years)) {
             $academic_years = ['2023-24', '2024-25', '2025-26'];
         }
-        $filter_year = isset($_GET['year']) ? trim($_GET['year']) : ($academic_years[0] ?? '2025-26');
+        $filter_year = (isset($_GET['year']) && is_string($_GET['year'])) ? trim($_GET['year']) : ($academic_years[0] ?? '2025-26');
         if (!in_array($filter_year, $academic_years, true)) {
             $filter_year = $academic_years[0] ?? '2025-26';
         }
