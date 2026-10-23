@@ -105,9 +105,10 @@ class PublicController {
         $faculty_performance = [];
         // Pre-fill with active faculty
         foreach($faculty as $fac) {
-            $faculty_performance[$fac['full_name']] = [
-                'name' => $fac['full_name'],
-                'role' => $fac['role_name'],
+            $fac_name = !empty($fac['full_name']) ? $fac['full_name'] : 'Faculty';
+            $faculty_performance[$fac_name] = [
+                'name' => $fac_name,
+                'role' => $fac['role_name'] ?? 'Faculty',
                 'total' => 0,
                 'papers' => 0,
                 'patents' => 0,
@@ -117,7 +118,7 @@ class PublicController {
         }
 
         foreach ($public_docs as $doc) {
-            $uploader = $doc['uploader_name'] ?: 'Unknown';
+            $uploader = !empty($doc['uploader_name']) ? $doc['uploader_name'] : 'Unknown';
             if (!isset($faculty_performance[$uploader])) {
                 $faculty_performance[$uploader] = [
                     'name' => $uploader,
@@ -149,13 +150,13 @@ class PublicController {
 
         // Calculate Points (Score)
         foreach ($faculty_performance as &$perf) {
-            $perf['points'] = ($perf['patents'] * 10) + ($perf['papers'] * 5) + ($perf['fdps'] * 2) + ($perf['others'] * 1);
+            $perf['points'] = (($perf['patents'] ?? 0) * 10) + (($perf['papers'] ?? 0) * 5) + (($perf['fdps'] ?? 0) * 2) + (($perf['others'] ?? 0) * 1);
         }
         unset($perf);
 
         // Sort by points descending
         usort($faculty_performance, function($a, $b) {
-            return $b['points'] <=> $a['points'];
+            return ($b['points'] ?? 0) <=> ($a['points'] ?? 0);
         });
         
         $top_faculty = array_slice($faculty_performance, 0, 3);

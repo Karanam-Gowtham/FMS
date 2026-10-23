@@ -121,7 +121,7 @@
         <h1>Institutional Login</h1>
         <div class="subtitle">FILE MANAGEMENT SYSTEM</div>
 
-        <?php if ($error): ?>
+        <?php if (!empty($error)): ?>
             <div class="error-msg">
                 <i class="fas fa-exclamation-circle"></i>
                 <span><?= htmlspecialchars($error) ?></span>

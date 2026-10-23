@@ -7,7 +7,7 @@ $active_role = auth_active_role();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Document &mdash; <?= htmlspecialchars($document['type_label']) ?> &mdash; FMS</title>
+    <title>Edit Document &mdash; <?= htmlspecialchars($document['type_label'] ?? 'Document') ?> &mdash; FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -34,7 +34,7 @@ $active_role = auth_active_role();
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="upload-container">
-    <div class="form-title">Edit Document: <?= htmlspecialchars($document['type_label']) ?></div>
+    <div class="form-title">Edit Document: <?= htmlspecialchars($document['type_label'] ?? 'Document') ?></div>
     
     <?php if(!empty($success_msg)): ?>
         <div class="alert alert-success"><?= htmlspecialchars($success_msg) ?></div>
@@ -52,14 +52,14 @@ $active_role = auth_active_role();
             <div class="form-grid">
                 <div class="form-group full-width">
                     <label class="required" for="title">Document Title / Topic</label>
-                    <input type="text" id="title" name="title" value="<?= htmlspecialchars($document['title']) ?>" required>
+                    <input type="text" id="title" name="title" value="<?= htmlspecialchars($document['title'] ?? '') ?>" required>
                 </div>
                 
                 <div class="form-group">
                     <label class="required" for="academic_year_id">Academic Year</label>
                     <select id="academic_year_id" name="academic_year_id" required>
                         <?php foreach($academic_years as $ay): ?>
-                            <option value="<?= (int)$ay['year_id'] ?>" <?= ((int)$ay['year_id'] === (int)$document['academic_year_id']) ? 'selected' : '' ?>>
+                            <option value="<?= (int)$ay['year_id'] ?>" <?= ((int)$ay['year_id'] === (int)($document['academic_year_id'] ?? 0)) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($ay['year_label']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -70,7 +70,7 @@ $active_role = auth_active_role();
                     <label class="required" for="dept_id">Department</label>
                     <select id="dept_id" name="dept_id" required>
                         <?php foreach($user_depts as $id => $name): ?>
-                            <option value="<?= (int)$id ?>" <?= ((int)$id === (int)$document['dept_id']) ? 'selected' : '' ?>>
+                            <option value="<?= (int)$id ?>" <?= ((int)$id === (int)($document['dept_id'] ?? 0)) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($name) ?>
                             </option>
                         <?php endforeach; ?>

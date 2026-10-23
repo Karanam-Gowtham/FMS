@@ -176,6 +176,10 @@ include_once HEADER;
 </div>
 
 <?php
+$public_docs = !empty($public_docs) && is_array($public_docs) ? $public_docs : [];
+$faculty_performance = !empty($faculty_performance) && is_array($faculty_performance) ? $faculty_performance : [];
+$top_faculty = !empty($top_faculty) && is_array($top_faculty) ? $top_faculty : [];
+
 $type_counts = [];
 foreach($public_docs as $doc) {
     $t = !empty($doc['type_name']) ? $doc['type_name'] : 'Other';
@@ -185,7 +189,7 @@ foreach($public_docs as $doc) {
 
 $bar_data = $faculty_performance;
 usort($bar_data, function($a, $b) {
-    return $b['total'] <=> $a['total'];
+    return ($b['total'] ?? 0) <=> ($a['total'] ?? 0);
 });
 $fac_names = array_column($bar_data, 'name');
 $fac_totals = array_column($bar_data, 'total');
