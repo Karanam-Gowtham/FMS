@@ -208,13 +208,13 @@ require __DIR__ . '/../../../includes/header.php';
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllStudentDocs"></th>
-                            <th>ID</th>
-                            <th>Category</th>
-                            <th>Event Details</th>
-                            <th>Event Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th scope="col" style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllStudentDocs" aria-label="Select all documents"></th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Event Details</th>
+                            <th scope="col">Event Date</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -296,7 +296,7 @@ require __DIR__ . '/../../../includes/header.php';
             <div class="modal-body" style="padding-bottom: 0;">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Activity Category *</label>
+                        <label for="route_activity_category" class="form-label fw-bold">Activity Category *</label>
                         <select class="form-select" id="route_activity_category">
                             <option value="">- Select -</option>
                             <option value="Co-Curricular">Co-Curricular Activities</option>
@@ -304,7 +304,7 @@ require __DIR__ . '/../../../includes/header.php';
                         </select>
                     </div>
                     <div class="col-md-6 mb-3 d-none" id="route_event_type_container">
-                        <label class="form-label fw-bold">Event Type *</label>
+                        <label for="route_event_type" class="form-label fw-bold">Event Type *</label>
                         <select class="form-select" id="route_event_type">
                             <!-- Populated dynamically -->
                         </select>

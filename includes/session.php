@@ -10,15 +10,12 @@ if (session_status() === PHP_SESSION_NONE) {
     if (!headers_sent()) {
         ini_set('session.use_only_cookies', '1');
         ini_set('session.use_strict_mode', '1');
+        ini_set('session.cookie_secure', '1');
+        ini_set('session.cookie_httponly', '1');
+        ini_set('session.cookie_samesite', 'Lax');
 
-        session_set_cookie_params([
-            'lifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 0,
-            'path' => '/',
-            'domain' => '',
-            'secure' => true,          // Enforce HTTPS-only secure session cookies
-            'httponly' => true,        // Prevent JavaScript access to session cookie
-            'samesite' => 'Lax',       // Cross-site cookie restriction
-        ]);
+        $lifetime = defined('SESSION_LIFETIME') ? (int)SESSION_LIFETIME : 0;
+        session_set_cookie_params($lifetime, '/', '', true, true);
     }
 
     if (session_status() === PHP_SESSION_NONE) {
