@@ -73,7 +73,7 @@
                             <?= !empty($filter_global_event_types) ? count($filter_global_event_types).' Selected' : 'All Types' ?>
                         </button>
                         <ul class="dropdown-menu w-100 p-2 shadow-sm" style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
-                            <?php foreach($global_filter_options['event_types'] as $et): ?>
+                            <?php foreach(($global_filter_options['event_types'] ?? []) as $et): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
                                     <input type="checkbox" class="form-check-input mt-1" name="global_event_types[]" value="<?= htmlspecialchars($et) ?>" <?= in_array($et, $filter_global_event_types, true) ? 'checked' : '' ?>>
@@ -92,7 +92,7 @@
                             <?= !empty($filter_global_domains) ? count($filter_global_domains).' Selected' : 'All Domains' ?>
                         </button>
                         <ul class="dropdown-menu w-100 p-2 shadow-sm" style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
-                            <?php foreach($global_filter_options['domains'] as $dom): ?>
+                            <?php foreach(($global_filter_options['domains'] ?? []) as $dom): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
                                     <input type="checkbox" class="form-check-input mt-1" name="global_domains[]" value="<?= htmlspecialchars($dom) ?>" <?= in_array($dom, $filter_global_domains, true) ? 'checked' : '' ?>>
@@ -111,7 +111,7 @@
                             <?= !empty($filter_global_modes) ? count($filter_global_modes).' Selected' : 'All Modes' ?>
                         </button>
                         <ul class="dropdown-menu w-100 p-2 shadow-sm" style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
-                            <?php foreach($global_filter_options['modes'] as $md): ?>
+                            <?php foreach(($global_filter_options['modes'] ?? []) as $md): ?>
                             <li>
                                 <label class="dropdown-item d-flex align-items-start gap-2 px-2 py-1 text-wrap" style="cursor: pointer;">
                                     <input type="checkbox" class="form-check-input mt-1" name="global_modes[]" value="<?= htmlspecialchars($md) ?>" <?= in_array($md, $filter_global_modes, true) ? 'checked' : '' ?>>

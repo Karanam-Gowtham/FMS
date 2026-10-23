@@ -173,7 +173,7 @@ try {
     error_log("public_stats API error: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
-        'error' => $e->getMessage(),
+        'error' => (defined('FMS_DEBUG') && FMS_DEBUG) ? $e->getMessage() : 'An unexpected error occurred while processing analytics data.',
         'data' => [
             'stats' => ['total_docs' => 0, 'pubs' => 0, 'patents' => 0, 'fdps' => 0, 'researchers' => 0],
             'timeline' => [],

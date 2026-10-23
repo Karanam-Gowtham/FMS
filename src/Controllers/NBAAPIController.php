@@ -263,11 +263,16 @@ class NBAAPIController {
             ]);
 
         } catch (\Throwable $e) {
+            error_log("NBA API upload failed: " . $e->getMessage());
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number') || str_starts_with($e->getMessage(), 'No file') || str_starts_with($e->getMessage(), 'Invalid file') || str_starts_with($e->getMessage(), 'File upload error'))
+                ? $e->getMessage()
+                : 'Failed to upload NBA file. Please try again.';
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage()
+                'message' => $msg,
+                'error' => $msg
             ]);
         }
     }
@@ -345,11 +350,16 @@ class NBAAPIController {
                 'pdf_url' => BASE_URL . "/public/index.php?route=reports/download&type=nba&file=" . urlencode($filename)
             ]);
         } catch (\Throwable $e) {
+            error_log("NBA API PDF generation failed: " . $e->getMessage());
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Criterion number'))
+                ? $e->getMessage()
+                : 'Failed to generate NBA report. Please try again.';
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage()
+                'message' => $msg,
+                'error' => $msg
             ]);
         }
     }

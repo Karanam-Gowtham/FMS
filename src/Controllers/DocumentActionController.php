@@ -872,10 +872,12 @@ class DocumentActionController {
                 $this->safeRedirectBack();
             }
         } catch (\Throwable $e) {
+            error_log("PDF Merge Exception: " . $e->getMessage());
             if (file_exists($merged_path)) {
                 @unlink($merged_path);
             }
-            $_SESSION['error_msg'] = "PDF Merge Error: " . $e->getMessage();
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $_SESSION['error_msg'] = $is_debug ? ("PDF Merge Error: " . $e->getMessage()) : "Failed to merge PDFs due to an unexpected error. Please try again.";
             $this->safeRedirectBack();
         }
     }
@@ -1049,12 +1051,14 @@ class DocumentActionController {
             }
             exit;
         } catch (\Throwable $e) {
+            error_log("Accreditation PDF Generation Exception: " . $e->getMessage());
             foreach ($temp_cleanup_registry as $tmpF) {
                 if (file_exists($tmpF)) {
                     @unlink($tmpF);
                 }
             }
-            $_SESSION['error_msg'] = "Accreditation PDF Generation Error: " . $e->getMessage();
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $_SESSION['error_msg'] = $is_debug ? ("Accreditation PDF Generation Error: " . $e->getMessage()) : "Failed to generate accreditation PDF due to an unexpected error. Please try again.";
             $this->safeRedirectBack();
         }
     }

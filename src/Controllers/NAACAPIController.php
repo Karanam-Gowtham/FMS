@@ -187,11 +187,16 @@ class NAACAPIController {
             ]);
 
         } catch (\Throwable $e) {
+            error_log("NAAC API upload failed: " . $e->getMessage());
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number') || str_starts_with($e->getMessage(), 'No file') || str_starts_with($e->getMessage(), 'Invalid file') || str_starts_with($e->getMessage(), 'File upload error'))
+                ? $e->getMessage()
+                : 'Failed to upload NAAC file. Please try again.';
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage()
+                'message' => $msg,
+                'error' => $msg
             ]);
         }
     }
@@ -269,11 +274,16 @@ class NAACAPIController {
                 'pdf_url' => BASE_URL . "/public/index.php?route=reports/download&type=naac&file=" . urlencode($filename)
             ]);
         } catch (\Throwable $e) {
+            error_log("NAAC API PDF generation failed: " . $e->getMessage());
+            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Criterion number'))
+                ? $e->getMessage()
+                : 'Failed to generate NAAC report. Please try again.';
             echo json_encode([
                 'status' => 'error',
                 'success' => false,
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage()
+                'message' => $msg,
+                'error' => $msg
             ]);
         }
     }

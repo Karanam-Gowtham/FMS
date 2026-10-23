@@ -243,7 +243,10 @@ class ProfileController {
                             @unlink($new_file);
                         }
                     }
-                    $error = 'Failed to update profile: ' . $e->getMessage();
+                    error_log("Failed to update profile: " . $e->getMessage());
+                    $error = (defined('FMS_DEBUG') && FMS_DEBUG)
+                        ? ('Failed to update profile: ' . $e->getMessage())
+                        : 'Failed to update profile due to an unexpected error. Please try again.';
                 }
                 }
             }

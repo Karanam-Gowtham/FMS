@@ -4,7 +4,42 @@ function switchRole(baseUrl) {
 }
 
 function activateRole(userRoleId, baseUrl, csrfToken) {
-    // Use a form POST to switch role securely
+    if (typeof fetch === 'function') {
+        fetch(baseUrl + '/public/index.php?route=auth/select_role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: 'user_role_id=' + encodeURIComponent(userRoleId) + '&_csrf_token=' + encodeURIComponent(csrfToken) + '&csrf_token=' + encodeURIComponent(csrfToken)
+        }).then(async response => {
+            if (!response.ok) {
+                let errorText = 'Server returned HTTP ' + response.status;
+                try {
+                    const data = await response.json();
+                    if (data && data.message) errorText = data.message;
+                } catch (_) {}
+                throw new Error(errorText);
+            }
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                try {
+                    const resData = await response.json();
+                    window.location.href = resData.redirect_url || (baseUrl + '/public/index.php?route=dashboard');
+                } catch (_) {
+                    window.location.href = baseUrl + '/public/index.php?route=dashboard';
+                }
+            }
+        }).catch(err => {
+            console.error('Role switch failed:', err);
+            alert(err.message || 'Failed to switch role. Please check network connection and try again.');
+        });
+        return;
+    }
+
+    // Fallback: Use a form POST to switch role securely
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = baseUrl + '/public/index.php?route=auth/select_role';
