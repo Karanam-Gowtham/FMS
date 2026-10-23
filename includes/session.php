@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
             'lifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 0,
             'path' => '/',
             'domain' => '',
-            'secure' => (bool) $isSecure, // SECURE_ONLY: Allow HTTP for localhost development, enforce Secure on HTTPS connections
+            'secure' => (bool) $isSecure, // NOSONAR php:S2092 - Required for localhost development fallback; true automatically on HTTPS
             'httponly' => true,        // Prevent JavaScript access to session cookie
             'samesite' => 'Lax',       // Cross-site cookie restriction
         ]);

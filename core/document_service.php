@@ -264,14 +264,15 @@ function doc_create(
 
         if (count($pdfs_to_merge) > 1) {
             require_once __DIR__ . '/pdf_merger_service.php';
-            $merged_filename = $type_key . '_merged_' . uniqid() . '.pdf';
-            $merged_dir = __DIR__ . '/../uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/';
+            $safe_type_key = preg_replace('/[^a-z0-9_]/', '', strtolower((string)$type_key));
+            $merged_filename = $safe_type_key . '_merged_' . uniqid() . '.pdf';
+            $merged_dir = __DIR__ . '/../uploads/' . $safe_type_key . '/';
             if (!is_dir($merged_dir)) { @mkdir($merged_dir, 0755, true); }
             $merged_path = $merged_dir . $merged_filename;
             
             try {
                 if (merge_pdfs_with_headings($pdfs_to_merge, $merged_path)) {
-                    $rel_merged_path = 'uploads/' . preg_replace('/[^a-z0-9_]/', '', $type_key) . '/' . $merged_filename;
+                    $rel_merged_path = 'uploads/' . $safe_type_key . '/' . $merged_filename;
                     
                     // Update the master file_path in documents table
                     $upd_stmt = $conn->prepare("UPDATE documents SET file_path = ? WHERE doc_id = ?");

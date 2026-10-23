@@ -116,11 +116,21 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
         $is_safe_dir = ($canonical_temp && stripos($target_real, $canonical_temp) === 0) ||
                        ($canonical_uploads && stripos($target_real, $canonical_uploads) === 0);
 
-        if ($is_safe_dir && !is_dir($dir)) {
-            @mkdir($dir, 0755, true);
+        if (!$is_safe_dir) {
+            throw new \InvalidArgumentException("Security error: Output directory must reside within uploads or temp directory.");
         }
 
-        $pdf->Output('F', $output_path);
+        $safe_filename = basename($output_path);
+        if (!preg_match('/^[a-zA-Z0-9_\-]+\.pdf$/i', $safe_filename)) {
+            throw new \InvalidArgumentException("Security error: Invalid output filename.");
+        }
+
+        if (!is_dir($target_real)) {
+            @mkdir($target_real, 0755, true);
+        }
+
+        $safe_output_path = rtrim($target_real, DIRECTORY_SEPARATOR . '/\\') . DIRECTORY_SEPARATOR . $safe_filename;
+        $pdf->Output('F', $safe_output_path);
         return true;
     } finally {
         // Always clean any temporary normalized files
