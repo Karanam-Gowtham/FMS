@@ -69,6 +69,8 @@ require_once $root_dir . '/config.php';
 add_check('Configuration', 'Configuration Loaded', defined('ROOT_PATH'));
 add_check('Configuration', 'Environment Set', defined('FMS_ENV'), "Active: " . (defined('FMS_ENV') ? FMS_ENV : 'None'));
 add_check('Configuration', 'Debug Flag Set', defined('FMS_DEBUG'), "Debug: " . (FMS_DEBUG ? 'true' : 'false'));
+add_check('Configuration', 'Session Timeout Configured', defined('SESSION_TIMEOUT'), "Timeout: " . SESSION_TIMEOUT . "s");
+add_check('Configuration', 'Session Lifetime Configured', defined('SESSION_LIFETIME'), "Lifetime: " . SESSION_LIFETIME . "s");
 
 // 4. Filesystem & Directory Permissions
 $writable_dirs = [

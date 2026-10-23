@@ -8,11 +8,17 @@ $conn = @mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, (int)DB_PORT);
 
 if (!$conn) {
     error_log("FMS Database Connection Error: " . mysqli_connect_error());
-    if (ob_get_level()) {
+    while (ob_get_level()) {
         ob_end_clean();
     }
-    header("HTTP/1.1 500 Internal Server Error");
-    exit("A database connection error occurred. Please contact the administrator.");
+    http_response_code(500);
+    $error_500 = __DIR__ . '/../public/500.php';
+    if (file_exists($error_500)) {
+        include $error_500;
+    } else {
+        echo "A database connection error occurred. Please contact the administrator.";
+    }
+    exit(1);
 }
 
 // Enforce standard utf8mb4 encoding for full unicode support and injection defense

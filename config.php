@@ -53,6 +53,10 @@ if (!defined('SESSION_TIMEOUT')) {
     define('SESSION_TIMEOUT', (int)(getenv('SESSION_TIMEOUT') ?: 7200));
 }
 
+if (!defined('SESSION_LIFETIME')) {
+    define('SESSION_LIFETIME', (int)(getenv('SESSION_LIFETIME') ?: 0));
+}
+
 /* =========================================================
    DATABASE CONFIGURATION
    ========================================================= */

@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
         ini_set('session.use_strict_mode', '1');
 
         session_set_cookie_params([
-            'lifetime' => 0,
+            'lifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 0,
             'path' => '/',
             'domain' => '',
             'secure' => (bool) $isSecure, // SECURE_ONLY: Allow HTTP for localhost development, enforce Secure on HTTPS connections
