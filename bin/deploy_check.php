@@ -126,6 +126,11 @@ add_check('Web Server Security', 'Database Directory Guard (database/.htaccess)'
 add_check('Web Server Security', 'Temporary Directory Guard (tmp/.htaccess)', file_exists($root_dir . '/tmp/.htaccess'));
 add_check('Web Server Security', 'CLI Bin Directory Guard (bin/.htaccess)', file_exists($root_dir . '/bin/.htaccess'));
 
+// 7. Branded Error Pages
+add_check('Error Handling', '403 Forbidden Template (public/403.php)', file_exists($root_dir . '/public/403.php'));
+add_check('Error Handling', '404 Not Found Template (public/404.php)', file_exists($root_dir . '/public/404.php'));
+add_check('Error Handling', '500 Server Error Template (public/500.php)', file_exists($root_dir . '/public/500.php'));
+
 // Output rendering
 if ($is_json) {
     header('Content-Type: application/json');

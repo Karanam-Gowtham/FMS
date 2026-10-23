@@ -295,7 +295,13 @@ function require_role(array|int $allowed_roles): void
     $active_role_id = auth_active_role_id();
     if (!in_array($active_role_id, $allowed_roles, true)) {
         http_response_code(403);
-        die("Access denied. Your current role does not have permission to access this page.");
+        $error_message = "Access denied. Your current active role does not have permission to access this page.";
+        if (file_exists(__DIR__ . '/../public/403.php')) {
+            include __DIR__ . '/../public/403.php';
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
+        exit();
     }
 }
 

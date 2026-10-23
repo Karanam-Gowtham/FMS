@@ -305,8 +305,9 @@ class DocumentActionController {
         $target_file = file_exists($raw_file_path) ? $raw_file_path : ($base_dir . '/' . ltrim($raw_file_path, '/\\'));
         $canonical_path = realpath($target_file);
         $allowed_base = realpath($base_dir . '/uploads');
+        $canonical_base = $allowed_base ? (rtrim($allowed_base, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) : null;
 
-        if (!$canonical_path || !$allowed_base || stripos($canonical_path, $allowed_base) !== 0 || !is_file($canonical_path)) {
+        if (!$canonical_path || !$canonical_base || stripos($canonical_path, $canonical_base) !== 0 || !is_file($canonical_path)) {
             $_SESSION['error_msg'] = "The physical file is missing or invalid on the server.";
             $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . (int)$file_record['doc_id']);
         }

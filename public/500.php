@@ -4,6 +4,9 @@
  */
 http_response_code(500);
 $base_url = defined('BASE_URL') ? BASE_URL : '/mini/FMS';
+$desc = isset($error_message) && is_string($error_message) && !empty($error_message)
+    ? $error_message
+    : 'An internal error occurred while processing your request. The issue has been logged for review by system administrators.';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -127,9 +130,7 @@ $base_url = defined('BASE_URL') ? BASE_URL : '/mini/FMS';
         </div>
         <div class="error-code">500</div>
         <h1 class="error-title">Unexpected Server Error</h1>
-        <p class="error-desc">
-            An internal error occurred while processing your request. The issue has been logged for review by system administrators.
-        </p>
+        <p class="error-desc"><?= htmlspecialchars($desc, ENT_QUOTES, 'UTF-8') ?></p>
         <div class="btn-group">
             <a href="<?= htmlspecialchars($base_url) ?>/public/index.php?route=dashboard" class="btn btn-primary">
                 <i class="fa-solid fa-gauge-high"></i> Return to Dashboard

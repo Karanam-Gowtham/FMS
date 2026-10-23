@@ -196,14 +196,24 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
     $auth = auth_context();
     if (!$auth) {
         http_response_code(403);
-        echo "Access denied.";
+        $error_message = "Access denied. Please log in to download files.";
+        if (file_exists(__DIR__ . '/../public/403.php')) {
+            include __DIR__ . '/../public/403.php';
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
         return;
     }
 
     $stmt = $conn->prepare("SELECT doc_id, original_name, file_path, mime_type FROM document_files WHERE file_id = ?");
     if (!$stmt) {
         http_response_code(500);
-        echo "Database query error.";
+        $error_message = "Database query error while retrieving document file record.";
+        if (file_exists(__DIR__ . '/../public/500.php')) {
+            include __DIR__ . '/../public/500.php';
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
         return;
     }
     $stmt->bind_param('i', $file_id);
@@ -214,7 +224,12 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
 
     if (!$file) {
         http_response_code(404);
-        echo "File not found.";
+        $error_message = "The requested file record does not exist or has been removed.";
+        if (file_exists(__DIR__ . '/../public/404.php')) {
+            include __DIR__ . '/../public/404.php';
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
         return;
     }
 
@@ -222,7 +237,12 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
     $doc = doc_get_by_id($conn, $doc_id);
     if (!$doc || !doc_can_view($conn, $auth, $doc)) {
         http_response_code(403);
-        echo "Access denied.";
+        $error_message = "Access denied. You do not have permission to view or download this document.";
+        if (file_exists(__DIR__ . '/../public/403.php')) {
+            include __DIR__ . '/../public/403.php';
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
         return;
     }
 
@@ -234,7 +254,12 @@ function file_download(mysqli $conn, int $file_id, bool $inline = false): void
 
     if (!$canonical_path || !$canonical_base || stripos($canonical_path, $canonical_base) !== 0 || !is_file($canonical_path)) {
         http_response_code(404);
-        echo "File not found on disk.";
+        $error_message = "The requested file could not be found on physical storage.";
+        if (file_exists(__DIR__ . '/../public/404.php')) {
+            include __DIR__ . '/../public/404.php';
+        } else {
+            echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8');
+        }
         return;
     }
 
