@@ -56,10 +56,14 @@ class ReportDownloadController {
         }
 
         // Stream the PDF
+        $filename_disp = basename($real_filepath);
         header("X-Content-Type-Options: nosniff");
         header("Content-Type: application/pdf");
-        header("Content-Disposition: inline; filename=\"" . basename($real_filepath) . "\"");
-        header("Content-Length: " . filesize($real_filepath));
+        header("Content-Disposition: inline; filename=\"" . $filename_disp . "\"; filename*=UTF-8''" . rawurlencode($filename_disp));
+        $fsize = @filesize($real_filepath);
+        if ($fsize !== false && $fsize >= 0) {
+            header("Content-Length: " . $fsize);
+        }
         header("Cache-Control: private, must-revalidate, max-age=0");
         
         readfile($real_filepath);

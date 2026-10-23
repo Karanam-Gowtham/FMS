@@ -245,17 +245,23 @@ class PublicController {
             $mime_type = 'application/octet-stream';
         }
 
-        $filename = str_replace(['"', "\r", "\n"], '', basename($canonical_path));
+        $filename = str_replace(['"', ';', "\r", "\n"], '', basename($canonical_path));
+        if ($filename === '') {
+            $filename = 'document_' . $doc_id;
+        }
 
         while (ob_get_level()) ob_end_clean();
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $mime_type);
-        header('Content-Disposition: inline; filename="' . $filename . '"');
+        header('Content-Disposition: inline; filename="' . $filename . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
         header('X-Content-Type-Options: nosniff');
         header('Expires: 0');
         header('Cache-Control: public, must-revalidate, max-age=3600');
         header('Pragma: public');
-        header('Content-Length: ' . filesize($canonical_path));
+        $fsize = @filesize($canonical_path);
+        if ($fsize !== false && $fsize >= 0) {
+            header('Content-Length: ' . $fsize);
+        }
         
         readfile($canonical_path);
         exit;

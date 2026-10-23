@@ -68,23 +68,23 @@ class ProfileController {
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             csrfValidate();
             
-            $name = trim($_POST['name'] ?? '');
-            $per_no = trim($_POST['per_no'] ?? '');
-            $pan_no = trim($_POST['pan_no'] ?? '');
-            $apaar_id = trim($_POST['apaar_id'] ?? '');
-            $highest_degree = trim($_POST['highest_degree'] ?? '');
-            $university = trim($_POST['university'] ?? '');
-            $specialization = trim($_POST['specialization'] ?? '');
-            $doj_institution = trim($_POST['doj_institution'] ?? '');
-            $doj_department = trim($_POST['doj_department'] ?? '');
+            $name = (isset($_POST['name']) && is_string($_POST['name'])) ? trim($_POST['name']) : '';
+            $per_no = (isset($_POST['per_no']) && is_string($_POST['per_no'])) ? trim($_POST['per_no']) : '';
+            $pan_no = (isset($_POST['pan_no']) && is_string($_POST['pan_no'])) ? strtoupper(trim($_POST['pan_no'])) : '';
+            $apaar_id = (isset($_POST['apaar_id']) && is_string($_POST['apaar_id'])) ? trim($_POST['apaar_id']) : '';
+            $highest_degree = (isset($_POST['highest_degree']) && is_string($_POST['highest_degree'])) ? trim($_POST['highest_degree']) : '';
+            $university = (isset($_POST['university']) && is_string($_POST['university'])) ? trim($_POST['university']) : '';
+            $specialization = (isset($_POST['specialization']) && is_string($_POST['specialization'])) ? trim($_POST['specialization']) : '';
+            $doj_institution = (isset($_POST['doj_institution']) && is_string($_POST['doj_institution'])) ? trim($_POST['doj_institution']) : '';
+            $doj_department = (isset($_POST['doj_department']) && is_string($_POST['doj_department'])) ? trim($_POST['doj_department']) : '';
             $experience_years = max(0.0, round((float)($_POST['experience_years'] ?? 0), 2));
-            $designation_joining = trim($_POST['designation_joining'] ?? '');
-            $designation_present = trim($_POST['designation_present'] ?? '');
-            $date_designated_prof = trim($_POST['date_designated_prof'] ?? '');
-            $association_nature = trim($_POST['association_nature'] ?? 'Regular');
-            $contract_type = trim($_POST['contract_type'] ?? '');
+            $designation_joining = (isset($_POST['designation_joining']) && is_string($_POST['designation_joining'])) ? trim($_POST['designation_joining']) : '';
+            $designation_present = (isset($_POST['designation_present']) && is_string($_POST['designation_present'])) ? trim($_POST['designation_present']) : '';
+            $date_designated_prof = (isset($_POST['date_designated_prof']) && is_string($_POST['date_designated_prof'])) ? trim($_POST['date_designated_prof']) : '';
+            $association_nature = (isset($_POST['association_nature']) && is_string($_POST['association_nature'])) ? trim($_POST['association_nature']) : 'Regular';
+            $contract_type = (isset($_POST['contract_type']) && is_string($_POST['contract_type'])) ? trim($_POST['contract_type']) : '';
             $is_currently_associated = isset($_POST['is_currently_associated']) && $_POST['is_currently_associated'] === '1' ? 1 : 0;
-            $date_of_leaving = trim($_POST['date_of_leaving'] ?? '');
+            $date_of_leaving = (isset($_POST['date_of_leaving']) && is_string($_POST['date_of_leaving'])) ? trim($_POST['date_of_leaving']) : '';
             
             if (empty($doj_department)) $doj_department = null;
             if (empty($date_designated_prof)) $date_designated_prof = null;
@@ -93,12 +93,13 @@ class ProfileController {
             if (empty($apaar_id)) $apaar_id = null;
             if (empty($doj_institution)) $doj_institution = null;
             
+            $user_id_val = (int)($auth['user_id'] ?? 0);
             if (empty($name)) {
                 $error = 'Name cannot be empty.';
             } else {
                 $check_sql = "SELECT user_id FROM user_profiles WHERE user_id != ? AND (";
                 $conditions = [];
-                $params = [$auth['user_id']];
+                $params = [$user_id_val];
                 $types = "i";
                 if ($per_no !== '') {
                     $conditions[] = "per_no = ?";
@@ -138,7 +139,7 @@ class ProfileController {
                     if (!$stmt) {
                         throw new \Exception("Database error preparing name update.");
                     }
-                    $stmt->bind_param("si", $name, $auth['user_id']);
+                    $stmt->bind_param("si", $name, $user_id_val);
                     $stmt->execute();
                     $stmt->close();
 
@@ -159,7 +160,7 @@ class ProfileController {
                             // Stage previous profile photo on disk for removal only after commit succeeds
                             $old_photo_stmt = $conn->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
                             if ($old_photo_stmt) {
-                                $old_photo_stmt->bind_param("i", $auth['user_id']);
+                                $old_photo_stmt->bind_param("i", $user_id_val);
                                 $old_photo_stmt->execute();
                                 $old_photo_res = $old_photo_stmt->get_result()->fetch_assoc();
                                 $old_photo_stmt->close();
@@ -196,7 +197,7 @@ class ProfileController {
                         if (!$stmt) {
                             throw new \Exception("Database error preparing profile photo statement.");
                         }
-                        $stmt->bind_param("issssssssdsssssiss", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving, $profile_photo_path);
+                        $stmt->bind_param("issssssssdsssssiss", $user_id_val, $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving, $profile_photo_path);
                     } else {
                         $stmt = $conn->prepare("
                             INSERT INTO user_profiles (
@@ -218,7 +219,7 @@ class ProfileController {
                         if (!$stmt) {
                             throw new \Exception("Database error preparing profile statement.");
                         }
-                        $stmt->bind_param("issssssssdsssssis", $auth['user_id'], $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving);
+                        $stmt->bind_param("issssssssdsssssis", $user_id_val, $per_no, $pan_no, $apaar_id, $highest_degree, $university, $specialization, $doj_institution, $doj_department, $experience_years, $designation_joining, $designation_present, $date_designated_prof, $association_nature, $contract_type, $is_currently_associated, $date_of_leaving);
                     }
                     
                     $stmt->execute();

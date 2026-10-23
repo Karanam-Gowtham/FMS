@@ -67,15 +67,17 @@ class DocumentActionController {
             } else {
                 $mentor_id = null;
                 $is_student = false;
-                foreach ($auth['roles'] as $role) {
-                    if ((int)$role['role_id'] === ROLE_STUDENT) {
+                $user_roles = isset($auth['roles']) && is_array($auth['roles']) ? $auth['roles'] : [];
+                foreach ($user_roles as $role) {
+                    $r_id = is_array($role) ? (int)($role['role_id'] ?? 0) : (int)$role;
+                    if ($r_id === ROLE_STUDENT) {
                         $is_student = true;
                         break;
                     }
                 }
 
                 if ($is_student) {
-                    $mentor_per_no = trim($_POST['mentor_per_no'] ?? '');
+                    $mentor_per_no = (isset($_POST['mentor_per_no']) && is_string($_POST['mentor_per_no'])) ? trim($_POST['mentor_per_no']) : '';
                     if ($mentor_per_no === '') {
                         $error_msg = 'Mentor Per No is required for student uploads.';
                     } else {
@@ -105,19 +107,21 @@ class DocumentActionController {
 
                 if (empty($error_msg)) {
                     $dept_authorized = false;
-                foreach ($auth['roles'] as $role) {
-                    if ((int)$role['dept_id'] === $post_dept_id) {
-                        $dept_authorized = true;
-                        break;
+                    foreach ($user_roles as $role) {
+                        $d_id = is_array($role) ? (int)($role['dept_id'] ?? 0) : (int)($auth['dept_id'] ?? 0);
+                        if ($d_id === $post_dept_id) {
+                            $dept_authorized = true;
+                            break;
+                        }
                     }
-                }
 
-                foreach ($auth['roles'] as $role) {
-                    if (in_array((int)$role['role_id'], [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
-                        $dept_authorized = true;
-                        break;
+                    foreach ($user_roles as $role) {
+                        $r_id = is_array($role) ? (int)($role['role_id'] ?? 0) : (int)$role;
+                        if (in_array($r_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+                            $dept_authorized = true;
+                            break;
+                        }
                     }
-                }
 
                 }
 
@@ -734,8 +738,9 @@ class DocumentActionController {
         $canonical_base = $allowed_base ? (rtrim($allowed_base, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) : null;
 
         foreach ($valid_docs as $doc) {
-            $doc_id = $doc['doc_id'];
-            $doc_folder = preg_replace('/[^a-zA-Z0-9]/', '_', $doc['title']) . '_' . $doc_id;
+            $doc_id = (int)$doc['doc_id'];
+            $doc_title = is_string($doc['title'] ?? null) ? $doc['title'] : 'doc';
+            $doc_folder = preg_replace('/[^a-zA-Z0-9]/', '_', $doc_title) . '_' . $doc_id;
 
             $stmt = $conn->prepare("SELECT file_path, original_name FROM document_files WHERE doc_id = ?");
             if ($stmt) {
@@ -748,7 +753,10 @@ class DocumentActionController {
                     $path = file_exists($row['file_path']) ? $row['file_path'] : ($base_dir . '/' . ltrim($row['file_path'], '/\\'));
                     $real_file = realpath($path);
                     if ($real_file && $canonical_base && stripos($real_file, $canonical_base) === 0 && is_file($real_file)) {
-                        $safe_orig_name = str_replace(['"', "\r", "\n"], '', basename($row['original_name']));
+                        $safe_orig_name = str_replace(['"', ';', "\r", "\n"], '', basename((string)($row['original_name'] ?? '')));
+                        if ($safe_orig_name === '') {
+                            $safe_orig_name = 'file_' . $doc_id;
+                        }
                         $zip->addFile($real_file, $doc_folder . '/' . $safe_orig_name);
                         $hasFiles = true;
                     }
@@ -783,8 +791,11 @@ class DocumentActionController {
 
         header('X-Content-Type-Options: nosniff');
         header('Content-Type: application/zip');
-        header('Content-Disposition: attachment; filename="FMS_Bulk_Download.zip"');
-        header('Content-Length: ' . filesize($zipName));
+        header('Content-Disposition: attachment; filename="FMS_Bulk_Download.zip"; filename*=UTF-8\'\'FMS_Bulk_Download.zip');
+        $fsize = @filesize($zipName);
+        if ($fsize !== false && $fsize >= 0) {
+            header('Content-Length: ' . $fsize);
+        }
         try {
             readfile($zipName);
         } finally {
@@ -854,8 +865,11 @@ class DocumentActionController {
                 }
                 header('X-Content-Type-Options: nosniff');
                 header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="FMS_Bulk_Merged.pdf"');
-                header('Content-Length: ' . filesize($merged_path));
+                header('Content-Disposition: attachment; filename="FMS_Bulk_Merged.pdf"; filename*=UTF-8\'\'FMS_Bulk_Merged.pdf');
+                $fsize = @filesize($merged_path);
+                if ($fsize !== false && $fsize >= 0) {
+                    header('Content-Length: ' . $fsize);
+                }
                 try {
                     readfile($merged_path);
                 } finally {
@@ -890,18 +904,18 @@ class DocumentActionController {
         require_once __DIR__ . '/../../core/pdf_merger_service.php';
 
         $headings = [
-            'criterion' => trim($_POST['criterion'] ?? 'Criterion V - Student Support and Progression'),
-            'key_indicator' => trim($_POST['key_indicator'] ?? 'Key Indicator - 5.1 Student Support'),
-            'metric' => trim($_POST['metric'] ?? ''),
-            'sub_heading' => trim($_POST['sub_heading'] ?? '')
+            'criterion' => (isset($_POST['criterion']) && is_string($_POST['criterion'])) ? trim($_POST['criterion']) : 'Criterion V - Student Support and Progression',
+            'key_indicator' => (isset($_POST['key_indicator']) && is_string($_POST['key_indicator'])) ? trim($_POST['key_indicator']) : 'Key Indicator - 5.1 Student Support',
+            'metric' => (isset($_POST['metric']) && is_string($_POST['metric'])) ? trim($_POST['metric']) : '',
+            'sub_heading' => (isset($_POST['sub_heading']) && is_string($_POST['sub_heading'])) ? trim($_POST['sub_heading']) : ''
         ];
 
         $selected_columns = $_POST['columns'] ?? ['sno', 'event_name', 'year', 'student_count', 'agency', 'page_no'];
         if (!is_array($selected_columns)) {
-            $selected_columns = explode(',', $selected_columns);
+            $selected_columns = is_string($selected_columns) ? explode(',', $selected_columns) : ['sno', 'event_name', 'year', 'student_count', 'agency', 'page_no'];
         }
 
-        $doc_custom_data = $_POST['doc_data'] ?? [];
+        $doc_custom_data = isset($_POST['doc_data']) && is_array($_POST['doc_data']) ? $_POST['doc_data'] : [];
         $temp_cleanup_registry = [];
 
         $docs_to_merge = [];
@@ -1032,10 +1046,14 @@ class DocumentActionController {
                 ob_end_clean();
             }
 
+            $safe_merged_name = str_replace(['"', ';', "\r", "\n"], '', basename($merged_filename));
             header('X-Content-Type-Options: nosniff');
             header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="' . $merged_filename . '"');
-            header('Content-Length: ' . filesize($merged_path));
+            header('Content-Disposition: attachment; filename="' . $safe_merged_name . '"; filename*=UTF-8\'\'' . rawurlencode($safe_merged_name));
+            $fsize = @filesize($merged_path);
+            if ($fsize !== false && $fsize >= 0) {
+                header('Content-Length: ' . $fsize);
+            }
             header('Cache-Control: private, max-age=0, must-revalidate');
             header('Pragma: public');
             
