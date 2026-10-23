@@ -111,7 +111,9 @@ function auth_load_user_roles(mysqli $conn, int $user_id): array
 function auth_create_session(array $user, array $active_role): void
 {
     // Regenerate session ID to prevent session fixation
-    session_regenerate_id(true);
+    if (session_status() === PHP_SESSION_ACTIVE && !headers_sent()) {
+        session_regenerate_id(true);
+    }
 
     $_SESSION[SESSION_AUTH_KEY] = [
         'user_id'     => $user['user_id'],
@@ -136,7 +138,7 @@ function auth_switch_role(int $user_role_id): bool
 
     foreach ($auth['roles'] as $role) {
         if ((int)$role['user_role_id'] === $user_role_id) {
-            if (session_status() === PHP_SESSION_ACTIVE) {
+            if (session_status() === PHP_SESSION_ACTIVE && !headers_sent()) {
                 session_regenerate_id(true);
             }
             $_SESSION[SESSION_AUTH_KEY]['active_role'] = $role;
