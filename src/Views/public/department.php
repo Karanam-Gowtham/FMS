@@ -205,8 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(ctxDept, {
             type: 'doughnut',
             data: {
-                labels: <?= json_encode(array_keys($type_counts)) ?>,
-                datasets: [{ data: <?= json_encode(array_values($type_counts)) ?>, backgroundColor: ['#0b353d', '#17a2b8', '#cfa85c', '#475569', '#64748b', '#94a3b8'], borderWidth: 0 }]
+                labels: <?= json_encode(array_keys($type_counts), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
+                datasets: [{ data: <?= json_encode(array_values($type_counts), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>, backgroundColor: ['#0b353d', '#17a2b8', '#cfa85c', '#475569', '#64748b', '#94a3b8'], borderWidth: 0 }]
             },
             options: { ...commonOptions, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: {size: 11} } } } }
         });
@@ -218,8 +218,8 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: <?= json_encode($fac_names) ?>,
-                datasets: [{ label: 'Total Outputs', data: <?= json_encode($fac_totals) ?>, backgroundColor: '#17a2b8', borderRadius: 4 }]
+                labels: <?= json_encode($fac_names, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
+                datasets: [{ label: 'Total Outputs', data: <?= json_encode($fac_totals, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>, backgroundColor: '#17a2b8', borderRadius: 4 }]
             },
             options: { ...commonOptions, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { maxRotation: 90, minRotation: 45 } } } }
         });
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [
                     <?php foreach($top_faculty as $index => $fac): ?>
                     {
-                        label: <?= json_encode($fac['name']) ?>,
+                        label: <?= json_encode($fac['name'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
                         data: [<?= (int)$fac['papers'] ?>, <?= (int)$fac['patents'] ?>, <?= (int)$fac['fdps'] ?>],
                         backgroundColor: '<?= $index === 0 ? "rgba(207, 168, 92, 0.2)" : ($index === 1 ? "rgba(23, 162, 184, 0.2)" : "rgba(11, 53, 61, 0.2)") ?>',
                         borderColor: '<?= $index === 0 ? "#cfa85c" : ($index === 1 ? "#17a2b8" : "#0b353d") ?>',

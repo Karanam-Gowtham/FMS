@@ -160,8 +160,8 @@
 </div>
 
 <script>
-    const initialData = <?= json_encode($criteria_data) ?>;
-    const formSchema = <?= json_encode($form_schema) ?>;
+    const initialData = <?= json_encode($criteria_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    const formSchema = <?= json_encode($form_schema, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     
     // Build an index of table schemas for easy access
     const tableSchemas = {};

@@ -882,7 +882,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 // Repopulate standard fields on validation error
 document.addEventListener('DOMContentLoaded', function() {
-    var oldInput = <?= json_encode($old_input ?? []) ?>;
+    var oldInput = <?= json_encode($old_input ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     if (!oldInput || Object.keys(oldInput).length === 0) return;
 
     // Trigger categories first so dynamic form structure builds
@@ -925,11 +925,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // One final update after all meta is populated to fix UI labels
     if (typeof updateModeLabel === 'function') updateModeLabel();
 
-    // Double submit protection
+    // Instant client-side file size guard (2 MB)
+    var MAX_FILE_BYTES = 2 * 1024 * 1024;
+    document.querySelectorAll('input[type="file"]').forEach(function(fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                if (this.files[0].size > MAX_FILE_BYTES) {
+                    alert('File size exceeds the 2 MB limit (' + (this.files[0].size / (1024 * 1024)).toFixed(2) + ' MB). Please choose a smaller file.');
+                    this.value = '';
+                }
+            }
+        });
+    });
+
+    // Double submit and file size check on submission
     var uploadForm = document.getElementById('uploadForm');
     if (uploadForm) {
         var isSubmitting = false;
         uploadForm.addEventListener('submit', function(e) {
+            var fileInputs = uploadForm.querySelectorAll('input[type="file"]');
+            for (var i = 0; i < fileInputs.length; i++) {
+                if (fileInputs[i].files && fileInputs[i].files[0] && fileInputs[i].files[0].size > MAX_FILE_BYTES) {
+                    alert('File "' + fileInputs[i].files[0].name + '" exceeds the 2 MB limit. Please select a smaller file.');
+                    e.preventDefault();
+                    return false;
+                }
+            }
             if (isSubmitting) {
                 e.preventDefault();
                 return false;

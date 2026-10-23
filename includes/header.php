@@ -40,7 +40,7 @@ if (isset($extra_head)) {
 
 <script>
     // Make BASE URL available to JavaScript
-    window.FMS_BASE_URL = <?= json_encode($app_url) ?>;
+    window.FMS_BASE_URL = <?= json_encode($app_url, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 </script>
 
 <script src="<?= htmlspecialchars($app_url, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js" defer>

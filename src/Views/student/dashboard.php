@@ -121,7 +121,7 @@ require __DIR__ . '/../../../includes/header.php';
             const colors = ['#1e40af', '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
 
             // Category Chart
-            const catData = <?= json_encode($chart_categories ?? []) ?>;
+            const catData = <?= json_encode($chart_categories ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             if (Object.keys(catData).length > 0) {
                 const ctxCat = document.getElementById('studentCategoryChart').getContext('2d');
                 new Chart(ctxCat, {
@@ -152,7 +152,7 @@ require __DIR__ . '/../../../includes/header.php';
             }
 
             // Timeline Chart
-            const timeData = <?= json_encode($chart_timeline ?? []) ?>;
+            const timeData = <?= json_encode($chart_timeline ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             if (Object.keys(timeData).length > 0) {
                 const ctxTime = document.getElementById('studentTimelineChart').getContext('2d');
                 let gradient = ctxTime.createLinearGradient(0, 0, 0, 400);

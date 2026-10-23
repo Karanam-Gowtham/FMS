@@ -284,20 +284,20 @@
     <?php endif; ?>
 </div>
 
-<?php if (isset($_GET['msg'])): ?>
+<?php if (isset($_GET['msg']) && is_string($_GET['msg'])): ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if(typeof showToast === 'function') {
-            showToast(<?= json_encode($_GET['msg']) ?>, 'success');
+            showToast(<?= json_encode($_GET['msg'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>, 'success');
         }
     });
 </script>
 <?php endif; ?>
-<?php if (isset($_GET['err'])): ?>
+<?php if (isset($_GET['err']) && is_string($_GET['err'])): ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if(typeof showToast === 'function') {
-            showToast(<?= json_encode($_GET['err']) ?>, 'error');
+            showToast(<?= json_encode($_GET['err'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>, 'error');
         }
     });
 </script>

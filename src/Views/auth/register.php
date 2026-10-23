@@ -519,6 +519,24 @@
             toggleContractFields();
             toggleLeavingDate();
             toggleFacultySections();
+
+            // Client-side double submit prevention
+            const regForm = document.querySelector('form');
+            if (regForm) {
+                let isRegistering = false;
+                regForm.addEventListener('submit', function(e) {
+                    if (isRegistering) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    const btn = regForm.querySelector('button[type="submit"]');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+                    }
+                    isRegistering = true;
+                });
+            }
         };
     </script>
 </body>

@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const palette = ['#1A365D', '#2B6CB0', '#2F855A', '#C05621', '#805AD5', '#319795', '#D69E2E', '#E53E3E'];
 
     // 1. Timeline Chart
-    const tlData = <?= json_encode($stats['timeline']) ?>;
+    const tlData = <?= json_encode($stats['timeline'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const ctxTL = document.getElementById('timelineChart')?.getContext('2d');
     
     if (ctxTL) {
@@ -344,7 +344,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 2. Category Doughnut Chart
-    const catData = <?= json_encode($stats['category_dist']) ?>;
+    const catData = <?= json_encode($stats['category_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const catEl = document.getElementById('categoryChart');
     if (catEl) {
         new Chart(catEl, {
@@ -367,7 +367,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 3. Event Scope Doughnut Chart
-    const scopeData = <?= json_encode($stats['scope_dist']) ?>;
+    const scopeData = <?= json_encode($stats['scope_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const scopeEl = document.getElementById('scopeChart');
     if (scopeEl) {
         new Chart(scopeEl, {
@@ -390,7 +390,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 4. Delivery Mode Doughnut
-    const modeData = <?= json_encode($stats['mode_dist']) ?>;
+    const modeData = <?= json_encode($stats['mode_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const modeEl = document.getElementById('modeChart');
     if (modeEl) {
         new Chart(modeEl, {
@@ -413,7 +413,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 5. Topic Bar Chart
-    const topicData = <?= json_encode($stats['topic_dist']) ?>;
+    const topicData = <?= json_encode($stats['topic_dist'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const topicEl = document.getElementById('topicRadarChart');
     if (topicEl) {
         new Chart(topicEl, {
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 6. Department Comparison Bar Chart
-    const deptData = <?= json_encode($stats['dept_compare']) ?>;
+    const deptData = <?= json_encode($stats['dept_compare'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
     const deptEl = document.getElementById('deptCompareChart');
     if (deptEl) {
         const deptLabels = Object.keys(deptData);

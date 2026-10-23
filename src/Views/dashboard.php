@@ -312,7 +312,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                     const colors = ['#1e40af', '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
 
                     // Category Chart
-                    const catData = <?= json_encode($chart_categories ?? []) ?>;
+                    const catData = <?= json_encode($chart_categories ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
                     if (Object.keys(catData).length > 0) {
                         const ctxCat = document.getElementById('facultyCategoryChart').getContext('2d');
                         new Chart(ctxCat, {
@@ -355,7 +355,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                     }
 
                     // Timeline Chart
-                    const timeData = <?= json_encode($chart_timeline ?? []) ?>;
+                    const timeData = <?= json_encode($chart_timeline ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
                     if (Object.keys(timeData).length > 0) {
                         const ctxTime = document.getElementById('facultyTimelineChart').getContext('2d');
                         
@@ -605,7 +605,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                         const deptColors = ['#6366f1', '#14b8a6', '#f59e0b', '#ec4899', '#8b5cf6', '#0ea5e9'];
 
                         // Categories Chart
-                        const dCatData = <?= json_encode($dept_categories ?? []) ?>;
+                        const dCatData = <?= json_encode($dept_categories ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
                         if (Object.keys(dCatData).length > 0 && document.getElementById('deptCategoryChart')) {
                             const ctxCat = document.getElementById('deptCategoryChart').getContext('2d');
                             new Chart(ctxCat, {
@@ -627,7 +627,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                         }
 
                         // Timeline Chart
-                        const dTimeData = <?= json_encode($dept_timeline ?? []) ?>;
+                        const dTimeData = <?= json_encode($dept_timeline ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
                         if (Object.keys(dTimeData).length > 0 && document.getElementById('deptTimelineChart')) {
                             const ctxTime = document.getElementById('deptTimelineChart').getContext('2d');
                             let grad = ctxTime.createLinearGradient(0, 0, 0, 400);

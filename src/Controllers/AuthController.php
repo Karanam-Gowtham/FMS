@@ -169,7 +169,7 @@ class AuthController {
             $dept_id   = (int)($_POST['dept_id'] ?? 0);
 
             $per_no = trim($_POST['per_no'] ?? '');
-            $pan_no = trim($_POST['pan_no'] ?? '');
+            $pan_no = strtoupper(trim($_POST['pan_no'] ?? ''));
             $apaar_id = trim($_POST['apaar_id'] ?? '');
             $highest_degree = trim($_POST['highest_degree'] ?? '');
             $university = trim($_POST['university'] ?? '');
