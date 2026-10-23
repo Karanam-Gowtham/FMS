@@ -924,6 +924,24 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // One final update after all meta is populated to fix UI labels
     if (typeof updateModeLabel === 'function') updateModeLabel();
+
+    // Double submit protection
+    var uploadForm = document.getElementById('uploadForm');
+    if (uploadForm) {
+        var isSubmitting = false;
+        uploadForm.addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+            var btn = uploadForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.style.opacity = '0.7';
+                btn.style.pointerEvents = 'none';
+            }
+            isSubmitting = true;
+        });
+    }
 });
 </script>
 </body>

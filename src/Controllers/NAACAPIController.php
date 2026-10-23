@@ -140,6 +140,18 @@ class NAACAPIController {
             }
 
             $file = $_FILES['pdf_file'];
+            if (($file['size'] ?? 0) > 10 * 1024 * 1024) {
+                throw new \Exception("File size exceeds 10 MB limit.");
+            }
+
+            $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+            if ($ext !== 'pdf') {
+                throw new \Exception("Invalid file extension. Only .pdf files are allowed.");
+            }
+
+            if (empty($file['tmp_name']) || !file_exists($file['tmp_name']) || !is_readable($file['tmp_name'])) {
+                throw new \Exception("Uploaded temporary file is missing or unreadable.");
+            }
             
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mime = $finfo->file($file['tmp_name']);

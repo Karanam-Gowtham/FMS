@@ -127,8 +127,12 @@ class NBAAPIController {
             }
 
             foreach ($_FILES as $input_name => $file) {
-                if ($input_name === 'csv_file' || $file['error'] !== UPLOAD_ERR_OK) continue;
-                
+                if ($input_name === 'csv_file' || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
+                if (empty($file['tmp_name']) || !file_exists($file['tmp_name']) || !is_readable($file['tmp_name'])) continue;
+                if (($file['size'] ?? 0) > 10 * 1024 * 1024) continue;
+                $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+                if ($ext !== 'pdf') continue;
+
                 $finfo = new \finfo(FILEINFO_MIME_TYPE);
                 $mime = $finfo->file($file['tmp_name']);
                 if ($mime === 'application/pdf') {
@@ -212,6 +216,18 @@ class NBAAPIController {
             }
 
             $file = $_FILES['pdf_file'];
+            if (($file['size'] ?? 0) > 10 * 1024 * 1024) {
+                throw new \Exception("File size exceeds 10 MB limit.");
+            }
+
+            $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+            if ($ext !== 'pdf') {
+                throw new \Exception("Invalid file extension. Only .pdf files are allowed.");
+            }
+
+            if (empty($file['tmp_name']) || !file_exists($file['tmp_name']) || !is_readable($file['tmp_name'])) {
+                throw new \Exception("Uploaded temporary file is missing or unreadable.");
+            }
             
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mime = $finfo->file($file['tmp_name']);

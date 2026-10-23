@@ -521,6 +521,18 @@
                 cb.addEventListener('change', updateSelectedCount);
             });
 
+            const bulkActionFormEl = document.getElementById('bulkActionForm');
+            if (bulkActionFormEl) {
+                bulkActionFormEl.addEventListener('submit', function(e) {
+                    const checked = document.querySelectorAll('.doc-checkbox:checked').length;
+                    if (checked === 0) {
+                        e.preventDefault();
+                        showListToast('Please select at least one document from the table using the checkboxes.', 'warning');
+                        return false;
+                    }
+                });
+            }
+
             // Accreditation Modal Handling
             let loadedPresets = {};
 

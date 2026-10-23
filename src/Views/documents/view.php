@@ -303,5 +303,21 @@
 </script>
 <?php endif; ?>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var actionForm = document.getElementById('actionForm');
+        if (actionForm) {
+            var isSubmitting = false;
+            actionForm.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                isSubmitting = true;
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

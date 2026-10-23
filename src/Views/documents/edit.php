@@ -289,6 +289,25 @@ function removeAuthorRow(btn) {
         if (select) select.selectedIndex = 0;
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    var editForm = document.querySelector('form[action*="documents/process_update"]');
+    if (editForm) {
+        var isSubmitting = false;
+        editForm.addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+            var btn = editForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.style.opacity = '0.7';
+                btn.style.pointerEvents = 'none';
+            }
+            isSubmitting = true;
+        });
+    }
+});
 </script>
 </body>
 </html>
