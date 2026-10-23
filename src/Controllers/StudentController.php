@@ -78,13 +78,14 @@ class StudentController {
         // Check if there are academic years (for the form)
         $ay_res = $conn->query("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
         $academic_years = [];
-        if ($ay_res) {
+        if ($ay_res instanceof \mysqli_result) {
             while ($ay_row = $ay_res->fetch_assoc()) {
                 $academic_years[] = [
-                    'ay_id' => $ay_row['year_id'],
+                    'ay_id' => (int)$ay_row['year_id'],
                     'ay_name' => $ay_row['year_label']
                 ];
             }
+            $ay_res->close();
         }
 
         $success_msg = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');

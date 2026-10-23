@@ -148,10 +148,11 @@ class DocumentController {
         $all_departments = [];
         if (in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             $d_res = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name ASC");
-            if ($d_res) {
+            if ($d_res instanceof \mysqli_result) {
                 while($row = $d_res->fetch_assoc()) {
                     $all_departments[] = $row;
                 }
+                $d_res->close();
             }
         }
 
@@ -222,13 +223,13 @@ class DocumentController {
 
             // Fetch dynamic global options
             $res = $conn->query("SELECT DISTINCT event_mode FROM meta_student_activity_file WHERE event_mode IS NOT NULL AND event_mode != '' ORDER BY event_mode ASC");
-            if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['modes'][] = $row['event_mode']; } }
+            if ($res instanceof \mysqli_result) { while ($row = $res->fetch_assoc()) { $global_filter_options['modes'][] = $row['event_mode']; } $res->close(); }
             
             $res = $conn->query("SELECT DISTINCT topic_domain FROM meta_student_activity_file WHERE topic_domain IS NOT NULL AND topic_domain != '' ORDER BY topic_domain ASC");
-            if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['domains'][] = $row['topic_domain']; } }
+            if ($res instanceof \mysqli_result) { while ($row = $res->fetch_assoc()) { $global_filter_options['domains'][] = $row['topic_domain']; } $res->close(); }
             
             $res = $conn->query("SELECT DISTINCT event_type FROM meta_student_activity_file WHERE event_type IS NOT NULL AND event_type != '' ORDER BY event_type ASC");
-            if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['event_types'][] = $row['event_type']; } }
+            if ($res instanceof \mysqli_result) { while ($row = $res->fetch_assoc()) { $global_filter_options['event_types'][] = $row['event_type']; } $res->close(); }
             
             $saf_cats = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Workshop', 'Seminar', 'Conference', 'Hackathon', 'Stepcone'];
             foreach ($saf_cats as $cat) {
@@ -456,12 +457,13 @@ class DocumentController {
                     $user_depts[$r['dept_id']] = $r['dept_name'];
                 }
             }
-            if (empty($user_depts)) {
-                $dres = $conn->query("SELECT dept_id, dept_name FROM departments");
-                if ($dres) {
+            if (empty($user_depts) && in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+                $dres = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
+                if ($dres instanceof \mysqli_result) {
                     while($row = $dres->fetch_assoc()) {
                         $user_depts[$row['dept_id']] = $row['dept_name'];
                     }
+                    $dres->close();
                 }
             }
             
@@ -529,12 +531,13 @@ class DocumentController {
                 $user_depts[$r['dept_id']] = $r['dept_name'];
             }
         }
-        if (empty($user_depts)) {
-            $dres = $conn->query("SELECT dept_id, dept_name FROM departments");
-            if ($dres) {
+        if (empty($user_depts) && in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+            $dres = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
+            if ($dres instanceof \mysqli_result) {
                 while($row = $dres->fetch_assoc()) {
                     $user_depts[$row['dept_id']] = $row['dept_name'];
                 }
+                $dres->close();
             }
         }
         

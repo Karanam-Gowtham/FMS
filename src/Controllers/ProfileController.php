@@ -10,9 +10,30 @@ class ProfileController {
         global $conn;
 
         $target_user_id = (int)$auth['user_id'];
-        $can_view_others = in_array(auth_active_role_id(), [ROLE_ADMIN, ROLE_IQAC, ROLE_HOD, ROLE_RND_DEAN]);
-        if (isset($_GET['id']) && (int)$_GET['id'] > 0 && $can_view_others) {
-            $target_user_id = (int)$_GET['id'];
+        $active_role_id = auth_active_role_id();
+        $can_view_others = in_array($active_role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_HOD, ROLE_RND_DEAN], true);
+        if ($can_view_others && isset($_GET['id']) && (int)$_GET['id'] > 0) {
+            $req_id = (int)$_GET['id'];
+            if ($active_role_id === ROLE_HOD) {
+                // Verify target user belongs to HOD's department
+                $hod_dept = auth_active_dept_id();
+                $chk_stmt = $conn->prepare("SELECT 1 FROM user_roles WHERE user_id = ? AND dept_id = ? LIMIT 1");
+                if ($chk_stmt) {
+                    $chk_stmt->bind_param("ii", $req_id, $hod_dept);
+                    $chk_stmt->execute();
+                    $in_dept = $chk_stmt->get_result()->num_rows > 0;
+                    $chk_stmt->close();
+                    if ($in_dept) {
+                        $target_user_id = $req_id;
+                    } else {
+                        $_SESSION['error_msg'] = "Access denied. You can only view profiles within your department.";
+                        header("Location: " . BASE_URL . "/public/index.php?route=profile/view");
+                        exit();
+                    }
+                }
+            } else {
+                $target_user_id = $req_id;
+            }
         }
 
         $profile = null;
@@ -22,6 +43,12 @@ class ProfileController {
             $stmt->execute();
             $profile = $stmt->get_result()->fetch_assoc();
             $stmt->close();
+        }
+
+        if (!$profile) {
+            $_SESSION['error_msg'] = "The requested user profile was not found.";
+            header("Location: " . BASE_URL . "/public/index.php?route=dashboard");
+            exit();
         }
 
         $is_own_profile = ($target_user_id === (int)$auth['user_id']);

@@ -91,10 +91,11 @@ class AcademicYearController {
         $sql = "SELECT * FROM academic_years ORDER BY year_id DESC";
         $result = $conn->query($sql);
         $academic_years = [];
-        if ($result) {
+        if ($result instanceof \mysqli_result) {
             while ($row = $result->fetch_assoc()) {
                 $academic_years[] = $row;
             }
+            $result->close();
         }
 
         include __DIR__ . '/../Views/academic_years/list.php';

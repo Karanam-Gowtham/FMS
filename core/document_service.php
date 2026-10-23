@@ -1119,7 +1119,7 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
         $role_id = is_array($role) ? (int)($role['role_id'] ?? 0) : (int)$role;
         $dept_id = is_array($role) ? (int)($role['dept_id'] ?? 0) : (int)($auth['dept_id'] ?? 0);
         
-        if (in_array($role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+        if (in_array($role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             return true;
         }
         
@@ -1151,7 +1151,7 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
     }
     
     // Check if they are the assigned mentor (if applicable)
-    if (!empty($doc['mentor_id']) && $doc['mentor_id'] == $auth['user_id']) {
+    if (!empty($doc['mentor_id']) && (int)$doc['mentor_id'] === (int)($auth['user_id'] ?? 0)) {
         return true;
     }
     

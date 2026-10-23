@@ -20,10 +20,11 @@ class NAACDashboardController {
         global $conn;
         $academic_years = [];
         $ay_res = $conn->query("SELECT year_label FROM academic_years ORDER BY year_label DESC");
-        if ($ay_res) {
+        if ($ay_res instanceof \mysqli_result) {
             while ($ay_row = $ay_res->fetch_assoc()) {
                 $academic_years[] = $ay_row['year_label'];
             }
+            $ay_res->close();
         }
         if (empty($academic_years)) {
             $academic_years = ['2023-24', '2024-25', '2025-26'];

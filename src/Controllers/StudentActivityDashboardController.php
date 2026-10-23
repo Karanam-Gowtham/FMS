@@ -17,26 +17,39 @@ class StudentActivityDashboardController
         
         global $conn;
         
+        $active_role_id = auth_active_role_id();
+        $is_college_wide = in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+
         // Fetch Academic Years for filter
         $years = [];
         $y_res = $conn->query("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
-        if ($y_res) {
+        if ($y_res instanceof \mysqli_result) {
             while ($row = $y_res->fetch_assoc()) {
                 $years[] = $row;
             }
+            $y_res->close();
         }
         
         // Fetch Departments for filter
         $depts = [];
-        $d_res = $conn->query("SELECT dept_id, dept_name FROM departments WHERE is_academic = 1 ORDER BY dept_name");
-        if ($d_res) {
+        $d_sql = "SELECT dept_id, dept_name FROM departments WHERE is_academic = 1";
+        if (!$is_college_wide) {
+            $authorized = get_authorized_depts();
+            $allowed_ids = array_map('intval', array_keys($authorized));
+            if (!empty($allowed_ids)) {
+                $d_sql .= " AND dept_id IN (" . implode(',', $allowed_ids) . ")";
+            } else {
+                $d_sql .= " AND 1=0";
+            }
+        }
+        $d_sql .= " ORDER BY dept_name";
+        $d_res = $conn->query($d_sql);
+        if ($d_res instanceof \mysqli_result) {
             while ($row = $d_res->fetch_assoc()) {
                 $depts[] = $row;
             }
+            $d_res->close();
         }
-
-        $active_role_id = auth_active_role_id();
-        $is_college_wide = in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
 
         // Default Filters
         $year_filter = $_GET['year_id'] ?? 'all';
@@ -130,7 +143,7 @@ class StudentActivityDashboardController
         
         // Restructure metadata into doc objects
         $docs = [];
-        if ($res) {
+        if ($res instanceof \mysqli_result) {
             while ($row = $res->fetch_assoc()) {
                 $id = $row['doc_id'];
                 if (!isset($docs[$id])) {
@@ -152,6 +165,7 @@ class StudentActivityDashboardController
                     ];
                 }
             }
+            $res->close();
         }
 
         // Process data for charts
