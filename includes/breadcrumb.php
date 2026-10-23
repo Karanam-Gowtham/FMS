@@ -3,10 +3,10 @@
 // Fits inline inside the global header navigation bar.
 
 $current_script = basename($_SERVER['SCRIPT_NAME']);
-$route = $_GET['route'] ?? '';
+$route = (isset($_GET['route']) && is_string($_GET['route'])) ? trim($_GET['route']) : '';
 
 // Do not render breadcrumbs on home/login/registration screens
-if ($current_script === 'reg.php' || strpos($current_script, 'login') !== false || ($current_script === 'index.php' && empty($route)) || in_array($route, ['auth/login', 'auth/register', 'auth/select_role'])) {
+if ($current_script === 'reg.php' || strpos($current_script, 'login') !== false || ($current_script === 'index.php' && empty($route)) || in_array($route, ['auth/login', 'auth/register', 'auth/select_role'], true)) {
     return;
 }
 
@@ -31,7 +31,7 @@ if (function_exists('auth_is_logged_in') && auth_is_logged_in()) {
 
 // Fallback for public or unauthenticated browsing
 if ($role === 'Dashboard') {
-    if (!empty($_GET['dept'])) {
+    if (!empty($_GET['dept']) && is_string($_GET['dept'])) {
         $dept = trim($_GET['dept']);
     }
 }
@@ -63,13 +63,13 @@ $institutional_routes = [
     'public/department',
 ];
 
-if (!in_array($route, $institutional_routes)) {
+if (!in_array($route, $institutional_routes, true)) {
     $breadcrumbs[] = ['label' => $role_label, 'url' => $role_url];
 }
 
 
 
-if (isset($custom_breadcrumb_title)) {
+if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
     $page_name = htmlspecialchars($custom_breadcrumb_title, ENT_QUOTES, 'UTF-8');
 } elseif (!empty($route)) {
     $route_map = [
@@ -90,18 +90,20 @@ if (isset($custom_breadcrumb_title)) {
     ];
 
     if ($route === 'naac/criterion') {
-        $year_param = !empty($_GET['year']) ? '&year=' . urlencode($_GET['year']) : '';
+        $year_param = (!empty($_GET['year']) && is_string($_GET['year'])) ? '&year=' . urlencode($_GET['year']) : '';
         $breadcrumbs[] = ['label' => 'NAAC Dashboard', 'url' => $bc_base_url . '/public/index.php?route=naac/dashboard' . $year_param];
-        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1', ENT_QUOTES, 'UTF-8');
+        $criterion_id = (isset($_GET['id']) && is_string($_GET['id'])) ? $_GET['id'] : '1';
+        $page_name = 'Criterion ' . htmlspecialchars($criterion_id, ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'nba/criterion') {
-        $year_param = !empty($_GET['year']) ? '&year=' . urlencode($_GET['year']) : '';
+        $year_param = (!empty($_GET['year']) && is_string($_GET['year'])) ? '&year=' . urlencode($_GET['year']) : '';
         $breadcrumbs[] = ['label' => 'NBA Dashboard', 'url' => $bc_base_url . '/public/index.php?route=nba/dashboard' . $year_param];
-        $page_name = 'Criterion ' . htmlspecialchars($_GET['id'] ?? '1', ENT_QUOTES, 'UTF-8');
-    } elseif ($route === 'documents/upload' && !empty($_GET['activity'])) {
+        $criterion_id = (isset($_GET['id']) && is_string($_GET['id'])) ? $_GET['id'] : '1';
+        $page_name = 'Criterion ' . htmlspecialchars($criterion_id, ENT_QUOTES, 'UTF-8');
+    } elseif ($route === 'documents/upload' && !empty($_GET['activity']) && is_string($_GET['activity'])) {
         $page_name = 'Upload: ' . htmlspecialchars($_GET['activity'], ENT_QUOTES, 'UTF-8');
-    } elseif ($route === 'documents/list' && isset($_GET['context']) && $_GET['context'] === 'dept_file') {
+    } elseif ($route === 'documents/list' && isset($_GET['context']) && is_string($_GET['context']) && $_GET['context'] === 'dept_file') {
         $page_name = 'Department Files';
-    } elseif ($route === 'public/department' && !empty($_GET['dept'])) {
+    } elseif ($route === 'public/department' && !empty($_GET['dept']) && is_string($_GET['dept'])) {
         $page_name = htmlspecialchars($_GET['dept'], ENT_QUOTES, 'UTF-8') . ' Department';
     } elseif (isset($route_map[$route])) {
         $page_name = $route_map[$route];
@@ -113,9 +115,9 @@ if (isset($custom_breadcrumb_title)) {
 }
 
 // Only append page_name if current script/route is not the role dashboard itself
-$role_path = parse_url($role_url, PHP_URL_PATH);
-$role_query = parse_url($role_url, PHP_URL_QUERY);
-$is_dashboard_page = ($current_script === basename($role_path) && (empty($route) || (isset($role_query) && strpos($role_query, 'route=' . $route) !== false)));
+$role_path = parse_url($role_url, PHP_URL_PATH) ?? '';
+$role_query = parse_url($role_url, PHP_URL_QUERY) ?? '';
+$is_dashboard_page = ($current_script === basename($role_path) && (empty($route) || (!empty($role_query) && strpos($role_query, 'route=' . $route) !== false)));
 
 if (!$is_dashboard_page) {
     $breadcrumbs[] = ['label' => $page_name, 'url' => '#'];
@@ -168,7 +170,7 @@ if (!$is_dashboard_page) {
     <?php
     $count = count($breadcrumbs);
     foreach ($breadcrumbs as $index => $crumb) {
-        if ($index == $count - 1) {
+        if ($index === $count - 1) {
             echo '<span class="current-page">' . $crumb['label'] . '</span>';
         } else {
             echo '<a href="' . htmlspecialchars($crumb['url']) . '"' . (isset($crumb['title']) ? ' title="' . htmlspecialchars($crumb['title']) . '"' : '') . '>' . $crumb['label'] . '</a>';

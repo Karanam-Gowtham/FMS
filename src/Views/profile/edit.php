@@ -28,10 +28,10 @@
     </div>
 
     <div class="section-card" style="max-width: 900px; margin: 0 auto;">
-        <?php if (!empty($success)): ?>
+        <?php if (!empty($success) && is_string($success)): ?>
             <div class="success-msg"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
-        <?php if (!empty($error)): ?>
+        <?php if (!empty($error) && is_string($error)): ?>
             <div class="error-msg"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
