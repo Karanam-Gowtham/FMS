@@ -23,7 +23,7 @@ class NBAAPIController {
                 throw new \Exception("Access denied. You are not authorized to save NBA data for this department.");
             }
 
-            $year = trim($_POST['year'] ?? '');
+            $year = (isset($_POST['year']) && is_string($_POST['year'])) ? trim($_POST['year']) : '';
             if (empty($year)) {
                 throw new \Exception("Academic year is required.");
             }
@@ -33,7 +33,7 @@ class NBAAPIController {
                 throw new \Exception("Criterion number is required.");
             }
 
-            $json_raw = $_POST['json_data'] ?? '{}';
+            $json_raw = (isset($_POST['json_data']) && is_string($_POST['json_data'])) ? $_POST['json_data'] : '{}';
             $payload = json_decode($json_raw, true) ?: [];
 
             // CSV Parser specific to Criterion 1 (and potentially others)
@@ -243,10 +243,11 @@ class NBAAPIController {
 
             $upload_dir = __DIR__ . '/../../uploads/nba_pdfs/';
             if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0755, true);
+                @mkdir($upload_dir, 0755, true);
             }
 
-            $section = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['section'] ?? 'doc');
+            $raw_section = (isset($_POST['section']) && is_string($_POST['section'])) ? $_POST['section'] : 'doc';
+            $section = preg_replace('/[^a-zA-Z0-9_]/', '', $raw_section) ?: 'doc';
             $new_filename = sprintf('dept_%d_%s_%s.pdf', $dept_id, $section, uniqid());
             $destination = $upload_dir . $new_filename;
 

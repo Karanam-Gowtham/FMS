@@ -27,7 +27,7 @@ class AcademicYearController {
             }
 
             csrfValidate();
-            $new_year = trim($_POST['academic_year'] ?? '');
+            $new_year = (isset($_POST['academic_year']) && is_string($_POST['academic_year'])) ? trim($_POST['academic_year']) : '';
             if (empty($new_year)) {
                 $_SESSION['error_msg'] = "Academic Year cannot be empty.";
                 header("Location: " . BASE_URL . "/public/index.php?route=academic_years/list");
@@ -85,8 +85,10 @@ class AcademicYearController {
             exit();
         }
         
-        $error_msg = $_SESSION['error_msg'] ?? '';
-        $success_msg = $_SESSION['success_msg'] ?? '';
+        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
+        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
+        $error_msg   = is_string($raw_error)   ? $raw_error   : '';
+        $success_msg = is_string($raw_success) ? $raw_success : '';
         unset($_SESSION['error_msg'], $_SESSION['success_msg']);
         
         $sql = "SELECT * FROM academic_years ORDER BY year_label DESC";

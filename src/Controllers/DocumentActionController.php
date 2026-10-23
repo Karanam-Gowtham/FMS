@@ -21,22 +21,22 @@ class DocumentActionController {
         // The student dashboard now uses the standard DocumentController form flow.
         // --- End Custom Handler ---
         
-        $post_type_key = trim($_POST['type_key'] ?? '');
-        $post_title    = trim(str_replace(["\0", "\r", "\n"], '', $_POST['title'] ?? ''));
+        $post_type_key = (isset($_POST['type_key']) && is_string($_POST['type_key'])) ? trim($_POST['type_key']) : '';
+        $post_title    = (isset($_POST['title']) && is_string($_POST['title'])) ? trim(str_replace(["\0", "\r", "\n"], '', $_POST['title'])) : '';
             
             // Fallback for title if it's missing but meta title fields exist
             if ($post_title === '') {
-                if (!empty($_POST['meta']['event_name'])) {
+                if (!empty($_POST['meta']['event_name']) && is_string($_POST['meta']['event_name'])) {
                     $post_title = trim($_POST['meta']['event_name']);
-                } elseif (!empty($_POST['meta']['event_title'])) {
+                } elseif (!empty($_POST['meta']['event_title']) && is_string($_POST['meta']['event_title'])) {
                     $post_title = trim($_POST['meta']['event_title']);
-                } elseif (!empty($_POST['meta']['paper_title'])) {
+                } elseif (!empty($_POST['meta']['paper_title']) && is_string($_POST['meta']['paper_title'])) {
                     $post_title = trim($_POST['meta']['paper_title']);
-                } elseif (!empty($_POST['meta']['patent_title'])) {
+                } elseif (!empty($_POST['meta']['patent_title']) && is_string($_POST['meta']['patent_title'])) {
                     $post_title = trim($_POST['meta']['patent_title']);
-                } elseif (!empty($_POST['meta']['exam'])) {
+                } elseif (!empty($_POST['meta']['exam']) && is_string($_POST['meta']['exam'])) {
                     $post_title = trim($_POST['meta']['exam']);
-                } elseif ($post_type_key === 'student_activity_file' && ($_POST['meta']['activity_category'] ?? '') === 'Stepcone') {
+                } elseif ($post_type_key === 'student_activity_file' && (isset($_POST['meta']['activity_category']) && $_POST['meta']['activity_category'] === 'Stepcone')) {
                     $post_title = 'Stepcone Event';
                 } else {
                     $post_title = 'Untitled Document';
@@ -192,14 +192,14 @@ class DocumentActionController {
                 exit;
             } else {
                 $redirect_url = BASE_URL . "/public/index.php?route=documents/upload&type=" . urlencode($post_type_key);
-                if (!empty($_POST['meta']['activity_category'])) {
+                if (!empty($_POST['meta']['activity_category']) && is_string($_POST['meta']['activity_category'])) {
                     $redirect_url .= "&activity=" . urlencode($_POST['meta']['activity_category']);
-                } elseif (!empty($_GET['activity'])) {
+                } elseif (!empty($_GET['activity']) && is_string($_GET['activity'])) {
                     $redirect_url .= "&activity=" . urlencode($_GET['activity']);
                 }
-                if (!empty($_POST['meta']['sub_category'])) {
+                if (!empty($_POST['meta']['sub_category']) && is_string($_POST['meta']['sub_category'])) {
                     $redirect_url .= "&sub_type=" . urlencode($_POST['meta']['sub_category']);
-                } elseif (!empty($_GET['sub_type'])) {
+                } elseif (!empty($_GET['sub_type']) && is_string($_GET['sub_type'])) {
                     $redirect_url .= "&sub_type=" . urlencode($_GET['sub_type']);
                 }
                 header("Location: " . $redirect_url);
@@ -225,8 +225,8 @@ class DocumentActionController {
         }
 
         $doc_id = isset($_POST['doc_id']) ? (int)$_POST['doc_id'] : 0;
-        $action = isset($_POST['action']) ? trim($_POST['action']) : '';
-        $comments = isset($_POST['remarks']) ? trim($_POST['remarks']) : '';
+        $action = (isset($_POST['action']) && is_string($_POST['action'])) ? trim($_POST['action']) : '';
+        $comments = (isset($_POST['remarks']) && is_string($_POST['remarks'])) ? trim($_POST['remarks']) : '';
 
         if ($doc_id <= 0 || !in_array($action, ['approve', 'reject', 'resubmit'], true)) {
             $_SESSION['error_msg'] = "Invalid request parameters.";
@@ -373,7 +373,7 @@ class DocumentActionController {
         $type_key = $doc['type_key'];
         
         // Update documents table (title, academic_year, dept)
-        $post_title = trim($_POST['title'] ?? '');
+        $post_title = (isset($_POST['title']) && is_string($_POST['title'])) ? trim($_POST['title']) : '';
         $post_dept_id = (int)($_POST['dept_id'] ?? 0);
         $post_year_id = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : null);
         if ($post_year_id !== null) {
@@ -686,7 +686,7 @@ class DocumentActionController {
         $auth = auth_context();
         global $conn;
 
-        $action_type = $_POST['action_type'] ?? '';
+        $action_type = (isset($_POST['action_type']) && is_string($_POST['action_type'])) ? trim($_POST['action_type']) : '';
         $doc_ids = $_POST['doc_ids'] ?? [];
 
         if (empty($doc_ids) || !is_array($doc_ids)) {

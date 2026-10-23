@@ -22,12 +22,12 @@
             <p class="greeting">Select an academic year to manage NBA data and criteria.</p>
         </div>
 
-        <?php if (!empty($success_msg)): ?>
+        <?php if (!empty($success_msg) && is_string($success_msg)): ?>
             <div style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
                 ✓ <?= htmlspecialchars($success_msg) ?>
             </div>
         <?php endif; ?>
-        <?php if (!empty($error_msg)): ?>
+        <?php if (!empty($error_msg) && is_string($error_msg)): ?>
             <div style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 0.85rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-weight: 500;">
                 ⚠ <?= htmlspecialchars($error_msg) ?>
             </div>
