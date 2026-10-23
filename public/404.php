@@ -15,7 +15,7 @@ $desc = isset($error_message) && is_string($error_message) && !empty($error_mess
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 — Page Not Found | File Management System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #0b353d;

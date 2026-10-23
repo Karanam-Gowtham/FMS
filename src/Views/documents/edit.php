@@ -226,7 +226,7 @@ $active_role = auth_active_role();
         </div>
 
         <button type="submit" class="btn-update">Update Document</button>
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$document['doc_id'] ?>" style="display:block; text-align:center; margin-top: 1rem; color: #6c757d;">Cancel</a>
+        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$document['doc_id'] ?>" style="display:block; text-align:center; margin-top: 1rem; color: #6c757d;">Cancel</a>
     </form>
 </div>
 

@@ -225,7 +225,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                         <?php if (!empty($profile_photo)): ?>
                             <img src="<?= BASE_URL . '/' . htmlspecialchars($profile_photo) ?>" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
                         <?php else: ?>
-                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['full_name'] ?? 'Faculty') ?>&background=random&size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
+                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['full_name'] ?? 'Faculty') ?>&amp;background=random&amp;size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
                         <?php endif; ?>
                     </div>
                     
@@ -239,7 +239,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                             <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
                                 <i class="fas fa-list" style="margin-right: 8px;"></i> View Publications & Achievements
                             </a>
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&amp;context=dept_file" style="background: rgba(255,255,255,0.15); color: white; padding: 0.5rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
                                 <i class="fas fa-folder-open" style="margin-right: 8px;"></i> My Department Files
                             </a>
                         </div>
@@ -415,37 +415,37 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
             </div>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=journal" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=journal" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #eff6ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-book-open" style="color: #3b82f6; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Research Papers Published</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=conference" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #8b5cf6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=conference" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #8b5cf6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #f5f3ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-users" style="color: #8b5cf6; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Conference Proceedings</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=patent" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=patent" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #fffbeb; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-certificate" style="color: #f59e0b; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Patents</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=fdp_attended" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=fdp_attended" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #ecfdf5; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-chalkboard-teacher" style="color: #10b981; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">FDP Attended</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=fdp_organised" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #ec4899; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(236, 72, 153, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=fdp_organised" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #ec4899; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(236, 72, 153, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #fdf2f8; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-bullhorn" style="color: #ec4899; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">FDP Organized</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=conf_organised" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #06b6d4; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(6, 182, 212, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=conf_organised" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #06b6d4; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(6, 182, 212, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #ecfeff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-microphone" style="color: #06b6d4; font-size: 1.2rem;"></i>
                     </div>
@@ -459,31 +459,31 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
             </div>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Admin Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Admin+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-user-tie" style="color: #64748b; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Admin Files</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Faculty Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Faculty+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-chalkboard" style="color: #64748b; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Faculty Files</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Student Related Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Student+Related+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-user-graduate" style="color: #64748b; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Student Related Files</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Exam Section Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Exam+Section+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-file-alt" style="color: #64748b; font-size: 1.2rem;"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 0.95rem;">Exam Section Files</div>
                 </a>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=student_activity_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=student_activity_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                     <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                         <i class="fas fa-futbol" style="color: #64748b; font-size: 1.2rem;"></i>
                     </div>
@@ -506,31 +506,31 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                 </div>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Admin Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Admin+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-user-tie" style="color: #64748b; font-size: 1.2rem;"></i>
                         </div>
                         <div style="font-weight: 600; font-size: 0.95rem;">Admin Files</div>
                     </a>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Faculty Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Faculty+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-chalkboard" style="color: #64748b; font-size: 1.2rem;"></i>
                         </div>
                         <div style="font-weight: 600; font-size: 0.95rem;">Faculty Files</div>
                     </a>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Student Related Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Student+Related+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-user-graduate" style="color: #64748b; font-size: 1.2rem;"></i>
                         </div>
                         <div style="font-weight: 600; font-size: 0.95rem;">Student Related Files</div>
                     </a>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=dept_file&sub_type=Exam Section Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=dept_file&amp;sub_type=Exam+Section+Files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-file-alt" style="color: #64748b; font-size: 1.2rem;"></i>
                         </div>
                         <div style="font-weight: 600; font-size: 0.95rem;">Exam Section Files</div>
                     </a>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&type=student_activity_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/upload&amp;type=student_activity_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #f8fafc; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-futbol" style="color: #64748b; font-size: 1.2rem;"></i>
                         </div>
@@ -672,14 +672,14 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                     <?php endif; ?>
                     
                     <?php if ($is_dept_manager): ?>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&context=dept_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #06b6d4; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(6, 182, 212, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&amp;context=dept_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #06b6d4; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(6, 182, 212, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #ecfeff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-folder-open" style="color: #06b6d4; font-size: 1.2rem;"></i>
                         </div>
                         <div style="font-weight: 600; font-size: 0.95rem;">View Department Files</div>
                     </a>
 
-                    <a href="<?= BASE_URL ?>/public/index.php?route=dashboard&view=upload_dept_files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                    <a href="<?= BASE_URL ?>/public/index.php?route=dashboard&amp;view=upload_dept_files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                         <div style="background: #ecfdf5; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
                             <i class="fas fa-cloud-upload-alt" style="color: #10b981; font-size: 1.2rem;"></i>
                         </div>
@@ -699,7 +699,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                 <p style="color: #64748b; margin: 0; font-size: 0.9rem;">Departmental documents submitted by faculty and students awaiting your review.</p>
             </div>
             <?php if (!empty($pending_approvals)): ?>
-                <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&mode=pending_approval" style="color: #2563eb; font-size: 0.9rem; font-weight: 600; text-decoration: none;">View All Pending &rarr;</a>
+                <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&amp;mode=pending_approval" style="color: #2563eb; font-size: 0.9rem; font-weight: 600; text-decoration: none;">View All Pending &rarr;</a>
             <?php endif; ?>
         </div>
         
@@ -739,7 +739,7 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                             <?php endif; ?>
                         </td>
                         <td style="padding: 12px 16px;">
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; font-weight: 500;">Review</a>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; font-weight: 500;">Review</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -831,11 +831,11 @@ if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)
                                 $can_user_approve_this = doc_can_approve($conn, $auth, $doc);
                                 if ($can_user_approve_this): 
                                 ?>
-                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>&mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Review</a>
+                                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Review</a>
                                 <?php endif; ?>
-                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&id=<?= (int)$doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">View</a>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">View</a>
                                 <?php if (doc_can_edit($conn, $auth, $doc)): ?>
-                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&id=<?= (int)$doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Update</a>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Update</a>
                                 <?php endif; ?>
                             </div>
                         </td>

@@ -245,8 +245,8 @@
                     <span style="color: #6c757d; font-size: 0.85rem;">(<?= htmlspecialchars($f['original_name']) ?>)</span>
                 </div>
                 <div>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&file_id=<?= $f['file_id'] ?>&inline=1" class="btn-download" style="background: #28a745; margin-right: 5px;" target="_blank">View File</a>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&file_id=<?= $f['file_id'] ?>" class="btn-download">Download</a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&amp;file_id=<?= (int)$f['file_id'] ?>&amp;inline=1" class="btn-download" style="background: #28a745; margin-right: 5px;" target="_blank">View File</a>
+                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&amp;file_id=<?= (int)$f['file_id'] ?>" class="btn-download">Download</a>
                 </div>
             </li>
             <?php endforeach; ?>

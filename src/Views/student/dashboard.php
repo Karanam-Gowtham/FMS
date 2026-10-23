@@ -40,7 +40,7 @@ require __DIR__ . '/../../../includes/header.php';
         <div style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; position: relative; z-index: 2;">
             <!-- Avatar -->
             <div style="width: 130px; height: 130px; border-radius: 50%; background: white; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['full_name'] ?? 'Student') ?>&background=random&size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
+                <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['full_name'] ?? 'Student') ?>&amp;background=random&amp;size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
             </div>
             
             <!-- Info -->

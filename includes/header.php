@@ -886,19 +886,19 @@ if (isset($extra_head)) {
                     Departments
                 </button>
                 <div class="dropdown-content">
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=CSE">CSE</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=CSE-CS">CSE-CS</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=AIML">CSE-AI&amp;ML</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=AIDS">CSE-AI&amp;DS</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=IT">IT</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=ECE">ECE</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=EEE">EEE</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=MECH">MECH</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=CIVIL">CIVIL</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=MatheMatics">MatheMatics</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=Physics">Physics</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=Chemistry">Chemistry</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&dept=BSH">BSH</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=CSE">CSE</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=CSE-CS">CSE-CS</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=AIML">CSE-AI&amp;ML</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=AIDS">CSE-AI&amp;DS</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=IT">IT</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=ECE">ECE</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=EEE">EEE</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=MECH">MECH</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=CIVIL">CIVIL</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=MatheMatics">MatheMatics</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=Physics">Physics</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=Chemistry">Chemistry</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=BSH">BSH</a>
                 </div>
             </div>
 
