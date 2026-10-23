@@ -251,7 +251,7 @@ class PublicController {
             $mime_type = 'application/octet-stream';
         }
 
-        $filename = basename($canonical_path);
+        $filename = str_replace(['"', "\r", "\n"], '', basename($canonical_path));
 
         while (ob_get_level()) ob_end_clean();
         header('Content-Description: File Transfer');

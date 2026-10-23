@@ -153,8 +153,10 @@ class AuthController {
         global $conn;
         $dept_result = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
         $departments = [];
-        while ($row = $dept_result->fetch_assoc()) {
-            $departments[] = $row;
+        if ($dept_result instanceof \mysqli_result) {
+            while ($row = $dept_result->fetch_assoc()) {
+                $departments[] = $row;
+            }
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -181,7 +183,7 @@ class AuthController {
             $contract_type = trim($_POST['contract_type'] ?? '');
             $is_currently_associated = isset($_POST['is_currently_associated']) && $_POST['is_currently_associated'] === '1' ? 1 : 0;
             $date_of_leaving = trim($_POST['date_of_leaving'] ?? '');
-            $experience_years = (float)($_POST['experience_years'] ?? 0);
+            $experience_years = max(0.0, round((float)($_POST['experience_years'] ?? 0), 2));
 
             if (empty($doj_department)) $doj_department = null;
             if (empty($date_designated_prof)) $date_designated_prof = null;
@@ -236,12 +238,20 @@ class AuthController {
                 }
 
                 if (empty($error) && $role_id === ROLE_FACULTY) {
-                    $stmt2 = $conn->prepare("SELECT user_id FROM user_profiles WHERE pan_no = ? OR per_no = ?");
+                    $check_sql = "SELECT user_id FROM user_profiles WHERE pan_no = ? OR per_no = ?";
+                    if (!empty($apaar_id)) {
+                        $check_sql .= " OR (apaar_id IS NOT NULL AND apaar_id = ?)";
+                    }
+                    $stmt2 = $conn->prepare($check_sql);
                     if ($stmt2) {
-                        $stmt2->bind_param("ss", $pan_no, $per_no);
+                        if (!empty($apaar_id)) {
+                            $stmt2->bind_param("sss", $pan_no, $per_no, $apaar_id);
+                        } else {
+                            $stmt2->bind_param("ss", $pan_no, $per_no);
+                        }
                         $stmt2->execute();
                         if ($stmt2->get_result()->num_rows > 0) {
-                            $error = 'An account with this PAN number or Per No already exists.';
+                            $error = 'An account with this PAN number, Per No, or APAAR ID already exists.';
                         }
                         $stmt2->close();
                     } else {

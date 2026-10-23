@@ -32,13 +32,27 @@ class NBACriterionController {
         }
 
         // Fetch departments for the selector (Exclude central/admin wings)
+        $active_role_id = auth_active_role_id();
+        $is_college_wide = in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
         $excluded_depts = "'Antiragging', 'Clubs', 'Exam_Section', 'IIC', 'IQAC', 'NAAC', 'NBA', 'NCC', 'NSS', 'PASH', 'PE', 'PG', 'R&D', 'SAC', 'Sports', 'Women_Empowerment'";
-        $dept_result = $conn->query("SELECT dept_id, dept_name FROM departments WHERE dept_name NOT IN ($excluded_depts) ORDER BY dept_name");
+        $dept_sql = "SELECT dept_id, dept_name FROM departments WHERE dept_name NOT IN ($excluded_depts)";
+        if (!$is_college_wide) {
+            $authorized = get_authorized_depts();
+            $allowed_ids = array_map('intval', array_keys($authorized));
+            if (!empty($allowed_ids)) {
+                $dept_sql .= " AND dept_id IN (" . implode(',', $allowed_ids) . ")";
+            } else {
+                $dept_sql .= " AND 1=0";
+            }
+        }
+        $dept_sql .= " ORDER BY dept_name";
+        $dept_result = $conn->query($dept_sql);
         $departments = [];
-        if ($dept_result) {
+        if ($dept_result instanceof \mysqli_result) {
             while ($row = $dept_result->fetch_assoc()) {
                 $departments[] = $row;
             }
+            $dept_result->close();
         }
 
         $submission = null;

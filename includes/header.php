@@ -932,7 +932,12 @@ if (isset($extra_head)) {
             <?php if ($is_logged_in): ?>
 
                 <!-- Dashboard -->
-                <a href="<?= htmlspecialchars(get_role_landing_url($header_auth['active_role'])) ?>" class="nav-btn-link dashboard-link">
+                <?php
+                $header_dashboard_url = !empty($header_auth['active_role'])
+                    ? get_role_landing_url($header_auth['active_role'])
+                    : ($app_url . '/public/index.php?route=auth/select_role');
+                ?>
+                <a href="<?= htmlspecialchars($header_dashboard_url) ?>" class="nav-btn-link dashboard-link">
                     Dashboard
                 </a>
 

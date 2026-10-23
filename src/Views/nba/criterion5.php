@@ -44,7 +44,7 @@ if (!isset($criteria_data)) {
         <label style="font-weight: 600; color: #495057;">Select Department:</label>
         <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="changeDepartment()">
             <?php foreach ($departments as $d): ?>
-                <option value="<?= $d['dept_id'] ?>" <?= $d['dept_id'] == $dept_id ? 'selected' : '' ?>>
+                <option value="<?= $d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>
                     Department: <?= htmlspecialchars($d['dept_name']) ?>
                 </option>
             <?php endforeach; ?>
@@ -609,7 +609,9 @@ if (!isset($criteria_data)) {
         const formData = new FormData(document.getElementById('nbaForm'));
         formData.append('_csrf_token', '<?= csrfToken() ?>');
         formData.append('json_data', JSON.stringify(payload));
-        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
+        const activeDeptId = document.getElementById('level-select') ? document.getElementById('level-select').value : '<?= $dept_id ?>';
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', '<?= htmlspecialchars($year) ?>');
 
         const btn = document.querySelector('.btn-save');
         const oldText = btn.innerText;

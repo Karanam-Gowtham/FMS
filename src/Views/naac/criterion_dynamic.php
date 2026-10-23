@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title) ?> &mdash; FMS</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css">
     <style>
         .metric-card {
@@ -67,6 +68,19 @@
         <h1><?= htmlspecialchars($page_title) ?></h1>
         <p>Academic Year: <strong><?= htmlspecialchars($year) ?></strong></p>
     </div>
+
+    <?php if (!empty($departments)): ?>
+    <div style="margin-bottom: 2rem; background: #fff; padding: 1rem; border-radius: 8px; border: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px;">
+        <label style="font-weight: 600; color: #495057;">Select Department:</label>
+        <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="changeDepartment()">
+            <?php foreach ($departments as $d): ?>
+                <option value="<?= $d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>
+                    Department: <?= htmlspecialchars($d['dept_name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <?php endif; ?>
 
     <form id="naacForm">
         <?php foreach ($form_schema['sections'] ?? [] as $section): ?>
@@ -160,6 +174,13 @@
             });
         });
     });
+
+    function changeDepartment() {
+        const select = document.getElementById('level-select');
+        if (select) {
+            window.location.href = '?route=naac/criterion&id=<?= $crit_id ?>&year=<?= urlencode($year) ?>&dept_id=' + encodeURIComponent(select.value);
+        }
+    }
 
     function escapeHtml(unsafe) {
         if (unsafe == null) return '';
@@ -290,12 +311,14 @@
             });
         });
 
+        const activeDeptId = document.getElementById('level-select') ? document.getElementById('level-select').value : '<?= $dept_id ?>';
+
         for (const id of fileFields) {
             const fileInput = document.getElementById(id);
             if (fileInput && fileInput.files.length > 0) {
                 const fileFormData = new FormData();
                 fileFormData.append('_csrf_token', '<?= csrfToken() ?>');
-                fileFormData.append('dept_id', '<?= $dept_id ?>');
+                fileFormData.append('dept_id', activeDeptId);
                 fileFormData.append('pdf_file', fileInput.files[0]);
                 fileFormData.append('section', id);
                 
@@ -319,7 +342,8 @@
         // Save JSON data
         const formData = new FormData();
         formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', '<?= $dept_id ?>'); formData.append('year', '<?= htmlspecialchars($year) ?>');
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('criterion_number', '<?= $crit_id ?>');
         formData.append('json_data', JSON.stringify(payload));
         

@@ -154,7 +154,11 @@ class DashboardController {
                     $chart_categories[$cat]++;
                     
                     $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
-                    $date = date('Y-m', strtotime($event_dt));
+                    $ts = strtotime($event_dt);
+                    if ($ts === false) {
+                        $ts = !empty($c_row['created_at']) ? (strtotime($c_row['created_at']) ?: time()) : time();
+                    }
+                    $date = date('Y-m', $ts);
                     if (!isset($chart_timeline[$date])) {
                         $chart_timeline[$date] = 0;
                     }
@@ -171,14 +175,14 @@ class DashboardController {
         $dept_categories = [];
         $dept_timeline = [];
 
-        if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY, ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+        if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY, ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             require_once __DIR__ . '/../../core/document_service.php';
             $pending_res = doc_list_pending_for_user($conn, $auth, 10, 0);
             $pending_approvals = $pending_res['rows'];
 
             // Reviewer Analytics (Department / College level)
-            if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
-                $is_college_wide = in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR]);
+            if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+                $is_college_wide = in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
                 $dept_query = "
                     SELECT dt.label as type_label, d.status, d.created_at,
                            COALESCE(
@@ -237,7 +241,11 @@ class DashboardController {
                         $dept_categories[$cat]++;
                         
                         $event_dt = (!empty($c_row['event_date']) && $c_row['event_date'] !== '0000-00-00') ? $c_row['event_date'] : $c_row['created_at'];
-                        $date = date('Y-m', strtotime($event_dt));
+                        $ts = strtotime($event_dt);
+                        if ($ts === false) {
+                            $ts = !empty($c_row['created_at']) ? (strtotime($c_row['created_at']) ?: time()) : time();
+                        }
+                        $date = date('Y-m', $ts);
                         if (!isset($dept_timeline[$date])) {
                             $dept_timeline[$date] = 0;
                         }

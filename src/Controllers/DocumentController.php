@@ -146,7 +146,7 @@ class DocumentController {
         
         // Fetch all departments for filtering if central role
         $all_departments = [];
-        if (in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR])) {
+        if (in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             $d_res = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name ASC");
             if ($d_res) {
                 while($row = $d_res->fetch_assoc()) {
@@ -232,7 +232,7 @@ class DocumentController {
             
             $saf_cats = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Workshop', 'Seminar', 'Conference', 'Hackathon', 'Stepcone'];
             foreach ($saf_cats as $cat) {
-                if (!in_array($cat, $global_filter_options['event_types'])) {
+                if (!in_array($cat, $global_filter_options['event_types'], true)) {
                     $global_filter_options['event_types'][] = $cat;
                 }
             }
