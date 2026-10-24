@@ -227,12 +227,13 @@ class StudentActivityDashboardController
         }
 
         $sql = "
-            SELECT d.doc_id, d.title, d.created_at, dp.dept_name,
+            SELECT d.doc_id, d.title, d.created_at, dp.dept_name, ay.year_label,
                    msaf.activity_category, msaf.event_mode, msaf.topic_domain, msaf.target_audience, msaf.sub_category, msaf.participant_count,
                    msaf.date_from, msaf.date_to
             FROM documents d
             JOIN document_types dt ON d.type_id = dt.type_id
             JOIN departments dp ON d.dept_id = dp.dept_id
+            LEFT JOIN academic_years ay ON d.academic_year_id = ay.year_id
             LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
             WHERE $where
         ";
@@ -248,6 +249,7 @@ class StudentActivityDashboardController
                         'title' => $row['title'],
                         'created_at' => $row['created_at'],
                         'dept_name' => $row['dept_name'],
+                        'year_label' => $row['year_label'] ?? '',
                         'meta' => [
                             'activity_category' => $row['activity_category'],
                             'event_mode' => $row['event_mode'],
@@ -333,13 +335,17 @@ class StudentActivityDashboardController
                 $stats['club_activity'][$club] = ($stats['club_activity'][$club] ?? 0) + 1;
             }
 
-            $event_start_date = (!empty($meta['date_from']) && $meta['date_from'] !== '0000-00-00') ? $meta['date_from'] : ($doc['created_at'] ?? '');
-            $ts = !empty($event_start_date) ? strtotime($event_start_date) : false;
-            if ($ts === false) {
-                $ts = !empty($doc['created_at']) ? (strtotime($doc['created_at']) ?: time()) : time();
+            if ($year_filter !== 'all') {
+                $event_start_date = (!empty($meta['date_from']) && $meta['date_from'] !== '0000-00-00') ? $meta['date_from'] : ($doc['created_at'] ?? '');
+                $ts = !empty($event_start_date) ? strtotime($event_start_date) : false;
+                if ($ts === false) {
+                    $ts = !empty($doc['created_at']) ? (strtotime($doc['created_at']) ?: time()) : time();
+                }
+                $time_key = date('M Y', $ts);
+            } else {
+                $time_key = !empty($doc['year_label']) ? $doc['year_label'] : 'Unknown';
             }
-            $month = date('Y-m', $ts);
-            $stats['timeline'][$month] = ($stats['timeline'][$month] ?? 0) + $count;
+            $stats['timeline'][$time_key] = ($stats['timeline'][$time_key] ?? 0) + $count;
         }
 
         ksort($stats['timeline']);

@@ -3,7 +3,7 @@ require_once __DIR__ . '/core/bootstrap.php';
 $isLoggedIn = auth_is_logged_in();
 global $conn;
 
-// Initial Data for dropdowns
+// Initial Data for research dropdowns
 $depts = [];
 $d_res = $conn->query("SELECT dept_id, dept_name FROM departments WHERE is_academic = 1 ORDER BY dept_name");
 if($d_res) { while($row = $d_res->fetch_assoc()) { $depts[] = $row; } }
@@ -17,24 +17,12 @@ $whitelist = "'journal', 'conference', 'patent', 'fdp_attended', 'fdp_organised'
 $dt_res = $conn->query("SELECT type_code, label FROM document_types WHERE type_code IN ($whitelist) ORDER BY label");
 if($dt_res) { while($row = $dt_res->fetch_assoc()) { $doc_types[] = $row; } }
 
-// 1. Initial Hero Stats (All Time, All Depts)
-$stats = ['researchers' => 0, 'depts' => 0, 'patents' => 0, 'pubs' => 0, 'fdps' => 0, 'total_docs' => 0];
-$s_res = $conn->query("SELECT count(*) as cnt FROM users WHERE status='active' AND user_id IN (SELECT user_id FROM user_roles WHERE role_id IN (SELECT role_id FROM roles WHERE role_name IN ('Faculty', 'HOD', 'RnD_Dean', 'R&D Dean')))");
-if($s_res) $stats['researchers'] = $s_res->fetch_assoc()['cnt'];
+require_once __DIR__ . '/public/api/public_stats.php';
 
+// 1. Initial Research Analytics Data (SSR for instant paint & zero loader lag)
+$initial_research_data = get_public_stats([]);
+$stats = $initial_research_data['stats'];
 $stats['depts'] = count($depts);
-
-$p_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code = 'patent'");
-if($p_res) $stats['patents'] = $p_res->fetch_assoc()['cnt'];
-
-$pub_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code IN ('journal', 'conference')");
-if($pub_res) $stats['pubs'] = $pub_res->fetch_assoc()['cnt'];
-
-$f_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code LIKE '%fdp%'");
-if($f_res) $stats['fdps'] = $f_res->fetch_assoc()['cnt'];
-
-$all_res = $conn->query("SELECT count(*) as cnt FROM documents d JOIN document_types dt ON d.type_id=dt.type_id WHERE d.status='accepted' AND dt.type_code IN ($whitelist)");
-if($all_res) $stats['total_docs'] = $all_res->fetch_assoc()['cnt'];
 
 // 2. Initial Top Researchers
 $top_researchers = [];
@@ -53,7 +41,7 @@ $tr_res = $conn->query("
 ");
 if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; } }
 
-// 3. Initial Student Activities Data
+// 3. Initial Student Activity Data (SSR for instant paint)
 $sa_filter_data = \App\Controllers\StudentActivityDashboardController::getFilterData();
 $sa_years = $sa_filter_data['years'];
 $sa_depts = $sa_filter_data['depts'];
@@ -66,6 +54,10 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GMR Institute of Technology - Research Analytics</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
     <style>
@@ -78,8 +70,6 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
         .utility-bar { background: var(--primary); color: #fff; padding: 8px 40px; display: flex; justify-content: flex-end; align-items: center; font-size: 0.85rem; }
         .utility-bar a { color: #fff; text-decoration: none; margin-left: 20px; transition: color 0.2s; font-weight: bold; }
         .utility-bar a:hover { color: var(--accent); }
-        .utility-dashboard-badge { background: rgba(23, 162, 184, 0.25); border: 1px solid var(--accent); color: #fff !important; padding: 4px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px; }
-        .utility-dashboard-badge:hover { background: var(--accent); }
 
         /* Main Navigation */
         .main-nav { background: #fff; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; }
@@ -88,7 +78,6 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
         .nav-links a.nav-link-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.95rem; padding: 6px 0; transition: color 0.2s; border-bottom: 2px solid transparent; }
         .nav-links a.nav-link-item:hover, .nav-links a.nav-link-item.active { color: var(--primary); border-bottom-color: var(--accent); }
 
-        /* Prominent Header Action Buttons */
         .nav-btn-dashboard {
             background: linear-gradient(135deg, #0b353d 0%, #17a2b8 100%);
             color: #ffffff !important;
@@ -102,14 +91,9 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
             box-shadow: 0 4px 14px rgba(23, 162, 184, 0.4);
             transition: all 0.25s ease;
             text-decoration: none;
-            border: none;
-            margin-left: 10px;
         }
-        .nav-btn-dashboard:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(23, 162, 184, 0.6);
-            color: #ffffff !important;
-        }
+        .nav-btn-dashboard:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(23, 162, 184, 0.6); }
+
         .nav-btn-login {
             background: #0b353d;
             color: #ffffff !important;
@@ -120,26 +104,19 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 10px rgba(11, 53, 61, 0.25);
-            transition: all 0.25s ease;
             text-decoration: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-left: 10px;
+            transition: all 0.25s ease;
         }
-        .nav-btn-login:hover {
-            background: #17a2b8;
-            transform: translateY(-2px);
-            color: #ffffff !important;
-        }
+        .nav-btn-login:hover { background: #17a2b8; transform: translateY(-2px); }
         
         /* Hero Section */
-        .hero { background: linear-gradient(rgba(14, 69, 79, 0.9), rgba(8, 40, 46, 0.9)), url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover; padding: 60px 40px; display: flex; gap: 40px; align-items: center; }
+        .hero { background: linear-gradient(135deg, rgba(14, 69, 79, 0.94), rgba(8, 40, 46, 0.97)), url('<?= BASE_URL ?>/assets/img/Landing.jpg') center/cover; padding: 60px 40px; display: flex; gap: 40px; align-items: center; }
         .hero-left { flex: 1; color: #fff; }
         .hero-left .tagline { color: var(--accent); font-weight: bold; letter-spacing: 2px; font-size: 0.85rem; display: block; margin-bottom: 15px; }
         .hero-left h1 { font-size: 2.8rem; margin: 0 0 20px 0; line-height: 1.2; }
         .hero-left p { font-size: 1.1rem; color: #cbd5e1; max-width: 600px; margin-bottom: 30px; }
         
-        /* Amazon-style Layout */
+        /* Layout */
         .amazon-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 30px; max-width: 1400px; margin: 0 auto; padding: 40px; }
         .amazon-main { min-width: 0; }
         .amazon-sidebar { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); height: fit-content; position: sticky; top: 90px; }
@@ -166,144 +143,13 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
         .section-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
         .section-header h2 { margin: 0; font-size: 1.8rem; color: var(--primary); }
         
-        /* Analytics Area */
+        /* Analytics Grid (Reused for both Research and Student Activities) */
         .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px; }
         .chart-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; transition: transform 0.3s; display: flex; flex-direction: column; }
         .chart-card:hover { transform: translateY(-5px); }
         .chart-header h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1.2rem; font-weight: 700; }
         .chart-header p { margin: 0 0 20px 0; color: #64748b; font-size: 0.85rem; }
         .chart-wrapper { flex: 1; height: 350px; width: 100%; position: relative; }
-
-        /* Student Activities Styles */
-        .sa-filter-bar {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 20px 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            margin-bottom: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) auto;
-            gap: 15px;
-            align-items: end;
-        }
-        .sa-filter-item label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
-        .sa-filter-item select {
-            width: 100%;
-            padding: 9px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background: #f8fafc;
-            color: #334155;
-            font-size: 0.9rem;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .sa-filter-item select:focus {
-            border-color: var(--accent);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.15);
-        }
-        .sa-filter-reset {
-            padding: 9px 18px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background: #fff;
-            color: #64748b;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .sa-filter-reset:hover {
-            background: #f1f5f9;
-            color: #1e293b;
-            border-color: #94a3b8;
-        }
-
-        .sa-kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        @media (max-width: 992px) {
-            .sa-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 576px) {
-            .sa-kpi-grid { grid-template-columns: 1fr; }
-        }
-
-        .sa-kpi-card {
-            border-radius: 10px;
-            padding: 22px 24px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-            transition: transform 0.25s ease;
-        }
-        .sa-kpi-card:hover {
-            transform: translateY(-4px);
-        }
-        .sa-kpi-card.c-blue { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
-        .sa-kpi-card.c-indigo { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
-        .sa-kpi-card.c-teal { background: linear-gradient(135deg, #0e7490 0%, #155e75 100%); }
-        .sa-kpi-card.c-green { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
-
-        .sa-kpi-icon {
-            font-size: 2.4rem;
-            opacity: 0.85;
-        }
-        .sa-kpi-meta h5 {
-            margin: 0;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 700;
-        }
-        .sa-kpi-meta h3 {
-            margin: 4px 0 0 0;
-            font-size: 1.85rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-        .sa-kpi-meta p {
-            margin: 3px 0 0 0;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .sa-charts-grid-2 {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        .sa-charts-grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        @media (max-width: 1024px) {
-            .sa-charts-grid-2 { grid-template-columns: 1fr; }
-            .sa-charts-grid-3 { grid-template-columns: 1fr; }
-        }
 
         /* Researchers Grid */
         .researchers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
@@ -317,7 +163,7 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
         .r-btn { color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: bold; }
 
         /* Loader */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 53, 61, 0.8); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; flex-direction: column; color: var(--accent); }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 53, 61, 0.4); backdrop-filter: blur(2px); z-index: 1000; display: none; align-items: center; justify-content: center; flex-direction: column; color: var(--accent); }
         .spinner { width: 50px; height: 50px; border: 4px solid rgba(207, 168, 92, 0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
@@ -331,18 +177,16 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
         <div style="font-weight: bold; letter-spacing: 2px;">SYNCING ANALYTICS...</div>
     </div>
 
-    <!-- Utility Bar -->
+    <!-- Utility Bar (Duplicate Top Go to Dashboard Removed) -->
     <div class="utility-bar">
         <div>
             <?php if (!$isLoggedIn): ?>
                 <a href="<?= BASE_URL ?>/public/index.php?route=auth/login"><i class="fas fa-lock"></i> Staff & Student Login</a>
-            <?php else: ?>
-                <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" class="utility-dashboard-badge"><i class="fas fa-th-large"></i> Go to Dashboard &rarr;</a>
             <?php endif; ?>
         </div>
     </div>
 
-    <!-- Main Nav -->
+    <!-- Main Navigation Bar -->
     <nav class="main-nav">
         <div class="nav-brand">
             <i class="fas fa-university" style="font-size: 1.5rem;"></i>
@@ -373,7 +217,7 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
             <span class="tagline">— DYNAMIC RESEARCH INTELLIGENCE</span>
             <h1>Research & Analytics Portal</h1>
             <p>Select an academic year, isolate a department, or click a metric card to instantly drill down into specific research outputs.</p>
-            <div style="margin-top: 15px; font-size: 0.9rem; color: #cbd5e1;"><i class="fas fa-arrow-down"></i> Scroll down to explore the dynamic analytics dashboard.</div>
+            <p style="font-size: 0.9rem; color: #94a3b8;"><i class="fas fa-arrow-down"></i> Scroll down to explore the dynamic analytics dashboard.</p>
         </div>
         <div class="hero-right">
             <div class="hero-stat-card active" data-category="all">
@@ -403,7 +247,7 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
         </div>
     </section>
 
-    <!-- Interactive Analytics -->
+    <!-- Interactive Research Analytics -->
     <section class="section light" id="analytics" style="padding: 20px 0;">
         <div class="amazon-layout">
             <aside class="amazon-sidebar">
@@ -437,169 +281,155 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
             <div class="amazon-main">
                 <div class="section-header">
                     <h2><i class="fas fa-chart-line" style="color: var(--accent);"></i> Dynamic Visualization</h2>
-                    <span style="color: #64748b; font-weight: 500;" id="current-view-label">Currently Viewing: Filtered Results</span>
+                    <span style="color: #64748b; font-weight: 500;" id="current-view-label">Currently Viewing: All Institutional Data</span>
                 </div>
+
                 <div class="analytics-grid">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3><i class="fas fa-chart-area" style="color: var(--accent);"></i> Institutional Trajectory</h3>
-                    <p>Timeline of scholarly outputs based on your active filters</p>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-area" style="color: var(--accent);"></i> Institutional Trajectory</h3>
+                            <p>Continuous progression across academic cycles</p>
+                        </div>
+                        <div class="chart-wrapper"><canvas id="timelineChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 id="dist-title"><i class="fas fa-chart-pie" style="color: var(--accent);"></i> Documents by Department</h3>
+                            <p>Proportional breakdown based on active filters</p>
+                        </div>
+                        <div class="chart-wrapper"><canvas id="distributionChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-radar" style="color: var(--accent);"></i> Research Focus Signature</h3>
+                            <p>Multi-dimensional comparison of current focus areas</p>
+                        </div>
+                        <div class="chart-wrapper"><canvas id="radarChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-circle-notch" style="color: var(--accent);"></i> Proportional Impact Map</h3>
+                            <p>Polar area visualization of density</p>
+                        </div>
+                        <div class="chart-wrapper"><canvas id="polarChart"></canvas></div>
+                    </div>
                 </div>
-                <div class="chart-wrapper"><canvas id="timelineChart"></canvas></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 id="dist-title"><i class="fas fa-chart-pie" style="color: var(--accent);"></i> Structural Breakdown</h3>
-                    <p>Distribution analysis across the institution</p>
-                </div>
-                <div class="chart-wrapper"><canvas id="distributionChart"></canvas></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3><i class="fas fa-spider" style="color: var(--accent);"></i> Departmental Radar Focus</h3>
-                    <p>Multi-dimensional comparison of current focus areas</p>
-                </div>
-                <div class="chart-wrapper"><canvas id="radarChart"></canvas></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3><i class="fas fa-circle-notch" style="color: var(--accent);"></i> Proportional Impact Map</h3>
-                    <p>Polar area visualization of density</p>
-                </div>
-                <div class="chart-wrapper"><canvas id="polarChart"></canvas></div>
             </div>
         </div>
-            </div> <!-- End amazon-main -->
-        </div> <!-- End amazon-layout -->
     </section>
 
-    <!-- Student Activities Dashboard Section -->
-    <section class="section light" id="student-activities" style="background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 50px 40px;">
+    <!-- Student Activities Dashboard Section (Using Existing Styles) -->
+    <section class="section" id="student-activities" style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 50px 40px;">
         <div style="max-width: 1400px; margin: 0 auto;">
-            <div class="section-header" style="flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 25px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 15px;">
-                    <div>
-                        <span style="color: var(--accent); font-weight: bold; letter-spacing: 2px; font-size: 0.85rem; text-transform: uppercase;">
-                            — Campus Engagement Intelligence
-                        </span>
-                        <h2 style="margin: 5px 0 0 0; font-size: 2.2rem; color: var(--primary); display: flex; align-items: center; gap: 12px;">
-                            <i class="fas fa-users-cog" style="color: var(--accent);"></i> Student Activities Dashboard
-                        </h2>
-                    </div>
-                    <span style="color: #64748b; font-weight: 500; font-size: 0.9rem;" id="sa-status-label">
-                        <i class="fas fa-chart-pie" style="color: var(--accent);"></i> Dynamic Campus Engagement Metrics
-                    </span>
+            <div class="section-header">
+                <div>
+                    <span style="color: var(--accent); font-weight: bold; letter-spacing: 2px; font-size: 0.85rem;">— CAMPUS ENGAGEMENT INTELLIGENCE</span>
+                    <h2 style="margin-top: 5px;"><i class="fas fa-users-cog" style="color: var(--accent);"></i> Student Activities Dashboard</h2>
                 </div>
-                <p style="margin: 0; color: #64748b; font-size: 1rem; max-width: 850px;">
-                    Analytics and engagement tracking for all student-driven initiatives, workshops, technical symposiums, and campus club activities.
-                </p>
+                <span style="color: #64748b; font-weight: 500;">Dynamic Campus Engagement Metrics</span>
             </div>
 
-            <!-- Dynamic Filter Bar -->
-            <div class="sa-filter-bar">
-                <div class="sa-filter-item">
-                    <label for="sa_filter_year">Academic Year</label>
-                    <select id="sa_filter_year">
+            <!-- Strictly Horizontal Filter Bar -->
+            <div style="display: flex; flex-direction: row; align-items: flex-end; gap: 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px 20px; margin-bottom: 25px; overflow-x: auto;">
+                <div style="flex: 1 1 0; min-width: 125px;">
+                    <label for="sa_filter_year" style="display: block; font-size: 0.75rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px;">ACADEMIC YEAR</label>
+                    <select id="sa_filter_year" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 0.85rem;">
                         <option value="all">All Years</option>
                         <?php foreach($sa_years as $yr): ?>
                             <option value="<?= (int)$yr['year_id'] ?>"><?= htmlspecialchars($yr['year_label']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="sa-filter-item">
-                    <label for="sa_filter_dept">Department</label>
-                    <select id="sa_filter_dept">
+                <div style="flex: 1 1 0; min-width: 125px;">
+                    <label for="sa_filter_dept" style="display: block; font-size: 0.75rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px;">DEPARTMENT</label>
+                    <select id="sa_filter_dept" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 0.85rem;">
                         <option value="all">All Departments</option>
                         <?php foreach($sa_depts as $d): ?>
                             <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="sa-filter-item">
-                    <label for="sa_filter_scope">Event Scope</label>
-                    <select id="sa_filter_scope">
+                <div style="flex: 1 1 0; min-width: 125px;">
+                    <label for="sa_filter_scope" style="display: block; font-size: 0.75rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px;">EVENT SCOPE</label>
+                    <select id="sa_filter_scope" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 0.85rem;">
                         <option value="all">All Scopes</option>
                         <option value="department">Department Wise</option>
                         <option value="central">Central / Campus Wide</option>
                         <option value="external">Inter-College / External</option>
                     </select>
                 </div>
-                <div class="sa-filter-item">
-                    <label for="sa_filter_mode">Event Mode</label>
-                    <select id="sa_filter_mode">
+                <div style="flex: 1 1 0; min-width: 125px;">
+                    <label for="sa_filter_mode" style="display: block; font-size: 0.75rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px;">EVENT MODE</label>
+                    <select id="sa_filter_mode" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 0.85rem;">
                         <option value="all">All Modes</option>
                         <?php foreach(($sa_options['modes'] ?? []) as $m): ?>
                             <option value="<?= htmlspecialchars($m) ?>"><?= htmlspecialchars($m) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="sa-filter-item">
-                    <label for="sa_filter_domain">Domain / Topic</label>
-                    <select id="sa_filter_domain">
+                <div style="flex: 1 1 0; min-width: 125px;">
+                    <label for="sa_filter_domain" style="display: block; font-size: 0.75rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px;">DOMAIN / TOPIC</label>
+                    <select id="sa_filter_domain" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 0.85rem;">
                         <option value="all">All Domains</option>
                         <?php foreach(($sa_options['domains'] ?? []) as $dom): ?>
                             <option value="<?= htmlspecialchars($dom) ?>"><?= htmlspecialchars($dom) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="sa-filter-item">
-                    <label for="sa_filter_type">Event Type</label>
-                    <select id="sa_filter_type">
+                <div style="flex: 1 1 0; min-width: 125px;">
+                    <label for="sa_filter_type" style="display: block; font-size: 0.75rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px;">EVENT TYPE</label>
+                    <select id="sa_filter_type" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 0.85rem;">
                         <option value="all">All Types</option>
                         <?php foreach(($sa_options['event_types'] ?? []) as $et): ?>
                             <option value="<?= htmlspecialchars($et) ?>"><?= htmlspecialchars($et) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div>
-                    <button type="button" id="sa_filter_reset" class="sa-filter-reset">
+                <div style="flex: 0 0 auto;">
+                    <button type="button" id="sa_filter_reset" style="padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #475569; font-size: 0.85rem; font-weight: 600; cursor: pointer; height: 38px; display: inline-flex; align-items: center; gap: 6px;">
                         <i class="fas fa-undo"></i> Reset
                     </button>
                 </div>
             </div>
 
-            <!-- Top KPI Cards -->
-            <div class="sa-kpi-grid">
-                <div class="sa-kpi-card c-blue">
-                    <div class="sa-kpi-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="sa-kpi-meta">
-                        <h5>Total Events</h5>
-                        <h3 id="sa-val-events"><?= number_format($sa_initial_stats['total_events']) ?></h3>
-                        <p>All registered events</p>
+            <!-- KPI Cards using existing .chart-card style -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div class="chart-card" style="padding: 18px 22px; flex-direction: row; align-items: center; gap: 15px; border-left: 4px solid #0284c7;">
+                    <i class="fas fa-calendar-check" style="font-size: 2rem; color: #0284c7;"></i>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Total Events</div>
+                        <div id="sa-val-events" style="font-size: 1.6rem; font-weight: bold; color: var(--primary);"><?= number_format($sa_initial_stats['total_events']) ?></div>
                     </div>
                 </div>
-                <div class="sa-kpi-card c-indigo">
-                    <div class="sa-kpi-icon"><i class="fas fa-building-columns"></i></div>
-                    <div class="sa-kpi-meta">
-                        <h5>Department-Wise</h5>
-                        <h3 id="sa-val-dept-events"><?= number_format($sa_initial_stats['department_events']) ?></h3>
-                        <p>Branch specific initiatives</p>
+                <div class="chart-card" style="padding: 18px 22px; flex-direction: row; align-items: center; gap: 15px; border-left: 4px solid #4f46e5;">
+                    <i class="fas fa-building-columns" style="font-size: 2rem; color: #4f46e5;"></i>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Department-Wise</div>
+                        <div id="sa-val-dept-events" style="font-size: 1.6rem; font-weight: bold; color: var(--primary);"><?= number_format($sa_initial_stats['department_events']) ?></div>
                     </div>
                 </div>
-                <div class="sa-kpi-card c-teal">
-                    <div class="sa-kpi-icon"><i class="fas fa-users-rays"></i></div>
-                    <div class="sa-kpi-meta">
-                        <h5>Central / Campus</h5>
-                        <h3 id="sa-val-central-events"><?= number_format($sa_initial_stats['central_events']) ?></h3>
-                        <p>Clubs, SAC & Stepcone</p>
+                <div class="chart-card" style="padding: 18px 22px; flex-direction: row; align-items: center; gap: 15px; border-left: 4px solid var(--accent);">
+                    <i class="fas fa-users" style="font-size: 2rem; color: var(--accent);"></i>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Central / Campus</div>
+                        <div id="sa-val-central-events" style="font-size: 1.6rem; font-weight: bold; color: var(--primary);"><?= number_format($sa_initial_stats['central_events']) ?></div>
                     </div>
                 </div>
-                <div class="sa-kpi-card c-green">
-                    <div class="sa-kpi-icon"><i class="fas fa-user-graduate"></i></div>
-                    <div class="sa-kpi-meta">
-                        <h5>Total Participation</h5>
-                        <h3 id="sa-val-participants"><?= number_format($sa_initial_stats['total_participants']) ?></h3>
-                        <p>Student attendees recorded</p>
+                <div class="chart-card" style="padding: 18px 22px; flex-direction: row; align-items: center; gap: 15px; border-left: 4px solid #10b981;">
+                    <i class="fas fa-user-graduate" style="font-size: 2rem; color: #10b981;"></i>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Total Participation</div>
+                        <div id="sa-val-participants" style="font-size: 1.6rem; font-weight: bold; color: var(--primary);"><?= number_format($sa_initial_stats['total_participants']) ?></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts Row 1 -->
-            <div class="sa-charts-grid-2">
+            <!-- Charts in standard .analytics-grid -->
+            <div class="analytics-grid">
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3><i class="fas fa-chart-line" style="color: var(--accent);"></i> Participation Engagement Timeline</h3>
-                        <p>Total students participating across months</p>
+                        <p>Total students participating across academic years</p>
                     </div>
                     <div class="chart-wrapper"><canvas id="saTimelineChart"></canvas></div>
                 </div>
@@ -610,10 +440,6 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
                     </div>
                     <div class="chart-wrapper"><canvas id="saCategoryChart"></canvas></div>
                 </div>
-            </div>
-
-            <!-- Charts Row 2 -->
-            <div class="sa-charts-grid-3">
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3><i class="fas fa-layer-group" style="color: var(--accent);"></i> Event Scope Breakdown</h3>
@@ -628,52 +454,11 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
                     </div>
                     <div class="chart-wrapper"><canvas id="saModeChart"></canvas></div>
                 </div>
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-crown" style="color: var(--accent);"></i> Most Active Clubs</h3>
-                        <p>Top campus-wide clubs by events</p>
-                    </div>
-                    <div style="flex: 1; overflow-y: auto; max-height: 350px;">
-                        <ul id="saClubList" style="list-style: none; padding: 0; margin: 10px 0 0 0;">
-                            <?php 
-                            $clubs = $sa_initial_stats['club_activity'] ?? [];
-                            if (!empty($clubs)) { arsort($clubs); }
-                            $top_clubs = array_slice($clubs, 0, 5, true);
-                            if (empty($top_clubs)): ?>
-                                <li style="padding: 12px 15px; color: #64748b; font-size: 0.9rem;">No club data recorded for this selection.</li>
-                            <?php else: 
-                                foreach($top_clubs as $club => $cnt): ?>
-                                <li style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
-                                    <span><i class="fas fa-shield-alt" style="color: var(--accent); margin-right: 8px;"></i><?= htmlspecialchars($club) ?></span>
-                                    <span style="background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 50px; font-weight: 700; font-size: 0.8rem;"><?= (int)$cnt === 1 ? '1 Event' : (int)$cnt . ' Events' ?></span>
-                                </li>
-                            <?php endforeach; endif; ?>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Row 3 -->
-            <div class="sa-charts-grid-2">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-bullseye" style="color: var(--accent);"></i> Topic Focus Area</h3>
-                        <p>Technical domain and skillset tracks</p>
-                    </div>
-                    <div class="chart-wrapper"><canvas id="saTopicRadarChart"></canvas></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-university" style="color: var(--accent);"></i> Department-Wise Initiatives Comparison</h3>
-                        <p>Comparing branch-specific events and participant engagement</p>
-                    </div>
-                    <div class="chart-wrapper"><canvas id="saDeptCompareChart"></canvas></div>
-                </div>
             </div>
         </div>
     </section>
 
-    <!-- Top Researchers (Static display for initial load) -->
+    <!-- Top Researchers -->
     <section class="section" id="profiles">
         <div class="section-header">
             <h2>Institution Top Profiles</h2>
@@ -698,14 +483,10 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
     <div class="footer">Powered by FMS (File Management System)</div>
 
     <script>
-        // Global State
+        // Research Analytics State & Charts (SSR for instant zero-lag paint)
+        const initialResearchData = <?= json_encode($initial_research_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         let state = { year: 'all', dept_id: 'all', category: 'all', type: 'all' };
-        
-        // Chart Instances
-        let timelineChartInst = null;
-        let distChartInst = null;
-        let radarChartInst = null;
-        let polarChartInst = null;
+        let timelineChartInst = null, distChartInst = null, radarChartInst = null, polarChartInst = null;
 
         const cbYears = document.querySelectorAll('.cb-year');
         const cbDepts = document.querySelectorAll('.cb-dept');
@@ -714,6 +495,7 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
         const loader = document.getElementById('loader');
         
         function animateValue(obj, start, end, duration) {
+            if (!obj) return;
             let startTimestamp = null;
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
@@ -729,19 +511,14 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
             try {
                 const url = `<?= BASE_URL ?>/public/api/public_stats.php?year=${encodeURIComponent(state.year)}&dept_id=${encodeURIComponent(state.dept_id)}&category=${encodeURIComponent(state.category)}&type=${encodeURIComponent(state.type)}`;
                 const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('HTTP ' + response.status);
-                }
+                if (!response.ok) throw new Error('HTTP ' + response.status);
                 const json = await response.json();
-                if(json.status === 'success') {
-                    updateUI(json.data);
-                }
-            } catch (err) { console.error('Dashboard data fetch error:', err); } 
-            finally { setTimeout(() => { loader.style.display = 'none'; }, 300); }
+                if(json.status === 'success') updateUI(json.data);
+            } catch (err) { console.error('Dashboard error:', err); } 
+            finally { setTimeout(() => { loader.style.display = 'none'; }, 200); }
         }
 
         function updateUI(data) {
-            // Update Label
             let filterLabel = [];
             if (state.year === 'none' || state.dept_id === 'none' || state.type === 'none') {
                 document.getElementById('current-view-label').innerText = `Currently Viewing: 0 Results (Filter Cleared)`;
@@ -751,14 +528,11 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
                     const names = Array.from(cbDepts).filter(cb => cb.checked).map(cb => cb.parentElement.textContent.trim()).join(', ');
                     filterLabel.push(`Dept: ${names}`);
                 }
-                if (state.type !== 'all') {
-                    filterLabel.push(`${Array.from(cbTypes).filter(cb => cb.checked).length} Focus Areas`);
-                }
+                if (state.type !== 'all') filterLabel.push(`${Array.from(cbTypes).filter(cb => cb.checked).length} Focus Areas`);
                 if (state.category !== 'all') filterLabel.push(`Metric: ${state.category.toUpperCase()}`);
                 document.getElementById('current-view-label').innerText = filterLabel.length > 0 ? `Currently Viewing: ${filterLabel.join(' | ')}` : `Currently Viewing: All Institutional Data`;
             }
 
-            // Update Metrics
             const mData = data.stats || { total_docs: 0, pubs: 0, patents: 0, fdps: 0, researchers: 0 };
             animateValue(document.getElementById('val-total'), 0, mData.total_docs || 0, 800);
             animateValue(document.getElementById('val-pubs'), 0, mData.pubs || 0, 800);
@@ -766,143 +540,69 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
             animateValue(document.getElementById('val-fdps'), 0, mData.fdps || 0, 800);
             animateValue(document.getElementById('val-researchers'), 0, mData.researchers || 0, 800);
 
-            // Timeline Chart (Smooth Area)
+            // Timeline
             const tLabels = data.timeline ? Object.keys(data.timeline) : [];
             const tValues = data.timeline ? Object.values(data.timeline) : [];
-            
             if (timelineChartInst) timelineChartInst.destroy();
             const ctxT = document.getElementById('timelineChart').getContext('2d');
-            
             let grad = ctxT.createLinearGradient(0, 0, 0, 400);
             grad.addColorStop(0, 'rgba(23, 162, 184, 0.6)');
             grad.addColorStop(1, 'rgba(23, 162, 184, 0.0)');
-
             timelineChartInst = new Chart(ctxT, {
                 type: 'line',
                 data: {
                     labels: tLabels.length > 0 ? tLabels : ['No Data'],
-                    datasets: [{
-                        label: 'Activities', data: tValues.length > 0 ? tValues : [0],
-                        borderColor: '#17a2b8', backgroundColor: grad,
-                        borderWidth: 3, fill: true, tension: 0.4,
-                        pointBackgroundColor: '#fff', pointBorderColor: '#17a2b8', pointBorderWidth: 3, pointRadius: 5, pointHoverRadius: 7
-                    }]
+                    datasets: [{ label: 'Activities', data: tValues.length > 0 ? tValues : [0], borderColor: '#17a2b8', backgroundColor: grad, borderWidth: 3, fill: true, tension: 0.4 }]
                 },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(11, 53, 61, 0.9)', titleFont: { size: 14 }, bodyFont: { size: 14, weight: 'bold' }, padding: 12, cornerRadius: 8 } }, 
-                    scales: { 
-                        y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#e2e8f0' } },
-                        x: { grid: { display: false } }
-                    } 
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
 
-            // Distribution Chart (Bar/Doughnut)
+            // Department Distribution
             const isSingleDept = state.dept_id !== 'all' && state.dept_id !== 'none' && !state.dept_id.includes(',');
-            let distTitle = 'Documents by Department';
-            let chartType = 'bar';
-            let distData = data.dept_distribution || {};
-
-            if (state.dept_id === 'none' || state.year === 'none' || state.type === 'none') {
-                distTitle = 'No Results for Current Filter';
-                distData = {};
-            } else if (isSingleDept) {
-                const selectedDeptEl = Array.from(cbDepts).find(cb => cb.checked);
-                const deptName = selectedDeptEl ? selectedDeptEl.parentElement.textContent.trim() : 'Department';
-                distTitle = `${deptName} - Category Distribution`;
+            let distTitle = 'Documents by Department', chartType = 'bar', distData = data.dept_distribution || {};
+            if (isSingleDept) {
+                const sDept = Array.from(cbDepts).find(cb => cb.checked);
+                distTitle = `${sDept ? sDept.parentElement.textContent.trim() : 'Department'} - Category Distribution`;
                 chartType = 'doughnut';
                 distData = data.category_distribution || {};
-            } else {
-                distTitle = 'Documents by Department';
-                chartType = 'bar';
-                distData = data.dept_distribution || {};
             }
             document.getElementById('dist-title').innerHTML = `<i class="fas fa-chart-pie" style="color: var(--accent);"></i> ` + distTitle;
             if (distChartInst) distChartInst.destroy();
-            
             const bgColors = ['#17a2b8', '#0b353d', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
-
             distChartInst = new Chart(document.getElementById('distributionChart').getContext('2d'), {
                 type: chartType,
-                data: {
-                    labels: Object.keys(distData),
-                    datasets: [{
-                        data: Object.values(distData),
-                        backgroundColor: chartType === 'doughnut' ? bgColors : '#0b353d',
-                        borderRadius: chartType === 'bar' ? 6 : 0,
-                        borderWidth: chartType === 'doughnut' ? 2 : 0,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: chartType === 'doughnut', position: 'right', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } } },
-                    scales: chartType === 'bar' ? { x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, grid: { borderDash: [5, 5] } } } : {}
-                }
+                data: { labels: Object.keys(distData), datasets: [{ data: Object.values(distData), backgroundColor: chartType === 'doughnut' ? bgColors : '#0b353d' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: chartType === 'doughnut' } } }
             });
 
-            // Radar Chart (Category Focus)
+            // Radar
             if (radarChartInst) radarChartInst.destroy();
             radarChartInst = new Chart(document.getElementById('radarChart').getContext('2d'), {
                 type: 'radar',
-                data: {
-                    labels: Object.keys(data.category_distribution || {}),
-                    datasets: [{
-                        label: 'Document Focus',
-                        data: Object.values(data.category_distribution || {}),
-                        backgroundColor: 'rgba(23, 162, 184, 0.2)',
-                        borderColor: '#17a2b8',
-                        pointBackgroundColor: '#0b353d',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#17a2b8',
-                        borderWidth: 2
-                    }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { r: { min: 0, ticks: { stepSize: 1, precision: 0 }, angleLines: { display: true, color: '#e2e8f0' }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 11, family: 'Inter, sans-serif' }, color: '#64748b' } } }
-                }
+                data: { labels: Object.keys(data.category_distribution || {}), datasets: [{ label: 'Focus', data: Object.values(data.category_distribution || {}), backgroundColor: 'rgba(23, 162, 184, 0.2)', borderColor: '#17a2b8' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { min: 0 } } }
             });
 
-            // Polar Area Chart (Departmental Spread)
+            // Polar
             if (polarChartInst) polarChartInst.destroy();
             polarChartInst = new Chart(document.getElementById('polarChart').getContext('2d'), {
                 type: 'polarArea',
-                data: {
-                    labels: Object.keys(data.dept_distribution || {}),
-                    datasets: [{
-                        data: Object.values(data.dept_distribution || {}),
-                        backgroundColor: bgColors.map(c => c + 'CC'),
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { boxWidth: 10, padding: 10, font: { size: 10 } } } },
-                    scales: { r: { ticks: { display: false }, grid: { color: '#e2e8f0' } } }
-                }
+                data: { labels: Object.keys(data.dept_distribution || {}), datasets: [{ data: Object.values(data.dept_distribution || {}), backgroundColor: bgColors.map(c => c + 'CC') }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
             });
         }
 
-        // Listeners
         function syncFiltersAndFetch() {
-            const checkedYears = Array.from(cbYears).filter(cb => cb.checked);
-            const checkedDepts = Array.from(cbDepts).filter(cb => cb.checked);
-            const checkedTypes = Array.from(cbTypes).filter(cb => cb.checked);
-
-            state.year = (checkedYears.length === cbYears.length) ? 'all' : (checkedYears.length === 0 ? 'none' : checkedYears.map(cb => cb.value).join(','));
-            state.dept_id = (checkedDepts.length === cbDepts.length) ? 'all' : (checkedDepts.length === 0 ? 'none' : checkedDepts.map(cb => cb.value).join(','));
-            state.type = (checkedTypes.length === cbTypes.length) ? 'all' : (checkedTypes.length === 0 ? 'none' : checkedTypes.map(cb => cb.value).join(','));
-
+            const cY = Array.from(cbYears).filter(cb => cb.checked);
+            const cD = Array.from(cbDepts).filter(cb => cb.checked);
+            const cT = Array.from(cbTypes).filter(cb => cb.checked);
+            state.year = (cY.length === cbYears.length) ? 'all' : (cY.length === 0 ? 'none' : cY.map(cb => cb.value).join(','));
+            state.dept_id = (cD.length === cbDepts.length) ? 'all' : (cD.length === 0 ? 'none' : cD.map(cb => cb.value).join(','));
+            state.type = (cT.length === cbTypes.length) ? 'all' : (cT.length === 0 ? 'none' : cT.map(cb => cb.value).join(','));
             fetchDashboardData();
         }
 
-        const selectAllBoxes = document.querySelectorAll('.cb-select-all');
-        selectAllBoxes.forEach(sa => {
+        document.querySelectorAll('.cb-select-all').forEach(sa => {
             sa.addEventListener('change', (e) => {
                 const group = e.target.closest('.facet-group');
                 const targets = group ? group.querySelectorAll(e.target.dataset.target) : document.querySelectorAll(e.target.dataset.target);
@@ -911,330 +611,104 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
             });
         });
 
-        function enhancedSync(e) {
-            const group = e.target.closest('.facet-group');
-            if(group) {
-                const sa = group.querySelector('.cb-select-all');
-                if(sa) {
-                    const targets = group.querySelectorAll(sa.dataset.target);
-                    const allChecked = Array.from(targets).every(t => t.checked);
-                    const someChecked = Array.from(targets).some(t => t.checked);
-                    sa.checked = allChecked && targets.length > 0;
-                    sa.indeterminate = someChecked && !allChecked;
-                }
-            }
-            syncFiltersAndFetch();
-        }
+        [...cbYears, ...cbDepts, ...cbTypes].forEach(cb => cb.addEventListener('change', () => syncFiltersAndFetch()));
+        metricCards.forEach(card => card.addEventListener('click', () => {
+            metricCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            state.category = card.dataset.category;
+            fetchDashboardData();
+        }));
 
-        cbYears.forEach(cb => cb.addEventListener('change', enhancedSync));
-        cbDepts.forEach(cb => cb.addEventListener('change', enhancedSync));
-        cbTypes.forEach(cb => cb.addEventListener('change', enhancedSync));
-        
-        metricCards.forEach(card => {
-            card.addEventListener('click', () => {
-                metricCards.forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                state.category = card.dataset.category;
-                fetchDashboardData();
-            });
-        });
+        // Navigation Active Links
+        const navLinks = document.querySelectorAll('.main-nav .nav-link-item');
+        navLinks.forEach(link => link.addEventListener('click', function() {
+            navLinks.forEach(n => n.classList.remove('active'));
+            this.classList.add('active');
+        }));
 
-        // Initialize Research Dashboard
-        fetchDashboardData();
+        // Student Activities Dynamics
+        const saInitial = <?= json_encode($sa_initial_stats, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+        let saCharts = {};
 
-        // ==========================================
-        // Student Activities Interactive Logic
-        // ==========================================
-        window.initialSAStats = <?= json_encode($sa_initial_stats, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-        
-        let saTimelineChartInst = null;
-        let saCategoryChartInst = null;
-        let saScopeChartInst = null;
-        let saModeChartInst = null;
-        let saRadarChartInst = null;
-        let saDeptCompareChartInst = null;
-
-        function updateSACharts(stats) {
-            const palette = ['#0284c7', '#0d9488', '#4f46e5', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#ea580c', '#16a34a'];
-
-            // 1. Timeline Chart
-            const tlLabels = stats.timeline ? Object.keys(stats.timeline) : [];
-            const tlValues = stats.timeline ? Object.values(stats.timeline) : [];
-            if (saTimelineChartInst) saTimelineChartInst.destroy();
-            const ctxTl = document.getElementById('saTimelineChart').getContext('2d');
-            const tlGrad = ctxTl.createLinearGradient(0, 0, 0, 350);
-            tlGrad.addColorStop(0, 'rgba(2, 132, 199, 0.45)');
-            tlGrad.addColorStop(1, 'rgba(2, 132, 199, 0.0)');
-            saTimelineChartInst = new Chart(ctxTl, {
+        function renderSACharts(data) {
+            const tl = data.timeline || {};
+            if (saCharts.tl) saCharts.tl.destroy();
+            const ctxTL = document.getElementById('saTimelineChart').getContext('2d');
+            let gradTL = ctxTL.createLinearGradient(0, 0, 0, 350);
+            gradTL.addColorStop(0, 'rgba(2, 132, 199, 0.4)');
+            gradTL.addColorStop(1, 'rgba(2, 132, 199, 0.0)');
+            saCharts.tl = new Chart(ctxTL, {
                 type: 'line',
                 data: {
-                    labels: tlLabels.length ? tlLabels : ['No Data'],
-                    datasets: [{
-                        label: 'Participants',
-                        data: tlValues.length ? tlValues : [0],
-                        borderColor: '#0284c7',
-                        backgroundColor: tlGrad,
-                        fill: true,
-                        tension: 0.35,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#0284c7',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
+                    labels: Object.keys(tl).length ? Object.keys(tl) : ['No Data'],
+                    datasets: [{ label: 'Participants', data: Object.values(tl).length ? Object.values(tl) : [0], borderColor: '#0284c7', backgroundColor: gradTL, fill: true, tension: 0.35, borderWidth: 3 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#e2e8f0' } },
-                        x: { grid: { display: false } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
 
-            // 2. Category Chart
-            const catLabels = stats.category_dist ? Object.keys(stats.category_dist) : [];
-            const catValues = stats.category_dist ? Object.values(stats.category_dist) : [];
-            if (saCategoryChartInst) saCategoryChartInst.destroy();
-            saCategoryChartInst = new Chart(document.getElementById('saCategoryChart').getContext('2d'), {
+            const cat = data.category_dist || {};
+            if (saCharts.cat) saCharts.cat.destroy();
+            saCharts.cat = new Chart(document.getElementById('saCategoryChart'), {
                 type: 'doughnut',
-                data: {
-                    labels: catLabels.length ? catLabels : ['None'],
-                    datasets: [{
-                        data: catValues.length ? catValues : [0],
-                        backgroundColor: palette,
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '68%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
-                    }
-                }
+                data: { labels: Object.keys(cat), datasets: [{ data: Object.values(cat), backgroundColor: ['#0284c7', '#0d9488', '#4f46e5', '#d97706', '#dc2626', '#8b5cf6', '#ec4899'] }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right' } } }
             });
 
-            // 3. Scope Chart
-            const scopeLabels = stats.scope_dist ? Object.keys(stats.scope_dist) : [];
-            const scopeValues = stats.scope_dist ? Object.values(stats.scope_dist) : [];
-            if (saScopeChartInst) saScopeChartInst.destroy();
-            saScopeChartInst = new Chart(document.getElementById('saScopeChart').getContext('2d'), {
+            const scp = data.scope_dist || {};
+            if (saCharts.scp) saCharts.scp.destroy();
+            saCharts.scp = new Chart(document.getElementById('saScopeChart'), {
                 type: 'doughnut',
-                data: {
-                    labels: scopeLabels.length ? scopeLabels : ['None'],
-                    datasets: [{
-                        data: scopeValues.length ? scopeValues : [0],
-                        backgroundColor: ['#4f46e5', '#0284c7', '#059669'],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '68%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
-                    }
-                }
+                data: { labels: Object.keys(scp), datasets: [{ data: Object.values(scp), backgroundColor: ['#4f46e5', '#0284c7', '#059669'] }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right' } } }
             });
 
-            // 4. Mode Chart
-            const modeLabels = stats.mode_dist ? Object.keys(stats.mode_dist) : [];
-            const modeValues = stats.mode_dist ? Object.values(stats.mode_dist) : [];
-            if (saModeChartInst) saModeChartInst.destroy();
-            saModeChartInst = new Chart(document.getElementById('saModeChart').getContext('2d'), {
+            const md = data.mode_dist || {};
+            if (saCharts.md) saCharts.md.destroy();
+            saCharts.md = new Chart(document.getElementById('saModeChart'), {
                 type: 'doughnut',
-                data: {
-                    labels: modeLabels.length ? modeLabels : ['None'],
-                    datasets: [{
-                        data: modeValues.length ? modeValues : [0],
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '68%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
-                    }
-                }
+                data: { labels: Object.keys(md), datasets: [{ data: Object.values(md), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'] }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right' } } }
             });
-
-            // 5. Topic Radar Chart
-            const topicLabels = stats.topic_dist ? Object.keys(stats.topic_dist) : [];
-            const topicValues = stats.topic_dist ? Object.values(stats.topic_dist) : [];
-            if (saRadarChartInst) saRadarChartInst.destroy();
-            saRadarChartInst = new Chart(document.getElementById('saTopicRadarChart').getContext('2d'), {
-                type: 'radar',
-                data: {
-                    labels: topicLabels.length ? topicLabels : ['None'],
-                    datasets: [{
-                        label: 'Initiatives',
-                        data: topicValues.length ? topicValues : [0],
-                        backgroundColor: 'rgba(2, 132, 199, 0.25)',
-                        borderColor: '#0284c7',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#0b353d',
-                        pointBorderColor: '#fff',
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        r: {
-                            min: 0,
-                            ticks: { precision: 0 },
-                            angleLines: { color: '#e2e8f0' },
-                            grid: { color: '#e2e8f0' },
-                            pointLabels: { font: { size: 10 }, color: '#475569' }
-                        }
-                    }
-                }
-            });
-
-            // 6. Department Initiatives Comparison
-            const deptLabels = stats.dept_compare ? Object.keys(stats.dept_compare) : [];
-            const deptEvents = deptLabels.map(d => stats.dept_compare[d].events);
-            const deptParticipants = deptLabels.map(d => stats.dept_compare[d].participants);
-            if (saDeptCompareChartInst) saDeptCompareChartInst.destroy();
-            saDeptCompareChartInst = new Chart(document.getElementById('saDeptCompareChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: deptLabels.length ? deptLabels : ['None'],
-                    datasets: [
-                        {
-                            label: 'Events Organised',
-                            data: deptEvents.length ? deptEvents : [0],
-                            backgroundColor: '#0284c7',
-                            borderRadius: 4,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Total Participants',
-                            data: deptParticipants.length ? deptParticipants : [0],
-                            backgroundColor: '#10b981',
-                            borderRadius: 4,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 25, font: { size: 10 } } },
-                        y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Events', font: { size: 10 } } },
-                        y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Participants', font: { size: 10 } } }
-                    }
-                }
-            });
-
-            // 7. Active Clubs List
-            const clubListEl = document.getElementById('saClubList');
-            if (clubListEl) {
-                const clubs = stats.club_activity || {};
-                const sortedClubs = Object.entries(clubs).sort((a, b) => b[1] - a[1]).slice(0, 5);
-                if (sortedClubs.length === 0) {
-                    clubListEl.innerHTML = '<li style="padding: 12px 15px; color: #64748b; font-size: 0.9rem;">No club data recorded for this selection.</li>';
-                } else {
-                    clubListEl.innerHTML = sortedClubs.map(([club, cnt]) => `
-                        <li style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
-                            <span><i class="fas fa-shield-alt" style="color: var(--accent); margin-right: 8px;"></i>${escapeHtml(club)}</span>
-                            <span style="background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 50px; font-weight: 700; font-size: 0.8rem;">${cnt} ${cnt === 1 ? 'Event' : 'Events'}</span>
-                        </li>
-                    `).join('');
-                }
-            }
         }
 
-        function escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        async function fetchStudentActivityStats() {
-            const yr = document.getElementById('sa_filter_year').value;
-            const dp = document.getElementById('sa_filter_dept').value;
-            const sc = document.getElementById('sa_filter_scope').value;
-            const md = document.getElementById('sa_filter_mode').value;
-            const dm = document.getElementById('sa_filter_domain').value;
-            const tp = document.getElementById('sa_filter_type').value;
-
-            const url = `<?= BASE_URL ?>/public/api/student_activity_stats.php?year_id=${encodeURIComponent(yr)}&dept_id=${encodeURIComponent(dp)}&scope=${encodeURIComponent(sc)}&mode=${encodeURIComponent(md)}&domain=${encodeURIComponent(dm)}&event_type=${encodeURIComponent(tp)}`;
+        async function fetchSA() {
+            const yr = document.getElementById('sa_filter_year')?.value || 'all';
+            const dp = document.getElementById('sa_filter_dept')?.value || 'all';
+            const sc = document.getElementById('sa_filter_scope')?.value || 'all';
+            const md = document.getElementById('sa_filter_mode')?.value || 'all';
+            const dm = document.getElementById('sa_filter_domain')?.value || 'all';
+            const tp = document.getElementById('sa_filter_type')?.value || 'all';
+            const params = new URLSearchParams({ year_id: yr, dept_id: dp, scope: sc, mode: md, domain: dm, event_type: tp });
 
             try {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const res = await fetch(`<?= BASE_URL ?>/public/api/student_activity_stats.php?${params}`);
                 const json = await res.json();
-                if (json.status === 'success') {
-                    const data = json.data;
-                    animateValue(document.getElementById('sa-val-events'), 0, data.total_events || 0, 400);
-                    animateValue(document.getElementById('sa-val-dept-events'), 0, data.department_events || 0, 400);
-                    animateValue(document.getElementById('sa-val-central-events'), 0, data.central_events || 0, 400);
-                    animateValue(document.getElementById('sa-val-participants'), 0, data.total_participants || 0, 400);
-                    updateSACharts(data);
-                }
-            } catch (err) {
-                console.error('Failed to sync student activity stats:', err);
-            }
+                if (json.status !== 'success' || !json.data) return;
+                const s = json.data;
+
+                animateValue(document.getElementById('sa-val-events'), 0, s.total_events || 0, 400);
+                animateValue(document.getElementById('sa-val-dept-events'), 0, s.department_events || 0, 400);
+                animateValue(document.getElementById('sa-val-central-events'), 0, s.central_events || 0, 400);
+                animateValue(document.getElementById('sa-val-participants'), 0, s.total_participants || 0, 400);
+
+                renderSACharts(s);
+            } catch (e) { console.error('SA fetch error', e); }
         }
 
-        // Student Activities Filter listeners
         ['sa_filter_year', 'sa_filter_dept', 'sa_filter_scope', 'sa_filter_mode', 'sa_filter_domain', 'sa_filter_type'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.addEventListener('change', fetchStudentActivityStats);
+            document.getElementById(id)?.addEventListener('change', fetchSA);
+        });
+        document.getElementById('sa_filter_reset')?.addEventListener('click', () => {
+            ['sa_filter_year', 'sa_filter_dept', 'sa_filter_scope', 'sa_filter_mode', 'sa_filter_domain', 'sa_filter_type'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = 'all';
+            });
+            fetchSA();
         });
 
-        const saResetBtn = document.getElementById('sa_filter_reset');
-        if (saResetBtn) {
-            saResetBtn.addEventListener('click', () => {
-                ['sa_filter_year', 'sa_filter_dept', 'sa_filter_scope', 'sa_filter_mode', 'sa_filter_domain', 'sa_filter_type'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = 'all';
-                });
-                fetchStudentActivityStats();
-            });
-        }
-
-        // Active Navigation Scroll Highlighting
-        const navLinks = document.querySelectorAll('.main-nav .nav-link-item');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                navLinks.forEach(n => n.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        // Highlight based on initial hash
-        if (window.location.hash === '#student-activities') {
-            const saLink = document.getElementById('nav-item-sa');
-            if (saLink) {
-                navLinks.forEach(n => n.classList.remove('active'));
-                saLink.classList.add('active');
-            }
-        }
-
-        // Initialize Student Activities Charts
-        if (window.initialSAStats) {
-            updateSACharts(window.initialSAStats);
-        }
+        // Initialize on page load instantly without blocking loader or network fetch
+        renderSACharts(saInitial);
+        updateUI(initialResearchData);
     </script>
 </body>
 </html>

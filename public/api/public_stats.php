@@ -1,21 +1,20 @@
 <?php
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../core/bootstrap.php';
 
-header('Content-Type: application/json');
+/**
+ * Calculate dynamic public research analytics stats and chart distributions.
+ */
+function get_public_stats(array $params = []): array
+{
+    global $conn;
 
-global $conn;
-
-$response = [
-    'status' => 'success',
-    'data' => []
-];
-
-try {
     // Filters
-    $year_filter = isset($_GET['year']) && $_GET['year'] !== 'all' ? $_GET['year'] : null;
-    $dept_filter = isset($_GET['dept_id']) && $_GET['dept_id'] !== 'all' ? $_GET['dept_id'] : null;
-    $cat_filter = isset($_GET['category']) && $_GET['category'] !== 'all' ? $_GET['category'] : null;
-    $focus_filter = isset($_GET['type']) && $_GET['type'] !== 'all' ? $_GET['type'] : null;
+    $year_filter = isset($params['year']) && $params['year'] !== 'all' ? $params['year'] : null;
+    $dept_filter = isset($params['dept_id']) && $params['dept_id'] !== 'all' ? $params['dept_id'] : null;
+    $cat_filter = isset($params['category']) && $params['category'] !== 'all' ? $params['category'] : null;
+    $focus_filter = isset($params['type']) && $params['type'] !== 'all' ? $params['type'] : null;
 
     // Base JOINs for documents
     $doc_joins = "
@@ -31,11 +30,11 @@ try {
         if ($year_filter === 'none') {
             $doc_where .= " AND 1=0";
         } else {
-            $years = explode(',', $year_filter);
+            $years = explode(',', (string)$year_filter);
             $escaped_years = array_map(function($y) use ($conn) {
-                return "'" . $conn->real_escape_string(trim($y)) . "'";
+                return "'" . $conn->real_escape_string(trim((string)$y)) . "'";
             }, $years);
-            $year_nums = array_filter(array_map(function($y) { return (int)substr(trim($y), 0, 4); }, $years));
+            $year_nums = array_filter(array_map(function($y) { return (int)substr(trim((string)$y), 0, 4); }, $years));
             $year_sql = implode(',', $escaped_years);
             $num_sql = implode(',', $year_nums);
             if (!empty($year_sql) && !empty($num_sql)) {
@@ -50,7 +49,7 @@ try {
         if ($dept_filter === 'none') {
             $doc_where .= " AND 1=0";
         } else {
-            $depts = explode(',', $dept_filter);
+            $depts = explode(',', (string)$dept_filter);
             $dept_sql = implode(',', array_map('intval', $depts));
             if (!empty($dept_sql)) $doc_where .= " AND d.dept_id IN ($dept_sql)";
         }
@@ -61,8 +60,8 @@ try {
         if ($focus_filter === 'none') {
             $doc_where .= " AND 1=0";
         } else {
-            $foci = explode(',', $focus_filter);
-            $foci_sql = implode(',', array_map(function($f) use ($conn) { return "'" . $conn->real_escape_string(trim($f)) . "'"; }, $foci));
+            $foci = explode(',', (string)$focus_filter);
+            $foci_sql = implode(',', array_map(function($f) use ($conn) { return "'" . $conn->real_escape_string(trim((string)$f)) . "'"; }, $foci));
             if (!empty($foci_sql)) {
                 $doc_where .= " AND dt.type_code IN ($foci_sql)";
             }
@@ -80,19 +79,19 @@ try {
 
     // Total docs based on sidebar filters
     $res = $conn->query("SELECT count(DISTINCT d.doc_id) as cnt FROM documents d $doc_joins WHERE $doc_where");
-    if($res) $stats['total_docs'] = $res->fetch_assoc()['cnt'];
+    if($res) $stats['total_docs'] = (int)($res->fetch_assoc()['cnt'] ?? 0);
 
     // Pubs
     $res = $conn->query("SELECT count(DISTINCT d.doc_id) as cnt FROM documents d $doc_joins WHERE $doc_where AND (dt.type_code IN ('journal', 'conference'))");
-    if($res) $stats['pubs'] = $res->fetch_assoc()['cnt'];
+    if($res) $stats['pubs'] = (int)($res->fetch_assoc()['cnt'] ?? 0);
 
     // Patents
     $res = $conn->query("SELECT count(DISTINCT d.doc_id) as cnt FROM documents d $doc_joins WHERE $doc_where AND dt.type_code = 'patent'");
-    if($res) $stats['patents'] = $res->fetch_assoc()['cnt'];
+    if($res) $stats['patents'] = (int)($res->fetch_assoc()['cnt'] ?? 0);
 
     // FDPs
     $res = $conn->query("SELECT count(DISTINCT d.doc_id) as cnt FROM documents d $doc_joins WHERE $doc_where AND dt.type_code LIKE '%fdp%'");
-    if($res) $stats['fdps'] = $res->fetch_assoc()['cnt'];
+    if($res) $stats['fdps'] = (int)($res->fetch_assoc()['cnt'] ?? 0);
 
     // Active Researchers (Filtered by dept)
     $r_where = "u.status='active' AND ur.role_id IN (SELECT role_id FROM roles WHERE role_name IN ('Faculty', 'HOD', 'Coordinator', 'RnD_Dean', 'R&D Dean') OR role_id = " . ROLE_DEPT_COORDINATOR . ")";
@@ -104,9 +103,7 @@ try {
         }
     }
     $res = $conn->query("SELECT count(DISTINCT u.user_id) as cnt FROM users u JOIN user_roles ur ON u.user_id = ur.user_id WHERE $r_where");
-    if($res) $stats['researchers'] = $res->fetch_assoc()['cnt'];
-
-    $response['data']['stats'] = $stats;
+    if($res) $stats['researchers'] = (int)($res->fetch_assoc()['cnt'] ?? 0);
 
     // 2. Apply Category Filter (Card Click) - This only affects the charts below
     if ($cat_filter === 'patents') {
@@ -116,7 +113,6 @@ try {
     } elseif ($cat_filter === 'fdps') {
         $doc_where .= " AND (dt.type_code LIKE '%fdp%')";
     }
-
 
     // 2. Chart 1 Data: Timeline (Academic Trajectory)
     $timeline = [];
@@ -131,9 +127,7 @@ try {
     if($res) {
         while($row = $res->fetch_assoc()) { $timeline[$row['yr']] = (int)$row['cnt']; }
     }
-    // Reverse sort by key (year label) to flow chronologically on the chart
     ksort($timeline);
-    $response['data']['timeline'] = $timeline;
 
     // 3. Category Distribution (For Doughnut & Radar)
     $category_dist = [];
@@ -148,7 +142,6 @@ try {
     if($res) {
         while($row = $res->fetch_assoc()) { $category_dist[$row['name']] = (int)$row['cnt']; }
     }
-    $response['data']['category_distribution'] = $category_dist;
 
     // 4. Department Distribution (For Polar Area)
     $dept_dist = [];
@@ -164,22 +157,33 @@ try {
     if($res) {
         while($row = $res->fetch_assoc()) { $dept_dist[$row['name']] = (int)$row['cnt']; }
     }
-    $response['data']['dept_distribution'] = $dept_dist;
 
-    echo json_encode($response);
-    exit;
+    return [
+        'stats' => $stats,
+        'timeline' => $timeline,
+        'category_distribution' => $category_dist,
+        'dept_distribution' => $dept_dist
+    ];
+}
 
-} catch (\Throwable $e) {
-    error_log("public_stats API error: " . $e->getMessage());
-    echo json_encode([
-        'status' => 'error',
-        'error' => (defined('FMS_DEBUG') && FMS_DEBUG) ? $e->getMessage() : 'An unexpected error occurred while processing analytics data.',
-        'data' => [
-            'stats' => ['total_docs' => 0, 'pubs' => 0, 'patents' => 0, 'fdps' => 0, 'researchers' => 0],
-            'timeline' => [],
-            'category_distribution' => [],
-            'dept_distribution' => []
-        ]
-    ]);
+// Standalone direct API endpoint execution
+if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'public_stats.php') {
+    header('Content-Type: application/json');
+    try {
+        $data = get_public_stats($_GET);
+        echo json_encode(['status' => 'success', 'data' => $data]);
+    } catch (\Throwable $e) {
+        error_log("public_stats API error: " . $e->getMessage());
+        echo json_encode([
+            'status' => 'error',
+            'error' => (defined('FMS_DEBUG') && FMS_DEBUG) ? $e->getMessage() : 'An unexpected error occurred while processing analytics data.',
+            'data' => [
+                'stats' => ['total_docs' => 0, 'pubs' => 0, 'patents' => 0, 'fdps' => 0, 'researchers' => 0],
+                'timeline' => [],
+                'category_distribution' => [],
+                'dept_distribution' => []
+            ]
+        ]);
+    }
     exit;
 }
