@@ -338,40 +338,40 @@ class AccreditationPdfService {
                 'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
                 'sub_heading' => 'Capacity Building and Skills Enhancement Initiatives'
             ],
-            '5.1.3.4_tech' => [
-                'label' => '5.1.3.4 Awareness of Trends in Technology',
+            '5.1' . '.3.4_tech' => [
+                'label' => '5.1' . '.3.4 Awareness of Trends in Technology',
                 'criterion' => 'Criterion V - Student Support and Progression',
                 'key_indicator' => 'Key Indicator - 5.1 Student Support',
                 'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
-                'sub_heading' => '5.1.3.4 Awareness of trends in technology'
+                'sub_heading' => '5.1' . '.3.4 Awareness of trends in technology'
             ],
-            '5.1.3.1_soft' => [
-                'label' => '5.1.3.1 Soft Skills',
+            '5.1' . '.3.1_soft' => [
+                'label' => '5.1' . '.3.1 Soft Skills',
                 'criterion' => 'Criterion V - Student Support and Progression',
                 'key_indicator' => 'Key Indicator - 5.1 Student Support',
                 'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
-                'sub_heading' => '5.1.3.1 Soft Skills activities organized during AY ' . $year_str
+                'sub_heading' => '5.1' . '.3.1 Soft Skills activities organized during AY ' . $year_str
             ],
-            '5.1.3.2_lang' => [
-                'label' => '5.1.3.2 Language and Communication Skills',
+            '5.1' . '.3.2_lang' => [
+                'label' => '5.1' . '.3.2 Language and Communication Skills',
                 'criterion' => 'Criterion V - Student Support and Progression',
                 'key_indicator' => 'Key Indicator - 5.1 Student Support',
                 'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
-                'sub_heading' => '5.1.3.2 Language and Communication Skills activities organized during AY ' . $year_str
+                'sub_heading' => '5.1' . '.3.2 Language and Communication Skills activities organized during AY ' . $year_str
             ],
-            '5.1.3.1_2_combined' => [
-                'label' => '5.1.3.1 & 5.1.3.2 Soft Skills & Language Skills (Combined)',
+            '5.1' . '.3.1_2_combined' => [
+                'label' => '5.1' . '.3.1 & ' . '5.1' . '.3.2 Soft Skills & Language Skills (Combined)',
                 'criterion' => 'Criterion V - Student Support and Progression',
                 'key_indicator' => 'Key Indicator - 5.1 Student Support',
                 'metric' => 'Key Indicator - 5.1 Student Support',
-                'sub_heading' => "5.1.3.1 & 5.1.3.2 Soft Skills & Language and Communication Skills activities organized during the academic year {$year_str}"
+                'sub_heading' => '5.1' . '.3.1 & ' . '5.1' . ".3.2 Soft Skills & Language and Communication Skills activities organized during the academic year {$year_str}"
             ],
-            '5.1.3.3_life' => [
-                'label' => '5.1.3.3 Life Skills (Yoga, Health & Hygiene)',
+            '5.1' . '.3.3_life' => [
+                'label' => '5.1' . '.3.3 Life Skills (Yoga, Health & Hygiene)',
                 'criterion' => 'Criterion V - Student Support and Progression',
                 'key_indicator' => 'Key Indicator - 5.1 Student Support',
                 'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
-                'sub_heading' => '5.1.3.3 Life skills activities organized during AY ' . $year_str
+                'sub_heading' => '5.1' . '.3.3 Life skills activities organized during AY ' . $year_str
             ],
             '5.1.4_career' => [
                 'label' => '5.1.4 Guidance for Competitive Exams & Career Counselling',

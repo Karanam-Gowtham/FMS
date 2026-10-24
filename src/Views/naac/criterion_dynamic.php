@@ -98,20 +98,20 @@
                             <?php $fname = $field['name']; ?>
                             <?php if ($field['type'] === 'textarea'): ?>
                                 <div class="form-row">
-                                    <?php if (!empty($field['label'])): ?><label><?= htmlspecialchars($field['label']) ?></label><?php endif; ?>
+                                    <?php if (!empty($field['label'])): ?><label for="<?= htmlspecialchars($fname) ?>"><?= htmlspecialchars($field['label']) ?></label><?php endif; ?>
                                     <textarea id="<?= htmlspecialchars($fname) ?>" class="form-control" placeholder="<?= htmlspecialchars($field['placeholder'] ?? '') ?>"></textarea>
                                 </div>
                             <?php elseif ($field['type'] === 'number' || $field['type'] === 'url' || $field['type'] === 'text'): ?>
                                 <div class="form-row">
-                                    <label><?= htmlspecialchars($field['label']) ?></label>
+                                    <label for="<?= htmlspecialchars($fname) ?>"><?= htmlspecialchars($field['label']) ?></label>
                                     <input type="<?= htmlspecialchars($field['type']) ?>" id="<?= htmlspecialchars($fname) ?>" class="form-control" placeholder="<?= htmlspecialchars($field['placeholder'] ?? '') ?>">
                                 </div>
                             <?php elseif ($field['type'] === 'checkbox_group'): ?>
                                 <div class="form-row">
-                                    <label><?= htmlspecialchars($field['label']) ?></label>
+                                    <span class="fw-bold d-block mb-1"><?= htmlspecialchars($field['label']) ?></span>
                                     <div style="display: flex; gap: 20px; margin-top: 10px;">
                                         <?php foreach ($field['options'] ?? [] as $opt): ?>
-                                            <label style="font-weight: normal;">
+                                            <label for="<?= htmlspecialchars($opt['name']) ?>" style="font-weight: normal; cursor: pointer;">
                                                 <input type="checkbox" id="<?= htmlspecialchars($opt['name']) ?>"> <?= htmlspecialchars($opt['label']) ?>
                                             </label>
                                         <?php endforeach; ?>
@@ -130,14 +130,14 @@
                                 </div>
                             <?php elseif ($field['type'] === 'table'): ?>
                                 <div class="form-row mt-3" style="overflow-x: auto;">
-                                    <label><?= htmlspecialchars($field['label']) ?></label>
+                                    <span class="fw-bold d-block mb-1"><?= htmlspecialchars($field['label']) ?></span>
                                     <table class="data-template-table" id="<?= htmlspecialchars($fname) ?>_table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                                         <thead>
                                             <tr>
                                                 <?php foreach ($field['columns'] as $col): ?>
-                                                    <th style="border: 1px solid #cbd5e1; padding: 8px; background: #e2e8f0; font-size: 0.85rem; text-align: left;"><?= htmlspecialchars($col['label']) ?></th>
+                                                    <th scope="col" style="border: 1px solid #cbd5e1; padding: 8px; background: #e2e8f0; font-size: 0.85rem; text-align: left;"><?= htmlspecialchars($col['label']) ?></th>
                                                 <?php endforeach; ?>
-                                                <th style="border: 1px solid #cbd5e1; padding: 8px; background: #e2e8f0; font-size: 0.85rem;">Action</th>
+                                                <th scope="col" style="border: 1px solid #cbd5e1; padding: 8px; background: #e2e8f0; font-size: 0.85rem;">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>

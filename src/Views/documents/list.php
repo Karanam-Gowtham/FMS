@@ -57,7 +57,7 @@
             <!-- Types Checkboxes -->
             <?php if (empty($_GET['context']) || !is_string($_GET['context'])): ?>
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Type</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Type</span>
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php foreach ($all_types as $t): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -72,7 +72,7 @@
             <!-- Department Checkboxes -->
             <?php if (!empty($all_departments)): ?>
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Department</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Department</span>
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php foreach ($all_departments as $d): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -87,7 +87,7 @@
             <!-- Merged Types & Categories -->
             <?php if (!empty($_GET['context']) && is_string($_GET['context']) && $_GET['context'] === 'dept_file'): ?>
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Categories</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Categories</span>
                 
                 <label for="category-search" class="visually-hidden">Filter categories</label>
                 <input type="text" id="category-search" placeholder="Filter categories..." style="width: 100%; padding: 0.4rem; margin-bottom: 0.8rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 0.85rem;">
@@ -192,7 +192,7 @@
 
                 <?php if (!empty($global_filter_options['event_types'])): ?>
                 <div style="margin-bottom: 1rem;">
-                    <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Event Type</label>
+                    <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Event Type</span>
                     <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
                         <?php foreach ($global_filter_options['event_types'] as $et): 
                             $et_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$et);
@@ -208,7 +208,7 @@
 
                 <?php if (!empty($global_filter_options['domains'])): ?>
                 <div style="margin-bottom: 1rem;">
-                    <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Domain / Topic</label>
+                    <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Domain / Topic</span>
                     <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
                         <?php foreach ($global_filter_options['domains'] as $dom): 
                             $dom_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$dom);
@@ -224,7 +224,7 @@
 
                 <?php if (!empty($global_filter_options['modes'])): ?>
                 <div style="margin-bottom: 1rem;">
-                    <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Mode of Conduct</label>
+                    <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: #4b5563;">Mode of Conduct</span>
                     <div style="max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.85rem; color: #374151;">
                         <?php foreach ($global_filter_options['modes'] as $md): 
                             $md_id = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string)$md);
@@ -242,7 +242,7 @@
 
             <!-- Status Checkboxes -->
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Status</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Status</span>
                 <div style="font-size: 0.9rem; color: #374151;">
                     <?php foreach (['pending', 'accepted', 'rejected'] as $st): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -255,7 +255,7 @@
 
             <!-- Year Checkboxes -->
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Year</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Year</span>
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php foreach ($academic_years as $yr): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">

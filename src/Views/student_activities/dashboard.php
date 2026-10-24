@@ -67,7 +67,7 @@
 
                 <!-- Global Attributes Dropdowns -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
-                    <label class="form-label fw-bold">Event Type</label>
+                    <span class="form-label fw-bold d-block">Event Type</span>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                             <?= (!empty($filter_global_event_types) && is_array($filter_global_event_types)) ? count($filter_global_event_types).' Selected' : 'All Types' ?>
@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="col-lg-2 col-md-4 col-sm-6">
-                    <label class="form-label fw-bold">Domain / Topic</label>
+                    <span class="form-label fw-bold d-block">Domain / Topic</span>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                             <?= (!empty($filter_global_domains) && is_array($filter_global_domains)) ? count($filter_global_domains).' Selected' : 'All Domains' ?>
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="col-lg-2 col-md-4 col-sm-6">
-                    <label class="form-label fw-bold">Event Mode</label>
+                    <span class="form-label fw-bold d-block">Event Mode</span>
                     <div class="dropdown d-grid">
                         <button class="btn btn-outline-secondary dropdown-toggle text-start bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                             <?= (!empty($filter_global_modes) && is_array($filter_global_modes)) ? count($filter_global_modes).' Selected' : 'All Modes' ?>

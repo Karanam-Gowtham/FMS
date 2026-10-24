@@ -43,7 +43,7 @@
 
             <!-- Types Checkboxes -->
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Document Type</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Document Type</span>
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php foreach ($all_types as $t): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -56,7 +56,7 @@
 
             <!-- Status Checkboxes -->
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Status</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Status</span>
                 <div style="font-size: 0.9rem; color: #374151;">
                     <?php foreach (['pending', 'accepted', 'rejected'] as $st): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -69,7 +69,7 @@
 
             <!-- Year Checkboxes -->
             <div style="margin-bottom: 1.5rem;">
-                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Academic Year</label>
+                <span style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Academic Year</span>
                 <div style="max-height: 180px; overflow-y: auto; padding-right: 5px; font-size: 0.9rem; color: #374151;">
                     <?php foreach ($academic_years as $yr): ?>
                         <div style="margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
