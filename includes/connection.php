@@ -13,22 +13,7 @@ if (!$conn) {
     }
     http_response_code(500);
 
-    $is_api = function_exists('is_api_request')
-        ? is_api_request()
-        : ((isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
-           || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
-           || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
-
-    if ($is_api) {
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
-            'success' => false,
-            'status' => 'error',
-            'error' => 'A database connection error occurred. Please contact the administrator.',
-            'code' => 'DB_CONNECTION_ERROR'
-        ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        exit(1);
-    }
+    respond_json_error(500, 'A database connection error occurred. Please contact the administrator.', 'DB_CONNECTION_ERROR');
 
     $error_500 = __DIR__ . '/../public/500.php';
     if (file_exists($error_500)) {

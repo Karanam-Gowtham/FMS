@@ -15,6 +15,7 @@
  */
 
 require_once __DIR__ . '/constants.php';
+require_once __DIR__ . '/../config.php';
 
 // ──────────────────────────────────────────────
 // Authentication Context
@@ -276,23 +277,7 @@ function auth_update_last_login(mysqli $conn, int $user_id): void
 function require_login(): void
 {
     if (!auth_is_logged_in()) {
-        $is_api = function_exists('is_api_request')
-            ? is_api_request()
-            : ((isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
-               || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
-               || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
-
-        if ($is_api) {
-            http_response_code(401);
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode([
-                'success' => false,
-                'status'  => 'error',
-                'error'   => 'Authentication required. Your session may have expired.',
-                'code'    => 'UNAUTHENTICATED'
-            ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-            exit();
-        }
+        respond_json_error(401, 'Authentication required. Your session may have expired.', 'UNAUTHENTICATED');
 
         header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
         exit();
@@ -316,22 +301,7 @@ function require_role(array|int $allowed_roles): void
         http_response_code(403);
         $error_message = "Access denied. Your current active role does not have permission to access this page.";
 
-        $is_api = function_exists('is_api_request')
-            ? is_api_request()
-            : ((isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
-               || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
-               || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
-
-        if ($is_api) {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode([
-                'success' => false,
-                'status'  => 'error',
-                'error'   => $error_message,
-                'code'    => 'FORBIDDEN'
-            ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-            exit();
-        }
+        respond_json_error(403, $error_message, 'FORBIDDEN');
 
         if (file_exists(__DIR__ . '/../public/403.php')) {
             include __DIR__ . '/../public/403.php';

@@ -12,7 +12,7 @@ use setasign\Fpdi\Fpdi;
 /**
  * Fits and places an image file onto a new PDF page
  *
- * @param \setasign\Fpdi\Fpdi|\FPDF $pdf
+ * @param Fpdi|\FPDF $pdf
  * @param string $path
  * @param float $bottomMargin Margin from bottom (e.g. 24.0 or 32.0)
  * @return array{pageW: float, pageH: float}|null Page dimensions if rendered, null otherwise

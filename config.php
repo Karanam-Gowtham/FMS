@@ -149,3 +149,24 @@ if (!function_exists('is_api_request')) {
             || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
 }
+
+if (!function_exists('respond_json_error')) {
+    function respond_json_error(int $statusCode, string $message, string $code = 'ERROR'): void {
+        if (!function_exists('is_api_request') || !is_api_request()) {
+            return;
+        }
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        http_response_code($statusCode);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'status'  => 'error',
+            'error'   => $message,
+            'message' => $message,
+            'code'    => $code
+        ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+        exit();
+    }
+}

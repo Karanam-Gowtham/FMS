@@ -116,23 +116,7 @@ if ($route === 'dashboard') {
     $controller->download();
 } else {
     // 404 Route
-    $is_api = function_exists('is_api_request')
-        ? is_api_request()
-        : ((isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
-           || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
-           || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
-
-    if ($is_api) {
-        http_response_code(404);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
-            'success' => false,
-            'status'  => 'error',
-            'error'   => 'API route not found: ' . htmlspecialchars($route, ENT_QUOTES, 'UTF-8'),
-            'code'    => 'ROUTE_NOT_FOUND'
-        ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        exit;
-    }
+    respond_json_error(404, 'API route not found: ' . htmlspecialchars($route, ENT_QUOTES, 'UTF-8'), 'ROUTE_NOT_FOUND');
 
     include __DIR__ . '/404.php';
     exit;
