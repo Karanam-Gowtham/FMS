@@ -298,12 +298,12 @@ function removeAuthorRow(btn) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    var MAX_FILE_BYTES = 2 * 1024 * 1024;
+    var MAX_FILE_BYTES = 15 * 1024 * 1024;
     document.querySelectorAll('input[type="file"]').forEach(function(fileInput) {
         fileInput.addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 if (this.files[0].size > MAX_FILE_BYTES) {
-                    alert('File size exceeds the 2 MB limit (' + (this.files[0].size / (1024 * 1024)).toFixed(2) + ' MB). Please choose a smaller file.');
+                    alert('File size exceeds the 15 MB limit (' + (this.files[0].size / (1024 * 1024)).toFixed(2) + ' MB). Please choose a smaller file.');
                     this.value = '';
                 }
             }
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var fileInputs = editForm.querySelectorAll('input[type="file"]');
             for (var i = 0; i < fileInputs.length; i++) {
                 if (fileInputs[i].files && fileInputs[i].files[0] && fileInputs[i].files[0].size > MAX_FILE_BYTES) {
-                    alert('File "' + fileInputs[i].files[0].name + '" exceeds the 2 MB limit. Please select a smaller file.');
+                    alert('File "' + fileInputs[i].files[0].name + '" exceeds the 15 MB limit. Please select a smaller file.');
                     e.preventDefault();
                     return false;
                 }

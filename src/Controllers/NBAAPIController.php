@@ -46,7 +46,7 @@ class NBAAPIController extends AbstractAccreditationAPIController {
             foreach ($_FILES as $input_name => $file) {
                 if ($input_name === 'csv_file' || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
                 if (empty($file['tmp_name']) || !file_exists($file['tmp_name']) || !is_readable($file['tmp_name'])) continue;
-                if (($file['size'] ?? 0) > 10 * 1024 * 1024) continue;
+                if (($file['size'] ?? 0) > 15 * 1024 * 1024) continue;
                 $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
                 if ($ext !== 'pdf') continue;
 

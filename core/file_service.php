@@ -36,11 +36,11 @@ function file_allowed_extensions(): array
 }
 
 /**
- * Maximum file size in bytes (2 MB).
+ * Maximum file size in bytes (15 MB).
  */
 function file_max_size(): int
 {
-    return 2 * 1024 * 1024;
+    return 15 * 1024 * 1024;
 }
 
 /**

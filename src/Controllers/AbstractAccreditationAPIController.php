@@ -128,8 +128,8 @@ abstract class AbstractAccreditationAPIController {
             }
 
             $file = $_FILES['pdf_file'];
-            if (($file['size'] ?? 0) > 10 * 1024 * 1024) {
-                throw new \Exception("File size exceeds 10 MB limit.");
+            if (($file['size'] ?? 0) > 15 * 1024 * 1024) {
+                throw new \Exception("File size exceeds 15 MB limit.");
             }
 
             $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
