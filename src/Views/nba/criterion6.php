@@ -294,7 +294,7 @@ if (!isset($criteria_data)) {
         <div class="section-card">
             <h3>6.2.3 Development Activities (10)</h3>
             <p>Provide details of patents granted/published, working models, and prototypes developed by faculty.</p>
-            <textarea name="text_6_2_3" id="text_6_2_3" style="width:100%; height:80px; padding:10px; border:1px solid #ced4da;" placeholder="Describe patents and prototypes..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Patents And Prototypes" name="text_6_2_3" id="text_6_2_3" style="width:100%; height:80px; padding:10px; border:1px solid #ced4da;" placeholder="Describe patents and prototypes..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 10px;">
                 <div><strong>Proof/Documentation PDF</strong></div>
                 <input aria-label="File 6 2 3" type="file" name="file_6_2_3" accept=".pdf">

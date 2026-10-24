@@ -104,7 +104,7 @@ if (!isset($criteria_data)) {
         <div class="section-card">
             <h3>7.3 Maintenance of Laboratories and Overall Ambiance (10)</h3>
             <p>Provide details of overall laboratories maintenance and overall ambiance in the Department.</p>
-            <textarea name="text_7_3" id="text_7_3" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe maintenance procedures, ambiance, lighting, seating, circulation space, etc..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Maintenance Procedures, Ambiance, Lighting, Seating, Circulation Space, Etc" name="text_7_3" id="text_7_3" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe maintenance procedures, ambiance, lighting, seating, circulation space, etc..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>Maintenance Protocols / Documentation PDF</strong></div>
                 <input aria-label="File 7 3" type="file" name="file_7_3" accept=".pdf">

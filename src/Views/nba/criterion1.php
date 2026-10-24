@@ -51,7 +51,7 @@
                     <h5 style="margin-top: 0; color: #495057;">University</h5>
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 0.85rem; font-weight: 600; color: #555;">Vision</label>
-                        <textarea id="univ-vision-text" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px;" placeholder="Enter University Vision..." onchange="saveCurrentLevel()"></textarea>
+                        <textarea aria-label="Enter University Vision" id="univ-vision-text" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px;" placeholder="Enter University Vision..." onchange="saveCurrentLevel()"></textarea>
                     </div>
                     <div>
                         <label style="font-size: 0.85rem; font-weight: 600; color: #555;">Mission Statements</label>
@@ -65,7 +65,7 @@
                     <h5 id="school-vm-title" style="margin-top: 0; color: #495057;">School</h5>
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 0.85rem; font-weight: 600; color: #555;">Vision</label>
-                        <textarea id="school-vision-text" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px;" placeholder="Enter School Vision..." onchange="saveCurrentLevel()"></textarea>
+                        <textarea aria-label="Enter School Vision" id="school-vision-text" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px;" placeholder="Enter School Vision..." onchange="saveCurrentLevel()"></textarea>
                     </div>
                     <div>
                         <label style="font-size: 0.85rem; font-weight: 600; color: #555;">Mission Statements</label>
@@ -79,7 +79,7 @@
                     <h5 id="dept-vm-title" style="margin-top: 0; color: #007bff;">Department</h5>
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 0.85rem; font-weight: 600; color: #555;">Vision</label>
-                        <textarea id="dept-vision-text" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px;" placeholder="Enter Department Vision..." onchange="saveCurrentLevel()"></textarea>
+                        <textarea aria-label="Enter Department Vision" id="dept-vision-text" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px;" placeholder="Enter Department Vision..." onchange="saveCurrentLevel()"></textarea>
                     </div>
                     <div>
                         <label style="font-size: 0.85rem; font-weight: 600; color: #555;">Mission Statements</label>

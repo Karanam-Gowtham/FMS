@@ -232,7 +232,9 @@
         
         <div style="overflow-x: auto;">
             <table class="matrix-table" style="min-width: 100%; font-size: 0.9rem;" id="table-3-8">
-                <!-- Dynamically Rendered -->
+                <caption class="visually-hidden">Direct Assessment Matrix</caption>
+                <thead><tr><th scope="col">Course / Outcome</th></tr></thead>
+                <tbody><!-- Dynamically Rendered --></tbody>
             </table>
         </div>
         <div style="margin-top: 15px; display: flex; gap: 10px;">
@@ -256,7 +258,9 @@
         
         <div style="overflow-x: auto;">
             <table class="matrix-table" style="min-width: 100%; font-size: 0.9rem;" id="table-3-8-2">
-                <!-- Dynamically Rendered -->
+                <caption class="visually-hidden">Indirect Assessment Matrix</caption>
+                <thead><tr><th scope="col">Survey / Outcome</th></tr></thead>
+                <tbody><!-- Dynamically Rendered --></tbody>
             </table>
         </div>
         <div style="margin-top: 15px; display: flex; gap: 10px;">
@@ -281,7 +285,9 @@
         
         <div style="overflow-x: auto;">
             <table class="matrix-table" style="min-width: 100%; font-size: 0.9rem;" id="table-3-8-3">
-                <!-- Dynamically Rendered via JS -->
+                <caption class="visually-hidden">Overall PO and PSO Attainment Matrix</caption>
+                <thead><tr><th scope="col">Assessment / Outcome</th></tr></thead>
+                <tbody><!-- Dynamically Rendered via JS --></tbody>
             </table>
         </div>
         <div style="margin-top: 15px; display: flex; gap: 10px;">

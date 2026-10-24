@@ -57,7 +57,7 @@ if (!isset($criteria_data)) {
         <div class="section-card">
             <h3>8.1.1 Actions Taken Based on the Results of Evaluation of the COs Attainment (20)</h3>
             <p>Identify the areas of weaknesses in the program based on the analysis of evaluation of COs attainment levels. Measures identified and implemented to improve COs attainment levels for the assessment year (CAYm1) including curriculum intervention, pedagogical initiatives, support system improvements, etc.</p>
-            <textarea name="text_8_1_1" id="text_8_1_1" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe actions taken for COs attainment..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Actions Taken For COs Attainment" name="text_8_1_1" id="text_8_1_1" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe actions taken for COs attainment..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>COs Attainment Actions Documentation PDF</strong></div>
                 <input aria-label="File 8 1 1" type="file" name="file_8_1_1" accept=".pdf">
@@ -67,7 +67,7 @@ if (!isset($criteria_data)) {
         <div class="section-card">
             <h3>8.1.2 Actions Taken Based on the Results of Evaluation of the POs/PSOs Attainment (20)</h3>
             <p>Identify the areas of weaknesses in the program based on the analysis of evaluation of POs/PSOs attainment levels. Measures identified and implemented during two years to improve POs attainment levels including curriculum intervention, pedagogical initiatives, support system improvements, etc.</p>
-            <textarea name="text_8_1_2" id="text_8_1_2" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe actions taken for POs/PSOs attainment..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Actions Taken For POs/PSOs Attainment" name="text_8_1_2" id="text_8_1_2" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe actions taken for POs/PSOs attainment..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>POs/PSOs Attainment Actions Documentation PDF</strong></div>
                 <input aria-label="File 8 1 2" type="file" name="file_8_1_2" accept=".pdf">
@@ -79,7 +79,7 @@ if (!isset($criteria_data)) {
         <div class="section-card">
             <h3>8.2 Academic Audit and Actions Taken thereof during the Period of Assessment (15)</h3>
             <p>Academic audit system/process and its implementation in relation to continuous improvement.</p>
-            <textarea name="text_8_2" id="text_8_2" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe the academic audit process and its findings..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe The Academic Audit Process And Its Findings" name="text_8_2" id="text_8_2" style="width:100%; height:100px; padding:10px; border:1px solid #ced4da;" placeholder="Describe the academic audit process and its findings..." onchange="saveCurrentLevel()"></textarea>
             <div class="file-upload-row" style="margin-top: 15px;">
                 <div><strong>Academic Audit Reports PDF</strong></div>
                 <input aria-label="File 8 2" type="file" name="file_8_2" accept=".pdf">

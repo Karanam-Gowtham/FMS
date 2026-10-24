@@ -106,39 +106,39 @@ if (!isset($criteria_data)) {
         <!-- 9.2 Mentoring -->
         <div class="section-card">
             <h3>9.2. Mentoring System (05)</h3>
-            <textarea id="text_9_2" class="textarea-box" placeholder="Describe mentoring system..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Mentoring System" id="text_9_2" class="textarea-box" placeholder="Describe mentoring system..." onchange="saveCurrentLevel()"></textarea>
         </div>
 
         <!-- 9.3 Feedback -->
         <div class="section-card">
             <h3>9.3. Feedback Analysis (10)</h3>
             <h4>9.3.1. Feedback on Teaching and Learning Process and Corrective Measures (05)</h4>
-            <textarea id="text_9_3_1" class="textarea-box" placeholder="Describe feedback collection on TLP..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Feedback Collection On TLP" id="text_9_3_1" class="textarea-box" placeholder="Describe feedback collection on TLP..." onchange="saveCurrentLevel()"></textarea>
             <h4>9.3.2. Feedback on Academic Facilities (05)</h4>
-            <textarea id="text_9_3_2" class="textarea-box" placeholder="Describe feedback collection on facilities..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Feedback Collection On Facilities" id="text_9_3_2" class="textarea-box" placeholder="Describe feedback collection on facilities..." onchange="saveCurrentLevel()"></textarea>
         </div>
 
         <!-- 9.4 Placement -->
         <div class="section-card">
             <h3>9.4. Training and Placement Support (10)</h3>
-            <textarea id="text_9_4" class="textarea-box" placeholder="Describe training and placement support..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Training And Placement Support" id="text_9_4" class="textarea-box" placeholder="Describe training and placement support..." onchange="saveCurrentLevel()"></textarea>
         </div>
 
         <!-- 9.5 Start-up -->
         <div class="section-card">
             <h3>9.5. Start-up and Entrepreneurship Activities (05)</h3>
-            <textarea id="text_9_5" class="textarea-box" placeholder="Describe start-up initiatives..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Start-up Initiatives" id="text_9_5" class="textarea-box" placeholder="Describe start-up initiatives..." onchange="saveCurrentLevel()"></textarea>
         </div>
 
         <!-- 9.6 Governance -->
         <div class="section-card">
             <h3>9.6. Governance and Transparency (25)</h3>
             <h4>9.6.1. Availability of Institutional Strategic Plan (10)</h4>
-            <textarea id="text_9_6_1" class="textarea-box" placeholder="Describe strategic plan..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Strategic Plan" id="text_9_6_1" class="textarea-box" placeholder="Describe strategic plan..." onchange="saveCurrentLevel()"></textarea>
             <h4>9.6.2. Governing Body, Administrative Setup, Service Rules (10)</h4>
-            <textarea id="text_9_6_2" class="textarea-box" placeholder="Describe governing body..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Governing Body" id="text_9_6_2" class="textarea-box" placeholder="Describe governing body..." onchange="saveCurrentLevel()"></textarea>
             <h4>9.6.3. Transparency (05)</h4>
-            <textarea id="text_9_6_3" class="textarea-box" placeholder="Describe transparency policies..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Transparency Policies" id="text_9_6_3" class="textarea-box" placeholder="Describe transparency policies..." onchange="saveCurrentLevel()"></textarea>
         </div>
 
         <!-- 9.7 Budget Institute -->
@@ -237,22 +237,22 @@ if (!isset($criteria_data)) {
         <!-- 9.9 to 9.14 Descriptive Sections -->
         <div class="section-card">
             <h3>9.9. Quality of Learning Resources (Hard/Soft) (05)</h3>
-            <textarea id="text_9_9" class="textarea-box" placeholder="Describe library/e-resources..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Library/e-resources" id="text_9_9" class="textarea-box" placeholder="Describe library/e-resources..." onchange="saveCurrentLevel()"></textarea>
             
             <h3>9.10. E-Governance (05)</h3>
-            <textarea id="text_9_10" class="textarea-box" placeholder="Describe e-governance..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe E-governance" id="text_9_10" class="textarea-box" placeholder="Describe e-governance..." onchange="saveCurrentLevel()"></textarea>
 
             <h3>9.11. Initiatives and Implementation of SDGs (10)</h3>
-            <textarea id="text_9_11" class="textarea-box" placeholder="Describe SDG initiatives..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe SDG Initiatives" id="text_9_11" class="textarea-box" placeholder="Describe SDG initiatives..." onchange="saveCurrentLevel()"></textarea>
 
             <h3>9.12. Innovative Educational Initiatives (05)</h3>
-            <textarea id="text_9_12" class="textarea-box" placeholder="Describe ABC, IKS, holistic education..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe ABC, IKS, Holistic Education" id="text_9_12" class="textarea-box" placeholder="Describe ABC, IKS, holistic education..." onchange="saveCurrentLevel()"></textarea>
 
             <h3>9.13. Faculty Performance Appraisal (FPADS) (10)</h3>
-            <textarea id="text_9_13" class="textarea-box" placeholder="Describe FPADS..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe FPADS" id="text_9_13" class="textarea-box" placeholder="Describe FPADS..." onchange="saveCurrentLevel()"></textarea>
 
             <h3>9.14. Outreach Activities (05)</h3>
-            <textarea id="text_9_14" class="textarea-box" placeholder="Describe Unnat Bharat Abhiyan, community service..." onchange="saveCurrentLevel()"></textarea>
+            <textarea aria-label="Describe Unnat Bharat Abhiyan, Community Service" id="text_9_14" class="textarea-box" placeholder="Describe Unnat Bharat Abhiyan, community service..." onchange="saveCurrentLevel()"></textarea>
         </div>
 
         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 4rem;">
