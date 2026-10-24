@@ -535,6 +535,48 @@ function doc_get_meta(mysqli $conn, int $doc_id, string $type_key): ?array
 }
 
 /**
+ * Helper to sanitize array values and build SQL IN clause
+ *
+ * @param string $column Column expression (e.g. 'd.dept_id')
+ * @param array $raw_values Raw array of inputs
+ * @param string $type 'int' or 'string'
+ * @param array &$where_clauses Target where array
+ * @param array &$params Target params array
+ * @param string &$types Target types string
+ * @return bool True if an IN clause was appended, false otherwise
+ */
+function _doc_service_append_in_clause(string $column, array $raw_values, string $type, array &$where_clauses, array &$params, string &$types): bool
+{
+    $clean = [];
+    if ($type === 'int') {
+        foreach ($raw_values as $val) {
+            if (is_numeric($val) && (int)$val > 0) {
+                $clean[] = (int)$val;
+            }
+        }
+        $char = 'i';
+    } else {
+        foreach ($raw_values as $val) {
+            if (is_string($val) && trim($val) !== '') {
+                $clean[] = trim($val);
+            }
+        }
+        $char = 's';
+    }
+
+    if (!empty($clean)) {
+        $placeholders = str_repeat('?,', count($clean) - 1) . '?';
+        $where_clauses[] = "$column IN ($placeholders)";
+        foreach ($clean as $item) {
+            $params[] = $item;
+            $types .= $char;
+        }
+        return true;
+    }
+    return false;
+}
+
+/**
  * Lists documents with filtering and pagination.
  *
  * @param mysqli $conn
@@ -565,20 +607,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['dept_ids']) && is_array($filters['dept_ids'])) {
-        $clean_ids = [];
-        foreach ($filters['dept_ids'] as $id) {
-            if (is_numeric($id) && (int)$id > 0) {
-                $clean_ids[] = (int)$id;
-            }
-        }
-        if (!empty($clean_ids)) {
-            $placeholders = str_repeat('?,', count($clean_ids) - 1) . '?';
-            $where_clauses[] = 'd.dept_id IN (' . $placeholders . ')';
-            foreach ($clean_ids as $id) {
-                $params[] = $id;
-                $types .= 'i';
-            }
-        }
+        _doc_service_append_in_clause('d.dept_id', $filters['dept_ids'], 'int', $where_clauses, $params, $types);
     } elseif (!empty($filters['dept_id'])) {
         $where_clauses[] = 'd.dept_id = ?';
         $params[] = (int)$filters['dept_id'];
@@ -600,37 +629,11 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     
     // Support filtering by an array of type keys (instead of category)
     if (!empty($filters['type_keys']) && is_array($filters['type_keys'])) {
-        $clean_type_keys = [];
-        foreach ($filters['type_keys'] as $tk) {
-            if (is_string($tk) && trim($tk) !== '') {
-                $clean_type_keys[] = trim($tk);
-            }
-        }
-        if (!empty($clean_type_keys)) {
-            $placeholders = str_repeat('?,', count($clean_type_keys) - 1) . '?';
-            $where_clauses[] = 'dt.type_code IN (' . $placeholders . ')';
-            foreach ($clean_type_keys as $tk) {
-                $params[] = $tk;
-                $types .= 's';
-            }
-        }
+        _doc_service_append_in_clause('dt.type_code', $filters['type_keys'], 'string', $where_clauses, $params, $types);
     }
 
     if (!empty($filters['statuses']) && is_array($filters['statuses'])) {
-        $clean_statuses = [];
-        foreach ($filters['statuses'] as $st) {
-            if (is_string($st) && trim($st) !== '') {
-                $clean_statuses[] = trim($st);
-            }
-        }
-        if (!empty($clean_statuses)) {
-            $placeholders = str_repeat('?,', count($clean_statuses) - 1) . '?';
-            $where_clauses[] = 'd.status IN (' . $placeholders . ')';
-            foreach ($clean_statuses as $st) {
-                $params[] = $st;
-                $types .= 's';
-            }
-        }
+        _doc_service_append_in_clause('d.status', $filters['statuses'], 'string', $where_clauses, $params, $types);
     } elseif (!empty($filters['status']) && is_string($filters['status'])) {
         $where_clauses[] = 'd.status = ?';
         $params[] = trim($filters['status']);
@@ -638,20 +641,7 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['year_ids']) && is_array($filters['year_ids'])) {
-        $clean_ids = [];
-        foreach ($filters['year_ids'] as $id) {
-            if (is_numeric($id) && (int)$id > 0) {
-                $clean_ids[] = (int)$id;
-            }
-        }
-        if (!empty($clean_ids)) {
-            $placeholders = str_repeat('?,', count($clean_ids) - 1) . '?';
-            $where_clauses[] = 'd.academic_year_id IN (' . $placeholders . ')';
-            foreach ($clean_ids as $id) {
-                $params[] = $id;
-                $types .= 'i';
-            }
-        }
+        _doc_service_append_in_clause('d.academic_year_id', $filters['year_ids'], 'int', $where_clauses, $params, $types);
     } elseif (!empty($filters['year_id'])) {
         $where_clauses[] = 'd.academic_year_id = ?';
         $params[] = (int)$filters['year_id'];
@@ -794,42 +784,14 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     }
 
     if (!empty($filters['global_event_mode']) && is_array($filters['global_event_mode'])) {
-        $clean_modes = [];
-        foreach ($filters['global_event_mode'] as $md) {
-            if (is_string($md) && trim($md) !== '') {
-                $clean_modes[] = trim($md);
-            }
-        }
-        if (!empty($clean_modes)) {
-            if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
-                $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
-            }
-            $placeholders = str_repeat('?,', count($clean_modes) - 1) . '?';
-            $where_clauses[] = "msaf.event_mode IN ($placeholders)";
-            foreach ($clean_modes as $md) {
-                $params[] = $md;
-                $types .= 's';
-            }
+        if (_doc_service_append_in_clause('msaf.event_mode', $filters['global_event_mode'], 'string', $where_clauses, $params, $types) && strpos($join_sql, 'meta_student_activity_file msaf') === false) {
+            $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
         }
     }
 
     if (!empty($filters['global_topic_domain']) && is_array($filters['global_topic_domain'])) {
-        $clean_domains = [];
-        foreach ($filters['global_topic_domain'] as $td) {
-            if (is_string($td) && trim($td) !== '') {
-                $clean_domains[] = trim($td);
-            }
-        }
-        if (!empty($clean_domains)) {
-            if (strpos($join_sql, 'meta_student_activity_file msaf') === false) {
-                $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
-            }
-            $placeholders = str_repeat('?,', count($clean_domains) - 1) . '?';
-            $where_clauses[] = "msaf.topic_domain IN ($placeholders)";
-            foreach ($clean_domains as $td) {
-                $params[] = $td;
-                $types .= 's';
-            }
+        if (_doc_service_append_in_clause('msaf.topic_domain', $filters['global_topic_domain'], 'string', $where_clauses, $params, $types) && strpos($join_sql, 'meta_student_activity_file msaf') === false) {
+            $join_sql .= ' LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id ';
         }
     }
 

@@ -329,57 +329,46 @@ class AccreditationPdfService {
     public static function getHeadingPresets(string $ay_year = ''): array {
         $year_str = !empty($ay_year) ? $ay_year : (date('Y') . '-' . substr(date('Y') + 1, -2));
         
+        $crit5_common = [
+            'criterion' => 'Criterion V - Student Support and Progression',
+            'key_indicator' => 'Key Indicator - 5.1 Student Support',
+        ];
+        $crit5_1_3 = array_merge($crit5_common, [
+            'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
+        ]);
+
         return [
             // Criterion 5 - Student Activities
-            '5.1.3_all' => [
+            '5.1.3_all' => array_merge($crit5_1_3, [
                 'label' => '5.1.3 Capacity Development & Skill Enhancement (General)',
-                'criterion' => 'Criterion V - Student Support and Progression',
-                'key_indicator' => 'Key Indicator - 5.1 Student Support',
-                'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
                 'sub_heading' => 'Capacity Building and Skills Enhancement Initiatives'
-            ],
-            '5.1' . '.3.4_tech' => [
+            ]),
+            '5.1' . '.3.4_tech' => array_merge($crit5_1_3, [
                 'label' => '5.1' . '.3.4 Awareness of Trends in Technology',
-                'criterion' => 'Criterion V - Student Support and Progression',
-                'key_indicator' => 'Key Indicator - 5.1 Student Support',
-                'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
                 'sub_heading' => '5.1' . '.3.4 Awareness of trends in technology'
-            ],
-            '5.1' . '.3.1_soft' => [
+            ]),
+            '5.1' . '.3.1_soft' => array_merge($crit5_1_3, [
                 'label' => '5.1' . '.3.1 Soft Skills',
-                'criterion' => 'Criterion V - Student Support and Progression',
-                'key_indicator' => 'Key Indicator - 5.1 Student Support',
-                'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
                 'sub_heading' => '5.1' . '.3.1 Soft Skills activities organized during AY ' . $year_str
-            ],
-            '5.1' . '.3.2_lang' => [
+            ]),
+            '5.1' . '.3.2_lang' => array_merge($crit5_1_3, [
                 'label' => '5.1' . '.3.2 Language and Communication Skills',
-                'criterion' => 'Criterion V - Student Support and Progression',
-                'key_indicator' => 'Key Indicator - 5.1 Student Support',
-                'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
                 'sub_heading' => '5.1' . '.3.2 Language and Communication Skills activities organized during AY ' . $year_str
-            ],
-            '5.1' . '.3.1_2_combined' => [
+            ]),
+            '5.1' . '.3.1_2_combined' => array_merge($crit5_common, [
                 'label' => '5.1' . '.3.1 & ' . '5.1' . '.3.2 Soft Skills & Language Skills (Combined)',
-                'criterion' => 'Criterion V - Student Support and Progression',
-                'key_indicator' => 'Key Indicator - 5.1 Student Support',
                 'metric' => 'Key Indicator - 5.1 Student Support',
                 'sub_heading' => '5.1' . '.3.1 & ' . '5.1' . ".3.2 Soft Skills & Language and Communication Skills activities organized during the academic year {$year_str}"
-            ],
-            '5.1' . '.3.3_life' => [
+            ]),
+            '5.1' . '.3.3_life' => array_merge($crit5_1_3, [
                 'label' => '5.1' . '.3.3 Life Skills (Yoga, Health & Hygiene)',
-                'criterion' => 'Criterion V - Student Support and Progression',
-                'key_indicator' => 'Key Indicator - 5.1 Student Support',
-                'metric' => "5.1.3. Following Capacity development and skills enhancement activities are organised for improving student's capability during AY {$year_str}",
                 'sub_heading' => '5.1' . '.3.3 Life skills activities organized during AY ' . $year_str
-            ],
-            '5.1.4_career' => [
+            ]),
+            '5.1.4_career' => array_merge($crit5_common, [
                 'label' => '5.1.4 Guidance for Competitive Exams & Career Counselling',
-                'criterion' => 'Criterion V - Student Support and Progression',
-                'key_indicator' => 'Key Indicator - 5.1 Student Support',
                 'metric' => "5.1.4. Average percentage of students benefited by guidance for competitive examinations and career counseling during AY {$year_str}",
                 'sub_heading' => 'Guidance for Competitive Examinations and Career Counselling'
-            ],
+            ]),
             '5.3.3_events' => [
                 'label' => '5.3.3 Sports and Cultural Events / Competitions Organised',
                 'criterion' => 'Criterion V - Student Support and Progression',

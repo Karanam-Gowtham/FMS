@@ -60,7 +60,17 @@ function meta_get_table(string $type_key): ?string
  */
 function meta_get_fields(string $type_key): array
 {
-    static $fields = [
+    static $fields = null;
+    if ($fields === null) {
+        $event_mode_fields = [
+            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
+            ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => true],
+            ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => true],
+            ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => true],
+            ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => true],
+        ];
+
+        $fields = [
         'journal' => [
             ['name' => 'paper_title',        'label' => 'Paper Title',         'type' => 'text',   'required' => true],
             ['name' => 'journal_name',       'label' => 'Journal Name',        'type' => 'text',   'required' => true],
@@ -103,34 +113,10 @@ function meta_get_fields(string $type_key): array
             ['name' => 'date_of_issue', 'label' => 'Date of Issue',   'type' => 'date',   'required' => true],
             ['name' => 'inventors',     'label' => 'Inventors',       'type' => 'author_table','required' => true],
         ],
-        'fdp' => [
-            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
-            ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => true],
-            ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => true],
-            ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => true],
-            ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => true],
-        ],
-        'fdp_attended' => [
-            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
-            ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => true],
-            ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => true],
-            ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => true],
-            ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => true],
-        ],
-        'fdp_organised' => [
-            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
-            ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => true],
-            ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => true],
-            ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => true],
-            ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => true],
-        ],
-        'conf_organised' => [
-            ['name' => 'mode',         'label' => 'Mode',          'type' => 'select', 'options' => ['Online', 'Offline'], 'required' => true],
-            ['name' => 'date_from',    'label' => 'From Date',     'type' => 'date', 'required' => true],
-            ['name' => 'date_to',      'label' => 'To Date',       'type' => 'date', 'required' => true],
-            ['name' => 'organised_by', 'label' => 'Organised By',  'type' => 'text', 'required' => true],
-            ['name' => 'location',     'label' => 'Location',      'type' => 'text', 'required' => true],
-        ],
+        'fdp'            => $event_mode_fields,
+        'fdp_attended'   => $event_mode_fields,
+        'fdp_organised'  => $event_mode_fields,
+        'conf_organised' => $event_mode_fields,
         'criteria_file' => [
             ['name' => 'criteria_no', 'label' => 'Criteria No.',   'type' => 'text',     'required' => true],
             ['name' => 'description', 'label' => 'Description',    'type' => 'textarea', 'required' => false],
@@ -239,6 +225,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'objective_outcome', 'label' => 'Brief Report / Outcome', 'type' => 'textarea', 'required' => true],
         ],
     ];
+    }
 
     $clean_key = strtolower(trim($type_key));
     return $fields[$clean_key] ?? [];

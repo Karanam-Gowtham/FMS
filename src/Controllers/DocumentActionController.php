@@ -45,18 +45,7 @@ class DocumentActionController {
             }
 
             $post_dept_id  = (int)($_POST['dept_id'] ?? 0);
-            $post_year_id  = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : null);
-            if ($post_year_id !== null) {
-                $chk_yr = $conn->prepare("SELECT 1 FROM academic_years WHERE year_id = ?");
-                if ($chk_yr) {
-                    $chk_yr->bind_param('i', $post_year_id);
-                    $chk_yr->execute();
-                    if (!$chk_yr->get_result()->fetch_row()) {
-                        $post_year_id = null;
-                    }
-                    $chk_yr->close();
-                }
-            }
+            $post_year_id  = self::resolveValidAcademicYearId($conn, $_POST['year_id'] ?? ($_POST['academic_year_id'] ?? null));
 
             $post_doc_type = doc_get_type_by_key($conn, $post_type_key);
             if (!$post_doc_type) {
@@ -380,18 +369,7 @@ class DocumentActionController {
         // Update documents table (title, academic_year, dept)
         $post_title = (isset($_POST['title']) && is_string($_POST['title'])) ? trim($_POST['title']) : '';
         $post_dept_id = (int)($_POST['dept_id'] ?? 0);
-        $post_year_id = !empty($_POST['year_id']) ? (int)$_POST['year_id'] : (!empty($_POST['academic_year_id']) ? (int)$_POST['academic_year_id'] : null);
-        if ($post_year_id !== null) {
-            $chk_yr = $conn->prepare("SELECT 1 FROM academic_years WHERE year_id = ?");
-            if ($chk_yr) {
-                $chk_yr->bind_param('i', $post_year_id);
-                $chk_yr->execute();
-                if (!$chk_yr->get_result()->fetch_row()) {
-                    $post_year_id = null;
-                }
-                $chk_yr->close();
-            }
-        }
+        $post_year_id = self::resolveValidAcademicYearId($conn, $_POST['year_id'] ?? ($_POST['academic_year_id'] ?? null));
         
         if ($post_title === '' || $post_dept_id <= 0) {
             $_SESSION['error_msg'] = "Document Title and Department are required.";
@@ -1072,5 +1050,24 @@ class DocumentActionController {
             $del_merge_stmt2->execute();
             $del_merge_stmt2->close();
         }
+    }
+
+    /**
+     * Resolves and validates an academic year ID against the academic_years table.
+     */
+    private static function resolveValidAcademicYearId(\mysqli $conn, mixed $raw_year): ?int {
+        $year_id = !empty($raw_year) ? (int)$raw_year : null;
+        if ($year_id !== null) {
+            $stmt = $conn->prepare("SELECT 1 FROM academic_years WHERE year_id = ?");
+            if ($stmt) {
+                $stmt->bind_param('i', $year_id);
+                $stmt->execute();
+                if (!$stmt->get_result()->fetch_row()) {
+                    $year_id = null;
+                }
+                $stmt->close();
+            }
+        }
+        return $year_id;
     }
 }
