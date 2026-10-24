@@ -76,17 +76,21 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
 
             $pagesImported = 0;
             try {
-                $pageCount = $pdf->setSourceFile($actualPath);
-                for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-                    $templateId = $pdf->importPage($pageNo);
-                    $size = $pdf->getTemplateSize($templateId);
-                    
-                    $orientation = $size['orientation'] ?? ($size['width'] > $size['height'] ? 'L' : 'P');
-                    $pdf->AddPage($orientation, [$size['width'], $size['height']]);
-                    
-                    $pdf->useTemplate($templateId);
+                $totalSrcPages = (int)$pdf->setSourceFile($actualPath);
+                $pIndex = 1;
+                while ($pIndex <= $totalSrcPages) {
+                    $tplId = $pdf->importPage($pIndex);
+                    $dims = $pdf->getTemplateSize($tplId);
+                    $pageWidth = (float)($dims['width'] ?? 210.0);
+                    $pageHeight = (float)($dims['height'] ?? 297.0);
+                    $pageOrient = ($pageWidth > $pageHeight) ? 'L' : 'P';
+
+                    $pdf->AddPage($pageOrient, [$pageWidth, $pageHeight]);
+                    $pdf->useTemplate($tplId, 0, 0, $pageWidth, $pageHeight);
+
                     $totalPagesAdded++;
                     $pagesImported++;
+                    $pIndex++;
                 }
             } catch (\Throwable $e) {
                 error_log("PDF merge error for file [{$path}]: " . $e->getMessage());
