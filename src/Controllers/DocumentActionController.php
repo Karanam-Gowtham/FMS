@@ -324,7 +324,7 @@ class DocumentActionController {
         header('Content-Description: File Transfer');
         header('X-Content-Type-Options: nosniff');
         header('Content-Type: ' . ($file_record['mime_type'] ?: 'application/octet-stream'));
-        header('Content-Disposition: ' . $disposition . '; filename="' . $safe_filename . '"');
+        header('Content-Disposition: ' . $disposition . '; filename="' . $safe_filename . '"; filename*=UTF-8\'\'' . rawurlencode($safe_filename));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');

@@ -65,9 +65,11 @@ if (!defined('FMS_DEBUG') || !FMS_DEBUG) {
             if (!headers_sent()) {
                 http_response_code(500);
             }
-            $is_api = (isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
+            $is_api = function_exists('is_api_request')
+                ? is_api_request()
+                : ((isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
                    || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
-                   || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+                   || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
 
             if ($is_api) {
                 header('Content-Type: application/json; charset=utf-8');

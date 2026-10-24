@@ -9,6 +9,7 @@ abstract class AbstractAccreditationDashboardController {
 
     public function index() {
         require_once __DIR__ . '/../../core/bootstrap.php';
+        require_once __DIR__ . '/../../core/document_service.php';
 
         // Authentication & Authorization
         require_login();
@@ -23,6 +24,9 @@ abstract class AbstractAccreditationDashboardController {
 
         // Filters
         global $conn;
+        $active_ay = doc_get_active_year($conn);
+        $default_year = $active_ay ? $active_ay['year_label'] : '2025-26';
+
         $academic_years = [];
         $ay_res = $conn->query("SELECT year_label FROM academic_years ORDER BY year_label DESC");
         if ($ay_res instanceof \mysqli_result) {
@@ -32,11 +36,11 @@ abstract class AbstractAccreditationDashboardController {
             $ay_res->close();
         }
         if (empty($academic_years)) {
-            $academic_years = ['2023-24', '2024-25', '2025-26'];
+            $academic_years = [$default_year];
         }
-        $filter_year = (isset($_GET['year']) && is_string($_GET['year'])) ? trim($_GET['year']) : ($academic_years[0] ?? '2025-26');
+        $filter_year = (isset($_GET['year']) && is_string($_GET['year'])) ? trim($_GET['year']) : $default_year;
         if (!in_array($filter_year, $academic_years, true)) {
-            $filter_year = $academic_years[0] ?? '2025-26';
+            $filter_year = in_array($default_year, $academic_years, true) ? $default_year : ($academic_years[0] ?? '2025-26');
         }
 
         $page_title = $this->pageTitle;

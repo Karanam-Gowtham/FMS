@@ -34,7 +34,7 @@
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label for="filter_year_id" class="form-label fw-bold">Academic Year</label>
                     <select name="year_id" id="filter_year_id" class="form-select">
-                        <option value="all">All Years</option>
+                        <option value="all" <?= ($year_filter === 'all') ? 'selected' : '' ?>>All Years</option>
                         <?php foreach($years as $yr): ?>
                             <option value="<?= (int)$yr['year_id'] ?>" <?= ($year_filter !== 'all' && (int)$year_filter === (int)$yr['year_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($yr['year_label']) ?>
@@ -46,7 +46,7 @@
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label for="filter_dept_id" class="form-label fw-bold">Department</label>
                     <select name="dept_id" id="filter_dept_id" class="form-select">
-                        <option value="all">All Departments</option>
+                        <option value="all" <?= ($dept_filter === 'all' || $dept_filter === 'authorized') ? 'selected' : '' ?>>All Departments</option>
                         <?php foreach($depts as $d): ?>
                             <option value="<?= (int)$d['dept_id'] ?>" <?= ($dept_filter !== 'all' && $dept_filter !== 'authorized' && (int)$dept_filter === (int)$d['dept_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($d['dept_name']) ?>
@@ -253,7 +253,7 @@
                             foreach($top_clubs as $club => $count): ?>
                             <li class="list-group-item border-0 d-flex justify-content-between align-items-center">
                                 <span><i class="fas fa-shield-alt text-primary me-2"></i><?= htmlspecialchars($club) ?></span>
-                                <span class="badge bg-primary rounded-pill"><?= $count ?> Events</span>
+                                <span class="badge bg-primary rounded-pill"><?= (int)$count === 1 ? '1 Event' : (int)$count . ' Events' ?></span>
                             </li>
                         <?php endforeach; endif; ?>
                     </ul>

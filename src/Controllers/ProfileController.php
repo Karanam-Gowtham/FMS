@@ -146,16 +146,24 @@ class ProfileController {
                     $update_photo = false;
                     $profile_photo_path = null;
                     $old_photo_to_delete = null;
-                    if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+                    if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] !== UPLOAD_ERR_NO_FILE) {
+                        if ($_FILES['profile_photo']['error'] === UPLOAD_ERR_INI_SIZE || $_FILES['profile_photo']['error'] === UPLOAD_ERR_FORM_SIZE) {
+                            throw new \Exception('Profile photo exceeds maximum upload size limit (' . ini_get('upload_max_filesize') . ').');
+                        }
+                        if ($_FILES['profile_photo']['error'] !== UPLOAD_ERR_OK) {
+                            throw new \Exception('Error uploading profile photo (code: ' . (int)$_FILES['profile_photo']['error'] . ').');
+                        }
                         $photo_ext = strtolower(pathinfo($_FILES['profile_photo']['name'] ?? '', PATHINFO_EXTENSION));
                         if (!in_array($photo_ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
                             throw new \Exception('Profile photo must be a valid image file (JPG, PNG, or WebP).');
                         }
                         require_once __DIR__ . '/../../core/file_service.php';
                         $upload_result = file_store($_FILES['profile_photo'], 'profiles', 'photo');
-                        if ($upload_result['success']) {
-                            $profile_photo_path = $upload_result['data']['file_path'];
-                            $update_photo = true;
+                        if (!$upload_result['success']) {
+                            throw new \Exception('Failed to upload photo: ' . ($upload_result['error'] ?? 'Unknown error'));
+                        }
+                        $profile_photo_path = $upload_result['data']['file_path'];
+                        $update_photo = true;
 
                             // Stage previous profile photo on disk for removal only after commit succeeds
                             $old_photo_stmt = $conn->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
@@ -169,10 +177,7 @@ class ProfileController {
                                     if (file_exists($prev_file) && is_file($prev_file)) {
                                         $old_photo_to_delete = $prev_file;
                                     }
-                                }
                             }
-                        } else {
-                            throw new \Exception('Profile photo upload failed: ' . ($upload_result['error'] ?? 'Invalid file format or size.'));
                         }
                     }
 

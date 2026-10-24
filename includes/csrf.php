@@ -29,6 +29,24 @@ function csrfValidate(): void
     if (empty($stored) || !hash_equals($stored, $submitted)) {
         http_response_code(403);
         $error_message = 'CSRF validation failed. Security token expired or invalid. Please reload the page and try again.';
+
+        $is_api = function_exists('is_api_request')
+            ? is_api_request()
+            : ((isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
+               || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
+               || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
+
+        if ($is_api) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'success' => false,
+                'status'  => 'error',
+                'error'   => $error_message,
+                'message' => $error_message
+            ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+            exit();
+        }
+
         $page_403 = __DIR__ . '/../public/403.php';
         if (file_exists($page_403)) {
             include $page_403;

@@ -13,6 +13,7 @@ abstract class AbstractAccreditationCriterionController {
         string $criteriaDataTable
     ): array {
         require_once __DIR__ . '/../../core/bootstrap.php';
+        require_once __DIR__ . '/../../core/document_service.php';
 
         require_login();
         $auth = auth_context();
@@ -20,7 +21,7 @@ abstract class AbstractAccreditationCriterionController {
 
         global $conn;
 
-        $active_ay = function_exists('doc_get_active_year') ? doc_get_active_year($conn) : null;
+        $active_ay = doc_get_active_year($conn);
         $default_year = $active_ay ? $active_ay['year_label'] : '2025-26';
         $year = (!empty($_GET['year']) && is_string($_GET['year'])) ? trim($_GET['year']) : $default_year;
 

@@ -187,7 +187,7 @@ $disposition = (strpos($mime, 'pdf') !== false || strpos($mime, 'image') !== fal
 $safe_filename = str_replace(['"', "\r", "\n"], '', basename($resolvedPath));
 
 header("Content-Type: $mime");
-header("Content-Disposition: $disposition; filename=\"" . $safe_filename . "\"");
+header("Content-Disposition: $disposition; filename=\"" . $safe_filename . "\"; filename*=UTF-8''" . rawurlencode($safe_filename));
 header("Content-Length: " . filesize($resolvedPath));
 header("X-Content-Type-Options: nosniff");
 header("Cache-Control: private, must-revalidate, max-age=3600");

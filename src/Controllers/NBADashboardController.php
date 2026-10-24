@@ -12,7 +12,7 @@ class NBADashboardController extends AbstractAccreditationDashboardController {
         1 => 'Outcome-Based Curriculum',
         2 => 'Outcome-Based Teaching Learning',
         3 => 'Outcome-Based Assessment',
-        4 => 'Students’ Performance',
+        4 => "Students' Performance",
         5 => 'Faculty Information',
         6 => 'Faculty Contributions',
         7 => 'Facilities and Technical Support',

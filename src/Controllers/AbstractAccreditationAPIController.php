@@ -113,6 +113,17 @@ abstract class AbstractAccreditationAPIController {
             $dept_id = $this->authorizeDepartmentAction($module, 'upload');
 
             if (!isset($_FILES['pdf_file']) || $_FILES['pdf_file']['error'] !== UPLOAD_ERR_OK) {
+                if (isset($_FILES['pdf_file']['error'])) {
+                    if ($_FILES['pdf_file']['error'] === UPLOAD_ERR_INI_SIZE || $_FILES['pdf_file']['error'] === UPLOAD_ERR_FORM_SIZE) {
+                        throw new \Exception("File size exceeds server upload limit (" . ini_get('upload_max_filesize') . ").");
+                    }
+                    if ($_FILES['pdf_file']['error'] === UPLOAD_ERR_NO_FILE) {
+                        throw new \Exception("No file was selected for upload.");
+                    }
+                    if ($_FILES['pdf_file']['error'] === UPLOAD_ERR_PARTIAL) {
+                        throw new \Exception("File upload was only partially completed. Please try again.");
+                    }
+                }
                 throw new \Exception("No file uploaded or an upload error occurred.");
             }
 
@@ -155,6 +166,7 @@ abstract class AbstractAccreditationAPIController {
 
             echo json_encode([
                 'status' => 'success',
+                'success' => true,
                 'file_path' => $relative_path,
                 'message' => 'File uploaded successfully'
             ]);
@@ -261,7 +273,7 @@ abstract class AbstractAccreditationAPIController {
     protected function outputJsonError(string $module, string $actionVerb, \Throwable $e): void {
         error_log(strtoupper($module) . " API {$actionVerb} failed: " . $e->getMessage());
         $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
-        $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number') || str_starts_with($e->getMessage(), 'No file') || str_starts_with($e->getMessage(), 'Invalid file') || str_starts_with($e->getMessage(), 'File upload error'))
+        $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number') || str_starts_with($e->getMessage(), 'No file') || str_starts_with($e->getMessage(), 'File size') || str_starts_with($e->getMessage(), 'Invalid file') || str_starts_with($e->getMessage(), 'File upload error'))
             ? $e->getMessage()
             : "Failed to {$actionVerb} " . strtoupper($module) . " accreditation data. Please try again.";
         echo json_encode([

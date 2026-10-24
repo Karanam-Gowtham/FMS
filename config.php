@@ -137,3 +137,15 @@ define('PORTAL_PATH', BASE_URL . '/modules');
 
 define('UPLOADS_PATH', ROOT_PATH . '/uploads');
 define('UPLOADS_URL', BASE_URL . '/uploads');
+
+/* =========================================================
+   API / AJAX REQUEST HELPER
+   ========================================================= */
+
+if (!function_exists('is_api_request')) {
+    function is_api_request(): bool {
+        return (isset($_GET['route']) && str_starts_with($_GET['route'], 'api/'))
+            || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
+            || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+    }
+}

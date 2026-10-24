@@ -53,40 +53,52 @@ class StudentActivityDashboardController
 
         // Default Filters
         $year_filter = (isset($_GET['year_id']) && is_string($_GET['year_id'])) ? trim($_GET['year_id']) : 'all';
+        if ($year_filter !== 'all' && (int)$year_filter <= 0) {
+            $year_filter = 'all';
+        }
         $scope_filter = (isset($_GET['scope']) && is_string($_GET['scope'])) ? trim($_GET['scope']) : 'all';
+        if (!in_array($scope_filter, ['all', 'department', 'central', 'external'], true)) {
+            $scope_filter = 'all';
+        }
         
-        $requested_dept = (isset($_GET['dept_id']) && is_string($_GET['dept_id'])) ? trim($_GET['dept_id']) : 'all';
+        $has_dept_param = isset($_GET['dept_id']) && is_string($_GET['dept_id']);
+        $requested_dept = $has_dept_param ? trim($_GET['dept_id']) : null;
         if ($is_college_wide) {
-            $dept_filter = ($requested_dept === 'all') ? 'all' : (int)$requested_dept;
+            $dept_filter = ($requested_dept !== null && $requested_dept !== 'all' && (int)$requested_dept > 0) ? (int)$requested_dept : 'all';
         } else {
             $user_dept_id = auth_active_dept_id();
-            if ($requested_dept !== 'all') {
+            if ($requested_dept === 'all') {
+                $dept_filter = 'authorized';
+            } elseif ($requested_dept !== null) {
                 $validated = validate_dept_filter((int)$requested_dept);
-                $dept_filter = ($validated !== null) ? $validated : ($user_dept_id ?: 0);
+                $dept_filter = ($validated !== null) ? $validated : ($user_dept_id ?: 'authorized');
             } else {
                 $dept_filter = $user_dept_id ?: 'authorized';
             }
         }
         
         $filter_global_modes = [];
-        if (isset($_GET['global_modes']) && is_array($_GET['global_modes'])) {
-            foreach ($_GET['global_modes'] as $val) {
+        if (isset($_GET['global_modes'])) {
+            $raw_modes = is_array($_GET['global_modes']) ? $_GET['global_modes'] : [$_GET['global_modes']];
+            foreach ($raw_modes as $val) {
                 if (is_string($val) && trim($val) !== '') {
                     $filter_global_modes[] = trim($val);
                 }
             }
         }
         $filter_global_domains = [];
-        if (isset($_GET['global_domains']) && is_array($_GET['global_domains'])) {
-            foreach ($_GET['global_domains'] as $val) {
+        if (isset($_GET['global_domains'])) {
+            $raw_domains = is_array($_GET['global_domains']) ? $_GET['global_domains'] : [$_GET['global_domains']];
+            foreach ($raw_domains as $val) {
                 if (is_string($val) && trim($val) !== '') {
                     $filter_global_domains[] = trim($val);
                 }
             }
         }
         $filter_global_event_types = [];
-        if (isset($_GET['global_event_types']) && is_array($_GET['global_event_types'])) {
-            foreach ($_GET['global_event_types'] as $val) {
+        if (isset($_GET['global_event_types'])) {
+            $raw_types = is_array($_GET['global_event_types']) ? $_GET['global_event_types'] : [$_GET['global_event_types']];
+            foreach ($raw_types as $val) {
                 if (is_string($val) && trim($val) !== '') {
                     $filter_global_event_types[] = trim($val);
                 }
@@ -97,19 +109,48 @@ class StudentActivityDashboardController
         $global_filter_options = ['modes' => [], 'domains' => [], 'event_types' => []];
         $res = $conn->query("SELECT DISTINCT event_mode FROM meta_student_activity_file WHERE event_mode IS NOT NULL AND event_mode != '' ORDER BY event_mode ASC");
         if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['modes'][] = $row['event_mode']; } $res->close(); }
+        $canonical_modes = ['Online', 'Offline', 'Hybrid'];
+        foreach ($canonical_modes as $m) {
+            if (!in_array($m, $global_filter_options['modes'], true)) {
+                $global_filter_options['modes'][] = $m;
+            }
+        }
+        $global_filter_options['modes'] = array_values(array_unique($global_filter_options['modes']));
+        sort($global_filter_options['modes']);
 
         $res = $conn->query("SELECT DISTINCT topic_domain FROM meta_student_activity_file WHERE topic_domain IS NOT NULL AND topic_domain != '' ORDER BY topic_domain ASC");
         if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['domains'][] = $row['topic_domain']; } $res->close(); }
+        $canonical_domains = [
+            'Career Counselling', 'Awareness of Trends and Technologies', 
+            'Domain Specific / Technical Skill', 'Cultural / Arts', 
+            'Social / Community Service', 'Other'
+        ];
+        foreach ($canonical_domains as $cd) {
+            if (!in_array($cd, $global_filter_options['domains'], true)) {
+                $global_filter_options['domains'][] = $cd;
+            }
+        }
+        $global_filter_options['domains'] = array_values(array_unique($global_filter_options['domains']));
+        sort($global_filter_options['domains']);
 
         $res = $conn->query("SELECT DISTINCT event_type FROM meta_student_activity_file WHERE event_type IS NOT NULL AND event_type != '' ORDER BY event_type ASC");
         if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['event_types'][] = $row['event_type']; } $res->close(); }
+
+        $res = $conn->query("SELECT DISTINCT activity_category FROM meta_student_activity_file WHERE activity_category IS NOT NULL AND activity_category != '' ORDER BY activity_category ASC");
+        if ($res) { while ($row = $res->fetch_assoc()) { $global_filter_options['event_types'][] = $row['activity_category']; } $res->close(); }
         
-        $saf_cats = ['Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 'Language and communication skills', 'Life skills', 'Workshop', 'Seminar', 'Conference', 'Hackathon', 'Stepcone'];
+        $saf_cats = [
+            'Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 
+            'Language and communication skills', 'Life skills', 'Professional Societies', 
+            'Clubs', 'IIC', 'Stepcone', 'Workshop', 'Hackathon', 'Conference', 
+            'Competition', 'Seminar'
+        ];
         foreach ($saf_cats as $cat) {
             if (!in_array($cat, $global_filter_options['event_types'], true)) {
                 $global_filter_options['event_types'][] = $cat;
             }
         }
+        $global_filter_options['event_types'] = array_values(array_unique($global_filter_options['event_types']));
         sort($global_filter_options['event_types']);
 
         // Query conditions
@@ -128,7 +169,7 @@ class StudentActivityDashboardController
             $where .= " AND d.dept_id = " . (int)$dept_filter;
         }
         if ($scope_filter === 'department') {
-            $where .= " AND (msaf.target_audience = 'Department Wise' OR (msaf.target_audience IS NULL AND msaf.activity_category != 'Clubs' AND msaf.activity_category != 'Stepcone'))";
+            $where .= " AND (msaf.target_audience = 'Department Wise' OR (msaf.target_audience IS NULL AND COALESCE(msaf.activity_category, '') NOT IN ('Clubs', 'Stepcone')))";
         } elseif ($scope_filter === 'central') {
             $where .= " AND (msaf.target_audience = 'Central / University Wide' OR msaf.activity_category = 'Clubs' OR msaf.activity_category = 'Stepcone')";
         } elseif ($scope_filter === 'external') {
