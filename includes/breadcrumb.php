@@ -90,15 +90,17 @@ if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
     ];
 
     if ($route === 'naac/criterion') {
-        $year_param = (!empty($_GET['year']) && is_string($_GET['year'])) ? '&year=' . urlencode($_GET['year']) : '';
+        $raw_year = $_GET['year'] ?? ($_GET['amp;year'] ?? '');
+        $year_param = (!empty($raw_year) && is_string($raw_year)) ? '&year=' . urlencode($raw_year) : '';
         $breadcrumbs[] = ['label' => 'NAAC Dashboard', 'url' => $bc_base_url . '/public/index.php?route=naac/dashboard' . $year_param];
-        $criterion_id = (isset($_GET['id']) && is_string($_GET['id'])) ? $_GET['id'] : '1';
-        $page_name = 'Criterion ' . htmlspecialchars($criterion_id, ENT_QUOTES, 'UTF-8');
+        $criterion_id = $_GET['id'] ?? ($_GET['amp;id'] ?? '1');
+        $page_name = 'Criterion ' . htmlspecialchars((string)$criterion_id, ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'nba/criterion') {
-        $year_param = (!empty($_GET['year']) && is_string($_GET['year'])) ? '&year=' . urlencode($_GET['year']) : '';
+        $raw_year = $_GET['year'] ?? ($_GET['amp;year'] ?? '');
+        $year_param = (!empty($raw_year) && is_string($raw_year)) ? '&year=' . urlencode($raw_year) : '';
         $breadcrumbs[] = ['label' => 'NBA Dashboard', 'url' => $bc_base_url . '/public/index.php?route=nba/dashboard' . $year_param];
-        $criterion_id = (isset($_GET['id']) && is_string($_GET['id'])) ? $_GET['id'] : '1';
-        $page_name = 'Criterion ' . htmlspecialchars($criterion_id, ENT_QUOTES, 'UTF-8');
+        $criterion_id = $_GET['id'] ?? ($_GET['amp;id'] ?? '1');
+        $page_name = 'Criterion ' . htmlspecialchars((string)$criterion_id, ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'documents/upload' && !empty($_GET['activity']) && is_string($_GET['activity'])) {
         $page_name = 'Upload: ' . htmlspecialchars($_GET['activity'], ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'documents/list' && isset($_GET['context']) && is_string($_GET['context']) && $_GET['context'] === 'dept_file') {

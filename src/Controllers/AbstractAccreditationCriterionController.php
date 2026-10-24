@@ -23,7 +23,8 @@ abstract class AbstractAccreditationCriterionController {
 
         $active_ay = doc_get_active_year($conn);
         $default_year = $active_ay ? $active_ay['year_label'] : '2025-26';
-        $year = (!empty($_GET['year']) && is_string($_GET['year'])) ? trim($_GET['year']) : $default_year;
+        $raw_year = $_GET['year'] ?? ($_GET['amp;year'] ?? null);
+        $year = (!empty($raw_year) && is_string($raw_year)) ? trim($raw_year) : $default_year;
 
         if ($crit_id < 1 || $crit_id > $max_crit_id) {
             include __DIR__ . '/../../public/404.php';
@@ -36,7 +37,8 @@ abstract class AbstractAccreditationCriterionController {
             exit();
         }
 
-        $requested_dept_id = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : null;
+        $raw_dept_id = $_GET['dept_id'] ?? ($_GET['amp;dept_id'] ?? null);
+        $requested_dept_id = $raw_dept_id !== null ? (int)$raw_dept_id : null;
         $dept_id = validate_dept_filter($requested_dept_id);
 
         if ($dept_id === null) {

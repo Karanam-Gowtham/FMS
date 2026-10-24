@@ -5,7 +5,8 @@ require_once __DIR__ . '/AbstractAccreditationCriterionController.php';
 
 class NAACCriterionController extends AbstractAccreditationCriterionController {
     public function show() {
-        $crit_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
+        $raw_id = $_GET['id'] ?? ($_GET['amp;id'] ?? ($_GET['criterion'] ?? 1));
+        $crit_id = (int)$raw_id;
 
         $ctx = $this->resolveAccreditationContext('naac', $crit_id, 7, 'naac_submissions', 'naac_criteria_data');
 
