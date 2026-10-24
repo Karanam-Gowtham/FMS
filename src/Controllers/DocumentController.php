@@ -279,17 +279,27 @@ class DocumentController {
                 return $str;
             };
 
-            // Optimize 2N+1 query bottleneck: Batch fetch all metadata in one query
-            $doc_ids = array_map('intval', array_column($export_docs, 'doc_id'));
+            // Batch fetch metadata from type-specific meta_* tables
+            $docs_by_type = [];
+            foreach ($export_docs as $doc) {
+                $tKey = $doc['type_key'] ?? '';
+                if ($tKey !== '') {
+                    $docs_by_type[$tKey][] = (int)$doc['doc_id'];
+                }
+            }
+
             $doc_meta_map = [];
             $all_meta_keys = [];
 
-            if (!empty($doc_ids)) {
-                $chunks = array_chunk($doc_ids, 500);
+            foreach ($docs_by_type as $tKey => $ids) {
+                $meta_table = meta_get_table($tKey);
+                if (!$meta_table) continue;
+
+                $chunks = array_chunk($ids, 500);
                 foreach ($chunks as $chunk) {
                     $placeholders = implode(',', array_fill(0, count($chunk), '?'));
                     $types = str_repeat('i', count($chunk));
-                    $stmt = $conn->prepare("SELECT doc_id, meta_key, meta_value FROM document_metadata WHERE doc_id IN ($placeholders)");
+                    $stmt = $conn->prepare("SELECT * FROM `$meta_table` WHERE doc_id IN ($placeholders)");
                     if ($stmt) {
                         $stmt->bind_param($types, ...$chunk);
                         $stmt->execute();
@@ -297,10 +307,12 @@ class DocumentController {
                         if ($mres) {
                             while ($row = $mres->fetch_assoc()) {
                                 $dId = (int)$row['doc_id'];
-                                $mKey = $row['meta_key'];
-                                $doc_meta_map[$dId][$mKey] = $row['meta_value'];
-                                if (!in_array($mKey, $all_meta_keys, true)) {
-                                    $all_meta_keys[] = $mKey;
+                                foreach ($row as $k => $v) {
+                                    if ($k === 'doc_id' || $k === 'id') continue;
+                                    $doc_meta_map[$dId][$k] = $v;
+                                    if (!in_array($k, $all_meta_keys, true)) {
+                                        $all_meta_keys[] = $k;
+                                    }
                                 }
                             }
                         }
@@ -418,6 +430,7 @@ class DocumentController {
             header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
             exit;
         }
+        $active_role_id = (int)($auth['active_role']['role_id'] ?? (auth_active_role_id() ?? 0));
         global $conn;
 
         $types = doc_get_types($conn);
@@ -464,6 +477,9 @@ class DocumentController {
                     break;
                 }
             }
+            if (!$active_year && !empty($academic_years)) {
+                $active_year = doc_get_active_year($conn) ?? $academic_years[0];
+            }
         }
 
         $success_msg = $_SESSION['success_msg'] ?? '';
@@ -479,6 +495,7 @@ class DocumentController {
         
         require_login();
         $auth = auth_context();
+        $active_role_id = (int)($auth['active_role']['role_id'] ?? (auth_active_role_id() ?? 0));
         global $conn;
 
         $doc_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -672,14 +689,15 @@ class DocumentController {
         exit;
     }
 
-    private function resolveUserDepartments(\mysqli $conn, array $auth, int $active_role_id): array {
+    private function resolveUserDepartments(\mysqli $conn, array $auth, ?int $active_role_id = null): array {
         $user_depts = [];
+        $role_id = $active_role_id ?? (int)($auth['active_role']['role_id'] ?? (auth_active_role_id() ?? 0));
         foreach ($auth['roles'] as $r) {
             if (!empty($r['dept_id']) && $r['dept_id'] > 0 && !empty($r['dept_name'])) {
                 $user_depts[$r['dept_id']] = $r['dept_name'];
             }
         }
-        if (empty($user_depts) && in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+        if (empty($user_depts) && in_array($role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             $dres = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
             if ($dres instanceof \mysqli_result) {
                 while ($row = $dres->fetch_assoc()) {

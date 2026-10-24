@@ -1072,7 +1072,10 @@ function doc_get_academic_years(mysqli $conn): array
     $stmt->execute();
     $result = $stmt->get_result();
     $years = [];
+    $is_first = true;
     while ($row = $result->fetch_assoc()) {
+        $row['is_active'] = $is_first ? 1 : 0;
+        $is_first = false;
         $years[] = $row;
     }
     $stmt->close();

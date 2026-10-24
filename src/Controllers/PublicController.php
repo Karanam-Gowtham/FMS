@@ -73,14 +73,13 @@ class PublicController {
         // Fetch accepted public documents
         $public_docs = [];
         $stmt = $conn->prepare("
-            SELECT d.doc_id, COALESCE(NULLIF(d.title, ''), dm.meta_value, 'Untitled Document') as original_file_name, dt.label as type_name, dt.type_code,
+            SELECT d.doc_id, COALESCE(NULLIF(d.title, ''), 'Untitled Document') as original_file_name, dt.label as type_name, dt.type_code,
                    u.full_name as uploader_name, u.user_id, ay.year_label as year_name, 
                    d.created_at, COALESCE(NULLIF(d.file_path, ''), (SELECT df.file_path FROM document_files df WHERE df.doc_id = d.doc_id LIMIT 1), '') as file_path 
             FROM documents d
             LEFT JOIN document_types dt ON d.type_id = dt.type_id
             LEFT JOIN users u ON d.uploaded_by = u.user_id
             LEFT JOIN academic_years ay ON d.academic_year_id = ay.year_id
-            LEFT JOIN document_metadata dm ON d.doc_id = dm.doc_id AND dm.meta_key = 'title'
             WHERE d.dept_id = ? AND d.status = 'accepted' 
             AND dt.type_code IN ('journal', 'conference', 'patent', 'fdp', 'fdp_attended', 'fdp_organised', 'conf_organised', 'scholarship', 'placement', 'higher_ed', 'award', 'student_event', 'student_body', 'student_journal', 'student_conference', 'student_activity_file', 'dept_file')
             ORDER BY d.created_at DESC
