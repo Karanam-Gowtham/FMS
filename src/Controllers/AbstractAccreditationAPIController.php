@@ -263,11 +263,25 @@ abstract class AbstractAccreditationAPIController {
         }
 
         $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
-        $dept_id = validate_dept_filter($requested_dept_id);
-        if ($dept_id === null || $dept_id <= 0) {
-            throw new \Exception("Access denied. You are not authorized to {$actionVerb} " . strtoupper($module) . " data for this department.");
+        if ($requested_dept_id === null || $requested_dept_id <= 0) {
+            throw new \Exception("Department is required to {$actionVerb} " . strtoupper($module) . " data.");
         }
-        return $dept_id;
+
+        global $conn;
+        $stmt = $conn->prepare("SELECT dept_id FROM departments WHERE dept_id = ? LIMIT 1");
+        if (!$stmt) {
+            throw new \Exception("Database error verifying department.");
+        }
+        $stmt->bind_param("i", $requested_dept_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if (!$res || $res->num_rows === 0) {
+            $stmt->close();
+            throw new \Exception("Invalid department selected.");
+        }
+        $stmt->close();
+
+        return $requested_dept_id;
     }
 
     protected function outputJsonError(string $module, string $actionVerb, \Throwable $e): void {

@@ -37,38 +37,36 @@ abstract class AbstractAccreditationCriterionController {
             exit();
         }
 
-        $raw_dept_id = $_GET['dept_id'] ?? ($_GET['amp;dept_id'] ?? null);
-        $requested_dept_id = $raw_dept_id !== null ? (int)$raw_dept_id : null;
-        $dept_id = validate_dept_filter($requested_dept_id);
-
-        if ($dept_id === null) {
-            $_SESSION['error_msg'] = "Access denied. You are not authorized to view data for this department.";
-            header("Location: " . BASE_URL . "/public/index.php?route=" . $module . "/dashboard");
-            exit();
-        }
-
-        // Fetch departments for selector
-        $active_role_id = auth_active_role_id();
-        $is_college_wide = in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+        // Central Accreditation Modules (NBA & NAAC):
+        // Allow faculty and coordinators to switch between their department, any other department, or Complete University
         $excluded_depts = "'Antiragging', 'Clubs', 'Exam_Section', 'IIC', 'IQAC', 'NAAC', 'NBA', 'NCC', 'NSS', 'PASH', 'PE', 'PG', 'R&D', 'SAC', 'Sports', 'Women_Empowerment'";
-        $dept_sql = "SELECT dept_id, dept_name FROM departments WHERE dept_name NOT IN ($excluded_depts)";
-        if (!$is_college_wide) {
-            $authorized = get_authorized_depts();
-            $allowed_ids = array_map('intval', array_keys($authorized));
-            if (!empty($allowed_ids)) {
-                $dept_sql .= " AND dept_id IN (" . implode(',', $allowed_ids) . ")";
-            } else {
-                $dept_sql .= " AND 1=0";
-            }
-        }
-        $dept_sql .= " ORDER BY dept_name";
+        $dept_sql = "SELECT dept_id, dept_name FROM departments 
+                     WHERE dept_name NOT IN ($excluded_depts)
+                     ORDER BY CASE WHEN dept_name = 'Complete University' THEN 0 ELSE 1 END, dept_name ASC";
         $dept_result = $conn->query($dept_sql);
         $departments = [];
+        $valid_dept_map = [];
         if ($dept_result instanceof \mysqli_result) {
             while ($row = $dept_result->fetch_assoc()) {
                 $departments[] = $row;
+                $valid_dept_map[(int)$row['dept_id']] = $row['dept_name'];
             }
             $dept_result->close();
+        }
+
+        // Determine active department: any faculty can view their own department, switch to any other, or select Complete University
+        $raw_dept_id = $_GET['dept_id'] ?? ($_GET['amp;dept_id'] ?? null);
+        $requested_dept_id = $raw_dept_id !== null ? (int)$raw_dept_id : null;
+
+        if ($requested_dept_id !== null && isset($valid_dept_map[$requested_dept_id])) {
+            $dept_id = $requested_dept_id;
+        } else {
+            $active_dept = auth_active_dept_id();
+            if ($active_dept !== null && isset($valid_dept_map[$active_dept])) {
+                $dept_id = (int)$active_dept;
+            } else {
+                $dept_id = !empty($departments) ? (int)$departments[0]['dept_id'] : 1;
+            }
         }
 
         $submission = null;

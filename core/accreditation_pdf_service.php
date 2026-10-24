@@ -320,11 +320,6 @@ class AccreditationPdfService {
                 'label' => '5.1' . '.3.2 Language and Communication Skills',
                 'sub_heading' => '5.1' . '.3.2 Language and Communication Skills activities organized during AY ' . $year_str
             ]),
-            '5.1' . '.3.1_2_combined' => array_merge($crit5_common, [
-                'label' => '5.1' . '.3.1 & ' . '5.1' . '.3.2 Soft Skills & Language Skills (Combined)',
-                'metric' => 'Key Indicator - 5.1 Student Support',
-                'sub_heading' => '5.1' . '.3.1 & ' . '5.1' . ".3.2 Soft Skills & Language and Communication Skills activities organized during the academic year {$year_str}"
-            ]),
             '5.1' . '.3.3_life' => array_merge($crit5_1_3, [
                 'label' => '5.1' . '.3.3 Life Skills (Yoga, Health & Hygiene)',
                 'sub_heading' => '5.1' . '.3.3 Life skills activities organized during AY ' . $year_str
