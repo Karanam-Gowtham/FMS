@@ -6,22 +6,38 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
-        body { padding-top: 90px; background-color: #f8f9fa; }
+        body { padding-top: 0; background-color: #f8f9fa; }
+        .public-sa-nav { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .public-sa-brand { font-size: 1.05rem; font-weight: 700; color: #0b353d; text-decoration: none; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
-<?php require_once __DIR__ . '/../../../includes/header.php'; ?>
+<nav class="public-sa-nav">
+    <a href="<?= BASE_URL ?>/index.php" class="public-sa-brand">
+        <i class="fas fa-university" style="color: #17a2b8;"></i>
+        <span>GMRIT Research & Analytics Portal</span>
+    </a>
+    <div class="d-flex align-items-center gap-2">
+        <a href="<?= BASE_URL ?>/index.php#student-activities" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Main Portal
+        </a>
+        <?php if (auth_is_logged_in()): ?>
+            <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" class="btn btn-sm btn-primary">
+                <i class="fas fa-columns me-1"></i> Go to Dashboard
+            </a>
+        <?php else: ?>
+            <a href="<?= BASE_URL ?>/public/index.php?route=auth/login" class="btn btn-sm btn-primary">
+                <i class="fas fa-lock me-1"></i> Login
+            </a>
+        <?php endif; ?>
+    </div>
+</nav>
 
-<div class="container-fluid mt-4 mb-5 px-4">
+<div class="container-fluid mt-3 mb-5 px-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h2 class="mb-1"><i class="fas fa-users-cog text-primary me-2"></i>Student Activities Dashboard</h2>
             <p class="text-muted mb-0">Analytics and engagement tracking for all student-driven initiatives and events.</p>
-        </div>
-        <div>
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&amp;type_keys[]=student_activity_file" class="btn text-white fw-semibold shadow-sm" style="background: #003366;">
-                <i class="fas fa-file-pdf me-2"></i> Generate NAAC Report PDF
-            </a>
         </div>
     </div>
 

@@ -52,6 +52,13 @@ $tr_res = $conn->query("
     LIMIT 4
 ");
 if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; } }
+
+// 3. Initial Student Activities Data
+$sa_filter_data = \App\Controllers\StudentActivityDashboardController::getFilterData();
+$sa_years = $sa_filter_data['years'];
+$sa_depts = $sa_filter_data['depts'];
+$sa_options = $sa_filter_data['options'];
+$sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calculateStats([]);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,18 +71,66 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
     <style>
         :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
         * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: #fff; color: var(--text); overflow-x: hidden; }
         
         /* Utility Header */
-        .utility-bar { background: var(--primary); color: #fff; padding: 8px 40px; display: flex; justify-content: flex-end; font-size: 0.85rem; }
+        .utility-bar { background: var(--primary); color: #fff; padding: 8px 40px; display: flex; justify-content: flex-end; align-items: center; font-size: 0.85rem; }
         .utility-bar a { color: #fff; text-decoration: none; margin-left: 20px; transition: color 0.2s; font-weight: bold; }
         .utility-bar a:hover { color: var(--accent); }
+        .utility-dashboard-badge { background: rgba(23, 162, 184, 0.25); border: 1px solid var(--accent); color: #fff !important; padding: 4px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px; }
+        .utility-dashboard-badge:hover { background: var(--accent); }
 
         /* Main Navigation */
-        .main-nav { background: #fff; padding: 15px 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .nav-brand { font-size: 1.1rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .nav-links a { margin-left: 25px; text-decoration: none; color: #555; font-weight: 500; font-size: 0.95rem; }
-        .nav-links a.active { color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
+        .main-nav { background: #fff; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-size: 1.15rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 12px; }
+        .nav-links { display: flex; align-items: center; gap: 20px; }
+        .nav-links a.nav-link-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.95rem; padding: 6px 0; transition: color 0.2s; border-bottom: 2px solid transparent; }
+        .nav-links a.nav-link-item:hover, .nav-links a.nav-link-item.active { color: var(--primary); border-bottom-color: var(--accent); }
+
+        /* Prominent Header Action Buttons */
+        .nav-btn-dashboard {
+            background: linear-gradient(135deg, #0b353d 0%, #17a2b8 100%);
+            color: #ffffff !important;
+            padding: 9px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(23, 162, 184, 0.4);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            border: none;
+            margin-left: 10px;
+        }
+        .nav-btn-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(23, 162, 184, 0.6);
+            color: #ffffff !important;
+        }
+        .nav-btn-login {
+            background: #0b353d;
+            color: #ffffff !important;
+            padding: 9px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(11, 53, 61, 0.25);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-left: 10px;
+        }
+        .nav-btn-login:hover {
+            background: #17a2b8;
+            transform: translateY(-2px);
+            color: #ffffff !important;
+        }
         
         /* Hero Section */
         .hero { background: linear-gradient(rgba(14, 69, 79, 0.9), rgba(8, 40, 46, 0.9)), url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover; padding: 60px 40px; display: flex; gap: 40px; align-items: center; }
@@ -119,6 +174,137 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         .chart-header p { margin: 0 0 20px 0; color: #64748b; font-size: 0.85rem; }
         .chart-wrapper { flex: 1; height: 350px; width: 100%; position: relative; }
 
+        /* Student Activities Styles */
+        .sa-filter-bar {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) auto;
+            gap: 15px;
+            align-items: end;
+        }
+        .sa-filter-item label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .sa-filter-item select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .sa-filter-item select:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.15);
+        }
+        .sa-filter-reset {
+            padding: 9px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #fff;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sa-filter-reset:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+            border-color: #94a3b8;
+        }
+
+        .sa-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 992px) {
+            .sa-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 576px) {
+            .sa-kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        .sa-kpi-card {
+            border-radius: 10px;
+            padding: 22px 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            transition: transform 0.25s ease;
+        }
+        .sa-kpi-card:hover {
+            transform: translateY(-4px);
+        }
+        .sa-kpi-card.c-blue { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+        .sa-kpi-card.c-indigo { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
+        .sa-kpi-card.c-teal { background: linear-gradient(135deg, #0e7490 0%, #155e75 100%); }
+        .sa-kpi-card.c-green { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+
+        .sa-kpi-icon {
+            font-size: 2.4rem;
+            opacity: 0.85;
+        }
+        .sa-kpi-meta h5 {
+            margin: 0;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 700;
+        }
+        .sa-kpi-meta h3 {
+            margin: 4px 0 0 0;
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .sa-kpi-meta p {
+            margin: 3px 0 0 0;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sa-charts-grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .sa-charts-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 1024px) {
+            .sa-charts-grid-2 { grid-template-columns: 1fr; }
+            .sa-charts-grid-3 { grid-template-columns: 1fr; }
+        }
+
         /* Researchers Grid */
         .researchers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         .r-card { background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; transition: transform 0.2s; }
@@ -149,9 +335,9 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
     <div class="utility-bar">
         <div>
             <?php if (!$isLoggedIn): ?>
-                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login"><i class="fas fa-lock"></i> Login</a>
+                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login"><i class="fas fa-lock"></i> Staff & Student Login</a>
             <?php else: ?>
-                <a href="<?= BASE_URL ?>/public/index.php?route=dashboard"><i class="fas fa-columns"></i> Go to Dashboard</a>
+                <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" class="utility-dashboard-badge"><i class="fas fa-th-large"></i> Go to Dashboard &rarr;</a>
             <?php endif; ?>
         </div>
     </div>
@@ -166,9 +352,18 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             </div>
         </div>
         <div class="nav-links">
-            <a href="#" class="active">Analytics Dashboard</a>
-            <a href="<?= BASE_URL ?>/public/index.php?route=student_activities/dashboard">Student Activities</a>
-            <a href="#profiles">Top Profiles</a>
+            <a href="#analytics" class="nav-link-item active" id="nav-item-analytics">Analytics Dashboard</a>
+            <a href="#student-activities" class="nav-link-item" id="nav-item-sa">Student Activities</a>
+            <a href="#profiles" class="nav-link-item" id="nav-item-profiles">Top Profiles</a>
+            <?php if (!$isLoggedIn): ?>
+                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login" class="nav-btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" class="nav-btn-dashboard">
+                    <i class="fas fa-columns"></i> Go to Dashboard
+                </a>
+            <?php endif; ?>
         </div>
     </nav>
 
@@ -276,6 +471,206 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
         </div>
             </div> <!-- End amazon-main -->
         </div> <!-- End amazon-layout -->
+    </section>
+
+    <!-- Student Activities Dashboard Section -->
+    <section class="section light" id="student-activities" style="background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 50px 40px;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <div class="section-header" style="flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 25px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <span style="color: var(--accent); font-weight: bold; letter-spacing: 2px; font-size: 0.85rem; text-transform: uppercase;">
+                            — Campus Engagement Intelligence
+                        </span>
+                        <h2 style="margin: 5px 0 0 0; font-size: 2.2rem; color: var(--primary); display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-users-cog" style="color: var(--accent);"></i> Student Activities Dashboard
+                        </h2>
+                    </div>
+                    <span style="color: #64748b; font-weight: 500; font-size: 0.9rem;" id="sa-status-label">
+                        <i class="fas fa-chart-pie" style="color: var(--accent);"></i> Dynamic Campus Engagement Metrics
+                    </span>
+                </div>
+                <p style="margin: 0; color: #64748b; font-size: 1rem; max-width: 850px;">
+                    Analytics and engagement tracking for all student-driven initiatives, workshops, technical symposiums, and campus club activities.
+                </p>
+            </div>
+
+            <!-- Dynamic Filter Bar -->
+            <div class="sa-filter-bar">
+                <div class="sa-filter-item">
+                    <label for="sa_filter_year">Academic Year</label>
+                    <select id="sa_filter_year">
+                        <option value="all">All Years</option>
+                        <?php foreach($sa_years as $yr): ?>
+                            <option value="<?= (int)$yr['year_id'] ?>"><?= htmlspecialchars($yr['year_label']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="sa-filter-item">
+                    <label for="sa_filter_dept">Department</label>
+                    <select id="sa_filter_dept">
+                        <option value="all">All Departments</option>
+                        <?php foreach($sa_depts as $d): ?>
+                            <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="sa-filter-item">
+                    <label for="sa_filter_scope">Event Scope</label>
+                    <select id="sa_filter_scope">
+                        <option value="all">All Scopes</option>
+                        <option value="department">Department Wise</option>
+                        <option value="central">Central / Campus Wide</option>
+                        <option value="external">Inter-College / External</option>
+                    </select>
+                </div>
+                <div class="sa-filter-item">
+                    <label for="sa_filter_mode">Event Mode</label>
+                    <select id="sa_filter_mode">
+                        <option value="all">All Modes</option>
+                        <?php foreach(($sa_options['modes'] ?? []) as $m): ?>
+                            <option value="<?= htmlspecialchars($m) ?>"><?= htmlspecialchars($m) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="sa-filter-item">
+                    <label for="sa_filter_domain">Domain / Topic</label>
+                    <select id="sa_filter_domain">
+                        <option value="all">All Domains</option>
+                        <?php foreach(($sa_options['domains'] ?? []) as $dom): ?>
+                            <option value="<?= htmlspecialchars($dom) ?>"><?= htmlspecialchars($dom) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="sa-filter-item">
+                    <label for="sa_filter_type">Event Type</label>
+                    <select id="sa_filter_type">
+                        <option value="all">All Types</option>
+                        <?php foreach(($sa_options['event_types'] ?? []) as $et): ?>
+                            <option value="<?= htmlspecialchars($et) ?>"><?= htmlspecialchars($et) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" id="sa_filter_reset" class="sa-filter-reset">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top KPI Cards -->
+            <div class="sa-kpi-grid">
+                <div class="sa-kpi-card c-blue">
+                    <div class="sa-kpi-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="sa-kpi-meta">
+                        <h5>Total Events</h5>
+                        <h3 id="sa-val-events"><?= number_format($sa_initial_stats['total_events']) ?></h3>
+                        <p>All registered events</p>
+                    </div>
+                </div>
+                <div class="sa-kpi-card c-indigo">
+                    <div class="sa-kpi-icon"><i class="fas fa-building-columns"></i></div>
+                    <div class="sa-kpi-meta">
+                        <h5>Department-Wise</h5>
+                        <h3 id="sa-val-dept-events"><?= number_format($sa_initial_stats['department_events']) ?></h3>
+                        <p>Branch specific initiatives</p>
+                    </div>
+                </div>
+                <div class="sa-kpi-card c-teal">
+                    <div class="sa-kpi-icon"><i class="fas fa-users-rays"></i></div>
+                    <div class="sa-kpi-meta">
+                        <h5>Central / Campus</h5>
+                        <h3 id="sa-val-central-events"><?= number_format($sa_initial_stats['central_events']) ?></h3>
+                        <p>Clubs, SAC & Stepcone</p>
+                    </div>
+                </div>
+                <div class="sa-kpi-card c-green">
+                    <div class="sa-kpi-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div class="sa-kpi-meta">
+                        <h5>Total Participation</h5>
+                        <h3 id="sa-val-participants"><?= number_format($sa_initial_stats['total_participants']) ?></h3>
+                        <p>Student attendees recorded</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="sa-charts-grid-2">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line" style="color: var(--accent);"></i> Participation Engagement Timeline</h3>
+                        <p>Total students participating across months</p>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="saTimelineChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-pie" style="color: var(--accent);"></i> Event Categories</h3>
+                        <p>Distribution across student activity streams</p>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="saCategoryChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="sa-charts-grid-3">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-layer-group" style="color: var(--accent);"></i> Event Scope Breakdown</h3>
+                        <p>Departmental vs Campus vs External</p>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="saScopeChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-laptop-house" style="color: var(--accent);"></i> Delivery Mode</h3>
+                        <p>Online, Offline and Hybrid distribution</p>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="saModeChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-crown" style="color: var(--accent);"></i> Most Active Clubs</h3>
+                        <p>Top campus-wide clubs by events</p>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto; max-height: 350px;">
+                        <ul id="saClubList" style="list-style: none; padding: 0; margin: 10px 0 0 0;">
+                            <?php 
+                            $clubs = $sa_initial_stats['club_activity'] ?? [];
+                            if (!empty($clubs)) { arsort($clubs); }
+                            $top_clubs = array_slice($clubs, 0, 5, true);
+                            if (empty($top_clubs)): ?>
+                                <li style="padding: 12px 15px; color: #64748b; font-size: 0.9rem;">No club data recorded for this selection.</li>
+                            <?php else: 
+                                foreach($top_clubs as $club => $cnt): ?>
+                                <li style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+                                    <span><i class="fas fa-shield-alt" style="color: var(--accent); margin-right: 8px;"></i><?= htmlspecialchars($club) ?></span>
+                                    <span style="background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 50px; font-weight: 700; font-size: 0.8rem;"><?= (int)$cnt === 1 ? '1 Event' : (int)$cnt . ' Events' ?></span>
+                                </li>
+                            <?php endforeach; endif; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 3 -->
+            <div class="sa-charts-grid-2">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-bullseye" style="color: var(--accent);"></i> Topic Focus Area</h3>
+                        <p>Technical domain and skillset tracks</p>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="saTopicRadarChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-university" style="color: var(--accent);"></i> Department-Wise Initiatives Comparison</h3>
+                        <p>Comparing branch-specific events and participant engagement</p>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="saDeptCompareChart"></canvas></div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Top Researchers (Static display for initial load) -->
@@ -544,8 +939,302 @@ if($tr_res) { while($row = $tr_res->fetch_assoc()) { $top_researchers[] = $row; 
             });
         });
 
-        // Initialize
+        // Initialize Research Dashboard
         fetchDashboardData();
+
+        // ==========================================
+        // Student Activities Interactive Logic
+        // ==========================================
+        window.initialSAStats = <?= json_encode($sa_initial_stats, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+        
+        let saTimelineChartInst = null;
+        let saCategoryChartInst = null;
+        let saScopeChartInst = null;
+        let saModeChartInst = null;
+        let saRadarChartInst = null;
+        let saDeptCompareChartInst = null;
+
+        function updateSACharts(stats) {
+            const palette = ['#0284c7', '#0d9488', '#4f46e5', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#ea580c', '#16a34a'];
+
+            // 1. Timeline Chart
+            const tlLabels = stats.timeline ? Object.keys(stats.timeline) : [];
+            const tlValues = stats.timeline ? Object.values(stats.timeline) : [];
+            if (saTimelineChartInst) saTimelineChartInst.destroy();
+            const ctxTl = document.getElementById('saTimelineChart').getContext('2d');
+            const tlGrad = ctxTl.createLinearGradient(0, 0, 0, 350);
+            tlGrad.addColorStop(0, 'rgba(2, 132, 199, 0.45)');
+            tlGrad.addColorStop(1, 'rgba(2, 132, 199, 0.0)');
+            saTimelineChartInst = new Chart(ctxTl, {
+                type: 'line',
+                data: {
+                    labels: tlLabels.length ? tlLabels : ['No Data'],
+                    datasets: [{
+                        label: 'Participants',
+                        data: tlValues.length ? tlValues : [0],
+                        borderColor: '#0284c7',
+                        backgroundColor: tlGrad,
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#0284c7',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#e2e8f0' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 2. Category Chart
+            const catLabels = stats.category_dist ? Object.keys(stats.category_dist) : [];
+            const catValues = stats.category_dist ? Object.values(stats.category_dist) : [];
+            if (saCategoryChartInst) saCategoryChartInst.destroy();
+            saCategoryChartInst = new Chart(document.getElementById('saCategoryChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels.length ? catLabels : ['None'],
+                    datasets: [{
+                        data: catValues.length ? catValues : [0],
+                        backgroundColor: palette,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // 3. Scope Chart
+            const scopeLabels = stats.scope_dist ? Object.keys(stats.scope_dist) : [];
+            const scopeValues = stats.scope_dist ? Object.values(stats.scope_dist) : [];
+            if (saScopeChartInst) saScopeChartInst.destroy();
+            saScopeChartInst = new Chart(document.getElementById('saScopeChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: scopeLabels.length ? scopeLabels : ['None'],
+                    datasets: [{
+                        data: scopeValues.length ? scopeValues : [0],
+                        backgroundColor: ['#4f46e5', '#0284c7', '#059669'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // 4. Mode Chart
+            const modeLabels = stats.mode_dist ? Object.keys(stats.mode_dist) : [];
+            const modeValues = stats.mode_dist ? Object.values(stats.mode_dist) : [];
+            if (saModeChartInst) saModeChartInst.destroy();
+            saModeChartInst = new Chart(document.getElementById('saModeChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: modeLabels.length ? modeLabels : ['None'],
+                    datasets: [{
+                        data: modeValues.length ? modeValues : [0],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // 5. Topic Radar Chart
+            const topicLabels = stats.topic_dist ? Object.keys(stats.topic_dist) : [];
+            const topicValues = stats.topic_dist ? Object.values(stats.topic_dist) : [];
+            if (saRadarChartInst) saRadarChartInst.destroy();
+            saRadarChartInst = new Chart(document.getElementById('saTopicRadarChart').getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: topicLabels.length ? topicLabels : ['None'],
+                    datasets: [{
+                        label: 'Initiatives',
+                        data: topicValues.length ? topicValues : [0],
+                        backgroundColor: 'rgba(2, 132, 199, 0.25)',
+                        borderColor: '#0284c7',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#0b353d',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        r: {
+                            min: 0,
+                            ticks: { precision: 0 },
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: { font: { size: 10 }, color: '#475569' }
+                        }
+                    }
+                }
+            });
+
+            // 6. Department Initiatives Comparison
+            const deptLabels = stats.dept_compare ? Object.keys(stats.dept_compare) : [];
+            const deptEvents = deptLabels.map(d => stats.dept_compare[d].events);
+            const deptParticipants = deptLabels.map(d => stats.dept_compare[d].participants);
+            if (saDeptCompareChartInst) saDeptCompareChartInst.destroy();
+            saDeptCompareChartInst = new Chart(document.getElementById('saDeptCompareChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: deptLabels.length ? deptLabels : ['None'],
+                    datasets: [
+                        {
+                            label: 'Events Organised',
+                            data: deptEvents.length ? deptEvents : [0],
+                            backgroundColor: '#0284c7',
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Total Participants',
+                            data: deptParticipants.length ? deptParticipants : [0],
+                            backgroundColor: '#10b981',
+                            borderRadius: 4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 25, font: { size: 10 } } },
+                        y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Events', font: { size: 10 } } },
+                        y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Participants', font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // 7. Active Clubs List
+            const clubListEl = document.getElementById('saClubList');
+            if (clubListEl) {
+                const clubs = stats.club_activity || {};
+                const sortedClubs = Object.entries(clubs).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                if (sortedClubs.length === 0) {
+                    clubListEl.innerHTML = '<li style="padding: 12px 15px; color: #64748b; font-size: 0.9rem;">No club data recorded for this selection.</li>';
+                } else {
+                    clubListEl.innerHTML = sortedClubs.map(([club, cnt]) => `
+                        <li style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+                            <span><i class="fas fa-shield-alt" style="color: var(--accent); margin-right: 8px;"></i>${escapeHtml(club)}</span>
+                            <span style="background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 50px; font-weight: 700; font-size: 0.8rem;">${cnt} ${cnt === 1 ? 'Event' : 'Events'}</span>
+                        </li>
+                    `).join('');
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        async function fetchStudentActivityStats() {
+            const yr = document.getElementById('sa_filter_year').value;
+            const dp = document.getElementById('sa_filter_dept').value;
+            const sc = document.getElementById('sa_filter_scope').value;
+            const md = document.getElementById('sa_filter_mode').value;
+            const dm = document.getElementById('sa_filter_domain').value;
+            const tp = document.getElementById('sa_filter_type').value;
+
+            const url = `<?= BASE_URL ?>/public/api/student_activity_stats.php?year_id=${encodeURIComponent(yr)}&dept_id=${encodeURIComponent(dp)}&scope=${encodeURIComponent(sc)}&mode=${encodeURIComponent(md)}&domain=${encodeURIComponent(dm)}&event_type=${encodeURIComponent(tp)}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const data = json.data;
+                    animateValue(document.getElementById('sa-val-events'), 0, data.total_events || 0, 400);
+                    animateValue(document.getElementById('sa-val-dept-events'), 0, data.department_events || 0, 400);
+                    animateValue(document.getElementById('sa-val-central-events'), 0, data.central_events || 0, 400);
+                    animateValue(document.getElementById('sa-val-participants'), 0, data.total_participants || 0, 400);
+                    updateSACharts(data);
+                }
+            } catch (err) {
+                console.error('Failed to sync student activity stats:', err);
+            }
+        }
+
+        // Student Activities Filter listeners
+        ['sa_filter_year', 'sa_filter_dept', 'sa_filter_scope', 'sa_filter_mode', 'sa_filter_domain', 'sa_filter_type'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', fetchStudentActivityStats);
+        });
+
+        const saResetBtn = document.getElementById('sa_filter_reset');
+        if (saResetBtn) {
+            saResetBtn.addEventListener('click', () => {
+                ['sa_filter_year', 'sa_filter_dept', 'sa_filter_scope', 'sa_filter_mode', 'sa_filter_domain', 'sa_filter_type'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = 'all';
+                });
+                fetchStudentActivityStats();
+            });
+        }
+
+        // Active Navigation Scroll Highlighting
+        const navLinks = document.querySelectorAll('.main-nav .nav-link-item');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                navLinks.forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Highlight based on initial hash
+        if (window.location.hash === '#student-activities') {
+            const saLink = document.getElementById('nav-item-sa');
+            if (saLink) {
+                navLinks.forEach(n => n.classList.remove('active'));
+                saLink.classList.add('active');
+            }
+        }
+
+        // Initialize Student Activities Charts
+        if (window.initialSAStats) {
+            updateSACharts(window.initialSAStats);
+        }
     </script>
 </body>
 </html>
