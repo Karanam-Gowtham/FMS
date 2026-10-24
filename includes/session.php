@@ -10,22 +10,10 @@ if (session_status() === PHP_SESSION_NONE) {
         ini_set('session.cookie_samesite', 'Lax');
 
         $lifetime = defined('SESSION_LIFETIME') ? (int)SESSION_LIFETIME : 0;
-        if (PHP_VERSION_ID >= 70300) {
-            session_set_cookie_params([
-                'lifetime' => $lifetime,
-                'path'     => '/',
-                'domain'   => '',
-                'secure'   => true,
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ]);
-        } else {
-            session_set_cookie_params($lifetime, '/', '', true, true);
-        }
+        session_set_cookie_params($lifetime, '/', '', true, true);
     }
 
     if (session_status() === PHP_SESSION_NONE) {
         @session_start();
     }
 }
-
