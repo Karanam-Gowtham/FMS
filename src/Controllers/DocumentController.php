@@ -455,21 +455,7 @@ class DocumentController {
             
             $file_slots = meta_get_file_slots($type_key);
             
-            $user_depts = [];
-            foreach ($auth['roles'] as $r) {
-                if (!empty($r['dept_id']) && $r['dept_id'] > 0 && !empty($r['dept_name'])) {
-                    $user_depts[$r['dept_id']] = $r['dept_name'];
-                }
-            }
-            if (empty($user_depts) && in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
-                $dres = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
-                if ($dres instanceof \mysqli_result) {
-                    while($row = $dres->fetch_assoc()) {
-                        $user_depts[$row['dept_id']] = $row['dept_name'];
-                    }
-                    $dres->close();
-                }
-            }
+            $user_depts = $this->resolveUserDepartments($conn, $auth, $active_role_id);
             
             $active_year = null;
             foreach ($academic_years as $y) {
@@ -529,21 +515,7 @@ class DocumentController {
         $meta_fields = meta_get_fields($type_key);
         $file_slots = meta_get_file_slots($type_key);
         
-        $user_depts = [];
-        foreach ($auth['roles'] as $r) {
-            if (!empty($r['dept_id']) && $r['dept_id'] > 0 && !empty($r['dept_name'])) {
-                $user_depts[$r['dept_id']] = $r['dept_name'];
-            }
-        }
-        if (empty($user_depts) && in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
-            $dres = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
-            if ($dres instanceof \mysqli_result) {
-                while($row = $dres->fetch_assoc()) {
-                    $user_depts[$row['dept_id']] = $row['dept_name'];
-                }
-                $dres->close();
-            }
-        }
+        $user_depts = $this->resolveUserDepartments($conn, $auth, $active_role_id);
         
         $academic_years = doc_get_academic_years($conn);
 
@@ -698,6 +670,25 @@ class DocumentController {
             'detected_year' => $detected_year
         ]);
         exit;
+    }
+
+    private function resolveUserDepartments(\mysqli $conn, array $auth, int $active_role_id): array {
+        $user_depts = [];
+        foreach ($auth['roles'] as $r) {
+            if (!empty($r['dept_id']) && $r['dept_id'] > 0 && !empty($r['dept_name'])) {
+                $user_depts[$r['dept_id']] = $r['dept_name'];
+            }
+        }
+        if (empty($user_depts) && in_array($active_role_id, [ROLE_ADMIN, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+            $dres = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
+            if ($dres instanceof \mysqli_result) {
+                while ($row = $dres->fetch_assoc()) {
+                    $user_depts[$row['dept_id']] = $row['dept_name'];
+                }
+                $dres->close();
+            }
+        }
+        return $user_depts;
     }
 }
 

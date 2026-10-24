@@ -10,6 +10,43 @@ require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
 use setasign\Fpdi\Fpdi;
 
 /**
+ * Fits and places an image file onto a new PDF page
+ *
+ * @param \setasign\Fpdi\Fpdi|\FPDF $pdf
+ * @param string $path
+ * @param float $bottomMargin Margin from bottom (e.g. 24.0 or 32.0)
+ * @return array{pageW: float, pageH: float}|null Page dimensions if rendered, null otherwise
+ */
+function pdf_embed_fitted_image($pdf, string $path, float $bottomMargin = 24.0): ?array {
+    $imgInfo = @getimagesize($path);
+    if (!$imgInfo || $imgInfo[0] <= 0 || $imgInfo[1] <= 0) {
+        return null;
+    }
+
+    $isLandscape = ($imgInfo[0] > $imgInfo[1]);
+    $pageW = $isLandscape ? 297.0 : 210.0;
+    $pageH = $isLandscape ? 210.0 : 297.0;
+
+    $pdf->AddPage($isLandscape ? 'L' : 'P', [$pageW, $pageH]);
+
+    $availW = $pageW - 24.0;
+    $availH = $pageH - $bottomMargin;
+    $scale = min($availW / $imgInfo[0], $availH / $imgInfo[1]);
+    $renderW = $imgInfo[0] * $scale;
+    $renderH = $imgInfo[1] * $scale;
+
+    $pdf->Image(
+        $path,
+        12.0 + ($availW - $renderW) / 2.0,
+        12.0 + ($availH - $renderH) / 2.0,
+        $renderW,
+        $renderH
+    );
+
+    return ['pageW' => $pageW, 'pageH' => $pageH];
+}
+
+/**
  * Merge multiple PDF and Image files into one.
  *
  * @param array $files_to_merge Array of associative arrays, e.g. [['path' => '/path/to/a.pdf', 'title' => 'Brochure']]
@@ -43,26 +80,7 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
 
             // 1. Direct Image Support (JPG, PNG, GIF)
             if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'], true)) {
-                $imgInfo = @getimagesize($path);
-                if ($imgInfo && $imgInfo[0] > 0 && $imgInfo[1] > 0) {
-                    $imgW = $imgInfo[0];
-                    $imgH = $imgInfo[1];
-                    $orient = ($imgW > $imgH) ? 'L' : 'P';
-                    $pageW = ($orient === 'L') ? 297.0 : 210.0;
-                    $pageH = ($orient === 'L') ? 210.0 : 297.0;
-
-                    $pdf->AddPage($orient, [$pageW, $pageH]);
-
-                    // Fit nicely with margins
-                    $availW = $pageW - 24;
-                    $availH = $pageH - 24;
-                    $scale = min($availW / $imgW, $availH / $imgH);
-                    $renderW = $imgW * $scale;
-                    $renderH = $imgH * $scale;
-                    $posX = 12 + ($availW - $renderW) / 2;
-                    $posY = 12 + ($availH - $renderH) / 2;
-
-                    $pdf->Image($path, $posX, $posY, $renderW, $renderH);
+                if (pdf_embed_fitted_image($pdf, $path, 24.0) !== null) {
                     $totalPagesAdded++;
                 }
                 continue;

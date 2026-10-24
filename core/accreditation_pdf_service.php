@@ -8,6 +8,7 @@
 
 require_once __DIR__ . '/../libs/fpdf.php';
 require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+require_once __DIR__ . '/pdf_merger_service.php';
 
 use setasign\Fpdi\Fpdi;
 
@@ -263,64 +264,28 @@ class AccreditationPdfService {
      * Standard Column Definitions
      */
     public static function getAvailableColumns(): array {
-        return [
-            'sno' => [
-                'key' => 'sno',
-                'label' => "S.No",
-                'align' => 'C',
-                'header_align' => 'C',
-                'weight' => 12,
-                'fixed' => true
-            ],
-            'event_name' => [
-                'key' => 'event_name',
-                'label' => "Name of the Capacity\nDevelopment and Skill\nEnhancement programme",
-                'align' => 'J',
-                'header_align' => 'C',
-                'weight' => 58,
-                'fixed' => false
-            ],
-            'year' => [
-                'key' => 'year',
-                'label' => "Year of\nimplementation",
-                'align' => 'C',
-                'header_align' => 'C',
-                'weight' => 33.5,
-                'fixed' => false
-            ],
-            'event_date' => [
-                'key' => 'event_date',
-                'label' => "Date of\nevent",
-                'align' => 'C',
-                'header_align' => 'C',
-                'weight' => 24,
-                'fixed' => false
-            ],
-            'student_count' => [
-                'key' => 'student_count',
-                'label' => "Number of\nstudents\nenrolled",
-                'align' => 'C',
-                'header_align' => 'C',
-                'weight' => 23.5,
-                'fixed' => false
-            ],
-            'agency' => [
-                'key' => 'agency',
-                'label' => "Name of the\nagencies/consultants\ninvolved with contact\ndetails, if any",
-                'align' => 'J',
-                'header_align' => 'C',
-                'weight' => 44,
-                'fixed' => false
-            ],
-            'page_no' => [
-                'key' => 'page_no',
-                'label' => "Page No.",
-                'align' => 'C',
-                'header_align' => 'C',
-                'weight' => 19,
-                'fixed' => true
-            ]
+        $cols = [
+            'sno' => ['S.No', 'C', 12, true],
+            'event_name' => ["Name of the Capacity\nDevelopment and Skill\nEnhancement programme", 'J', 58, false],
+            'year' => ["Year of\nimplementation", 'C', 33.5, false],
+            'event_date' => ["Date of\nevent", 'C', 24, false],
+            'student_count' => ["Number of\nstudents\nenrolled", 'C', 23.5, false],
+            'agency' => ["Name of the\nagencies/consultants\ninvolved with contact\ndetails, if any", 'J', 44, false],
+            'page_no' => ["Page No.", 'C', 19, true]
         ];
+
+        $result = [];
+        foreach ($cols as $k => [$lbl, $align, $wt, $fix]) {
+            $result[$k] = [
+                'key' => $k,
+                'label' => $lbl,
+                'align' => $align,
+                'header_align' => 'C',
+                'weight' => $wt,
+                'fixed' => $fix
+            ];
+        }
+        return $result;
     }
 
     /**
@@ -553,27 +518,9 @@ class AccreditationPdfService {
 
                 // 1. Direct Image Attachment Support (JPG, PNG)
                 if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'], true)) {
-                    $imgInfo = @getimagesize($filePath);
-                    if ($imgInfo && $imgInfo[0] > 0 && $imgInfo[1] > 0) {
-                        $imgW = $imgInfo[0];
-                        $imgH = $imgInfo[1];
-                        $orient = ($imgW > $imgH) ? 'L' : 'P';
-                        $pageW = ($orient === 'L') ? 297.0 : 210.0;
-                        $pageH = ($orient === 'L') ? 210.0 : 297.0;
-
-                        $pdf->AddPage($orient, [$pageW, $pageH]);
-
-                        $availW = $pageW - 24;
-                        $availH = $pageH - 32;
-                        $scale = min($availW / $imgW, $availH / $imgH);
-                        $renderW = $imgW * $scale;
-                        $renderH = $imgH * $scale;
-                        $posX = 12 + ($availW - $renderW) / 2;
-                        $posY = 12 + ($availH - $renderH) / 2;
-
-                        $pdf->Image($filePath, $posX, $posY, $renderW, $renderH);
-                        self::renderPageStamp($pdf, $pageW, $pageH, $finalPageNumber);
-
+                    $rendered = pdf_embed_fitted_image($pdf, $filePath, 32.0);
+                    if ($rendered !== null) {
+                        self::renderPageStamp($pdf, $rendered['pageW'], $rendered['pageH'], $finalPageNumber);
                         $finalPageNumber++;
                         $pagesImported++;
                     }

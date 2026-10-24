@@ -12,21 +12,7 @@ abstract class AbstractAccreditationAPIController {
         header('Content-Type: application/json');
 
         try {
-            require_login();
-            csrfValidate();
-            $auth = auth_context();
-            $active_role = auth_active_role();
-
-            $active_role_id = auth_active_role_id();
-            if (!$active_role_id || $active_role_id === ROLE_STUDENT || !auth_has_role($active_role_id)) {
-                throw new \Exception("Access denied. You do not have permission to modify " . strtoupper($module) . " accreditation data.");
-            }
-
-            $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
-            $dept_id = validate_dept_filter($requested_dept_id);
-            if ($dept_id === null || $dept_id <= 0) {
-                throw new \Exception("Access denied. You are not authorized to save " . strtoupper($module) . " data for this department.");
-            }
+            $dept_id = $this->authorizeDepartmentAction($module, 'save');
 
             $year = (isset($_POST['year']) && is_string($_POST['year'])) ? trim($_POST['year']) : '';
             if (empty($year)) {
@@ -115,17 +101,7 @@ abstract class AbstractAccreditationAPIController {
                 } catch (\Throwable $t) {
                 }
             }
-            error_log(strtoupper($module) . " API save failed: " . $e->getMessage());
-            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
-            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number'))
-                ? $e->getMessage()
-                : 'An error occurred while saving ' . strtoupper($module) . ' accreditation data.';
-            echo json_encode([
-                'status' => 'error',
-                'success' => false,
-                'message' => $msg,
-                'error' => $msg
-            ]);
+            $this->outputJsonError($module, 'save', $e);
         }
     }
 
@@ -134,21 +110,7 @@ abstract class AbstractAccreditationAPIController {
         header('Content-Type: application/json');
 
         try {
-            require_login();
-            csrfValidate();
-            $auth = auth_context();
-            $active_role = auth_active_role();
-
-            $active_role_id = auth_active_role_id();
-            if (!$active_role_id || $active_role_id === ROLE_STUDENT || !auth_has_role($active_role_id)) {
-                throw new \Exception("Access denied. You do not have permission to upload " . strtoupper($module) . " accreditation files.");
-            }
-
-            $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
-            $dept_id = validate_dept_filter($requested_dept_id);
-            if ($dept_id === null || $dept_id <= 0) {
-                throw new \Exception("Access denied. You are not authorized to upload " . strtoupper($module) . " data for this department.");
-            }
+            $dept_id = $this->authorizeDepartmentAction($module, 'upload');
 
             if (!isset($_FILES['pdf_file']) || $_FILES['pdf_file']['error'] !== UPLOAD_ERR_OK) {
                 throw new \Exception("No file uploaded or an upload error occurred.");
@@ -198,17 +160,7 @@ abstract class AbstractAccreditationAPIController {
             ]);
 
         } catch (\Throwable $e) {
-            error_log(strtoupper($module) . " API upload failed: " . $e->getMessage());
-            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
-            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number') || str_starts_with($e->getMessage(), 'No file') || str_starts_with($e->getMessage(), 'Invalid file') || str_starts_with($e->getMessage(), 'File upload error'))
-                ? $e->getMessage()
-                : 'Failed to upload ' . strtoupper($module) . ' file. Please try again.';
-            echo json_encode([
-                'status' => 'error',
-                'success' => false,
-                'message' => $msg,
-                'error' => $msg
-            ]);
+            $this->outputJsonError($module, 'upload', $e);
         }
     }
 
@@ -286,17 +238,37 @@ abstract class AbstractAccreditationAPIController {
                 'pdf_url' => BASE_URL . "/public/index.php?route=reports/download&type={$module}&file=" . urlencode($filename)
             ]);
         } catch (\Throwable $e) {
-            error_log(strtoupper($module) . " API PDF generation failed: " . $e->getMessage());
-            $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
-            $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Criterion number'))
-                ? $e->getMessage()
-                : 'Failed to generate ' . strtoupper($module) . ' report. Please try again.';
-            echo json_encode([
-                'status' => 'error',
-                'success' => false,
-                'message' => $msg,
-                'error' => $msg
-            ]);
+            $this->outputJsonError($module, 'generate', $e);
         }
+    }
+
+    protected function authorizeDepartmentAction(string $module, string $actionVerb): int {
+        require_login();
+        csrfValidate();
+        $active_role_id = auth_active_role_id();
+        if (!$active_role_id || $active_role_id === ROLE_STUDENT || !auth_has_role($active_role_id)) {
+            throw new \Exception("Access denied. You do not have permission to {$actionVerb} " . strtoupper($module) . " accreditation data.");
+        }
+
+        $requested_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : null;
+        $dept_id = validate_dept_filter($requested_dept_id);
+        if ($dept_id === null || $dept_id <= 0) {
+            throw new \Exception("Access denied. You are not authorized to {$actionVerb} " . strtoupper($module) . " data for this department.");
+        }
+        return $dept_id;
+    }
+
+    protected function outputJsonError(string $module, string $actionVerb, \Throwable $e): void {
+        error_log(strtoupper($module) . " API {$actionVerb} failed: " . $e->getMessage());
+        $is_debug = defined('FMS_DEBUG') && FMS_DEBUG;
+        $msg = ($is_debug || str_starts_with($e->getMessage(), 'Access denied') || str_starts_with($e->getMessage(), 'Academic year') || str_starts_with($e->getMessage(), 'Criterion number') || str_starts_with($e->getMessage(), 'No file') || str_starts_with($e->getMessage(), 'Invalid file') || str_starts_with($e->getMessage(), 'File upload error'))
+            ? $e->getMessage()
+            : "Failed to {$actionVerb} " . strtoupper($module) . " accreditation data. Please try again.";
+        echo json_encode([
+            'status' => 'error',
+            'success' => false,
+            'message' => $msg,
+            'error' => $msg
+        ]);
     }
 }
