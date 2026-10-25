@@ -903,6 +903,16 @@ if (isset($extra_head)) {
             </div>
 
             <!-- ==================================================
+                 CHECK LOGIN STATUS
+            =================================================== -->
+
+            <?php
+            $is_logged_in = auth_is_logged_in();
+            $header_auth = $is_logged_in ? auth_context() : null;
+            $header_role_id = $header_auth ? (int)($header_auth['active_role']['role_id'] ?? 0) : 0;
+            ?>
+
+            <!-- ==================================================
                  MORE MODULES
             =================================================== -->
             <div class="dropdown">
@@ -913,18 +923,11 @@ if (isset($extra_head)) {
                     <a href="<?= $app_url ?>/public/index.php?route=nba/dashboard">NBA</a>
                     <a href="<?= $app_url ?>/public/index.php?route=naac/dashboard">NAAC</a>
                     <a href="<?= $app_url ?>/public/index.php?route=student_activities/dashboard">Student Activities</a>
+                    <?php if (in_array($header_role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD], true)): ?>
+                    <a href="<?= $app_url ?>/public/index.php?route=academic_years/list">Academic Years</a>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <!-- ==================================================
-                 CHECK LOGIN STATUS
-            =================================================== -->
-
-            <?php
-            $is_logged_in = auth_is_logged_in();
-            $header_auth = $is_logged_in ? auth_context() : null;
-            $header_role_id = $header_auth ? (int)($header_auth['active_role']['role_id'] ?? 0) : 0;
-            ?>
 
             <!-- ==================================================
                  LOGGED IN
@@ -941,6 +944,13 @@ if (isset($extra_head)) {
                 <a href="<?= htmlspecialchars($header_dashboard_url) ?>" class="nav-btn-link dashboard-link">
                     Dashboard
                 </a>
+
+                <?php if ($header_role_id === ROLE_ADMIN): ?>
+                <!-- Academic Years Direct Link for Admin -->
+                <a href="<?= $app_url ?>/public/index.php?route=academic_years/list" class="nav-btn-link dashboard-link">
+                    Academic Years
+                </a>
+                <?php endif; ?>
 
                 <?php if ($header_role_id === ROLE_FACULTY): ?>
                 <!-- Edit Profile -->
