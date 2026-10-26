@@ -25,7 +25,7 @@ if ($route === 'dashboard') {
 } elseif ($route === 'naac/criterion') {
     $controller = new \App\Controllers\NAACCriterionController();
     $controller->show();
-} elseif ($route === 'student_activities/dashboard') {
+} elseif ($route === 'student_activities/dashboard' || $route === 'student_activity/dashboard' || $route === 'student_activities/list' || $route === 'student_activity/list') {
     $controller = new \App\Controllers\StudentActivityDashboardController();
     $controller->index();
 } elseif ($route === 'api/nba/save' || $route === 'api/nba/save_criterion') {
@@ -49,7 +49,7 @@ if ($route === 'dashboard') {
 } elseif ($route === 'api/documents/accreditation_preview') {
     $controller = new \App\Controllers\DocumentController();
     $controller->accreditationPreview();
-} elseif ($route === 'documents/list') {
+} elseif ($route === 'documents/list' || $route === 'documents/department') {
     $controller = new \App\Controllers\DocumentController();
     $controller->index();
 } elseif ($route === 'documents/my_uploads') {

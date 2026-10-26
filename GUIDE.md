@@ -65,7 +65,7 @@ As the highest authority in the FMS (`role_id = 1`), the Admin possesses complet
 * **NAAC Accreditation (`?route=naac/dashboard`):** Criteria 1 through 7 dashboards, SSR document repositories, institutional benchmarks.
 
 ### 4. Student Activities & Events
-* **Route:** `?route=student_activity/list`
+* **Route:** `?route=student_activities/dashboard`
 * Full visibility into all student co-curricular, extra-curricular, NSS, club, and hackathon certificates and event reports.
 * Filter by academic year, activity type, or participating department.
 
@@ -174,7 +174,7 @@ New-NetFirewallRule -DisplayName "XAMPP Apache Server" -Direction Inbound -Local
 * **NBA Dashboard:**  
   `http://<DESKTOP-IP>/mini/FMS/public/index.php?route=nba/dashboard`
 * **Student Activities:**  
-  `http://<DESKTOP-IP>/mini/FMS/public/index.php?route=student_activity/list`
+  `http://<DESKTOP-IP>/mini/FMS/public/index.php?route=student_activities/dashboard`
 
 *(FMS automatically configures all internal links and redirects dynamically using the requesting device's IP, so navigation on mobile is completely seamless).*
 
