@@ -324,7 +324,7 @@ class StudentActivityDashboardController
 
             $stats['category_dist'][$cat] = ($stats['category_dist'][$cat] ?? 0) + 1;
 
-            $mode = !empty($meta['event_mode']) ? $meta['event_mode'] : 'Unknown';
+            $mode = (!empty($meta['event_mode']) && in_array(trim($meta['event_mode']), ['Online', 'Offline', 'Hybrid'], true)) ? trim($meta['event_mode']) : 'Offline';
             $stats['mode_dist'][$mode] = ($stats['mode_dist'][$mode] ?? 0) + 1;
 
             $topic = !empty($meta['topic_domain']) ? $meta['topic_domain'] : 'Other';
@@ -343,7 +343,19 @@ class StudentActivityDashboardController
                 }
                 $time_key = date('M Y', $ts);
             } else {
-                $time_key = !empty($doc['year_label']) ? $doc['year_label'] : 'Unknown';
+                if (!empty($doc['year_label'])) {
+                    $time_key = $doc['year_label'];
+                } else {
+                    $event_start_date = (!empty($meta['date_from']) && $meta['date_from'] !== '0000-00-00') ? $meta['date_from'] : ($doc['created_at'] ?? '');
+                    $ts = !empty($event_start_date) ? strtotime($event_start_date) : false;
+                    if ($ts === false) {
+                        $ts = !empty($doc['created_at']) ? (strtotime($doc['created_at']) ?: time()) : time();
+                    }
+                    $cal_yr = (int)date('Y', $ts);
+                    $cal_mo = (int)date('n', $ts);
+                    $start_yr = ($cal_mo >= 6) ? $cal_yr : ($cal_yr - 1);
+                    $time_key = $start_yr . '-' . substr((string)($start_yr + 1), -2);
+                }
             }
             $stats['timeline'][$time_key] = ($stats['timeline'][$time_key] ?? 0) + $count;
         }

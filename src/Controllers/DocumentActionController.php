@@ -1056,18 +1056,39 @@ class DocumentActionController {
      * Resolves and validates an academic year ID against the academic_years table.
      */
     private static function resolveValidAcademicYearId(\mysqli $conn, mixed $raw_year): ?int {
-        $year_id = !empty($raw_year) ? (int)$raw_year : null;
-        if ($year_id !== null) {
-            $stmt = $conn->prepare("SELECT 1 FROM academic_years WHERE year_id = ?");
-            if ($stmt) {
-                $stmt->bind_param('i', $year_id);
-                $stmt->execute();
-                if (!$stmt->get_result()->fetch_row()) {
-                    $year_id = null;
+        if (!empty($raw_year)) {
+            $raw_str = trim((string)$raw_year);
+            // 1. Check if numeric and matches year_id
+            if (ctype_digit($raw_str)) {
+                $id = (int)$raw_str;
+                $stmt = $conn->prepare("SELECT year_id FROM academic_years WHERE year_id = ?");
+                if ($stmt) {
+                    $stmt->bind_param('i', $id);
+                    $stmt->execute();
+                    $res = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+                    if ($res) {
+                        return (int)$res['year_id'];
+                    }
                 }
+            }
+            // 2. Check if string matches year_label (e.g. '2024-25', '2025-26', '2026-27')
+            $stmt = $conn->prepare("SELECT year_id FROM academic_years WHERE year_label = ?");
+            if ($stmt) {
+                $stmt->bind_param('s', $raw_str);
+                $stmt->execute();
+                $res = $stmt->get_result()->fetch_assoc();
                 $stmt->close();
+                if ($res) {
+                    return (int)$res['year_id'];
+                }
             }
         }
-        return $year_id;
+        // Fallback: active or latest academic year from DB
+        $res = $conn->query("SELECT year_id FROM academic_years ORDER BY year_label DESC LIMIT 1");
+        if ($res && $row = $res->fetch_assoc()) {
+            return (int)$row['year_id'];
+        }
+        return null;
     }
 }
