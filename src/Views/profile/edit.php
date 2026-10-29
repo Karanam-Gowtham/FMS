@@ -194,7 +194,7 @@
                 document.getElementById('experience_years').value = '0.0';
             } else {
                 const diffTime = Math.max(0, today - doj);
-                const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+                const diffYears = Math.max(0, diffTime / (1000 * 60 * 60 * 24 * 365.25));
                 document.getElementById('experience_years').value = diffYears.toFixed(1);
             }
         }

@@ -72,26 +72,26 @@ if (!isset($criteria_data)) {
                     <tbody>
                         <tr>
                             <td>CAY</td>
-                            <td><input aria-label="T91 S4 Cay" type="number" id="t91_s4_cay" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 S4 Cay" type="number" min="0" id="t91_s4_cay" class="calc-box" oninput="calc91()"></td>
                             <td><input aria-label="T91 Rf4 Cay" type="text" id="t91_rf4_cay" class="calc-box" readonly style="background:#f8f9fa;"></td>
-                            <td><input aria-label="T91 Ns1 Cay" type="number" id="t91_ns1_cay" class="calc-box" oninput="calc91()"></td>
-                            <td><input aria-label="T91 Ns2 Cay" type="number" id="t91_ns2_cay" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns1 Cay" type="number" min="0" id="t91_ns1_cay" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns2 Cay" type="number" min="0" id="t91_ns2_cay" class="calc-box" oninput="calc91()"></td>
                             <td><input aria-label="T91 Perc Cay" type="text" id="t91_perc_cay" class="calc-box" readonly style="background:#f8f9fa;"></td>
                         </tr>
                         <tr>
                             <td>CAYm1</td>
-                            <td><input aria-label="T91 S4 Caym1" type="number" id="t91_s4_caym1" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 S4 Caym1" type="number" min="0" id="t91_s4_caym1" class="calc-box" oninput="calc91()"></td>
                             <td><input aria-label="T91 Rf4 Caym1" type="text" id="t91_rf4_caym1" class="calc-box" readonly style="background:#f8f9fa;"></td>
-                            <td><input aria-label="T91 Ns1 Caym1" type="number" id="t91_ns1_caym1" class="calc-box" oninput="calc91()"></td>
-                            <td><input aria-label="T91 Ns2 Caym1" type="number" id="t91_ns2_caym1" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns1 Caym1" type="number" min="0" id="t91_ns1_caym1" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns2 Caym1" type="number" min="0" id="t91_ns2_caym1" class="calc-box" oninput="calc91()"></td>
                             <td><input aria-label="T91 Perc Caym1" type="text" id="t91_perc_caym1" class="calc-box" readonly style="background:#f8f9fa;"></td>
                         </tr>
                         <tr>
                             <td>CAYm2</td>
-                            <td><input aria-label="T91 S4 Caym2" type="number" id="t91_s4_caym2" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 S4 Caym2" type="number" min="0" id="t91_s4_caym2" class="calc-box" oninput="calc91()"></td>
                             <td><input aria-label="T91 Rf4 Caym2" type="text" id="t91_rf4_caym2" class="calc-box" readonly style="background:#f8f9fa;"></td>
-                            <td><input aria-label="T91 Ns1 Caym2" type="number" id="t91_ns1_caym2" class="calc-box" oninput="calc91()"></td>
-                            <td><input aria-label="T91 Ns2 Caym2" type="number" id="t91_ns2_caym2" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns1 Caym2" type="number" min="0" id="t91_ns1_caym2" class="calc-box" oninput="calc91()"></td>
+                            <td><input aria-label="T91 Ns2 Caym2" type="number" min="0" id="t91_ns2_caym2" class="calc-box" oninput="calc91()"></td>
                             <td><input aria-label="T91 Perc Caym2" type="text" id="t91_perc_caym2" class="calc-box" readonly style="background:#f8f9fa;"></td>
                         </tr>
                         <tr style="font-weight:bold; background:#e9ecef;">

@@ -107,7 +107,7 @@ $active_role = auth_active_role();
                         <?php elseif ($field['type'] === 'date'): ?>
                             <input type="date" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
                         <?php elseif ($field['type'] === 'number'): ?>
-                            <input type="number" step="any" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
+                            <input type="number" step="any" min="0" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?>>
                         <?php elseif ($field['type'] === 'url'): ?>
                             <input type="url" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($val) ?>" <?= $is_f_req ? 'required' : '' ?> placeholder="https://">
                         <?php elseif ($field['type'] === 'select' && !empty($field['options'])): ?>

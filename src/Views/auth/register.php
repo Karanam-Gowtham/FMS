@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration &mdash; File Management System (FMS)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="<?= BASE_URL ?>/assets/js/main.js" defer></script>
     <style>
         :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -260,7 +261,7 @@
                 </div>
                 <div class="form-group">
                     <label for="experience_years">Experience in current institute (Years) *</label>
-                    <input type="number" step="0.1" id="experience_years" name="experience_years" value="<?= htmlspecialchars($_POST['experience_years'] ?? '') ?>" required>
+                    <input type="number" step="0.1" min="0" id="experience_years" name="experience_years" value="<?= htmlspecialchars($_POST['experience_years'] ?? '') ?>" required>
                 </div>
                 <div class="form-group">
                     <label for="association_nature">Nature of Association *</label>
@@ -340,10 +341,30 @@
                     document.getElementById('experience_years').value = '0.0';
                 } else {
                     const diffTime = Math.max(0, today - doj);
-                    const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+                    const diffYears = Math.max(0, diffTime / (1000 * 60 * 60 * 24 * 365.25));
                     document.getElementById('experience_years').value = diffYears.toFixed(1);
                 }
             }
+        });
+
+        // Enforce Non-Negative Number Inputs
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            if (!input.hasAttribute('min')) input.setAttribute('min', '0');
+            input.addEventListener('keydown', function(e) {
+                if (e.key === '-' || e.key === 'Minus') {
+                    e.preventDefault();
+                }
+            });
+            input.addEventListener('input', function() {
+                if (parseFloat(this.value) < 0) {
+                    this.value = '0';
+                }
+            });
+            input.addEventListener('change', function() {
+                if (parseFloat(this.value) < 0) {
+                    this.value = '0';
+                }
+            });
         });
 
         // Toggle faculty sections based on selected role

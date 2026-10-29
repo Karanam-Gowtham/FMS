@@ -162,7 +162,7 @@
                                    value="<?= htmlspecialchars($field_val) ?>"
                                    <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                         <?php elseif ($field['type'] === 'number'): ?>
-                            <input type="number" step="any" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
+                            <input type="number" step="any" min="0" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]"
                                    value="<?= htmlspecialchars($field_val) ?>"
                                    <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>>
                         <?php elseif ($field['type'] === 'url'): ?>

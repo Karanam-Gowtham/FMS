@@ -396,7 +396,7 @@
                 }
                 html += `
                     <td style="padding: 4px;">
-                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" min="0" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });
@@ -527,7 +527,7 @@
                 }
                 html += `
                     <td style="padding: 4px;">
-                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8_2(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" min="0" step="0.01" value="${val}" onchange="updateCell3_8_2(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });
@@ -652,7 +652,7 @@
                 let val = row.values ? (row.values[col] || '') : '';
                 html += `
                     <td style="padding: 4px;">
-                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8_3(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" min="0" step="0.01" value="${val}" onchange="updateCell3_8_3(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });
@@ -829,7 +829,7 @@
                 }
                 html += `
                     <td style="padding: 4px;">
-                        <input aria-label="Number Input" type="number" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
+                        <input aria-label="Number Input" type="number" min="0" step="0.01" value="${val}" onchange="updateCell3_8(${rIdx}, '${col}', this.value)" class="matrix-input">
                     </td>
                 `;
             });

@@ -1369,7 +1369,7 @@
             const n63 = parseInt(document.getElementById(`t4b_N63_${c}`).value) || 0;
             const n6 = n61 + n62 + n63;
             
-            const total = n1 + n2 + n3 + n4 + n5 - n6;
+            const total = Math.max(0, n1 + n2 + n3 + n4 + n5 - n6);
             
             const totalEl = document.getElementById(`t4c_total_${c}`);
             if (totalEl) totalEl.innerText = total;
@@ -1431,7 +1431,7 @@
             const n63 = parseInt(document.getElementById(`t4b_N63_${c}`).value) || 0;
             const n6 = n61 + n62 + n63;
             
-            let a = n1 + n2 + n3 + n5 - n6;
+            let a = Math.max(0, n1 + n2 + n3 + n5 - n6);
             
             const threshold = n + n2;
             if (a < threshold) {

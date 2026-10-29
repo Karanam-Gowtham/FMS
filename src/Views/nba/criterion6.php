@@ -491,7 +491,7 @@ if (!isset($criteria_data)) {
                         <option value="CAYm3" ${row[k]==='CAYm3'?'selected':''}>CAYm3</option>
                     </select></td>`;
                 } else if (['c1','c2','c3','amt','recv','util'].includes(k)) {
-                    html += `<td><input aria-label="Number Input" type="number" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
+                    html += `<td><input aria-label="Number Input" type="number" min="0" step="any" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
                 } else {
                     html += `<td><input aria-label="Text Input" type="text" style="width:100%" value="${row[k]}" oninput="updateRow('${listName}', ${idx}, '${k}', this.value)"></td>`;
                 }

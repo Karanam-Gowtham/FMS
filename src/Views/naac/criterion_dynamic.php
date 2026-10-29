@@ -103,7 +103,7 @@
                             <?php elseif ($field['type'] === 'number' || $field['type'] === 'url' || $field['type'] === 'text'): ?>
                                 <div class="form-row">
                                     <label for="<?= htmlspecialchars($fname) ?>"><?= htmlspecialchars($field['label']) ?></label>
-                                    <input type="<?= htmlspecialchars($field['type']) ?>" id="<?= htmlspecialchars($fname) ?>" class="form-control" placeholder="<?= htmlspecialchars($field['placeholder'] ?? '') ?>">
+                                    <input type="<?= htmlspecialchars($field['type']) ?>" <?= ($field['type'] === 'number') ? 'min="0" step="any"' : '' ?> id="<?= htmlspecialchars($fname) ?>" class="form-control" placeholder="<?= htmlspecialchars($field['placeholder'] ?? '') ?>">
                                 </div>
                             <?php elseif ($field['type'] === 'checkbox_group'): ?>
                                 <div class="form-row">
@@ -209,7 +209,8 @@
             if (col.type === 'textarea') {
                 html += `<textarea name="${col.name}" style="width:100%; border:1px solid #cbd5e1; padding:4px;">${val}</textarea>`;
             } else {
-                html += `<input type="${col.type}" name="${col.name}" value="${val}" style="width:100%; border:1px solid #cbd5e1; padding:4px;">`;
+                const minAttr = (col.type === 'number') ? 'min="0" step="any"' : '';
+                html += `<input type="${col.type}" ${minAttr} name="${col.name}" value="${val}" style="width:100%; border:1px solid #cbd5e1; padding:4px;">`;
             }
             html += `</td>`;
         });

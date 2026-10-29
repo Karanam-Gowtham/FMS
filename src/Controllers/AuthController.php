@@ -151,7 +151,8 @@ class AuthController {
         $success = '';
 
         global $conn;
-        $dept_result = $conn->query("SELECT dept_id, dept_name FROM departments ORDER BY dept_name");
+        // Only fetch academic departments for faculty and student registration (excluding administrative cells, clubs, and committees)
+        $dept_result = $conn->query("SELECT dept_id, dept_name FROM departments WHERE is_academic = 1 AND dept_name != 'Complete University' ORDER BY dept_name ASC");
         $departments = [];
         if ($dept_result instanceof \mysqli_result) {
             while ($row = $dept_result->fetch_assoc()) {
@@ -204,6 +205,18 @@ class AuthController {
             } elseif ($dept_id <= 0) {
                 $error = 'Please select a department.';
             } else {
+                // Ensure the selected department is an academic department
+                $valid_dept = false;
+                foreach ($departments as $d) {
+                    if ((int)$d['dept_id'] === $dept_id) {
+                        $valid_dept = true;
+                        break;
+                    }
+                }
+                if (!$valid_dept) {
+                    $error = 'Please select a valid academic department.';
+                }
+
                 // Role assignment based on explicit dropdown
                 $role_type = $_POST['role_type'] ?? 'faculty';
                 $role_id = ($role_type === 'student') ? ROLE_STUDENT : ROLE_FACULTY;

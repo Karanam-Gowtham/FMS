@@ -380,6 +380,7 @@
         'BSH': 'School of Physical Sciences',
         'Chemistry': 'School of Physical Sciences',
         'MatheMatics': 'School of Physical Sciences',
+        'Mathematics': 'School of Physical Sciences',
         'Physics': 'School of Physical Sciences'
     };
 
@@ -423,10 +424,10 @@
             tr.innerHTML = `
                 <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.code}" onchange="updateCurriculum(${index}, 'code', this.value)"></td>
                 <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.title}" onchange="updateCurriculum(${index}, 'title', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.l || ''}" onchange="updateCurriculum(${index}, 'l', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.t || ''}" onchange="updateCurriculum(${index}, 't', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.p || ''}" onchange="updateCurriculum(${index}, 'p', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.sl || ''}" onchange="updateCurriculum(${index}, 'sl', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.l || ''}" onchange="updateCurriculum(${index}, 'l', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.t || ''}" onchange="updateCurriculum(${index}, 't', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.p || ''}" onchange="updateCurriculum(${index}, 'p', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.sl || ''}" onchange="updateCurriculum(${index}, 'sl', this.value)"></td>
                 <td style="text-align:center; font-weight:bold; background:#f8f9fa;">${c.totalHours || 0}</td>
                 <td style="text-align:center; font-weight:bold; background:#f8f9fa;">${c.credits || 0}</td>
                 <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeCurriculumCourse(${index})" style="padding:2px 6px;">&times;</button></td>
@@ -498,8 +499,8 @@
             tr.innerHTML = `
                 <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.name}" onchange="updateComponent(${index}, 'name', this.value)"></td>
                 <td style="text-align:center; background:#f8f9fa;">${pct}</td>
-                <td><input aria-label="Number Input" type="number" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.hours || ''}" onchange="updateComponent(${index}, 'hours', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" step="0.1" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.credits || ''}" onchange="updateComponent(${index}, 'credits', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.hours || ''}" onchange="updateComponent(${index}, 'hours', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" step="0.1" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.credits || ''}" onchange="updateComponent(${index}, 'credits', this.value)"></td>
                 <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeComponent(${index})" style="padding:2px 6px;">&times;</button></td>
             `;
             tbody.appendChild(tr);

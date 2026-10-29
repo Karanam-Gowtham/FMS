@@ -1744,7 +1744,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `departments` WRITE;
 /*!40000 ALTER TABLE `departments` DISABLE KEYS */;
-INSERT INTO `departments` VALUES (1,'CSE',1),(2,'AIDS',1),(3,'AIML',1),(4,'ECE',1),(5,'EEE',1),(6,'MECH',1),(7,'CIVIL',1),(8,'IT',1),(9,'BSH',1),(10,'CSE-CS',1),(11,'PE',0),(12,'PG',0),(14,'MatheMatics',1),(15,'Physics',1),(16,'Chemistry',1),(17,'IQAC',0),(18,'R&D',0),(19,'Exam_Section',0),(20,'NAAC',0),(21,'NBA',0),(22,'NCC',0),(23,'Sports',0),(24,'Clubs',0),(25,'NSS',0),(26,'Women_Empowerment',0),(27,'IIC',0),(28,'PASH',0),(29,'Antiragging',0),(30,'SAC',0),(31,'Complete University',1);
+INSERT INTO `departments` VALUES (1,'CSE',1),(2,'AIDS',1),(3,'AIML',1),(4,'ECE',1),(5,'EEE',1),(6,'MECH',1),(7,'CIVIL',1),(8,'IT',1),(9,'BSH',1),(10,'CSE-CS',1),(11,'PE',0),(12,'PG',0),(14,'Mathematics',1),(15,'Physics',1),(16,'Chemistry',1),(17,'IQAC',0),(18,'R&D',0),(19,'Exam_Section',0),(20,'NAAC',0),(21,'NBA',0),(22,'NCC',0),(23,'Sports',0),(24,'Clubs',0),(25,'NSS',0),(26,'Women_Empowerment',0),(27,'IIC',0),(28,'PASH',0),(29,'Antiragging',0),(30,'SAC',0),(31,'Complete University',1);
 /*!40000 ALTER TABLE `departments` ENABLE KEYS */;
 UNLOCK TABLES;
 

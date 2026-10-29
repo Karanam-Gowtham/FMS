@@ -665,7 +665,7 @@
                                 <input type="text" name="doc_data[${doc.doc_id}][year]" value="${escapeHtml(doc.year || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;">
                             </td>
                             <td style="padding: 6px;">
-                                <input type="number" name="doc_data[${doc.doc_id}][student_count]" value="${doc.student_count || 0}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;">
+                                <input type="number" min="0" name="doc_data[${doc.doc_id}][student_count]" value="${doc.student_count || 0}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;">
                             </td>
                             <td style="padding: 6px;">
                                 <textarea name="doc_data[${doc.doc_id}][agency]" rows="1" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; resize: vertical;" placeholder="e.g. Er. T. Harrish, Proprietor of Aki Groups...">${escapeHtml(doc.agency || '')}</textarea>

@@ -496,7 +496,7 @@ if (!isset($criteria_data)) {
                 <td><input aria-label="Text Input" type="text" style="width:100%" value="${vf.name}" onchange="updateVisiting(${idx}, 'name', this.value)"></td>
                 <td><input aria-label="Text Input" type="text" style="width:100%" value="${vf.org}" onchange="updateVisiting(${idx}, 'org', this.value)"></td>
                 <td><input aria-label="Text Input" type="text" style="width:100%" value="${vf.course}" onchange="updateVisiting(${idx}, 'course', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" style="width:100%" value="${vf.hours}" onchange="updateVisiting(${idx}, 'hours', this.value); renderVisitingFaculty();"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%" value="${vf.hours}" onchange="updateVisiting(${idx}, 'hours', this.value); renderVisitingFaculty();"></td>
                 <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeVisitingFaculty(${idx})">&times;</button></td>
             `;
             tbody.appendChild(tr);

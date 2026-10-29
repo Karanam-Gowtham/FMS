@@ -104,21 +104,21 @@ if (!isset($criteria_data)) {
                     <tbody>
                         <tr>
                             <td>No. of faculty members with Ph.D. degree</td>
-                            <td><input aria-label="T83 Phd Caym1" type="number" id="t83_phd_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input aria-label="T83 Phd Caym2" type="number" id="t83_phd_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input aria-label="T83 Phd Caym3" type="number" id="t83_phd_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Phd Caym1" type="number" min="0" id="t83_phd_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Phd Caym2" type="number" min="0" id="t83_phd_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Phd Caym3" type="number" min="0" id="t83_phd_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>No. of publications in peer reviewed journals</td>
-                            <td><input aria-label="T83 Jour Caym1" type="number" id="t83_jour_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input aria-label="T83 Jour Caym2" type="number" id="t83_jour_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input aria-label="T83 Jour Caym3" type="number" id="t83_jour_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Jour Caym1" type="number" min="0" id="t83_jour_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Jour Caym2" type="number" min="0" id="t83_jour_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Jour Caym3" type="number" min="0" id="t83_jour_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                         <tr>
                             <td>No. of publications in conferences</td>
-                            <td><input aria-label="T83 Conf Caym1" type="number" id="t83_conf_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input aria-label="T83 Conf Caym2" type="number" id="t83_conf_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
-                            <td><input aria-label="T83 Conf Caym3" type="number" id="t83_conf_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Conf Caym1" type="number" min="0" id="t83_conf_caym1" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Conf Caym2" type="number" min="0" id="t83_conf_caym2" class="calc-box" oninput="saveCurrentLevel()"></td>
+                            <td><input aria-label="T83 Conf Caym3" type="number" min="0" id="t83_conf_caym3" class="calc-box" oninput="saveCurrentLevel()"></td>
                         </tr>
                     </tbody>
                 </table>
