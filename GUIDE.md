@@ -12,7 +12,7 @@
 2. [🛡️ What Can the System Administrator Do?](#️-2-what-can-the-system-administrator-do)
 3. [📂 Student Activities & NAAC Criterion 5 Workflow](#-3-student-activities--naac-criterion-5-workflow)
 4. [🖥️ Step-by-Step Desktop Server Setup](#️-4-step-by-step-desktop-server-setup)
-5. [🗄️ Clean Production Database Import](#️-5-clean-production-database-import)
+5. [🗄️ Server Database Setup & Synchronization](#️-5-server-database-setup--synchronization)
 6. [🌐 College LAN & Wi-Fi Configuration](#-6-college-lan--wi-fi-configuration)
 7. [📱 Accessing the System from Your Mobile Phone](#-7-accessing-the-system-from-your-mobile-phone)
 8. [🔍 Pre-Flight Verification Script (CLI)](#-8-pre-flight-verification-script-cli)
@@ -26,22 +26,67 @@
 All pre-seeded institutional accounts use the unified default password:  
 👉 **`Admin@123`**
 
-*(Any user can also log in by typing their username or email handle in the login box).*
+> 💡 **Mobile Quick Login Tip:**  
+> On mobile and desktop, you don't need to type the full `@gmrit.edu.in`. Simply typing the handle (e.g. `admin`, `hod.ece`, `faculty.civil`, `coord.aids`) in the email field will log you in directly!
 
-| ID | Institutional Role | Full Name | Login Email | Scope / Department |
-| :---: | :--- | :--- | :--- | :--- |
-| **1** | **System Administrator** | System Administrator | `admin@gmrit.edu.in` | Campus-Wide (All Depts) |
-| **2** | **IQAC Coordinator** | IQAC Coordinator | `iqac@gmrit.edu.in` | College-wide NAAC & NBA |
-| **3** | **Head of Department** | Dr. HOD CSE | `hod.cse@gmrit.edu.in` | CSE Department |
-| **4** | **Faculty Member** | Faculty Member | `faculty.cse@gmrit.edu.in` | CSE Department |
-| **5** | **Dept Coordinator** | CSE Dept Coordinator | `coord.cse@gmrit.edu.in` | CSE Department |
-| **6** | **Central Coordinator** | Central Coordinator | `central.coord@gmrit.edu.in` | College-wide Events & Clubs |
-| **7** | **Junior Assistant** | Junior Assistant CSE | `ja.cse@gmrit.edu.in` | CSE Department |
-| **8** | **Dean R&D** | Dean R&D | `rnd.dean@gmrit.edu.in` | Global Research & Patents |
-| **9** | **Student** | Student Sample | `student.cse@gmrit.edu.in` | CSE Department |
+---
 
-> 💡 **Quick Login Tip:**  
-> On mobile, you don't even need to type the full `@gmrit.edu.in`. Simply typing `admin` in the email field will log in as the System Administrator!
+### 🌐 Central & Campus-Wide Roles
+| Role | Full Name | Quick Handle | Login Email | Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **System Administrator** | System Administrator | `admin` | `admin@gmrit.edu.in` | Campus-Wide (All Depts & Settings) |
+| **IQAC Coordinator** | IQAC Coordinator | `iqac` | `iqac@gmrit.edu.in` | College-wide NAAC & NBA Oversight |
+| **Central Coordinator** | Central Coordinator | `central.coord` | `central.coord@gmrit.edu.in` | College-wide Events & Student Clubs |
+| **Dean R&D** | Dean R&D | `rnd.dean` | `rnd.dean@gmrit.edu.in` | Institutional Research & Patents |
+
+---
+
+### 🏛️ Academic Department Accounts (All 13 Departments)
+Every department has **3 primary dedicated accounts**: **HOD**, **Faculty Member**, and **Department Coordinator**.
+
+| # | Department | Role | Full Name | Quick Handle | Login Email |
+| :-: | :--- | :--- | :--- | :--- | :--- |
+| **1** | **CSE** (Computer Science & Eng.) | HOD | Dr. HOD CSE | `hod.cse` | `hod.cse@gmrit.edu.in` |
+| | | Faculty | Faculty Member CSE | `faculty.cse` | `faculty.cse@gmrit.edu.in` |
+| | | Coordinator | CSE Dept Coordinator | `coord.cse` | `coord.cse@gmrit.edu.in` |
+| | | Junior Asst. | Junior Assistant CSE | `ja.cse` | `ja.cse@gmrit.edu.in` |
+| | | Student | Student Sample CSE | `student.cse` | `student.cse@gmrit.edu.in` |
+| **2** | **AIDS** (AI & Data Science) | HOD | Dr. HOD AIDS | `hod.aids` | `hod.aids@gmrit.edu.in` |
+| | | Faculty | Faculty Member AIDS | `faculty.aids` | `faculty.aids@gmrit.edu.in` |
+| | | Coordinator | AIDS Dept Coordinator | `coord.aids` | `coord.aids@gmrit.edu.in` |
+| **3** | **AIML** (AI & Machine Learning) | HOD | Dr. HOD AIML | `hod.aiml` | `hod.aiml@gmrit.edu.in` |
+| | | Faculty | Faculty Member AIML | `faculty.aiml` | `faculty.aiml@gmrit.edu.in` |
+| | | Coordinator | AIML Dept Coordinator | `coord.aiml` | `coord.aiml@gmrit.edu.in` |
+| **4** | **ECE** (Electronics & Comm. Eng.) | HOD | Dr. HOD ECE | `hod.ece` | `hod.ece@gmrit.edu.in` |
+| | | Faculty | Faculty Member ECE | `faculty.ece` | `faculty.ece@gmrit.edu.in` |
+| | | Coordinator | ECE Dept Coordinator | `coord.ece` | `coord.ece@gmrit.edu.in` |
+| **5** | **EEE** (Electrical & Electronics Eng.) | HOD | Dr. HOD EEE | `hod.eee` | `hod.eee@gmrit.edu.in` |
+| | | Faculty | Faculty Member EEE | `faculty.eee` | `faculty.eee@gmrit.edu.in` |
+| | | Coordinator | EEE Dept Coordinator | `coord.eee` | `coord.eee@gmrit.edu.in` |
+| **6** | **MECH** (Mechanical Engineering) | HOD | Dr. HOD MECH | `hod.mech` | `hod.mech@gmrit.edu.in` |
+| | | Faculty | Faculty Member MECH | `faculty.mech` | `faculty.mech@gmrit.edu.in` |
+| | | Coordinator | MECH Dept Coordinator | `coord.mech` | `coord.mech@gmrit.edu.in` |
+| **7** | **CIVIL** (Civil Engineering) | HOD | Dr. HOD CIVIL | `hod.civil` | `hod.civil@gmrit.edu.in` |
+| | | Faculty | Faculty Member CIVIL | `faculty.civil` | `faculty.civil@gmrit.edu.in` |
+| | | Coordinator | CIVIL Dept Coordinator | `coord.civil` | `coord.civil@gmrit.edu.in` |
+| **8** | **IT** (Information Technology) | HOD | Dr. HOD IT | `hod.it` | `hod.it@gmrit.edu.in` |
+| | | Faculty | Faculty Member IT | `faculty.it` | `faculty.it@gmrit.edu.in` |
+| | | Coordinator | IT Dept Coordinator | `coord.it` | `coord.it@gmrit.edu.in` |
+| **9** | **BSH** (Basic Sciences & Humanities) | HOD | Dr. HOD BSH | `hod.bsh` | `hod.bsh@gmrit.edu.in` |
+| | | Faculty | Faculty Member BSH | `faculty.bsh` | `faculty.bsh@gmrit.edu.in` |
+| | | Coordinator | BSH Dept Coordinator | `coord.bsh` | `coord.bsh@gmrit.edu.in` |
+| **10** | **CSE-CS** (Cyber Security) | HOD | Dr. HOD CSE-CS | `hod.csecs` | `hod.csecs@gmrit.edu.in` |
+| | | Faculty | Faculty Member CSE-CS | `faculty.csecs` | `faculty.csecs@gmrit.edu.in` |
+| | | Coordinator | CSE-CS Dept Coordinator | `coord.csecs` | `coord.csecs@gmrit.edu.in` |
+| **11** | **Mathematics** | HOD | Dr. HOD Mathematics | `hod.math` | `hod.math@gmrit.edu.in` |
+| | | Faculty | Faculty Member Mathematics | `faculty.math` | `faculty.math@gmrit.edu.in` |
+| | | Coordinator | Mathematics Dept Coordinator | `coord.math` | `coord.math@gmrit.edu.in` |
+| **12** | **Physics** | HOD | Dr. HOD Physics | `hod.physics` | `hod.physics@gmrit.edu.in` |
+| | | Faculty | Faculty Member Physics | `faculty.physics` | `faculty.physics@gmrit.edu.in` |
+| | | Coordinator | Physics Dept Coordinator | `coord.physics` | `coord.physics@gmrit.edu.in` |
+| **13** | **Chemistry** | HOD | Dr. HOD Chemistry | `hod.chem` | `hod.chem@gmrit.edu.in` |
+| | | Faculty | Faculty Member Chemistry | `faculty.chem` | `faculty.chem@gmrit.edu.in` |
+| | | Coordinator | Chemistry Dept Coordinator | `coord.chem` | `coord.chem@gmrit.edu.in` |
 
 ---
 
@@ -104,28 +149,66 @@ Follow these steps on the desktop computer provided by the college:
 
 ---
 
-## 🗄️ 5. Clean Production Database Import
+## 🗄️ 5. Server Database Setup & Synchronization
 
-We generated a clean SQL script:  
-📂 **Path:** `database/clean_production_setup.sql`  
-*(Contains all 72 tables, NAAC/NBA schemas, and 9 institutional user accounts with 0 dummy clutter).*
+Depending on whether your server is already live with existing data or you are starting fresh, choose **Option A** or **Option B**:
 
-### Method A: Import via phpMyAdmin (Recommended)
-1. Open the **XAMPP Control Panel** on the desktop.
-2. Click **Start** next to **Apache** and **MySQL** (both should turn green).
-3. Open browser on the desktop and go to:  
-   👉 `http://localhost/phpmyadmin`
-4. Click the **Import** tab in the top navigation bar.
-5. Click **Choose File** (or Browse) and select:  
-   `C:\xampp\htdocs\mini\FMS\database\clean_production_setup.sql`
-6. Scroll down and click **Import** (or **Go**).
-7. 🎉 You will see a green checkmark: Database `gmrdufms` created with 72 tables!
+---
 
-### Method B: Fast Import via Command Prompt (Alternative)
+### 🚀 Option A: Sync an Already-Deployed / Live Server (Zero Data Loss - Recommended)
+Use this option if you have already deployed FMS on your server and you want to match the updated database **without losing any uploaded documents, workflows, or existing records**.
+
+#### Step 1: Pull the latest code on your server
+```bash
+git pull origin main
+```
+
+#### Step 2: Run the two non-destructive migrations
+Execute the following two SQL scripts located in `database/migrations/`:
+1. **`database/migrations/010_update_departments_is_academic.sql`**  
+   *(Flags the 13 academic degree-granting departments so registration and criteria dropdowns strictly show genuine academic departments).*
+2. **`database/migrations/011_seed_all_department_accounts.sql`**  
+   *(Adds/updates all 42 institutional accounts across all 13 departments with password `Admin@123`. Uses safe `ON DUPLICATE KEY UPDATE` and preserves all existing foreign keys and records).*
+
+#### How to execute on your server:
+* **Via phpMyAdmin (Easiest):**
+  1. Open phpMyAdmin on the server (`http://localhost/phpmyadmin` or your server's phpMyAdmin URL).
+  2. Click on the database name: **`gmrdufms`**.
+  3. Click on the **SQL** tab at the top.
+  4. Copy and paste the contents of `database/migrations/010_update_departments_is_academic.sql` and click **Go**.
+  5. Copy and paste the contents of `database/migrations/011_seed_all_department_accounts.sql` and click **Go**.
+* **Via Command Line / Terminal (Linux / Windows Server):**
+  ```bash
+  mysql -u root -p gmrdufms < database/migrations/010_update_departments_is_academic.sql
+  mysql -u root -p gmrdufms < database/migrations/011_seed_all_department_accounts.sql
+  ```
+  *(Enter your MySQL root password when prompted. If MySQL has no password, omit `-p`).*
+
+🎉 **Done!** Your live database is now 100% synchronized with all 13 departments, clean dropdowns, and all 42 login accounts.
+
+---
+
+### 🆕 Option B: Fresh Database Setup / Complete Reset
+Use this option if you are deploying to a brand-new computer/server or if you want to wipe test clutter and start with a completely fresh production database.
+
+📂 **File:** `database/clean_production_setup.sql`  
+*(Contains all 72 production tables, NAAC/NBA schemas, core lookups, and all 42 institutional accounts pre-seeded with 0 test documents).*
+
+#### Method 1: Import via phpMyAdmin
+1. Open **XAMPP Control Panel** -> Ensure **Apache** and **MySQL** are running.
+2. Open your browser and go to: `http://localhost/phpmyadmin`
+3. Click the **Import** tab in the top navigation bar.
+4. Click **Choose File** (or Browse) and select:  
+   `database/clean_production_setup.sql`
+5. Scroll to the bottom and click **Import** (or **Go**).
+6. 🎉 Green checkmark confirms database `gmrdufms` created with all 72 tables and 42 user accounts!
+
+#### Method 2: Fast Import via Command Prompt / Terminal
 ```cmd
 cd C:\xampp\mysql\bin
 mysql.exe -u root < "C:\xampp\htdocs\mini\FMS\database\clean_production_setup.sql"
 ```
+*(On Linux: `mysql -u root -p < database/clean_production_setup.sql`).*
 
 ---
 

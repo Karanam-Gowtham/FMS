@@ -1831,38 +1831,141 @@ UNLOCK TABLES;
 
 
 -- ============================================================================
--- DEFAULT PRODUCTION USER ACCOUNTS & ROLE ASSIGNMENTS
+-- DEFAULT PRODUCTION USER ACCOUNTS & ROLE ASSIGNMENTS (ALL DEPARTMENTS)
 -- Default Password: Admin@123 (bcrypt-hashed)
 -- ============================================================================
 
 INSERT INTO `users` (`user_id`, `full_name`, `email`, `password`, `status`, `created_at`) VALUES
 (1, 'System Administrator', 'admin@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
 (2, 'IQAC Coordinator', 'iqac@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
-(3, 'Dr. HOD CSE', 'hod.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
-(4, 'Faculty Member', 'faculty.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
-(5, 'CSE Dept Coordinator', 'coord.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
-(6, 'Central Coordinator', 'central.coord@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
-(7, 'Junior Assistant CSE', 'ja.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
-(8, 'Dean R&D', 'rnd.dean@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
-(9, 'Student Sample', 'student.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW());
+(3, 'Central Coordinator', 'central.coord@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(4, 'Dean R&D', 'rnd.dean@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(5, 'Dr. HOD CSE', 'hod.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(6, 'Faculty Member CSE', 'faculty.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(7, 'CSE Dept Coordinator', 'coord.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(8, 'Junior Assistant CSE', 'ja.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(9, 'Student CSE', 'student.cse@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(10, 'Dr. HOD AIDS', 'hod.aids@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(11, 'Faculty Member AIDS', 'faculty.aids@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(12, 'AIDS Dept Coordinator', 'coord.aids@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(13, 'Dr. HOD AIML', 'hod.aiml@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(14, 'Faculty Member AIML', 'faculty.aiml@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(15, 'AIML Dept Coordinator', 'coord.aiml@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(16, 'Dr. HOD ECE', 'hod.ece@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(17, 'Faculty Member ECE', 'faculty.ece@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(18, 'ECE Dept Coordinator', 'coord.ece@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(19, 'Dr. HOD EEE', 'hod.eee@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(20, 'Faculty Member EEE', 'faculty.eee@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(21, 'EEE Dept Coordinator', 'coord.eee@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(22, 'Dr. HOD MECH', 'hod.mech@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(23, 'Faculty Member MECH', 'faculty.mech@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(24, 'MECH Dept Coordinator', 'coord.mech@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(25, 'Dr. HOD CIVIL', 'hod.civil@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(26, 'Faculty Member CIVIL', 'faculty.civil@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(27, 'CIVIL Dept Coordinator', 'coord.civil@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(28, 'Dr. HOD IT', 'hod.it@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(29, 'Faculty Member IT', 'faculty.it@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(30, 'IT Dept Coordinator', 'coord.it@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(31, 'Dr. HOD BSH', 'hod.bsh@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(32, 'Faculty Member BSH', 'faculty.bsh@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(33, 'BSH Dept Coordinator', 'coord.bsh@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(34, 'Dr. HOD CSE-CS', 'hod.csecs@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(35, 'Faculty Member CSE-CS', 'faculty.csecs@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(36, 'CSE-CS Dept Coordinator', 'coord.csecs@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(37, 'Dr. HOD Mathematics', 'hod.maths@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(38, 'Faculty Member Mathematics', 'faculty.maths@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(39, 'Dr. HOD Physics', 'hod.physics@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(40, 'Faculty Member Physics', 'faculty.physics@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(41, 'Dr. HOD Chemistry', 'hod.chemistry@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW()),
+(42, 'Faculty Member Chemistry', 'faculty.chemistry@gmrit.edu.in', '$2y$10$PwoOS7qwkTpUBFoIx//nx.Ost.I/SrLdLUXjtqn8IeXJDrhbvKMwu', 'active', NOW());
 
 INSERT INTO `user_roles` (`user_role_id`, `user_id`, `role_id`, `dept_id`) VALUES
-(1, 1, 1, NULL), -- Admin (Global Institutional Scope)
-(2, 2, 2, NULL), -- IQAC Coordinator (Global Accreditation Scope)
-(3, 3, 3, 1),    -- Head of Department (CSE)
-(4, 4, 4, 1),    -- Faculty Member (CSE)
-(5, 5, 5, 1),    -- Department Coordinator (CSE)
-(6, 6, 6, NULL), -- Central Coordinator (Global Events Scope)
-(7, 7, 7, 1),    -- Junior Assistant (CSE)
-(8, 8, 8, NULL), -- Dean of R&D (Global Research Scope)
-(9, 9, 9, 1);    -- Student (CSE)
+(1, 1, 1, NULL),
+(2, 2, 2, NULL),
+(3, 3, 6, NULL),
+(4, 4, 8, NULL),
+(5, 5, 3, 1),
+(6, 6, 4, 1),
+(7, 7, 5, 1),
+(8, 8, 7, 1),
+(9, 9, 9, 1),
+(10, 10, 3, 2),
+(11, 11, 4, 2),
+(12, 12, 5, 2),
+(13, 13, 3, 3),
+(14, 14, 4, 3),
+(15, 15, 5, 3),
+(16, 16, 3, 4),
+(17, 17, 4, 4),
+(18, 18, 5, 4),
+(19, 19, 3, 5),
+(20, 20, 4, 5),
+(21, 21, 5, 5),
+(22, 22, 3, 6),
+(23, 23, 4, 6),
+(24, 24, 5, 6),
+(25, 25, 3, 7),
+(26, 26, 4, 7),
+(27, 27, 5, 7),
+(28, 28, 3, 8),
+(29, 29, 4, 8),
+(30, 30, 5, 8),
+(31, 31, 3, 9),
+(32, 32, 4, 9),
+(33, 33, 5, 9),
+(34, 34, 3, 10),
+(35, 35, 4, 10),
+(36, 36, 5, 10),
+(37, 37, 3, 14),
+(38, 38, 4, 14),
+(39, 39, 3, 15),
+(40, 40, 4, 15),
+(41, 41, 3, 16),
+(42, 42, 4, 16);
 
 INSERT INTO `user_profiles` (`profile_id`, `user_id`, `per_no`, `pan_no`, `apaar_id`, `highest_degree`, `university`, `specialization`, `doj_institution`, `doj_department`, `experience_years`, `designation_joining`, `designation_present`, `association_nature`, `is_currently_associated`) VALUES
-(1, 1, 'ADM001', 'ABCDE1234F', 'APAAR-001', 'Ph.D', 'JNTUK', 'Computer Science', '2015-06-01', '2015-06-01', 12.0, 'System Administrator', 'System Administrator', 'Regular', 1),
-(2, 2, 'IQC001', 'ABCDE1234G', 'APAAR-002', 'Ph.D', 'Andhra University', 'Quality Assurance', '2016-07-01', '2016-07-01', 10.0, 'Professor', 'IQAC Coordinator', 'Regular', 1),
-(3, 3, 'HOD001', 'ABCDE1234H', 'APAAR-003', 'Ph.D', 'IIT Madras', 'Computer Science', '2014-05-10', '2014-05-10', 15.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
-(4, 4, 'FAC001', 'ABCDE1234I', 'APAAR-004', 'M.Tech', 'JNTUK', 'Software Engineering', '2019-08-01', '2019-08-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1);
-
+(1, 1, 'ADM001', 'ABCDE0001F', 'APAAR-001', 'Ph.D', 'JNTUK', 'Computer Science', '2015-06-01', '2015-06-01', 12.0, 'System Administrator', 'System Administrator', 'Regular', 1),
+(2, 2, 'IQC001', 'ABCDE0002F', 'APAAR-002', 'Ph.D', 'Andhra University', 'Quality Assurance', '2016-07-01', '2016-07-01', 10.0, 'Professor', 'IQAC Coordinator', 'Regular', 1),
+(3, 3, 'CCD001', 'ABCDE0003F', 'APAAR-003', 'Ph.D', 'JNTUK', 'Institutional Operations', '2017-06-01', '2017-06-01', 9.0, 'Associate Professor', 'Central Coordinator', 'Regular', 1),
+(4, 4, 'RND001', 'ABCDE0004F', 'APAAR-004', 'Ph.D', 'IIT Madras', 'Research & Innovation', '2013-05-15', '2013-05-15', 16.0, 'Professor', 'Dean R&D', 'Regular', 1),
+(5, 5, 'HOD_CSE', 'ABCDE0005F', 'APAAR-005', 'Ph.D', 'IIT Madras', 'Computer Science & Engineering', '2014-05-10', '2014-05-10', 15.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(6, 6, 'FAC_CSE', 'ABCDE0006F', 'APAAR-006', 'M.Tech', 'JNTUK', 'Software Engineering', '2019-08-01', '2019-08-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(7, 7, 'CRD_CSE', 'ABCDE0007F', 'APAAR-007', 'M.Tech', 'JNTUK', 'Computer Networks', '2018-07-01', '2018-07-01', 7.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(8, 8, 'JA_CSE', 'ABCDE0008F', 'APAAR-008', 'B.Com', 'Andhra University', 'Office Administration', '2020-01-15', '2020-01-15', 5.0, 'Junior Assistant', 'Junior Assistant', 'Regular', 1),
+(9, 9, 'STU_CSE', 'ABCDE0009F', 'APAAR-009', 'B.Tech (Pursuing)', 'GMRIT', 'Computer Science', '2022-09-01', '2022-09-01', 0.0, 'Student', 'Student', 'Regular', 1),
+(10, 10, 'HOD_AIDS', 'ABCDE0010F', 'APAAR-010', 'Ph.D', 'IIT Kharagpur', 'Artificial Intelligence & Data Science', '2016-06-01', '2016-06-01', 12.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(11, 11, 'FAC_AIDS', 'ABCDE0011F', 'APAAR-011', 'M.Tech', 'JNTUK', 'Data Science & Big Data', '2020-07-01', '2020-07-01', 5.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(12, 12, 'CRD_AIDS', 'ABCDE0012F', 'APAAR-012', 'M.Tech', 'NIT Warangal', 'Machine Learning', '2019-06-15', '2019-06-15', 6.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(13, 13, 'HOD_AIML', 'ABCDE0013F', 'APAAR-013', 'Ph.D', 'IIT Hyderabad', 'Deep Learning & Neural Networks', '2015-07-01', '2015-07-01', 13.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(14, 14, 'FAC_AIML', 'ABCDE0014F', 'APAAR-014', 'M.Tech', 'Andhra University', 'Artificial Intelligence', '2020-08-01', '2020-08-01', 5.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(15, 15, 'CRD_AIML', 'ABCDE0015F', 'APAAR-015', 'M.Tech', 'JNTUK', 'Computer Vision', '2019-07-01', '2019-07-01', 6.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(16, 16, 'HOD_ECE', 'ABCDE0016F', 'APAAR-016', 'Ph.D', 'IIT Roorkee', 'VLSI & Embedded Systems', '2013-06-01', '2013-06-01', 16.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(17, 17, 'FAC_ECE', 'ABCDE0017F', 'APAAR-017', 'M.Tech', 'JNTUK', 'Communication Systems', '2018-06-01', '2018-06-01', 7.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(18, 18, 'CRD_ECE', 'ABCDE0018F', 'APAAR-018', 'M.Tech', 'NIT Trichy', 'Signal Processing', '2017-07-01', '2017-07-01', 8.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(19, 19, 'HOD_EEE', 'ABCDE0019F', 'APAAR-019', 'Ph.D', 'NIT Warangal', 'Power Systems & Renewable Energy', '2012-07-01', '2012-07-01', 17.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(20, 20, 'FAC_EEE', 'ABCDE0020F', 'APAAR-020', 'M.Tech', 'JNTUK', 'Power Electronics', '2019-06-01', '2019-06-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(21, 21, 'CRD_EEE', 'ABCDE0021F', 'APAAR-021', 'M.Tech', 'Andhra University', 'Control Systems', '2018-07-01', '2018-07-01', 7.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(22, 22, 'HOD_MECH', 'ABCDE0022F', 'APAAR-022', 'Ph.D', 'IIT Madras', 'Thermal Engineering & Robotics', '2011-06-01', '2011-06-01', 18.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(23, 23, 'FAC_MECH', 'ABCDE0023F', 'APAAR-023', 'M.Tech', 'JNTUK', 'Machine Design', '2018-06-01', '2018-06-01', 7.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(24, 24, 'CRD_MECH', 'ABCDE0024F', 'APAAR-024', 'M.Tech', 'NIT Rourkela', 'Manufacturing Science', '2017-07-01', '2017-07-01', 8.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(25, 25, 'HOD_CIVIL', 'ABCDE0025F', 'APAAR-025', 'Ph.D', 'IIT Kharagpur', 'Structural & Geotechnical Engineering', '2013-05-01', '2013-05-01', 16.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(26, 26, 'FAC_CIVIL', 'ABCDE0026F', 'APAAR-026', 'M.Tech', 'JNTUK', 'Transportation Engineering', '2019-07-01', '2019-07-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(27, 27, 'CRD_CIVIL', 'ABCDE0027F', 'APAAR-027', 'M.Tech', 'Andhra University', 'Environmental Engineering', '2018-08-01', '2018-08-01', 7.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(28, 28, 'HOD_IT', 'ABCDE0028F', 'APAAR-028', 'Ph.D', 'Andhra University', 'Information Technology & Cloud Computing', '2014-06-01', '2014-06-01', 15.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(29, 29, 'FAC_IT', 'ABCDE0029F', 'APAAR-029', 'M.Tech', 'JNTUK', 'Information Security', '2019-06-01', '2019-06-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(30, 30, 'CRD_IT', 'ABCDE0030F', 'APAAR-030', 'M.Tech', 'NIT Calicut', 'Data Engineering', '2018-07-01', '2018-07-01', 7.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(31, 31, 'HOD_BSH', 'ABCDE0031F', 'APAAR-031', 'Ph.D', 'Andhra University', 'Basic Sciences & Humanities', '2012-06-01', '2012-06-01', 17.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(32, 32, 'FAC_BSH', 'ABCDE0032F', 'APAAR-032', 'M.Phil / Ph.D', 'JNTUK', 'English & Communication Skills', '2019-07-01', '2019-07-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(33, 33, 'CRD_BSH', 'ABCDE0033F', 'APAAR-033', 'Ph.D', 'Andhra University', 'Humanities', '2018-08-01', '2018-08-01', 7.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(34, 34, 'HOD_CSECS', 'ABCDE0034F', 'APAAR-034', 'Ph.D', 'IIT Delhi', 'Cyber Security & Cryptography', '2016-07-01', '2016-07-01', 12.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(35, 35, 'FAC_CSECS', 'ABCDE0035F', 'APAAR-035', 'M.Tech', 'JNTUK', 'Network & Cyber Security', '2020-07-01', '2020-07-01', 5.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(36, 36, 'CRD_CSECS', 'ABCDE0036F', 'APAAR-036', 'M.Tech', 'NIT Warangal', 'Cyber Defense', '2019-06-01', '2019-06-01', 6.0, 'Assistant Professor', 'Assistant Professor & Coordinator', 'Regular', 1),
+(37, 37, 'HOD_MATHS', 'ABCDE0037F', 'APAAR-037', 'Ph.D', 'Andhra University', 'Applied Mathematics & Statistics', '2013-06-01', '2013-06-01', 16.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(38, 38, 'FAC_MATHS', 'ABCDE0038F', 'APAAR-038', 'Ph.D', 'JNTUK', 'Pure & Computational Mathematics', '2019-07-01', '2019-07-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(39, 39, 'HOD_PHYS', 'ABCDE0039F', 'APAAR-039', 'Ph.D', 'IIT Madras', 'Material Science & Condensed Matter', '2014-06-01', '2014-06-01', 15.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(40, 40, 'FAC_PHYS', 'ABCDE0040F', 'APAAR-040', 'Ph.D', 'Andhra University', 'Optics & Nanotechnology', '2019-06-01', '2019-06-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1),
+(41, 41, 'HOD_CHEM', 'ABCDE0041F', 'APAAR-041', 'Ph.D', 'IIT Kharagpur', 'Organic & Polymer Chemistry', '2013-07-01', '2013-07-01', 16.0, 'Associate Professor', 'Professor & HOD', 'Regular', 1),
+(42, 42, 'FAC_CHEM', 'ABCDE0042F', 'APAAR-042', 'Ph.D', 'JNTUK', 'Analytical Chemistry', '2019-07-01', '2019-07-01', 6.0, 'Assistant Professor', 'Assistant Professor', 'Regular', 1);
 
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -1872,6 +1975,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 --   SELECT COUNT(*) AS total_roles FROM roles;           -- Expected: 9
 --   SELECT COUNT(*) AS total_depts FROM departments;     -- Expected: >= 14
 --   SELECT COUNT(*) AS total_types FROM document_types;  -- Expected: 21
---   SELECT COUNT(*) AS total_users FROM users;           -- Expected: 9
+--   SELECT COUNT(*) AS total_users FROM users;           -- Expected: 42
 --   SELECT COUNT(*) AS total_docs FROM documents;        -- Expected: 0 (Clean)
 -- ============================================================================
