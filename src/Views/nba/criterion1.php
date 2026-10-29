@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?> &mdash; FMS</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css?v=2.1">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-<div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
 
@@ -335,74 +334,16 @@
             </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 4rem;">
-            <div id="pdf-download-container" style="display: none;">
-                <!-- Link injected here -->
-            </div>
-            <button type="button" class="btn-primary" id="btn-generate-pdf" onclick="generateMasterPDF()" style="background: #17a2b8; border: none; border-radius: 4px; padding: 10px 20px; color: white; cursor: pointer; font-weight: bold;">
-                Generate Master PDF
-            </button>
-            <button type="button" class="btn-save" onclick="saveCriterionData()">Save Criterion 1</button>
-        </div>
+        <?php 
+        $crit_id = 1;
+        $module = 'nba';
+        $save_onclick = 'saveCriterionData()';
+        include __DIR__ . '/../partials/accreditation_action_bar.php'; 
+        ?>
     </form>
 </div>
 
 <script>
-    function generateMasterPDF() {
-        const btn = document.getElementById('btn-generate-pdf');
-        const originalText = btn.innerText;
-        btn.innerText = 'Generating... Please wait';
-        btn.disabled = true;
-        
-        saveCurrentLevel(); // Ensure currently focused level is saved to object
-        
-        const payload = {
-            levelData: levelData,
-            peos: peos,
-            matrix: matrixData
-        };
-
-        const deptSelect = document.getElementById('level-select');
-        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
-
-        const formData = new FormData();
-        formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', activeDeptId);
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
-        formData.append('json_data', JSON.stringify(payload));
-        
-        fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/generate_pdf&id=1', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            btn.innerText = originalText;
-            btn.disabled = false;
-            
-            if (data.success && data.pdf_url) {
-                const container = document.getElementById('pdf-download-container');
-                container.style.display = 'block';
-                container.innerHTML = `<a href="${data.pdf_url}" target="_blank" style="color: #28a745; font-weight: bold; text-decoration: underline;">📄 View/Download Master PDF</a>`;
-                
-                const toast = document.getElementById('toast');
-                toast.innerText = 'PDF Generated Successfully!';
-                toast.style.display = 'block';
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                    toast.innerText = 'Data saved successfully!';
-                }, 3000);
-            } else {
-                alert('Error generating PDF: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            btn.innerText = originalText;
-            btn.disabled = false;
-            alert('A network error occurred while generating the PDF.');
-        });
-    }
     // —— Dynamic Level Logic ——
     let levelData = {};
     let currentLevel = 'dept_<?= $dept_id ?>';
@@ -1252,9 +1193,7 @@
         })
         .then(data => {
             if (data.success || data.status === 'success') {
-                const toast = document.getElementById('toast');
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3000);
+                showToast('Data saved successfully!');
             } else {
                 alert('Error: ' + (data.error || data.message || 'Unknown error'));
             }

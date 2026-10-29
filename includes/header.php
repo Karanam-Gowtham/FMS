@@ -39,12 +39,14 @@ if (isset($extra_head)) {
 ============================================================ -->
 
 <script>
-    // Make BASE URL available to JavaScript
+    // Make BASE URL and CSRF Token available to JavaScript
     window.FMS_BASE_URL = <?= json_encode($app_url, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+    window.FMS_CSRF_TOKEN = <?= json_encode(function_exists('csrfToken') ? csrfToken() : ($_SESSION['csrf_token'] ?? ''), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 </script>
 
-<script src="<?= htmlspecialchars($app_url, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js" defer>
-</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<script src="<?= htmlspecialchars($app_url, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js" defer></script>
+<script src="<?= htmlspecialchars($app_url, ENT_QUOTES, 'UTF-8') ?>/assets/js/accreditation.js?v=2.2"></script>
 
 
 <style>
@@ -1079,3 +1081,5 @@ if (isset($extra_head)) {
     });
 
 </script>
+
+<div id="toast" class="toast" style="display: none; position: fixed !important; top: 90px !important; right: 24px !important; bottom: auto !important; left: auto !important; width: auto !important; max-width: 380px !important; height: auto !important; min-height: unset !important; padding: 12px 24px !important; border-radius: 8px !important; background: #10b981 !important; color: #fff !important; font-weight: 600 !important; font-size: 0.95rem !important; box-shadow: 0 10px 25px -3px rgba(0,0,0,0.3) !important; z-index: 99999 !important; pointer-events: none !important; box-sizing: border-box !important;">Data saved successfully!</div>

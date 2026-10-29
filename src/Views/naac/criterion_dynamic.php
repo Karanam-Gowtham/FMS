@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title) ?> &mdash; FMS</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css?v=2.1">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         .metric-card {
             border: 1px solid #e2e8f0;
@@ -53,8 +54,6 @@
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-<div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
 
@@ -153,9 +152,11 @@
             </div>
         <?php endforeach; ?>
 
-        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 4rem;">
-            <button type="button" class="btn-save" onclick="saveCriterionData()">Save Criterion <?= $crit_id ?></button>
-        </div>
+        <?php 
+        $module = 'naac';
+        $save_onclick = 'saveCriterionData()';
+        include __DIR__ . '/../partials/accreditation_action_bar.php'; 
+        ?>
     </form>
 </div>
 
@@ -257,10 +258,13 @@
         });
     });
 
-    async function saveCriterionData() {
+
+    async function saveCriterionData(silent = false) {
         const btn = document.querySelector('.btn-save');
-        btn.innerText = 'Saving...';
-        btn.disabled = true;
+        if (!silent && btn) {
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+        }
 
         const payload = {};
         
@@ -332,7 +336,7 @@
                     if (data.success || data.status === 'success') {
                         payload[id + '_path'] = data.file_path;
                     } else {
-                        alert('File upload failed for ' + id + ': ' + data.message);
+                        alert('File upload failed for ' + id + ': ' + (data.message || 'Unknown error'));
                     }
                 } catch (e) {
                     console.error('Upload error', e);
@@ -348,34 +352,42 @@
         formData.append('criterion_number', '<?= $crit_id ?>');
         formData.append('json_data', JSON.stringify(payload));
         
-        fetch('<?= BASE_URL ?>/public/index.php?route=api/naac/save&id=<?= $crit_id ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => {
+        try {
+            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/naac/save&id=<?= $crit_id ?>', {
+                method: 'POST',
+                body: formData
+            });
+
             if (!res.ok) {
                 throw new Error('HTTP error ' + res.status);
             }
-            return res.json();
-        })
-        .then(data => {
+
+            const data = await res.json();
             if (data.success || data.status === 'success') {
-                const toast = document.getElementById('toast');
-                toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+                if (!silent) {
+                    showToast('Data saved successfully!');
+                }
+                return true;
             } else {
-                alert('Error: ' + (data.error || data.message || 'Failed to save data.'));
+                if (!silent) {
+                    alert('Error: ' + (data.error || data.message || 'Failed to save data.'));
+                }
+                return false;
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.error('Save error:', err);
-            alert('An error occurred while saving: ' + err.message);
-        })
-        .finally(() => {
-            btn.innerText = 'Save Criterion <?= $crit_id ?>';
-            btn.disabled = false;
-        });
+            if (!silent) {
+                alert('An error occurred while saving: ' + err.message);
+            }
+            return false;
+        } finally {
+            if (!silent && btn) {
+                btn.innerText = 'Save Criterion <?= $crit_id ?>';
+                btn.disabled = false;
+            }
+        }
     }
+
 </script>
 </body>
 </html>

@@ -9,8 +9,9 @@ if (!isset($criteria_data)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?? 'Criterion 9' ?> &mdash; FMS</title>
-    <link href="<?= BASE_URL ?>/assets/css/layout.css" rel="stylesheet">
-    <link href="<?= BASE_URL ?>/assets/css/nba_module.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         .nba-table th, .nba-table td { padding: 8px; text-align: left; }
         .nba-table thead { font-weight: bold; background: #fff3cd; }
@@ -25,7 +26,6 @@ if (!isset($criteria_data)) {
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
 
@@ -255,9 +255,13 @@ if (!isset($criteria_data)) {
             <textarea aria-label="Describe Unnat Bharat Abhiyan, Community Service" id="text_9_14" class="textarea-box" placeholder="Describe Unnat Bharat Abhiyan, community service..." onchange="saveCurrentLevel()"></textarea>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 4rem;">
-            <button type="button" class="btn-save" onclick="saveCriterionData()" style="padding: 10px 20px; font-weight: bold; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Save Criterion 9</button>
-        </div>
+        <?php 
+        $crit_id = 9;
+        $module = 'nba';
+        $save_onclick = 'saveCriterionData()';
+        include __DIR__ . '/../partials/accreditation_action_bar.php'; 
+        ?>
+
     </form>
 </div>
 
@@ -385,7 +389,8 @@ if (!isset($criteria_data)) {
         });
     }
 
-    function saveCriterionData() {
+
+    async function saveCriterionData(silent = false) {
         saveCurrentLevel();
 
         const payload = { levelData: levelData };
@@ -397,28 +402,46 @@ if (!isset($criteria_data)) {
         formData.append('year', '<?= htmlspecialchars($year) ?>');
 
         const btn = document.querySelector('.btn-save');
-        const oldText = btn.innerText;
-        btn.innerText = 'Saving...';
-        btn.disabled = true;
+        let oldText = '';
+        if (btn && !silent) {
+            oldText = btn.innerText;
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+        }
 
-        fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save_criterion&id=9', {
-            method: 'POST', body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            btn.innerText = oldText; btn.disabled = false;
-            if (data.success) {
-                const toast = document.getElementById('toast');
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3000);
-            } else { alert('Error: ' + (data.error || 'Unknown error')); }
-        })
-        .catch(err => {
+        try {
+            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save_criterion&id=9', {
+                method: 'POST', body: formData
+            });
+            const data = await res.json();
+            if (btn && !silent) {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+            if (data.success || data.status === 'success') {
+                if (!silent) {
+                    showToast('Data saved successfully!');
+                }
+                return true;
+            } else {
+                if (!silent) {
+                    alert('Error: ' + (data.error || data.message || 'Unknown error'));
+                }
+                return false;
+            }
+        } catch (err) {
             console.error(err);
-            btn.innerText = oldText; btn.disabled = false;
-            alert('A network error occurred.');
-        });
+            if (btn && !silent) {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+            if (!silent) {
+                alert('A network error occurred: ' + err.message);
+            }
+            return false;
+        }
     }
+
 
     window.onload = function() { initData(); };
 </script>

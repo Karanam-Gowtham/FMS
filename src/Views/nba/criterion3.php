@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?> &mdash; FMS</title>
-    <link href="<?= BASE_URL ?>/assets/css/layout.css" rel="stylesheet">
-    <link href="<?= BASE_URL ?>/assets/css/nba_module.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
 
@@ -298,9 +298,13 @@
         </div>
     </div>
 
-    <div style="text-align: right; margin-bottom: 4rem;">
-        <button type="button" class="btn-save" onclick="saveData()">Save Criterion 3</button>
-    </div>
+    <?php 
+    $crit_id = 3;
+    $module = 'nba';
+    $save_onclick = 'saveData()';
+    include __DIR__ . '/../partials/accreditation_action_bar.php'; 
+    ?>
+
 
 </div>
 
@@ -1097,7 +1101,8 @@
         }
     }
 
-    function saveData(silent = false) {
+
+    async function saveData(silent = false) {
         const deptSelect = document.getElementById('level-select');
         const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
 
@@ -1110,33 +1115,38 @@
         formData.append('_csrf_token', '<?= csrfToken() ?>');
         formData.append('csrf_token', '<?= csrfToken() ?>');
 
-        fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=3', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
-        })
-        .then(res => {
+        try {
+            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=3', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+
             if (!res.ok) {
                 throw new Error('Server returned HTTP ' + res.status);
             }
-            return res.json();
-        })
-        .then(data => {
+
+            const data = await res.json();
             if (data.status === 'success' || data.success) {
                 if (!silent) {
-                    const toast = document.getElementById('toast');
-                    toast.style.display = 'block';
-                    setTimeout(() => toast.style.display = 'none', 3000);
+                    showToast('Data saved successfully!');
                 }
+                return true;
             } else {
-                alert('Error saving data: ' + (data.error || data.message || 'Unknown error'));
+                if (!silent) {
+                    alert('Error saving data: ' + (data.error || data.message || 'Unknown error'));
+                }
+                return false;
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.error(err);
-            alert('Failed to communicate with server.');
-        });
+            if (!silent) {
+                alert('Failed to communicate with server: ' + err.message);
+            }
+            return false;
+        }
     }
+
 
     // Initialize
     document.addEventListener('DOMContentLoaded', initData);

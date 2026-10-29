@@ -32,6 +32,23 @@ class NAACCriterionController extends AbstractAccreditationCriterionController {
             $schema_stmt->close();
         }
 
+        // Check for an existing generated final PDF
+        $existing_pdf_url = null;
+        if (!empty($criteria_data['final_pdf_url'])) {
+            $existing_pdf_url = $criteria_data['final_pdf_url'];
+        } else {
+            $clean_year = preg_replace('/[^a-zA-Z0-9_]/', '_', $year);
+            $pattern = __DIR__ . "/../../uploads/naac_pdfs/final_criterion{$crit_id}_dept_{$dept_id}_{$clean_year}_*.pdf";
+            $matches = glob($pattern);
+            if (!empty($matches)) {
+                usort($matches, function($a, $b) {
+                    return filemtime($b) - filemtime($a);
+                });
+                $latest_file = basename($matches[0]);
+                $existing_pdf_url = BASE_URL . "/public/index.php?route=reports/download&type=naac&file=" . urlencode($latest_file);
+            }
+        }
+
         $titles = [
             1 => 'Criterion 1: Curricular Aspects',
             2 => 'Criterion 2: Teaching-Learning and Evaluation',

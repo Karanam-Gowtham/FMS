@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?> &mdash; FMS</title>
-    <link href="<?= BASE_URL ?>/assets/css/layout.css" rel="stylesheet">
-    <link href="<?= BASE_URL ?>/assets/css/nba_module.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div id="toast" class="toast">Data saved successfully!</div>
 
 <div class="container">
 
@@ -1114,9 +1114,13 @@
         </div>
     </div>
 
-    <div style="text-align: right; margin-bottom: 4rem;">
-        <button type="button" class="btn-save" onclick="saveData()">Save Criterion 4</button>
-    </div>
+    <?php 
+    $crit_id = 4;
+    $module = 'nba';
+    $save_onclick = 'saveData()';
+    include __DIR__ . '/../partials/accreditation_action_bar.php'; 
+    ?>
+
 
 </div>
 
@@ -1981,6 +1985,53 @@
             saveData(true);
         }
     }
+
+
+    async function saveData(silent = false) {
+        const deptSelect = document.getElementById('level-select');
+        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+
+        const formData = new URLSearchParams();
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', year);
+        
+        const payload = { levelData: levelData };
+        formData.append('json_data', JSON.stringify(payload));
+        formData.append('_csrf_token', '<?= csrfToken() ?>');
+        formData.append('csrf_token', '<?= csrfToken() ?>');
+
+        try {
+            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=4', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+
+            if (!res.ok) {
+                throw new Error('Server returned HTTP ' + res.status);
+            }
+
+            const data = await res.json();
+            if (data.status === 'success' || data.success) {
+                if (!silent) {
+                    showToast('Data saved successfully!');
+                }
+                return true;
+            } else {
+                if (!silent) {
+                    alert('Error saving data: ' + (data.error || data.message || 'Unknown error'));
+                }
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            if (!silent) {
+                alert('Failed to communicate with server: ' + err.message);
+            }
+            return false;
+        }
+    }
+
 
     // Initialize
     document.addEventListener('DOMContentLoaded', initData);

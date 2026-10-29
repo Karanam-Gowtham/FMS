@@ -28,7 +28,7 @@ class ReportDownloadController {
         }
 
         // Validate the filename against safe patterns, preventing directory traversal natively
-        if (!preg_match('/^(dummy_criterion\d+_\d+|dept_\d+_[a-zA-Z0-9_]+)\.pdf$/', $filename)) {
+        if (!preg_match('/^(dummy_criterion\d+_\d+|master_criterion\d+_[a-zA-Z0-9_]+|final_criterion\d+_[a-zA-Z0-9_]+|criterion\d+_[a-zA-Z0-9_]+|dept_\d+_[a-zA-Z0-9_]+)\.pdf$/i', $filename)) {
             $this->renderError(400, "Invalid report filename format.");
         }
 
