@@ -212,6 +212,11 @@ class UserController {
             $_SESSION['success_msg'] = "{$user['full_name']} is now appointed as HOD of {$dept['dept_name']}.";
         }
 
+        if (function_exists('system_audit_log')) {
+            $audit_desc = !empty($prev_hod_name) ? "Transferred HOD role for {$dept['dept_name']} from {$prev_hod_name} to {$user['full_name']}." : "Appointed {$user['full_name']} as HOD of {$dept['dept_name']}.";
+            system_audit_log($conn, 'HOD_ASSIGN', $audit_desc, 'user', $user_id);
+        }
+
         $this->redirectBack();
     }
 
@@ -257,6 +262,12 @@ class UserController {
             $_SESSION['success_msg'] = "{$user['full_name']} appointed as Department Coordinator for {$dept['dept_name']}.";
         }
 
+        if (function_exists('system_audit_log')) {
+            $coord_act = ($action === 'revoke') ? 'COORDINATOR_REVOKE' : 'COORDINATOR_APPOINT';
+            $coord_msg = ($action === 'revoke') ? "Revoked Coordinator role from {$user['full_name']} for {$dept['dept_name']}." : "Appointed {$user['full_name']} as Coordinator for {$dept['dept_name']}.";
+            system_audit_log($conn, $coord_act, $coord_msg, 'user', $user_id);
+        }
+
         $this->redirectBack();
     }
 
@@ -298,6 +309,11 @@ class UserController {
 
         $status_label = ($new_status === 'active') ? 'Active (login enabled)' : 'Relieved / Inactive (login locked, documents preserved)';
         $_SESSION['success_msg'] = "Account status for {$user['full_name']} changed to: {$status_label}.";
+
+        if (function_exists('system_audit_log')) {
+            system_audit_log($conn, 'USER_STATUS_CHANGE', "Changed account status for {$user['full_name']} ({$user['email']}) to {$new_status}.", 'user', $user_id);
+        }
+
         $this->redirectBack();
     }
 
@@ -332,6 +348,11 @@ class UserController {
         $upd->close();
 
         $_SESSION['success_msg'] = "Password for {$user['full_name']} ({$user['email']}) has been reset to: Admin@123";
+
+        if (function_exists('system_audit_log')) {
+            system_audit_log($conn, 'PASSWORD_RESET', "Reset password for {$user['full_name']} ({$user['email']}) to default.", 'user', $user_id);
+        }
+
         $this->redirectBack();
     }
 
@@ -402,6 +423,11 @@ class UserController {
         $del_user->close();
 
         $_SESSION['success_msg'] = "Test account for {$user['full_name']} ({$user['email']}) was permanently deleted.";
+
+        if (function_exists('system_audit_log')) {
+            system_audit_log($conn, 'USER_DELETE', "Permanently deleted test user {$user['full_name']} ({$user['email']}).", 'user', $user_id);
+        }
+
         $this->redirectBack();
     }
 
@@ -482,6 +508,11 @@ class UserController {
         }
 
         $_SESSION['success_msg'] = "Faculty account for {$full_name} created successfully with default password Admin@123.";
+
+        if (function_exists('system_audit_log')) {
+            system_audit_log($conn, 'USER_CREATE', "Created faculty account for {$full_name} ({$email}) in department #{$dept_id} with initial role {$role_key}.", 'user', $new_user_id);
+        }
+
         $this->redirectBack();
     }
 

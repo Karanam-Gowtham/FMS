@@ -438,3 +438,29 @@ function get_distinct_role_assignments(array $roles): array
     }
     return array_values($grouped);
 }
+
+/**
+ * Records an administrative or security audit event.
+ *
+ * @param mysqli $conn
+ * @param string $action       e.g. 'USER_STATUS_CHANGE', 'USER_ROLE_ASSIGN', 'DOCUMENT_PURGE', 'PASSWORD_RESET'
+ * @param string $details      Human-readable description of what was changed
+ * @param string $target_type  'user', 'document', 'system'
+ * @param int|null $target_id  ID of the target entity
+ * @param int|null $actor_id   User ID who performed the action (defaults to auth_user_id())
+ * @return bool
+ */
+function system_audit_log(mysqli $conn, string $action, string $details, string $target_type = 'system', ?int $target_id = null, ?int $actor_id = null): bool
+{
+    $actor = $actor_id ?? (auth_user_id() ?? 0);
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt = $conn->prepare("INSERT INTO system_audit_logs (action, actor_id, target_type, target_id, details, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+    if (!$stmt) {
+        error_log("system_audit_log prepare error: " . $conn->error);
+        return false;
+    }
+    $stmt->bind_param("sisiss", $action, $actor, $target_type, $target_id, $details, $ip);
+    $res = $stmt->execute();
+    $stmt->close();
+    return $res;
+}

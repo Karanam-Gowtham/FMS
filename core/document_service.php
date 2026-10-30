@@ -1393,6 +1393,13 @@ function doc_delete(mysqli $conn, int $doc_id, array $auth): array
         }
 
         $conn->commit();
+
+        if (function_exists('system_audit_log')) {
+            $actor_uid = (int)($auth['user_id'] ?? 0);
+            $doc_title = $doc['title'] ?? ('Document #' . $doc_id);
+            system_audit_log($conn, 'DOCUMENT_PURGE', "Permanently purged Document #{$doc_id} ('{$doc_title}') and {$deleted_count} storage file(s).", 'document', $doc_id, $actor_uid);
+        }
+
         return [
             'success' => true,
             'error' => null,

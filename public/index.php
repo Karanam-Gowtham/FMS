@@ -114,6 +114,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'admin/users/create') {
     $controller = new \App\Controllers\UserController();
     $controller->create();
+} elseif ($route === 'admin/audit_logs' || $route === 'audit_logs') {
+    $controller = new \App\Controllers\AuditController();
+    $controller->index();
 } elseif ($route === 'public/department') {
     $controller = new \App\Controllers\PublicController();
     $controller->department();
