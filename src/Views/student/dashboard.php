@@ -209,7 +209,7 @@ require __DIR__ . '/../../../includes/header.php';
                     <thead class="table-light">
                         <tr>
                             <th scope="col" style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllStudentDocs" aria-label="Select all documents"></th>
-                            <th scope="col">ID</th>
+                            <th scope="col" style="width: 70px; text-align: center;">S.No.</th>
                             <th scope="col">Category</th>
                             <th scope="col">Event Details</th>
                             <th scope="col">Event Date</th>
@@ -218,7 +218,9 @@ require __DIR__ . '/../../../includes/header.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach (($submissions ?? []) as $sub): 
+                        <?php 
+                        $sno = 1;
+                        foreach (($submissions ?? []) as $sub): 
                             $badge_class = 'bg-secondary';
                             $status_str = is_string($sub['status'] ?? null) ? $sub['status'] : '';
                             if ($status_str === 'pending') $badge_class = 'bg-warning text-dark';
@@ -233,7 +235,7 @@ require __DIR__ . '/../../../includes/header.php';
                                     <input type="checkbox" name="doc_ids[]" value="<?= (int)($sub['doc_id'] ?? 0) ?>" id="doc_chk_<?= (int)($sub['doc_id'] ?? 0) ?>" class="student-doc-checkbox" aria-label="Select document #<?= (int)($sub['doc_id'] ?? 0) ?>">
                                     <label for="doc_chk_<?= (int)($sub['doc_id'] ?? 0) ?>" class="visually-hidden">Select document #<?= (int)($sub['doc_id'] ?? 0) ?></label>
                                 </td>
-                                <td>#<?= (int)($sub['doc_id'] ?? 0) ?></td>
+                                <td class="text-center"><span class="fw-bold"><?= $sno++ ?></span><br><small class="text-muted" style="font-size: 0.75rem;">#<?= (int)($sub['doc_id'] ?? 0) ?></small></td>
                                 <td><strong><?= htmlspecialchars(is_string($sub['activity_category'] ?? null) ? $sub['activity_category'] : '') ?></strong></td>
                                 <td>
                                     <?= htmlspecialchars(is_string($sub['event_title'] ?? null) ? $sub['event_title'] : 'N/A') ?>

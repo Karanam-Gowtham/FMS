@@ -842,6 +842,7 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
                     <tr style="border-bottom: 2px solid #e5e7eb; background: #f8fafc;">
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569; width: 60px; text-align: center;">S.No.</th>
                         <th style="padding: 12px 16px; font-weight: 600; color: #475569;">File Title</th>
                         <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Type</th>
                         <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Uploaded By</th>
@@ -850,8 +851,14 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($pending_approvals as $doc): ?>
+                    <?php 
+                    $sno_p = 1;
+                    foreach ($pending_approvals as $doc): 
+                    ?>
                     <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 16px; text-align: center; font-weight: 700; color: #64748b;">
+                            <?= $sno_p++ ?>
+                        </td>
                         <td style="padding: 12px 16px; color: #2563eb; font-weight: 500;">
                             <?= htmlspecialchars($doc['title']) ?>
                         </td>
@@ -917,6 +924,7 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
                     <tr style="border-bottom: 2px solid #e5e7eb; background: #f8fafc;">
+                        <th style="padding: 12px 16px; font-weight: 600; color: #475569; width: 60px; text-align: center;">S.No.</th>
                         <th style="padding: 12px 16px; font-weight: 600; color: #475569;">File Title</th>
                         <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Type</th>
                         <th style="padding: 12px 16px; font-weight: 600; color: #475569;">Date</th>
@@ -925,8 +933,14 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($recent_uploads as $doc): ?>
+                    <?php 
+                    $sno_r = 1;
+                    foreach ($recent_uploads as $doc): 
+                    ?>
                     <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 16px; text-align: center; font-weight: 700; color: #64748b;">
+                            <?= $sno_r++ ?>
+                        </td>
                         <td style="padding: 12px 16px; color: #2563eb; font-weight: 500;">
                             <?= htmlspecialchars($doc['title']) ?>
                         </td>
