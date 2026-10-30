@@ -1280,3 +1280,133 @@ function doc_can_edit(mysqli $conn, array $auth, array $doc): bool
 
     return false;
 }
+
+/**
+ * Checks if a user is authorized to delete a document.
+ * System Administrator can delete any document.
+ * Uploader can delete their own document ONLY if it is in 'draft' or 'rejected' state.
+ *
+ * @param mysqli $conn
+ * @param array $auth
+ * @param array $doc
+ * @return bool
+ */
+function doc_can_delete(mysqli $conn, array $auth, array $doc): bool
+{
+    $active_role_id = (int)($auth['active_role']['role_id'] ?? (auth_active_role_id() ?? 0));
+    if ($active_role_id === ROLE_ADMIN) {
+        return true;
+    }
+
+    $uploader = (int)($doc['uploaded_by'] ?? ($doc['created_by'] ?? 0));
+    $user_id  = (int)($auth['user_id'] ?? 0);
+    if ($uploader === $user_id && $user_id > 0) {
+        $status = strtolower($doc['status'] ?? '');
+        if ($status === 'draft' || $status === 'rejected') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Permanently deletes a document from the database and purges its physical files from storage.
+ *
+ * @param mysqli $conn
+ * @param int $doc_id
+ * @param array $auth
+ * @return array ['success' => bool, 'error' => string|null, 'files_deleted' => int, 'doc' => array|null]
+ */
+function doc_delete(mysqli $conn, int $doc_id, array $auth): array
+{
+    if ($doc_id <= 0) {
+        return ['success' => false, 'error' => 'Invalid document ID.', 'files_deleted' => 0, 'doc' => null];
+    }
+
+    $doc = doc_get($conn, $doc_id);
+    if (!$doc) {
+        return ['success' => false, 'error' => 'Document not found.', 'files_deleted' => 0, 'doc' => null];
+    }
+
+    if (!doc_can_delete($conn, $auth, $doc)) {
+        return ['success' => false, 'error' => 'Unauthorized. Only Administrators can delete institutional records.', 'files_deleted' => 0, 'doc' => $doc];
+    }
+
+    // 1. Collect all physical file paths associated with this document
+    $files_to_remove = [];
+    if (!empty($doc['file_path'])) {
+        $files_to_remove[] = $doc['file_path'];
+    }
+
+    $f_stmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ?");
+    if ($f_stmt) {
+        $f_stmt->bind_param('i', $doc_id);
+        $f_stmt->execute();
+        $f_res = $f_stmt->get_result();
+        if ($f_res) {
+            while ($frow = $f_res->fetch_assoc()) {
+                if (!empty($frow['file_path'])) {
+                    $files_to_remove[] = $frow['file_path'];
+                }
+            }
+        }
+        $f_stmt->close();
+    }
+
+    $files_to_remove = array_unique($files_to_remove);
+
+    // 2. Physical File Deletion from disk (safe path traversal validation)
+    $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__);
+    $uploads_dir = realpath($base_dir . '/uploads');
+    $deleted_count = 0;
+
+    foreach ($files_to_remove as $rel_path) {
+        $clean_rel = ltrim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, (string)$rel_path), DIRECTORY_SEPARATOR);
+        $target_full = $base_dir . DIRECTORY_SEPARATOR . $clean_rel;
+        $real_target = realpath($target_full);
+
+        // Security check: Must exist, be a regular file, and reside inside uploads directory
+        if ($real_target && is_file($real_target)) {
+            if ($uploads_dir && strpos($real_target, $uploads_dir) === 0) {
+                if (@unlink($real_target)) {
+                    $deleted_count++;
+                }
+            }
+        }
+    }
+
+    // 3. Database Deletion (Cascades to document_files, document_metadata, document_actions, meta_*)
+    $conn->begin_transaction();
+    try {
+        $del_stmt = $conn->prepare("DELETE FROM documents WHERE doc_id = ?");
+        if (!$del_stmt) {
+            throw new \Exception("Prepare failed: " . $conn->error);
+        }
+        $del_stmt->bind_param('i', $doc_id);
+        $del_stmt->execute();
+        $affected = $del_stmt->affected_rows;
+        $del_stmt->close();
+
+        if ($affected <= 0) {
+            throw new \Exception("No rows deleted from documents table.");
+        }
+
+        $conn->commit();
+        return [
+            'success' => true,
+            'error' => null,
+            'files_deleted' => $deleted_count,
+            'doc' => $doc
+        ];
+    } catch (\Throwable $e) {
+        $conn->rollback();
+        error_log("doc_delete error: " . $e->getMessage());
+        return [
+            'success' => false,
+            'error' => 'Database deletion failed: ' . $e->getMessage(),
+            'files_deleted' => $deleted_count,
+            'doc' => $doc
+        ];
+    }
+}

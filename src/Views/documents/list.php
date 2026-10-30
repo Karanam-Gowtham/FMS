@@ -321,6 +321,7 @@
                         <input type="checkbox" id="selectAllDocs" aria-label="Select all documents">
                         <label for="selectAllDocs" class="visually-hidden">Select all documents</label>
                     </th>
+                    <th scope="col" style="width: 50px; text-align: center;">S.No.</th>
                     <th scope="col">Title</th>
                     <th scope="col">Type</th>
                     <th scope="col">Uploaded By</th>
@@ -337,12 +338,16 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($documents as $doc): ?>
+                <?php 
+                $doc_sno = (isset($offset) ? (int)$offset : 0) + 1;
+                foreach ($documents as $doc): 
+                ?>
                 <tr>
                     <td style="text-align: center;">
                         <input type="checkbox" name="doc_ids[]" value="<?= (int)$doc['doc_id'] ?>" id="doc_chk_<?= (int)$doc['doc_id'] ?>" class="doc-checkbox" aria-label="Select document #<?= (int)$doc['doc_id'] ?>">
                         <label for="doc_chk_<?= (int)$doc['doc_id'] ?>" class="visually-hidden">Select document #<?= (int)$doc['doc_id'] ?></label>
                     </td>
+                    <td style="color: #64748b; font-weight: 600; text-align: center; font-size: 0.85rem;"><?= $doc_sno++ ?></td>
                     <td><a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>"><?= htmlspecialchars($doc['title'] ?: $doc['type_label']) ?></a></td>
                     <td><?= htmlspecialchars($doc['type_label']) ?></td>
                     <td><?= htmlspecialchars($doc['uploader_name']) ?></td>
@@ -371,6 +376,15 @@
                                 <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="background: #10b981; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-block; cursor: pointer; text-align: center;">Review</a>
                             <?php endif; ?>
                             <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #007bff; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-block; cursor: pointer; text-align: center;">View</a>
+                            <?php if (function_exists('doc_can_delete') && doc_can_delete($conn, $auth, $doc)): ?>
+                                <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/delete" style="margin: 0; display: inline;" onsubmit="return confirm('Danger: Are you sure you want to permanently delete document #<?= (int)$doc['doc_id'] ?> and all its physical storage files? This action cannot be undone.');">
+                                    <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
+                                    <input type="hidden" name="doc_id" value="<?= (int)$doc['doc_id'] ?>">
+                                    <button type="submit" style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.65rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Delete Document & Storage Files">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>

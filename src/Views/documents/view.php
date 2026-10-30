@@ -282,6 +282,28 @@
         </table>
     </div>
     <?php endif; ?>
+
+    <?php if (function_exists('doc_can_delete') && doc_can_delete($conn, $auth, $document)): ?>
+    <div class="section" style="border: 1px solid #fecaca; background: #fff5f5; border-radius: 8px; padding: 1.5rem; margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h3 style="color: #991b1b; margin: 0 0 0.4rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i> Danger Zone: Institutional Record Purge
+                </h3>
+                <p style="margin: 0; color: #7f1d1d; font-size: 0.88rem;">
+                    Permanently delete this document, all attached file uploads, and audit records from college storage. This action cannot be reversed.
+                </p>
+            </div>
+            <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/delete" onsubmit="return confirm('CRITICAL WARNING: Are you sure you want to permanently delete Document #<?= (int)$document['doc_id'] ?> and ALL its physical files from storage? This cannot be undone.');">
+                <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
+                <input type="hidden" name="doc_id" value="<?= (int)$document['doc_id'] ?>">
+                <button type="submit" style="background: #dc2626; color: white; border: none; padding: 0.65rem 1.25rem; font-size: 0.9rem; font-weight: 700; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);">
+                    <i class="fas fa-trash-alt"></i> Permanently Delete Document
+                </button>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php if (isset($_GET['msg']) && is_string($_GET['msg'])): ?>

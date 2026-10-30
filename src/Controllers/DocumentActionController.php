@@ -1037,7 +1037,45 @@ class DocumentActionController {
         }
     }
 
+    /**
+     * Permanently delete a document and purge all associated files from disk storage.
+     */
+    public function delete(): void {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
+        $auth = auth_context();
+        global $conn;
+
+        if (function_exists('csrfValidate')) {
+            csrfValidate();
+        }
+
+        $doc_id = isset($_POST['doc_id']) ? (int)$_POST['doc_id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
+
+        if ($doc_id <= 0) {
+            $_SESSION['error_msg'] = "Invalid document ID specified.";
+            $this->safeRedirectBack();
+            return;
+        }
+
+        $res = doc_delete($conn, $doc_id, $auth);
+
+        if ($res['success']) {
+            $doc_title = $res['doc']['title'] ?? ('Document #' . $doc_id);
+            $files_cnt = $res['files_deleted'] ?? 0;
+            $storage_info = ($files_cnt > 0) ? " ({$files_cnt} physical storage file(s) purged)" : "";
+            $_SESSION['success_msg'] = "Document #{$doc_id} ('{$doc_title}') has been permanently deleted{$storage_info}.";
+        } else {
+            $_SESSION['error_msg'] = $res['error'] ?? "Failed to delete document.";
+        }
+
+        $this->safeRedirectBack();
+    }
+
     private function safeRedirectBack(string $default = ''): void {
+        if (php_sapi_name() === 'cli') {
+            return;
+        }
         $target = !empty($default) ? $default : '';
         if (empty($target) && !empty($_SERVER['HTTP_REFERER'])) {
             $referer = $_SERVER['HTTP_REFERER'];

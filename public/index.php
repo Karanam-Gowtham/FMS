@@ -81,6 +81,9 @@ if ($route === 'dashboard') {
 } elseif ($route === 'documents/process_update') {
     $controller = new \App\Controllers\DocumentActionController();
     $controller->processUpdate();
+} elseif ($route === 'documents/delete' || $route === 'admin/documents/delete') {
+    $controller = new \App\Controllers\DocumentActionController();
+    $controller->delete();
 } elseif ($route === 'profile/view') {
     $controller = new \App\Controllers\ProfileController();
     $controller->view();
