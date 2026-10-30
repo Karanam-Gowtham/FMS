@@ -33,15 +33,15 @@ class AuthController {
                 if ($user === false) {
                     $error = 'Invalid credentials or inactive account.';
                 } else {
-                    $roles = $user['roles'];
+                    $distinct_roles = get_distinct_role_assignments($user['roles'] ?? []);
 
-                    if (empty($roles)) {
+                    if (empty($distinct_roles)) {
                         $error = 'Your account has no assigned roles. Contact an administrator.';
-                    } elseif (count($roles) === 1) {
-                        auth_create_session($user, $roles[0]);
+                    } elseif (count($distinct_roles) === 1) {
+                        auth_create_session($user, $distinct_roles[0]);
                         auth_update_last_login($conn, $user['user_id']);
 
-                        header("Location: " . get_role_landing_url($roles[0]));
+                        header("Location: " . get_role_landing_url($distinct_roles[0]));
                         exit();
                     } else {
                         $_SESSION['_pending_auth'] = $user;
@@ -61,7 +61,8 @@ class AuthController {
         if (auth_is_logged_in()) {
             $user = auth_context();
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                if (count($user['roles'] ?? []) <= 1) {
+                $distinct = get_distinct_role_assignments($user['roles'] ?? []);
+                if (count($distinct) <= 1) {
                     $active = auth_active_role();
                     if ($active) {
                         header("Location: " . get_role_landing_url($active));
@@ -78,7 +79,24 @@ class AuthController {
             exit();
         }
 
-        $roles = $user['roles'];
+        $roles = $user['roles'] ?? [];
+        $display_roles = get_distinct_role_assignments($roles);
+
+        // If user only has a single distinct role, bypass role selection screen completely
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && count($display_roles) <= 1) {
+            if (!empty($display_roles)) {
+                global $conn;
+                auth_create_session($user, $display_roles[0]);
+                auth_update_last_login($conn, $user['user_id']);
+                unset($_SESSION['_pending_auth']);
+                header("Location: " . get_role_landing_url($display_roles[0]));
+                exit();
+            } else {
+                header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
+                exit();
+            }
+        }
+
         $error = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
