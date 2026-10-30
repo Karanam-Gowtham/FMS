@@ -86,7 +86,7 @@ class UserController {
                 up.per_no,
                 up.designation_present,
                 (SELECT COUNT(*) FROM documents d WHERE d.uploaded_by = u.user_id) AS doc_count,
-                (SELECT COUNT(*) FROM action_history ah WHERE ah.performed_by = u.user_id) AS action_count
+                (SELECT COUNT(*) FROM document_actions da WHERE da.acted_by = u.user_id) AS action_count
             FROM users u
             LEFT JOIN user_profiles up ON u.user_id = up.user_id
             WHERE " . implode(" AND ", $where_clauses) . "
@@ -374,7 +374,7 @@ class UserController {
         $doc_cnt_stmt->close();
 
         // Check action history count
-        $act_cnt_stmt = $conn->prepare("SELECT COUNT(*) AS total FROM action_history WHERE performed_by = ?");
+        $act_cnt_stmt = $conn->prepare("SELECT COUNT(*) AS total FROM document_actions WHERE acted_by = ?");
         $act_cnt_stmt->bind_param("i", $user_id);
         $act_cnt_stmt->execute();
         $act_cnt = (int)($act_cnt_stmt->get_result()->fetch_assoc()['total'] ?? 0);
@@ -528,6 +528,9 @@ class UserController {
     }
 
     private function redirectBack(): void {
+        if (php_sapi_name() === 'cli') {
+            return;
+        }
         $target = BASE_URL . "/public/index.php?route=admin/users";
         if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'admin/users') !== false) {
             $target = $_SERVER['HTTP_REFERER'];

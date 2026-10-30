@@ -427,4 +427,6 @@ window.addEventListener('click', function(e) {
 });
 </script>
 
-<?php require_once __DIR__ . '/../../../includes/footer.php'; ?>
+</main>
+</body>
+</html>
