@@ -90,6 +90,24 @@ if ($route === 'dashboard') {
 } elseif ($route === 'academic_years/list') {
     $controller = new \App\Controllers\AcademicYearController();
     $controller->list();
+} elseif ($route === 'users/list' || $route === 'users') {
+    $controller = new \App\Controllers\UserController();
+    $controller->list();
+} elseif ($route === 'users/create') {
+    $controller = new \App\Controllers\UserController();
+    $controller->create();
+} elseif ($route === 'users/update_roles') {
+    $controller = new \App\Controllers\UserController();
+    $controller->updateRoles();
+} elseif ($route === 'users/toggle_status') {
+    $controller = new \App\Controllers\UserController();
+    $controller->toggleStatus();
+} elseif ($route === 'users/reset_password') {
+    $controller = new \App\Controllers\UserController();
+    $controller->resetPassword();
+} elseif ($route === 'users/delete') {
+    $controller = new \App\Controllers\UserController();
+    $controller->delete();
 } elseif ($route === 'public/department') {
     $controller = new \App\Controllers\PublicController();
     $controller->department();
