@@ -948,10 +948,11 @@ if (isset($extra_head)) {
                 </a>
 
                 <?php if ($header_role_id === ROLE_ADMIN): ?>
-                <!-- User Management & Academic Years Direct Links for Admin -->
-                <a href="<?= $app_url ?>/public/index.php?route=users/list" class="nav-btn-link dashboard-link">
-                    User Management
+                <!-- User Management Link for Admin -->
+                <a href="<?= $app_url ?>/public/index.php?route=admin/users" class="nav-btn-link dashboard-link">
+                    Users & Leadership
                 </a>
+                <!-- Academic Years Direct Link for Admin -->
                 <a href="<?= $app_url ?>/public/index.php?route=academic_years/list" class="nav-btn-link dashboard-link">
                     Academic Years
                 </a>

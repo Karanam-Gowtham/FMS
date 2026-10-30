@@ -90,24 +90,27 @@ if ($route === 'dashboard') {
 } elseif ($route === 'academic_years/list') {
     $controller = new \App\Controllers\AcademicYearController();
     $controller->list();
-} elseif ($route === 'users/list' || $route === 'users') {
+} elseif ($route === 'admin/users' || $route === 'users/list') {
     $controller = new \App\Controllers\UserController();
-    $controller->list();
-} elseif ($route === 'users/create') {
+    $controller->index();
+} elseif ($route === 'admin/users/set_hod') {
     $controller = new \App\Controllers\UserController();
-    $controller->create();
-} elseif ($route === 'users/update_roles') {
+    $controller->setHod();
+} elseif ($route === 'admin/users/toggle_coordinator') {
     $controller = new \App\Controllers\UserController();
-    $controller->updateRoles();
-} elseif ($route === 'users/toggle_status') {
+    $controller->toggleCoordinator();
+} elseif ($route === 'admin/users/toggle_status') {
     $controller = new \App\Controllers\UserController();
     $controller->toggleStatus();
-} elseif ($route === 'users/reset_password') {
+} elseif ($route === 'admin/users/reset_password') {
     $controller = new \App\Controllers\UserController();
     $controller->resetPassword();
-} elseif ($route === 'users/delete') {
+} elseif ($route === 'admin/users/delete') {
     $controller = new \App\Controllers\UserController();
     $controller->delete();
+} elseif ($route === 'admin/users/create') {
+    $controller = new \App\Controllers\UserController();
+    $controller->create();
 } elseif ($route === 'public/department') {
     $controller = new \App\Controllers\PublicController();
     $controller->department();
