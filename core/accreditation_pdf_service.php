@@ -9,6 +9,7 @@
 require_once __DIR__ . '/../libs/fpdf.php';
 require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
 require_once __DIR__ . '/pdf_merger_service.php';
+require_once __DIR__ . '/pdf_normalizer.php';
 
 use setasign\Fpdi\Fpdi;
 
@@ -183,81 +184,11 @@ class AccreditationPdfService {
     }
 
     /**
-     * Normalize a PDF file using Python PyPDF2 if it contains compressed object streams (PDF 1.5+)
+     * Normalize a PDF file if it contains compressed object streams or cross-reference streams (PDF 1.5+)
      * Returns the normalized path, or original path if already compatible.
      */
     public static function normalizePdfIfNeeded(string $filePath, array &$tempFilesTracker = []): string {
-        if (empty($filePath) || !file_exists($filePath)) {
-            return $filePath;
-        }
-
-        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        if ($ext !== 'pdf') {
-            return $filePath;
-        }
-
-        // Test if standard FPDI can read the file
-        $testFpdi = new Fpdi();
-        try {
-            $testFpdi->setSourceFile($filePath);
-            return $filePath; // FPDI reads it without error
-        } catch (\Throwable $e) {
-            // Need normalization (compressed xref or unsupported stream)
-        }
-
-        // Check if Anaconda or system python is available
-        $pythonExec = null;
-        $candidates = [
-            'E:\\set\\anaconda3\\python.exe',
-            'python'
-        ];
-        foreach ($candidates as $cand) {
-            $out = [];
-            $code = 0;
-            @exec("\"{$cand}\" -c \"import PyPDF2; print('OK')\" 2>&1", $out, $code);
-            if ($code === 0 && isset($out[0]) && trim($out[0]) === 'OK') {
-                $pythonExec = $cand;
-                break;
-            }
-        }
-
-        if ($pythonExec) {
-            $normalizedTemp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'norm_' . uniqid() . '.pdf';
-            $pyScript = "import sys, PyPDF2\n"
-                      . "try:\n"
-                      . "    reader = PyPDF2.PdfReader(sys.argv[1])\n"
-                      . "    writer = PyPDF2.PdfWriter()\n"
-                      . "    for p in reader.pages:\n"
-                      . "        writer.add_page(p)\n"
-                      . "    with open(sys.argv[2], 'wb') as f:\n"
-                      . "        writer.write(f)\n"
-                      . "    print('SUCCESS')\n"
-                      . "except Exception as ex:\n"
-                      . "    print('ERROR:', ex)\n";
-
-            $scriptPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'norm_runner_' . uniqid() . '.py';
-            if (@file_put_contents($scriptPath, $pyScript) === false) {
-                return $filePath;
-            }
-
-            $cmd = "\"{$pythonExec}\" \"{$scriptPath}\" " . escapeshellarg($filePath) . " " . escapeshellarg($normalizedTemp);
-            $output = [];
-            $retCode = 0;
-            exec($cmd . ' 2>&1', $output, $retCode);
-
-            @unlink($scriptPath);
-
-            if ($retCode === 0 && file_exists($normalizedTemp) && filesize($normalizedTemp) > 0) {
-                $tempFilesTracker[] = $normalizedTemp;
-                return $normalizedTemp;
-            } else {
-                if (file_exists($normalizedTemp)) {
-                    @unlink($normalizedTemp);
-                }
-            }
-        }
-
-        return $filePath;
+        return \PdfNormalizer::normalizePdfIfNeeded($filePath, $tempFilesTracker);
     }
 
     /**

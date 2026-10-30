@@ -545,6 +545,12 @@
                         showListToast('Please select at least one document from the table using the checkboxes.', 'warning');
                         return false;
                     }
+                    const submitter = e.submitter || document.activeElement;
+                    if (submitter && submitter.getAttribute && submitter.getAttribute('value') === 'merge_pdf') {
+                        bulkActionFormEl.target = '_blank';
+                    } else {
+                        bulkActionFormEl.target = '_self';
+                    }
                 });
             }
 

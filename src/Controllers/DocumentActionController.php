@@ -783,7 +783,7 @@ class DocumentActionController {
                 }
                 header('X-Content-Type-Options: nosniff');
                 header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="FMS_Bulk_Merged.pdf"; filename*=UTF-8\'\'FMS_Bulk_Merged.pdf');
+                header('Content-Disposition: inline; filename="FMS_Bulk_Merged.pdf"; filename*=UTF-8\'\'FMS_Bulk_Merged.pdf');
                 $fsize = @filesize($merged_path);
                 if ($fsize !== false && $fsize >= 0) {
                     header('Content-Length: ' . $fsize);
@@ -967,7 +967,7 @@ class DocumentActionController {
             $safe_merged_name = str_replace(['"', ';', "\r", "\n"], '', basename($merged_filename));
             header('X-Content-Type-Options: nosniff');
             header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="' . $safe_merged_name . '"; filename*=UTF-8\'\'' . rawurlencode($safe_merged_name));
+            header('Content-Disposition: inline; filename="' . $safe_merged_name . '"; filename*=UTF-8\'\'' . rawurlencode($safe_merged_name));
             $fsize = @filesize($merged_path);
             if ($fsize !== false && $fsize >= 0) {
                 header('Content-Length: ' . $fsize);

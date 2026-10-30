@@ -512,6 +512,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Please select at least one document before performing a bulk action.');
                 return false;
             }
+            const submitter = e.submitter || document.activeElement;
+            if (submitter && submitter.getAttribute && submitter.getAttribute('value') === 'merge_pdf') {
+                bulkActionFormStudent.target = '_blank';
+            } else {
+                bulkActionFormStudent.target = '_self';
+            }
         });
     }
 });

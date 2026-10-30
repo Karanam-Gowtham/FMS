@@ -196,6 +196,13 @@
                     if (checked.length === 0) {
                         e.preventDefault();
                         alert('Please select at least one document before performing a bulk action.');
+                        return false;
+                    }
+                    const submitter = e.submitter || document.activeElement;
+                    if (submitter && submitter.getAttribute && submitter.getAttribute('value') === 'merge_pdf') {
+                        bulkFormMyUploads.target = '_blank';
+                    } else {
+                        bulkFormMyUploads.target = '_self';
                     }
                 });
             }

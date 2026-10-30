@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/../libs/fpdf.php';
 require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+require_once __DIR__ . '/pdf_normalizer.php';
 
 use setasign\Fpdi\Fpdi;
 
@@ -64,9 +65,6 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
     $totalPagesAdded = 0;
     $tempFilesToClean = [];
 
-    // Helper for normalization if AccreditationPdfService is loaded
-    $canNormalize = class_exists('AccreditationPdfService');
-
     try {
         foreach ($files_to_merge as $file) {
             $path = $file['path'] ?? '';
@@ -87,10 +85,7 @@ function merge_pdfs_with_headings(array $files_to_merge, string $output_path): b
             }
 
             // 2. PDF Files (with automatic normalization for compressed PDFs)
-            $actualPath = $path;
-            if ($canNormalize) {
-                $actualPath = \AccreditationPdfService::normalizePdfIfNeeded($path, $tempFilesToClean);
-            }
+            $actualPath = PdfNormalizer::normalizePdfIfNeeded($path, $tempFilesToClean);
 
             $pagesImported = 0;
             try {
