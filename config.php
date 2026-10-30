@@ -138,6 +138,14 @@ define('PORTAL_PATH', BASE_URL . '/modules');
 define('UPLOADS_PATH', ROOT_PATH . '/uploads');
 define('UPLOADS_URL', BASE_URL . '/uploads');
 
+// Ensure essential runtime directories exist
+if (!is_dir(ROOT_PATH . '/uploads')) {
+    @mkdir(ROOT_PATH . '/uploads', 0755, true);
+}
+if (!is_dir(ROOT_PATH . '/tmp')) {
+    @mkdir(ROOT_PATH . '/tmp', 0755, true);
+}
+
 /* =========================================================
    API / AJAX REQUEST HELPER
    ========================================================= */

@@ -287,6 +287,7 @@ abstract class AbstractAccreditationAPIController {
 
             // Load Libraries (FPDF & FPDI)
             require_once __DIR__ . '/../../libs/fpdf.php';
+            require_once __DIR__ . '/../../core/pdf_normalizer.php';
             $use_fpdi = false;
             $fpdi_autoload = __DIR__ . '/../../libs/fpdi/FPDI-2.6.0/src/autoload.php';
             if (file_exists($fpdi_autoload)) {
@@ -295,6 +296,7 @@ abstract class AbstractAccreditationAPIController {
                     $use_fpdi = true;
                 }
             }
+            $temp_cleanup_normalizer = [];
 
             $pdf = $use_fpdi ? new \setasign\Fpdi\Fpdi('P', 'mm', 'A4') : new \FPDF('P', 'mm', 'A4');
             $pdf->SetAutoPageBreak(true, 18);
@@ -683,8 +685,9 @@ abstract class AbstractAccreditationAPIController {
                             continue;
                         }
 
+                        $actualPath = class_exists('\PdfNormalizer') ? \PdfNormalizer::normalizePdfIfNeeded($fullPath, $temp_cleanup_normalizer) : $fullPath;
                         try {
-                            $pageCount = $pdf->setSourceFile($fullPath);
+                            $pageCount = $pdf->setSourceFile($actualPath);
                             for ($p = 1; $p <= $pageCount; $p++) {
                                 $tplId = $pdf->importPage($p);
                                 $size = $pdf->getTemplateSize($tplId);
@@ -743,6 +746,14 @@ abstract class AbstractAccreditationAPIController {
 
         } catch (\Throwable $e) {
             $this->outputJsonError($module, 'generate', $e);
+        } finally {
+            if (!empty($temp_cleanup_normalizer)) {
+                foreach ($temp_cleanup_normalizer as $tmp) {
+                    if (file_exists($tmp)) {
+                        @unlink($tmp);
+                    }
+                }
+            }
         }
     }
 

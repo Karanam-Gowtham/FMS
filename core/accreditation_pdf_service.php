@@ -453,8 +453,9 @@ class AccreditationPdfService {
                 } 
                 // 2. Vector PDF Attachment
                 elseif ($ext === 'pdf') {
+                    $normFilePath = self::normalizePdfIfNeeded($filePath, $tempTrackedFiles);
                     try {
-                        $pageCount = $pdf->setSourceFile($filePath);
+                        $pageCount = $pdf->setSourceFile($normFilePath);
 
                         for ($p = 1; $p <= $pageCount; $p++) {
                             $templateId = $pdf->importPage($p);

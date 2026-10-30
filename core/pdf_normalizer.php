@@ -67,8 +67,8 @@ class PdfNormalizer {
             @unlink($normalizedTemp);
         }
 
-        // 3. Fallback: Check if python with PyPDF2/pypdf is available
-        $pythonCandidates = ['python3', 'python', 'E:\\set\\anaconda3\\python.exe'];
+        // 3. Fallback: Check if generic python is available on system PATH
+        $pythonCandidates = ['python3', 'python'];
         foreach ($pythonCandidates as $py) {
             $pyOut = [];
             $pyCode = 0;
@@ -117,13 +117,19 @@ class PdfNormalizer {
             return false;
         }
 
-        // Find last startxref
-        if (!preg_match_all('/startxref\s+(\d+)\s+%%EOF/s', $content, $allMatches)) {
+        // Find last startxref robustly
+        $pos = strrpos($content, 'startxref');
+        if ($pos === false) {
+            $pos = strrpos($content, 'startref');
+        }
+        if ($pos === false) {
             return false;
         }
 
-        $lastMatch = end($allMatches[1]);
-        $startXref = (int)$lastMatch;
+        if (!preg_match('/start[x]?ref\s+(\d+)/', substr($content, $pos), $sxMatch)) {
+            return false;
+        }
+        $startXref = (int)$sxMatch[1];
 
         // Trace XRef chain (handling incremental revisions via /Prev)
         $xrefOffsetsToVisit = [$startXref];
@@ -138,26 +144,54 @@ class PdfNormalizer {
             }
             $visitedOffsets[$currentOffset] = true;
 
-            $sub = substr($content, $currentOffset);
-            if (strpos(ltrim($sub), 'xref') === 0) {
+            $sub = ltrim(substr($content, $currentOffset));
+            if (strpos($sub, 'xref') === 0) {
                 self::parseClassicXref($sub, $trailerDictCombined, $xrefOffsetsToVisit);
                 continue;
             }
 
-            // Match /XRef stream object
-            if (!preg_match('/^(\d+)\s+(\d+)\s+obj\s*<<(.*?)>>\s*stream(?:\r\n|\r|\n)(.*?)endstream/s', $sub, $sm)) {
-                if (!preg_match('/<<(.*?)>>\s*stream(?:\r\n|\r|\n)(.*?)endstream/s', $sub, $sm2)) {
-                    continue;
-                }
-                $dictStr = $sm2[1];
-                $rawStream = $sm2[2];
-            } else {
-                $dictStr = $sm[3];
-                $rawStream = $sm[4];
+            // Locate "stream" keyword
+            $streamKwPos = strpos($sub, 'stream');
+            if ($streamKwPos === false) {
+                continue;
             }
+
+            // Extract dictionary between first << and last >> preceding stream keyword
+            $dictSub = substr($sub, 0, $streamKwPos);
+            $firstLt = strpos($dictSub, '<<');
+            $lastGt = strrpos($dictSub, '>>');
+            if ($firstLt === false || $lastGt === false || $lastGt <= $firstLt) {
+                continue;
+            }
+            $dictStr = substr($dictSub, $firstLt + 2, $lastGt - $firstLt - 2);
 
             if (!preg_match('/\/Type\s*\/XRef\b/', $dictStr)) {
                 continue;
+            }
+
+            // Determine stream start position (after stream + newline)
+            $afterStreamPos = $streamKwPos + 6;
+            if (isset($sub[$afterStreamPos]) && $sub[$afterStreamPos] === "\r" && isset($sub[$afterStreamPos + 1]) && $sub[$afterStreamPos + 1] === "\n") {
+                $afterStreamPos += 2;
+            } elseif (isset($sub[$afterStreamPos]) && ($sub[$afterStreamPos] === "\n" || $sub[$afterStreamPos] === "\r")) {
+                $afterStreamPos += 1;
+            }
+
+            // Extract raw stream using /Length if available, otherwise search endstream
+            $rawStream = null;
+            if (preg_match('/\/Length\s+(\d+)/', $dictStr, $lenM)) {
+                $streamLen = (int)$lenM[1];
+                if ($streamLen > 0 && ($afterStreamPos + $streamLen) <= strlen($sub)) {
+                    $rawStream = substr($sub, $afterStreamPos, $streamLen);
+                }
+            }
+            if ($rawStream === null) {
+                $endStreamPos = strpos($sub, 'endstream', $afterStreamPos);
+                if ($endStreamPos !== false) {
+                    $rawStream = substr($sub, $afterStreamPos, $endStreamPos - $afterStreamPos);
+                } else {
+                    continue;
+                }
             }
 
             // Extract essential trailer entries
@@ -266,33 +300,62 @@ class PdfNormalizer {
                 $stmId = $entry[1];
                 if (!isset($objStreams[$stmId]) && isset($allXrefEntries[$stmId])) {
                     $stmOffset = $allXrefEntries[$stmId][1];
-                    $stmSub = substr($content, $stmOffset);
-                    if (preg_match('/^' . $stmId . '\s+\d+\s+obj\s*<<(.*?)>>\s*stream(?:\r\n|\r|\n)(.*?)endstream/s', $stmSub, $osm)) {
-                        $stmDict = $osm[1];
-                        $stmRaw = $osm[2];
-
-                        preg_match('/\/First\s+(\d+)/', $stmDict, $fm);
-                        $firstOffset = isset($fm[1]) ? (int)$fm[1] : 0;
-
-                        $stmData = @gzuncompress($stmRaw);
-                        if ($stmData === false) {
-                            $stmData = @gzinflate($stmRaw);
-                        }
-
-                        if ($stmData !== false) {
-                            $hdr = substr($stmData, 0, $firstOffset);
-                            $hdrTokens = preg_split('/\s+/', trim($hdr));
-                            $objOffsets = [];
-                            for ($h = 0; $h < count($hdrTokens); $h += 2) {
-                                if (isset($hdrTokens[$h + 1])) {
-                                    $objOffsets[] = [(int)$hdrTokens[$h], (int)$hdrTokens[$h + 1]];
+                    $stmSub = ltrim(substr($content, $stmOffset));
+                    
+                    $stmStreamPos = strpos($stmSub, 'stream');
+                    if ($stmStreamPos !== false) {
+                        $stmDictSub = substr($stmSub, 0, $stmStreamPos);
+                        $sLt = strpos($stmDictSub, '<<');
+                        $sGt = strrpos($stmDictSub, '>>');
+                        if ($sLt !== false && $sGt !== false && $sGt > $sLt) {
+                            $stmDict = substr($stmDictSub, $sLt + 2, $sGt - $sLt - 2);
+                            
+                            $afterStmPos = $stmStreamPos + 6;
+                            if (isset($stmSub[$afterStmPos]) && $stmSub[$afterStmPos] === "\r" && isset($stmSub[$afterStmPos + 1]) && $stmSub[$afterStmPos + 1] === "\n") {
+                                $afterStmPos += 2;
+                            } elseif (isset($stmSub[$afterStmPos]) && ($stmSub[$afterStmPos] === "\n" || $stmSub[$afterStmPos] === "\r")) {
+                                $afterStmPos += 1;
+                            }
+                            
+                            $stmRaw = null;
+                            if (preg_match('/\/Length\s+(\d+)/', $stmDict, $slM)) {
+                                $slen = (int)$slM[1];
+                                if ($slen > 0 && ($afterStmPos + $slen) <= strlen($stmSub)) {
+                                    $stmRaw = substr($stmSub, $afterStmPos, $slen);
                                 }
                             }
-                            $objStreams[$stmId] = [
-                                'first' => $firstOffset,
-                                'data' => $stmData,
-                                'offsets' => $objOffsets
-                            ];
+                            if ($stmRaw === null) {
+                                $esPos = strpos($stmSub, 'endstream', $afterStmPos);
+                                if ($esPos !== false) {
+                                    $stmRaw = substr($stmSub, $afterStmPos, $esPos - $afterStmPos);
+                                }
+                            }
+
+                            if ($stmRaw !== null) {
+                                preg_match('/\/First\s+(\d+)/', $stmDict, $fm);
+                                $firstOffset = isset($fm[1]) ? (int)$fm[1] : 0;
+
+                                $stmData = @gzuncompress($stmRaw);
+                                if ($stmData === false) {
+                                    $stmData = @gzinflate($stmRaw);
+                                }
+
+                                if ($stmData !== false) {
+                                    $hdr = substr($stmData, 0, $firstOffset);
+                                    $hdrTokens = preg_split('/\s+/', trim($hdr));
+                                    $objOffsets = [];
+                                    for ($h = 0; $h < count($hdrTokens); $h += 2) {
+                                        if (isset($hdrTokens[$h + 1])) {
+                                            $objOffsets[] = [(int)$hdrTokens[$h], (int)$hdrTokens[$h + 1]];
+                                        }
+                                    }
+                                    $objStreams[$stmId] = [
+                                        'first' => $firstOffset,
+                                        'data' => $stmData,
+                                        'offsets' => $objOffsets
+                                    ];
+                                }
+                            }
                         }
                     }
                 }
@@ -344,10 +407,30 @@ class PdfNormalizer {
                     continue;
                 }
                 $origOffset = $entry[1];
-                $objSub = substr($content, $origOffset);
-                if (preg_match('/^(' . $objId . '\s+\d+\s+obj.*?endobj)/s', $objSub, $objM)) {
+                $objSub = ltrim(substr($content, $origOffset));
+                if (!preg_match('/^' . $objId . '\s+\d+\s+obj\b/', $objSub)) {
+                    continue;
+                }
+                
+                $streamPos = strpos($objSub, 'stream');
+                if ($streamPos !== false) {
+                    $endStreamPos = strpos($objSub, 'endstream', $streamPos + 6);
+                    if ($endStreamPos !== false) {
+                        $endObjPos = strpos($objSub, 'endobj', $endStreamPos + 9);
+                        if ($endObjPos !== false) {
+                            $objBody = substr($objSub, 0, $endObjPos + 6);
+                            $newOffsets[$objId] = strlen($out);
+                            $out .= $objBody . "\n";
+                            continue;
+                        }
+                    }
+                }
+                
+                $endObjPos = strpos($objSub, 'endobj');
+                if ($endObjPos !== false) {
+                    $objBody = substr($objSub, 0, $endObjPos + 6);
                     $newOffsets[$objId] = strlen($out);
-                    $out .= $objM[1] . "\n";
+                    $out .= $objBody . "\n";
                 }
             } elseif ($entry[0] === 2) {
                 if (isset($extractedObjects[$objId])) {

@@ -199,8 +199,9 @@ foreach ($view_files as $vf) {
     $vrel = str_replace(realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR, '', $vpath);
     $view_count++;
 
-    // Syntax check each view
-    $cmd = 'e:\\set\\xampp\\php\\php.exe -l ' . escapeshellarg($vpath) . ' 2>&1';
+    // Syntax check each view using current PHP runtime
+    $php_bin = defined('PHP_BINARY') && file_exists(PHP_BINARY) ? PHP_BINARY : 'php';
+    $cmd = escapeshellarg($php_bin) . ' -l ' . escapeshellarg($vpath) . ' 2>&1';
     exec($cmd, $out, $ret);
     if ($ret !== 0) {
         add_finding('Views', 'CRITICAL', "Syntax error in view $vrel: " . implode(' ', $out), $vrel);

@@ -271,7 +271,7 @@ class DocumentActionController {
         }
 
         // Fetch file record
-        $stmt = $conn->prepare("SELECT doc_id, file_path, original_name as original_filename, file_size, mime_type FROM document_files WHERE file_id = ?");
+        $stmt = $conn->prepare("SELECT doc_id, file_path, original_name as original_filename, file_size, mime_type, file_label FROM document_files WHERE file_id = ?");
         if ($stmt) {
             $stmt->bind_param('i', $file_id);
             $stmt->execute();
@@ -311,6 +311,37 @@ class DocumentActionController {
             $this->safeRedirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . (int)$file_record['doc_id']);
         }
         $real_path = $canonical_path;
+
+        // Auto-heal stale merged master PDF from fresh source files if available
+        if (($file_record['file_label'] ?? '') === 'merged_pdf') {
+            $child_stmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_label != 'merged_pdf' ORDER BY file_id ASC");
+            if ($child_stmt) {
+                $child_doc_id = (int)$file_record['doc_id'];
+                $child_stmt->bind_param('i', $child_doc_id);
+                $child_stmt->execute();
+                $cres = $child_stmt->get_result();
+                $child_files = [];
+                while ($crow = $cres->fetch_assoc()) {
+                    $cp = file_exists($crow['file_path']) ? $crow['file_path'] : ($base_dir . '/' . ltrim($crow['file_path'], '/\\'));
+                    if (file_exists($cp)) {
+                        $child_files[] = [
+                            'path' => realpath($cp),
+                            'title' => ucfirst(str_replace('_', ' ', $crow['file_label']))
+                        ];
+                    }
+                }
+                $child_stmt->close();
+
+                if (count($child_files) > 1) {
+                    require_once __DIR__ . '/../../core/pdf_merger_service.php';
+                    try {
+                        merge_pdfs_with_headings($child_files, $real_path);
+                    } catch (\Throwable $e) {
+                        error_log("Dynamic heal of merged_pdf failed: " . $e->getMessage());
+                    }
+                }
+            }
+        }
 
         // Stream file - clean all nested output buffers
         while (ob_get_level()) {
@@ -732,38 +763,45 @@ class DocumentActionController {
         $allowed_base = realpath(__DIR__ . '/../../uploads');
 
         foreach ($valid_docs as $doc) {
-            // Prefer the main merged/compiled PDF for the document if available
-            $main_file_path = $doc['file_path'] ?? '';
+            $doc_id = (int)($doc['doc_id'] ?? 0);
             $base_dir = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2);
-            $full_path = file_exists($main_file_path) ? $main_file_path : ($base_dir . '/' . ltrim($main_file_path, '/\\'));
-            $real_main = realpath($full_path);
-            
-            $main_ext = strtolower(pathinfo($full_path, PATHINFO_EXTENSION));
-            if (!empty($main_file_path) && $real_main && $allowed_base && stripos($real_main, $allowed_base) === 0 && in_array($main_ext, $supported_exts, true)) {
-                $pdfs_to_merge[] = [
-                    'path' => $real_main,
-                    'title' => $doc['title'] ?: $doc['type_label']
-                ];
-            } else {
-                // Fallback: Check individual PDF and image files if main file is not available
-                $stmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_label != 'merged_pdf'");
-                if ($stmt) {
-                    $doc_id = $doc['doc_id'];
-                    $stmt->bind_param('i', $doc_id);
-                    $stmt->execute();
-                    $res = $stmt->get_result();
-                    while ($row = $res->fetch_assoc()) {
-                        $path = file_exists($row['file_path']) ? $row['file_path'] : ($base_dir . '/' . ltrim($row['file_path'], '/\\'));
-                        $real_path = realpath($path);
-                        $att_ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                        if ($real_path && $allowed_base && stripos($real_path, $allowed_base) === 0 && in_array($att_ext, $supported_exts, true)) {
-                            $pdfs_to_merge[] = [
-                                'path' => $real_path,
-                                'title' => ($doc['title'] ?: $doc['type_label']) . ' - ' . ucfirst(str_replace('_', ' ', $row['file_label']))
-                            ];
-                        }
+            $attached_items = [];
+
+            // 1. Query individual source files from document_files first (prioritizing genuine uploads over pre-merged master)
+            $stmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_label != 'merged_pdf' ORDER BY file_id ASC");
+            if ($stmt) {
+                $stmt->bind_param('i', $doc_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                while ($row = $res->fetch_assoc()) {
+                    $path = file_exists($row['file_path']) ? $row['file_path'] : ($base_dir . '/' . ltrim($row['file_path'], '/\\'));
+                    $real_path = realpath($path);
+                    $att_ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                    if ($real_path && $allowed_base && stripos($real_path, $allowed_base) === 0 && in_array($att_ext, $supported_exts, true)) {
+                        $attached_items[] = [
+                            'path' => $real_path,
+                            'title' => ($doc['title'] ?: $doc['type_label']) . ' - ' . ucfirst(str_replace('_', ' ', $row['file_label']))
+                        ];
                     }
-                    $stmt->close();
+                }
+                $stmt->close();
+            }
+
+            if (!empty($attached_items)) {
+                foreach ($attached_items as $item) {
+                    $pdfs_to_merge[] = $item;
+                }
+            } else {
+                // Fallback: If no individual child files exist, use main file_path (e.g. single-file uploads)
+                $main_file_path = $doc['file_path'] ?? '';
+                $full_path = file_exists($main_file_path) ? $main_file_path : ($base_dir . '/' . ltrim($main_file_path, '/\\'));
+                $real_main = realpath($full_path);
+                $main_ext = strtolower(pathinfo($full_path, PATHINFO_EXTENSION));
+                if (!empty($main_file_path) && $real_main && $allowed_base && stripos($real_main, $allowed_base) === 0 && in_array($main_ext, $supported_exts, true)) {
+                    $pdfs_to_merge[] = [
+                        'path' => $real_main,
+                        'title' => $doc['title'] ?: $doc['type_label']
+                    ];
                 }
             }
         }
@@ -868,23 +906,41 @@ class DocumentActionController {
             // Find associated proof files (PDFs and Images)
             $resolvedFilePath = '';
 
-            // 1. Check document_files for pre-merged master PDF first
-            $mstmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf' LIMIT 1");
-            if ($mstmt) {
-                $mstmt->bind_param('i', $id);
-                $mstmt->execute();
-                $mres = $mstmt->get_result()->fetch_assoc();
-                $mstmt->close();
-
-                if (!empty($mres['file_path'])) {
-                    $p = __DIR__ . '/../../' . ltrim($mres['file_path'], '/\\');
+            // 1. Prioritize individual source files first (excluding any stale pre-merged master)
+            $fstmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? AND file_label != 'merged_pdf' ORDER BY file_id ASC");
+            if ($fstmt) {
+                $fstmt->bind_param('i', $id);
+                $fstmt->execute();
+                $fres = $fstmt->get_result();
+                $attached_files = [];
+                while ($frow = $fres->fetch_assoc()) {
+                    $rawFilePath = ltrim($frow['file_path'], '/\\');
+                    $p = __DIR__ . '/../../' . $rawFilePath;
                     if (file_exists($p)) {
-                        $resolvedFilePath = $p;
+                        $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
+                        if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'], true)) {
+                            $attached_files[] = ['path' => $p, 'title' => $frow['file_label']];
+                        }
                     }
+                }
+                $fstmt->close();
+
+                if (count($attached_files) > 1) {
+                    $tempMerged = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'doc_' . $id . '_compiled_' . uniqid() . '.pdf';
+                    try {
+                        if (merge_pdfs_with_headings($attached_files, $tempMerged)) {
+                            $resolvedFilePath = $tempMerged;
+                            $temp_cleanup_registry[] = $tempMerged;
+                        }
+                    } catch (\Throwable $e) {
+                        $resolvedFilePath = $attached_files[0]['path'] ?? '';
+                    }
+                } elseif (count($attached_files) === 1) {
+                    $resolvedFilePath = $attached_files[0]['path'];
                 }
             }
 
-            // 2. Try document's main file_path if not resolved
+            // 2. Fallback: Try document's main file_path if not resolved from individual child files
             if (empty($resolvedFilePath)) {
                 $rawDocPath = ltrim($doc['file_path'] ?? '', '/\\');
                 $mainPath = __DIR__ . '/../../' . $rawDocPath;
@@ -893,38 +949,20 @@ class DocumentActionController {
                 }
             }
 
-            // 3. Fallback: Query all attached files (both PDFs and JPG/PNG images)
+            // 3. Last fallback: Check document_files for any merged_pdf record
             if (empty($resolvedFilePath)) {
-                $fstmt = $conn->prepare("SELECT file_path, file_label FROM document_files WHERE doc_id = ? ORDER BY file_id ASC");
-                if ($fstmt) {
-                    $fstmt->bind_param('i', $id);
-                    $fstmt->execute();
-                    $fres = $fstmt->get_result();
-                    $attached_files = [];
-                    while ($frow = $fres->fetch_assoc()) {
-                        $rawFilePath = ltrim($frow['file_path'], '/\\');
-                        $p = __DIR__ . '/../../' . $rawFilePath;
-                        if (file_exists($p)) {
-                            $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
-                            if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif'], true)) {
-                                $attached_files[] = ['path' => $p, 'title' => $frow['file_label']];
-                            }
-                        }
-                    }
-                    $fstmt->close();
+                $mstmt = $conn->prepare("SELECT file_path FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf' LIMIT 1");
+                if ($mstmt) {
+                    $mstmt->bind_param('i', $id);
+                    $mstmt->execute();
+                    $mres = $mstmt->get_result()->fetch_assoc();
+                    $mstmt->close();
 
-                    if (count($attached_files) > 1) {
-                        $tempMerged = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'doc_' . $id . '_compiled_' . uniqid() . '.pdf';
-                        try {
-                            if (merge_pdfs_with_headings($attached_files, $tempMerged)) {
-                                $resolvedFilePath = $tempMerged;
-                                $temp_cleanup_registry[] = $tempMerged;
-                            }
-                        } catch (\Throwable $e) {
-                            $resolvedFilePath = $attached_files[0]['path'] ?? '';
+                    if (!empty($mres['file_path'])) {
+                        $p = __DIR__ . '/../../' . ltrim($mres['file_path'], '/\\');
+                        if (file_exists($p)) {
+                            $resolvedFilePath = $p;
                         }
-                    } elseif (count($attached_files) === 1) {
-                        $resolvedFilePath = $attached_files[0]['path'];
                     }
                 }
             }
