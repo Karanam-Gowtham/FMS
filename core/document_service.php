@@ -1090,7 +1090,7 @@ function doc_get_academic_years(mysqli $conn): array
  */
 function doc_get_active_year(mysqli $conn): ?array
 {
-    $stmt = $conn->prepare("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT year_id, year_label FROM academic_years ORDER BY is_current DESC, year_label DESC LIMIT 1");
     if (!$stmt) {
         error_log("Failed to prepare statement in doc_get_active_year: " . $conn->error);
         return null;
@@ -1417,3 +1417,71 @@ function doc_delete(mysqli $conn, int $doc_id, array $auth): array
         ];
     }
 }
+
+/**
+ * Checks if an academic year can be safely deleted.
+ */
+function doc_can_delete_academic_year(mysqli $conn, int $year_id): array {
+    $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM documents WHERE academic_year_id = ?");
+    if (!$stmt) {
+        return ['allowed' => false, 'doc_count' => 0, 'reason' => 'Database query prepare error.'];
+    }
+    $stmt->bind_param("i", $year_id);
+    $stmt->execute();
+    $doc_count = (int)$stmt->get_result()->fetch_assoc()['total'];
+    $stmt->close();
+
+    if ($doc_count > 0) {
+        return [
+            'allowed' => false,
+            'doc_count' => $doc_count,
+            'reason' => "Cannot delete academic year. It is referenced by {$doc_count} institutional document(s)."
+        ];
+    }
+
+    return [
+        'allowed' => true,
+        'doc_count' => 0,
+        'reason' => 'Academic year has 0 linked documents and can be safely deleted.'
+    ];
+}
+
+/**
+ * Checks if a department can be safely deleted.
+ */
+function doc_can_delete_department(mysqli $conn, int $dept_id): array {
+    $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM documents WHERE dept_id = ?");
+    if (!$stmt) {
+        return ['allowed' => false, 'doc_count' => 0, 'user_count' => 0, 'reason' => 'Database query error.'];
+    }
+    $stmt->bind_param("i", $dept_id);
+    $stmt->execute();
+    $doc_count = (int)$stmt->get_result()->fetch_assoc()['total'];
+    $stmt->close();
+
+    $stmt2 = $conn->prepare("SELECT COUNT(*) AS total FROM user_roles WHERE dept_id = ?");
+    if (!$stmt2) {
+        return ['allowed' => false, 'doc_count' => $doc_count, 'user_count' => 0, 'reason' => 'Database query error.'];
+    }
+    $stmt2->bind_param("i", $dept_id);
+    $stmt2->execute();
+    $user_count = (int)$stmt2->get_result()->fetch_assoc()['total'];
+    $stmt2->close();
+
+    if ($doc_count > 0 || $user_count > 0) {
+        return [
+            'allowed' => false,
+            'doc_count' => $doc_count,
+            'user_count' => $user_count,
+            'reason' => "Cannot delete department. It has {$user_count} faculty/role assignment(s) and {$doc_count} uploaded document(s)."
+        ];
+    }
+
+    return [
+        'allowed' => true,
+        'doc_count' => 0,
+        'user_count' => 0,
+        'reason' => 'Department has 0 faculty and 0 documents, and can be safely deleted.'
+    ];
+}
+

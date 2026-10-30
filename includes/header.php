@@ -927,6 +927,7 @@ if (isset($extra_head)) {
                     <a href="<?= $app_url ?>/public/index.php?route=student_activities/dashboard">Student Activities</a>
                     <?php if (in_array($header_role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD], true)): ?>
                     <a href="<?= $app_url ?>/public/index.php?route=academic_years/list">Academic Years</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=admin/departments">Departments &amp; Units</a>
                     <?php endif; ?>
                     <?php if (in_array($header_role_id, [ROLE_ADMIN, ROLE_IQAC], true)): ?>
                     <a href="<?= $app_url ?>/public/index.php?route=admin/audit_logs">Audit Trail</a>
@@ -955,13 +956,17 @@ if (isset($extra_head)) {
                 <a href="<?= $app_url ?>/public/index.php?route=admin/users" class="nav-btn-link dashboard-link">
                     Users & Leadership
                 </a>
-                <!-- Audit Trail Direct Link for Admin -->
-                <a href="<?= $app_url ?>/public/index.php?route=admin/audit_logs" class="nav-btn-link dashboard-link">
-                    Audit Trail
+                <!-- Department Settings Link for Admin -->
+                <a href="<?= $app_url ?>/public/index.php?route=admin/departments" class="nav-btn-link dashboard-link">
+                    Departments
                 </a>
                 <!-- Academic Years Direct Link for Admin -->
                 <a href="<?= $app_url ?>/public/index.php?route=academic_years/list" class="nav-btn-link dashboard-link">
                     Academic Years
+                </a>
+                <!-- Audit Trail Direct Link for Admin -->
+                <a href="<?= $app_url ?>/public/index.php?route=admin/audit_logs" class="nav-btn-link dashboard-link">
+                    Audit Trail
                 </a>
                 <?php endif; ?>
 

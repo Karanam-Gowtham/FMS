@@ -90,9 +90,27 @@ if ($route === 'dashboard') {
 } elseif ($route === 'profile/edit') {
     $controller = new \App\Controllers\ProfileController();
     $controller->edit();
-} elseif ($route === 'academic_years/list') {
+} elseif ($route === 'academic_years/list' || $route === 'admin/academic_years') {
     $controller = new \App\Controllers\AcademicYearController();
     $controller->list();
+} elseif ($route === 'admin/academic_years/set_current' || $route === 'academic_years/set_current') {
+    $controller = new \App\Controllers\AcademicYearController();
+    $controller->setCurrent();
+} elseif ($route === 'admin/academic_years/delete' || $route === 'academic_years/delete') {
+    $controller = new \App\Controllers\AcademicYearController();
+    $controller->delete();
+} elseif ($route === 'admin/departments' || $route === 'departments/list') {
+    $controller = new \App\Controllers\DepartmentController();
+    $controller->index();
+} elseif ($route === 'admin/departments/save') {
+    $controller = new \App\Controllers\DepartmentController();
+    $controller->save();
+} elseif ($route === 'admin/departments/toggle_academic') {
+    $controller = new \App\Controllers\DepartmentController();
+    $controller->toggleAcademic();
+} elseif ($route === 'admin/departments/delete') {
+    $controller = new \App\Controllers\DepartmentController();
+    $controller->delete();
 } elseif ($route === 'admin/users' || $route === 'users/list') {
     $controller = new \App\Controllers\UserController();
     $controller->index();

@@ -695,6 +695,17 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
                             </div>
                         </a>
 
+                        <!-- Departments & Units (Admin Primary) -->
+                        <a href="<?= BASE_URL ?>/public/index.php?route=admin/departments" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #0284c7; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(2, 132, 199, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                            <div style="background: #f0f9ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                                <i class="fas fa-sitemap" style="color: #0284c7; font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.95rem;">Departments &amp; Units</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Academic &amp; support cell settings</div>
+                            </div>
+                        </a>
+
                         <!-- Academic Years (Admin Primary) -->
                         <a href="<?= BASE_URL ?>/public/index.php?route=academic_years/list" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                             <div style="background: #fffbeb; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
