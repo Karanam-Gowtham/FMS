@@ -85,6 +85,7 @@ class AcademicYearController extends BaseController {
         if (empty($new_year)) {
             $this->flashError("Academic Year cannot be empty.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         // Automatically normalize YYYY-YYYY (e.g. 2026-2027) into canonical YYYY-YY (e.g. 2026-27)
@@ -95,6 +96,7 @@ class AcademicYearController extends BaseController {
         if (!preg_match('/^\d{4}-\d{2}$/', $new_year)) {
             $this->flashError("Invalid Academic Year format. Please use YYYY-YY (e.g. 2025-26).");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         $start_yr = (int)substr($new_year, 0, 4);
@@ -103,6 +105,7 @@ class AcademicYearController extends BaseController {
         if ($end_yy !== $expected_end_yy || $start_yr < 1950 || $start_yr > 2100) {
             $this->flashError("Invalid Academic Year. Years must be consecutive (e.g. " . $start_yr . "-" . sprintf('%02d', $expected_end_yy) . ").");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         $chk = $this->conn->prepare("SELECT year_id FROM academic_years WHERE year_label = ?");
@@ -114,6 +117,7 @@ class AcademicYearController extends BaseController {
             if ($existing) {
                 $this->flashError("Academic Year '{$new_year}' already exists.");
                 $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+                return;
             }
         }
 
@@ -147,6 +151,7 @@ class AcademicYearController extends BaseController {
         if ($year_id <= 0) {
             $this->flashError("Invalid Academic Year selection.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         $stmt = $this->conn->prepare("SELECT year_label FROM academic_years WHERE year_id = ?");
@@ -158,6 +163,7 @@ class AcademicYearController extends BaseController {
         if (!$target) {
             $this->flashError("Academic Year not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         $this->conn->begin_transaction();
@@ -191,6 +197,7 @@ class AcademicYearController extends BaseController {
         if ($year_id <= 0) {
             $this->flashError("Invalid Academic Year ID.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         $stmt = $this->conn->prepare("SELECT year_label, is_current FROM academic_years WHERE year_id = ?");
@@ -202,17 +209,20 @@ class AcademicYearController extends BaseController {
         if (!$target) {
             $this->flashError("Academic Year not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         if ((int)$target['is_current'] === 1) {
             $this->flashError("Cannot delete the currently active academic year. Please designate another year as active first.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         $can_delete = doc_can_delete_academic_year($this->conn, $year_id);
         if (!$can_delete['allowed']) {
             $this->flashError($can_delete['reason']);
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return;
         }
 
         try {

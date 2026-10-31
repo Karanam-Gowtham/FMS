@@ -20,6 +20,13 @@ function csrfField(): string
     return '<input type="hidden" name="_csrf_token" value="' . htmlspecialchars(csrfToken()) . '">';
 }
 
+function verify_csrf(?string $token = null): bool
+{
+    $submitted = $token ?? ($_POST['_csrf_token'] ?? $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    $stored = $_SESSION['_csrf_token'] ?? '';
+    return !empty($stored) && !empty($submitted) && hash_equals($stored, $submitted);
+}
+
 function csrfValidate(): void
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

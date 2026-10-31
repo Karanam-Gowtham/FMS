@@ -118,6 +118,7 @@ class DepartmentController extends BaseController {
 
         if (!$this->isPost()) {
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         $this->validateCsrf();
@@ -129,11 +130,13 @@ class DepartmentController extends BaseController {
         if (empty($dept_name)) {
             $this->flashError("Department name cannot be empty.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         if (strlen($dept_name) > 100) {
             $this->flashError("Department name cannot exceed 100 characters.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         // Uniqueness check
@@ -146,6 +149,7 @@ class DepartmentController extends BaseController {
         if ($existing) {
             $this->flashError("A department with the name '{$dept_name}' already exists.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         $actor_uid = $this->userId;
@@ -182,6 +186,7 @@ class DepartmentController extends BaseController {
 
         if (!$this->isPost()) {
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         $this->validateCsrf();
@@ -190,6 +195,7 @@ class DepartmentController extends BaseController {
         if ($dept_id <= 0) {
             $this->flashError("Invalid department ID.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         $t_stmt = $this->conn->prepare("UPDATE departments SET is_academic = IF(is_academic = 1, 0, 1) WHERE dept_id = ?");
@@ -221,6 +227,7 @@ class DepartmentController extends BaseController {
 
         if (!$this->isPost()) {
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         $this->validateCsrf();
@@ -229,6 +236,7 @@ class DepartmentController extends BaseController {
         if ($dept_id <= 0) {
             $this->flashError("Invalid department ID.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         // Fetch department info
@@ -241,6 +249,7 @@ class DepartmentController extends BaseController {
         if (!$dept) {
             $this->flashError("Department not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         // Integrity check via doc_can_delete_department
@@ -248,6 +257,7 @@ class DepartmentController extends BaseController {
         if (!$can_delete['allowed']) {
             $this->flashError($can_delete['reason']);
             $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
+            return;
         }
 
         try {

@@ -150,8 +150,8 @@ abstract class BaseController {
     }
 
     protected function validateCsrf(?string $token = null): void {
-        $submitted = $token ?? ($_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
-        if (!verify_csrf($submitted)) {
+        $submitted = $token ?? ($_POST['_csrf_token'] ?? ($_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')));
+        if (!function_exists('verify_csrf') || !\verify_csrf($submitted)) {
             if ($this->isAjax() || str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
                 $this->json(['success' => false, 'error' => 'Security token invalid or expired. Please refresh the page.'], 403);
             }
@@ -196,6 +196,9 @@ abstract class BaseController {
      * Response Helpers
      */
     protected function redirect(string $url): void {
+        if (php_sapi_name() === 'cli') {
+            return;
+        }
         if (!headers_sent()) {
             header("Location: " . $url);
         } else {
