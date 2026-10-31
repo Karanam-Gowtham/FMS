@@ -1,7 +1,7 @@
 <?php
 namespace App\Controllers;
 
-class ReportDownloadController {
+class ReportDownloadController extends BaseController {
     public function download() {
         require_once __DIR__ . '/../../core/bootstrap.php';
         
@@ -53,24 +53,8 @@ class ReportDownloadController {
             $this->renderError(404, "Requested accreditation report file was not found on server.");
         }
 
-        // Safely clear any previously buffered output
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
-
-        // Stream the PDF
-        $filename_disp = basename($real_filepath);
-        header("X-Content-Type-Options: nosniff");
-        header("Content-Type: application/pdf");
-        header("Content-Disposition: inline; filename=\"" . $filename_disp . "\"; filename*=UTF-8''" . rawurlencode($filename_disp));
-        $fsize = @filesize($real_filepath);
-        if ($fsize !== false && $fsize >= 0) {
-            header("Content-Length: " . $fsize);
-        }
-        header("Cache-Control: private, must-revalidate, max-age=0");
-        
-        readfile($real_filepath);
-        exit;
+        // Stream the PDF using centralized file service helper
+        file_stream_and_cleanup($real_filepath, basename($real_filepath), 'application/pdf', false);
     }
 
     private function renderError(int $statusCode, string $message): void {

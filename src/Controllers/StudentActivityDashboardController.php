@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-class StudentActivityDashboardController
+class StudentActivityDashboardController extends BaseController
 {
     /**
      * Dispatcher for Student Activities Dashboard route.
@@ -11,15 +11,12 @@ class StudentActivityDashboardController
      */
     public function index(): void
     {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-
-        if ((isset($_GET['format']) && $_GET['format'] === 'json') || isset($_GET['ajax'])) {
-            header('Content-Type: application/json');
-            echo json_encode([
+        if ($this->isAjax() || (isset($_GET['format']) && $_GET['format'] === 'json')) {
+            $this->json([
                 'status' => 'success',
                 'data' => self::calculateStats($_GET)
-            ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-            exit();
+            ]);
+            return;
         }
 
         // Standalone view without staff header
@@ -39,13 +36,12 @@ class StudentActivityDashboardController
 
             $stats = self::calculateStats($_GET);
 
-            include __DIR__ . '/../Views/student_activities/dashboard.php';
-            exit();
+            $this->renderView('student_activities/dashboard', get_defined_vars());
+            return;
         }
 
         // Default: Smooth redirect to the public home portal section
-        header("Location: " . BASE_URL . "/index.php#student-activities");
-        exit();
+        $this->redirect(BASE_URL . "/index.php#student-activities");
     }
 
     /**

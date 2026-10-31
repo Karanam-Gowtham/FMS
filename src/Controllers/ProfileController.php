@@ -1,13 +1,11 @@
 <?php
 namespace App\Controllers;
 
-class ProfileController {
+class ProfileController extends BaseController {
     public function view() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-
-        $auth = auth_context();
-        global $conn;
+        $this->requireLogin();
+        $auth = $this->auth;
+        $conn = $this->conn;
 
         $target_user_id = (int)$auth['user_id'];
         $active_role_id = auth_active_role_id();
@@ -53,15 +51,14 @@ class ProfileController {
 
         $is_own_profile = ($target_user_id === (int)$auth['user_id']);
 
-        include __DIR__ . '/../Views/profile/view.php';
+        $this->renderView('profile/view', get_defined_vars());
     }
 
     public function edit() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
+        $this->requireLogin();
 
-        $auth = auth_context();
-        global $conn;
+        $auth = $this->auth;
+        $conn = $this->conn;
         $error = '';
         $success = '';
 
@@ -267,6 +264,6 @@ class ProfileController {
             $stmt->close();
         }
 
-        include __DIR__ . '/../Views/profile/edit.php';
+        $this->renderView('profile/edit', get_defined_vars());
     }
 }

@@ -1,7 +1,7 @@
 <?php
 namespace App\Controllers;
 
-class PublicController {
+class PublicController extends BaseController {
 
     public function department() {
         require_once __DIR__ . '/../../core/bootstrap.php';
@@ -249,20 +249,6 @@ class PublicController {
             $filename = 'document_' . $doc_id;
         }
 
-        while (ob_get_level()) ob_end_clean();
-        header('Content-Description: File Transfer');
-        header('Content-Type: ' . $mime_type);
-        header('Content-Disposition: inline; filename="' . $filename . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
-        header('X-Content-Type-Options: nosniff');
-        header('Expires: 0');
-        header('Cache-Control: public, must-revalidate, max-age=3600');
-        header('Pragma: public');
-        $fsize = @filesize($canonical_path);
-        if ($fsize !== false && $fsize >= 0) {
-            header('Content-Length: ' . $fsize);
-        }
-        
-        readfile($canonical_path);
-        exit;
+        file_stream_and_cleanup($canonical_path, $filename, $mime_type, false);
     }
 }

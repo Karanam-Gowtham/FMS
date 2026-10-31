@@ -1,18 +1,16 @@
 <?php
 namespace App\Controllers;
 
-class DocumentController {
+class DocumentController extends BaseController {
     
     public function index() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        
-        require_login();
-        $auth = auth_context();
-        $user_id = (int)$auth['user_id'];
+        $this->requireLogin();
+        $auth = $this->auth;
+        $user_id = $this->userId;
         $active_role = $auth['active_role'] ?? null;
-        $active_role_id = $active_role ? (int)$active_role['role_id'] : 0;
-        $active_dept_id = $active_role ? (int)$active_role['dept_id'] : 0;
-        global $conn;
+        $active_role_id = $this->activeRoleId;
+        $active_dept_id = $this->activeDeptId;
+        $conn = $this->conn;
 
         $scope_label = 'Documents';
         $forced_filters = [];
@@ -355,22 +353,14 @@ class DocumentController {
             exit;
         }
 
-        $raw_disp_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
-        $raw_disp_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
-        $disp_success     = is_string($raw_disp_success) ? $raw_disp_success : '';
-        $disp_error       = is_string($raw_disp_error)   ? $raw_disp_error   : '';
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
-
-        include __DIR__ . '/../Views/documents/list.php';
+        $this->renderView('documents/list', get_defined_vars());
     }
 
     public function myUploads() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        
-        require_login();
-        $auth = auth_context();
-        $user_id = (int)$auth['user_id'];
-        global $conn;
+        $this->requireLogin();
+        $auth = $this->auth;
+        $user_id = $this->userId;
+        $conn = $this->conn;
 
         $filter_type   = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
         $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? array_values(array_filter($_GET['type_keys'], 'is_string')) : [];
@@ -412,26 +402,18 @@ class DocumentController {
         $pending_result = doc_list_pending_for_user($conn, $auth, 100, 0);
         $pending_count = $pending_result['total'];
 
-        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
-        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? null);
-        $success_msg = is_string($raw_success) ? $raw_success : null;
-        $error_msg   = is_string($raw_error)   ? $raw_error   : null;
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
-
-        include __DIR__ . '/../Views/documents/my_uploads.php';
+        $this->renderView('documents/my_uploads', get_defined_vars());
     }
 
     public function uploadForm() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        
-        require_login();
-        $auth = auth_context();
+        $this->requireLogin();
+        $auth = $this->auth;
         if (empty($auth['active_role'])) {
-            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
-            exit;
+            $this->redirect(BASE_URL . "/public/index.php?route=auth/select_role");
+            return;
         }
-        $active_role_id = (int)($auth['active_role']['role_id'] ?? (auth_active_role_id() ?? 0));
-        global $conn;
+        $active_role_id = $this->activeRoleId;
+        $conn = $this->conn;
 
         $types = doc_get_types($conn);
         $academic_years = doc_get_academic_years($conn);
@@ -482,40 +464,33 @@ class DocumentController {
             }
         }
 
-        $success_msg = $_SESSION['success_msg'] ?? '';
-        $error_msg = $_SESSION['error_msg'] ?? '';
-        $old_input = $_SESSION['_old_input'] ?? [];
-        unset($_SESSION['success_msg'], $_SESSION['error_msg'], $_SESSION['_old_input']);
-
-        include __DIR__ . '/../Views/documents/upload.php';
+        $this->renderView('documents/upload', get_defined_vars());
     }
 
     public function edit() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        
-        require_login();
-        $auth = auth_context();
-        $active_role_id = (int)($auth['active_role']['role_id'] ?? (auth_active_role_id() ?? 0));
-        global $conn;
+        $this->requireLogin();
+        $auth = $this->auth;
+        $active_role_id = $this->activeRoleId;
+        $conn = $this->conn;
 
-        $doc_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $doc_id = $this->intParam('id', 0, 'GET');
         if (!$doc_id) {
-            $_SESSION['error_msg'] = "Invalid document ID.";
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
-            exit;
+            $this->flashError("Invalid document ID.");
+            $this->redirect(BASE_URL . "/public/index.php?route=documents/my_uploads");
+            return;
         }
 
         $document = doc_get($conn, $doc_id);
         if (!$document) {
-            $_SESSION['error_msg'] = "Document not found.";
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
-            exit;
+            $this->flashError("Document not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=documents/my_uploads");
+            return;
         }
 
         if (!doc_can_edit($conn, $auth, $document)) {
-            $_SESSION['error_msg'] = "You do not have permission to edit this document.";
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/my_uploads");
-            exit;
+            $this->flashError("You do not have permission to edit this document.");
+            $this->redirect(BASE_URL . "/public/index.php?route=documents/my_uploads");
+            return;
         }
 
         $type_key = $document['type_key'];
@@ -536,45 +511,33 @@ class DocumentController {
         
         $academic_years = doc_get_academic_years($conn);
 
-        $success_msg = $_SESSION['success_msg'] ?? '';
-        $error_msg = $_SESSION['error_msg'] ?? '';
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
-
-        include __DIR__ . '/../Views/documents/edit.php';
+        $this->renderView('documents/edit', get_defined_vars());
     }
 
     public function view() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        
-        require_login();
-        $auth = auth_context();
-        $doc_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-        global $conn;
+        $this->requireLogin();
+        $auth = $this->auth;
+        $doc_id = $this->intParam('id', 0, 'GET');
+        $conn = $this->conn;
 
         if ($doc_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid document ID.";
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/list");
-            exit;
+            $this->flashError("Invalid document ID.");
+            $this->redirect(BASE_URL . "/public/index.php?route=documents/list");
+            return;
         }
 
         $document = doc_get($conn, $doc_id);
         if (!$document) {
-            $_SESSION['error_msg'] = "Document not found.";
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/list");
-            exit;
+            $this->flashError("Document not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=documents/list");
+            return;
         }
 
         if (!doc_can_view($conn, $auth, $document)) {
-            $_SESSION['error_msg'] = "You do not have permission to view this document.";
-            header("Location: " . BASE_URL . "/public/index.php?route=documents/list");
-            exit;
+            $this->flashError("You do not have permission to view this document.");
+            $this->redirect(BASE_URL . "/public/index.php?route=documents/list");
+            return;
         }
-
-        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? null);
-        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? null);
-        $success_msg = is_string($raw_success) ? $raw_success : null;
-        $error_msg   = is_string($raw_error)   ? $raw_error   : null;
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
 
         $type_key = $document['type_key'];
         $page_title = 'View: ' . $document['title'];
@@ -594,16 +557,13 @@ class DocumentController {
         $allowed_actions = wf_get_allowed_actions($conn, $document, $auth);
         $status_label = wf_status_label($conn, $document);
 
-        include __DIR__ . '/../Views/documents/view.php';
+        $this->renderView('documents/view', get_defined_vars());
     }
 
     public function accreditationPreview() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        global $conn;
+        $this->requireLogin();
+        $conn = $this->conn;
         require_once __DIR__ . '/../../core/accreditation_pdf_service.php';
-
-        header('Content-Type: application/json');
 
         $doc_ids = $_POST['doc_ids'] ?? [];
         if (empty($doc_ids) && isset($_GET['doc_ids'])) {
@@ -611,11 +571,11 @@ class DocumentController {
         }
 
         if (empty($doc_ids)) {
-            echo json_encode(['success' => false, 'error' => 'No documents selected.']);
-            exit;
+            $this->json(['success' => false, 'error' => 'No documents selected.']);
+            return;
         }
 
-        $auth = auth_context();
+        $auth = $this->auth;
 
         $documents = [];
         $detected_year = '';
@@ -672,21 +632,21 @@ class DocumentController {
         }
 
         if (empty($documents)) {
-            echo json_encode(['success' => false, 'error' => 'You do not have permission to view the selected documents.']);
-            exit;
+            $this->json(['success' => false, 'error' => 'You do not have permission to view the selected documents.']);
+            return;
         }
 
         $presets = \AccreditationPdfService::getHeadingPresets($detected_year);
         $available_columns = \AccreditationPdfService::getAvailableColumns();
 
-        echo json_encode([
+        $this->json([
             'success' => true,
             'documents' => $documents,
             'presets' => $presets,
             'columns' => $available_columns,
             'detected_year' => $detected_year
         ]);
-        exit;
+        return;
     }
 
     private function resolveUserDepartments(\mysqli $conn, array $auth, ?int $active_role_id = null): array {

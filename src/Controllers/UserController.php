@@ -12,12 +12,10 @@ namespace App\Controllers;
  * - Safe user deletion (strictly permitted only for test accounts with 0 uploaded documents)
  * - Direct registration of new faculty and staff
  */
-class UserController {
+class UserController extends BaseController {
 
     public function index(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
+        $this->requireAdmin();
 
         global $conn;
 
@@ -167,11 +165,7 @@ class UserController {
             }
         }
 
-        $disp_success = $_SESSION['success_msg'] ?? null;
-        $disp_error = $_SESSION['error_msg'] ?? null;
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
-
-        require __DIR__ . '/../Views/admin/users.php';
+        $this->renderView('admin/users', get_defined_vars());
     }
 
     /**
@@ -866,12 +860,7 @@ class UserController {
     }
 
     private function ensureAdminAccess(): void {
-        $active_role = auth_active_role();
-        if (!$active_role || (int)$active_role['role_id'] !== ROLE_ADMIN) {
-            $_SESSION['error_msg'] = "Access denied. User Management is restricted to Administrators.";
-            header("Location: " . BASE_URL . "/public/index.php?route=dashboard");
-            exit();
-        }
+        $this->requireAdmin();
     }
 
     private function getUserBasic(\mysqli $conn, int $user_id): ?array {
@@ -915,17 +904,5 @@ class UserController {
             $ins->execute();
             $ins->close();
         }
-    }
-
-    private function redirectBack(): void {
-        if (php_sapi_name() === 'cli') {
-            return;
-        }
-        $target = BASE_URL . "/public/index.php?route=admin/users";
-        if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'admin/users') !== false) {
-            $target = $_SERVER['HTTP_REFERER'];
-        }
-        header("Location: " . $target);
-        exit();
     }
 }
