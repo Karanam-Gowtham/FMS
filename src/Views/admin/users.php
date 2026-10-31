@@ -226,9 +226,12 @@ require_once __DIR__ . '/../../../includes/header.php';
                             <td style="padding: 14px 18px; text-align: right;">
                                 <div style="display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end;">
 
-                                    <!-- Leadership Appointment Dropdown Button -->
-                                    <button type="button" onclick="openAssignModal(<?= (int)$u['user_id'] ?>, '<?= htmlspecialchars(addslashes($u['full_name'])) ?>')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 10px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Appoint as HOD or Coordinator">
-                                        <i class="fas fa-crown" style="color: #d97706;"></i> Roles
+                                    <!-- Comprehensive Role & Department Management Button -->
+                                    <button type="button" 
+                                            onclick="openAssignModal(<?= (int)$u['user_id'] ?>, <?= htmlspecialchars(json_encode($u['full_name'])) ?>, <?= htmlspecialchars(json_encode($u['email'])) ?>, <?= (int)($u['primary_dept_id'] ?? 0) ?>, <?= htmlspecialchars(json_encode($u['primary_dept_name'] ?? '')) ?>, <?= htmlspecialchars(json_encode($u['roles'] ?? [])) ?>)" 
+                                            style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 10px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" 
+                                            title="Manage Faculty Roles & Department">
+                                        <i class="fas fa-user-shield" style="color: #0284c7;"></i> Roles
                                     </button>
 
                                     <!-- Reset Password -->
@@ -314,11 +317,14 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
 
             <div style="margin-bottom: 22px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Initial Leadership Designation</label>
+                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Initial Designation</label>
                 <select name="initial_role" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box; background: white;">
                     <option value="faculty">Regular Faculty Member</option>
                     <option value="hod">Head of Department (HOD)</option>
                     <option value="coordinator">Department Coordinator</option>
+                    <option value="iqac">IQAC Coordinator (College-Wide)</option>
+                    <option value="central_coordinator">Central Coordinator (College-Wide)</option>
+                    <option value="rnd_dean">Dean of R&D (College-Wide)</option>
                 </select>
                 <small style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 4px;">
                     Note: Default login password will be set to <strong>Admin@123</strong>.
@@ -334,70 +340,192 @@ require_once __DIR__ . '/../../../includes/header.php';
 </div>
 
 <!-- ==============================================================
-     MODAL 2: APPOINT LEADERSHIP (HOD / COORDINATOR)
+     MODAL 2: COMPREHENSIVE ROLE & DEPARTMENT MANAGER
 ============================================================== -->
-<div id="assignModal" style="display: none; position: fixed; z-index: 9999; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: #ffffff; border-radius: 12px; max-width: 520px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid #e2e8f0;">
-        <div style="background: #1e293b; color: white; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-crown" style="color: #f59e0b;"></i> Manage Leadership Roles
+<div id="assignModal" style="display: none; position: fixed; z-index: 9999; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border-radius: 14px; max-width: 680px; width: 100%; box-shadow: 0 25px 30px -5px rgba(0,0,0,0.3); overflow: hidden; border: 1px solid #e2e8f0; animation: modalPop 0.2s ease-out;">
+        <div style="background: #0f172a; color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-user-shield" style="color: #38bdf8;"></i> Manage Faculty Roles & Department
             </div>
-            <button type="button" onclick="closeAssignModal()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            <button type="button" onclick="closeAssignModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'">&times;</button>
         </div>
-        <div style="padding: 22px;">
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; margin-bottom: 20px;">
-                <div style="font-size: 0.85rem; color: #64748b;">Selected Faculty Member:</div>
-                <div id="modalUserName" style="font-size: 1.05rem; font-weight: 700; color: #0f172a;"></div>
+
+        <div style="padding: 24px; max-height: 78vh; overflow-y: auto;">
+            
+            <!-- User Summary Banner -->
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <div id="modalUserName" style="font-size: 1.15rem; font-weight: 700; color: #0f172a;"></div>
+                        <div id="modalUserEmail" style="font-size: 0.85rem; color: #64748b; margin-top: 2px;"></div>
+                    </div>
+                    <div id="modalUserDeptBadge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 700; font-size: 0.82rem; padding: 4px 10px; border-radius: 6px;"></div>
+                </div>
+
+                <div style="margin-top: 12px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                        Current Active Roles:
+                    </div>
+                    <div id="modalActiveRolesBadges" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                </div>
             </div>
 
-            <!-- Action Tab 1: Appoint HOD -->
-            <div style="border: 1px solid #fde68a; background: #fffbeb; border-radius: 8px; padding: 16px; margin-bottom: 18px;">
-                <h4 style="margin: 0 0 8px 0; color: #92400e; font-size: 0.96rem; display: flex; align-items: center; gap: 6px;">
-                    <i class="fas fa-crown"></i> Appoint as Head of Department (HOD)
+            <!-- SECTION 1: INSTITUTIONAL LEADERSHIP (SINGLE-HOLDER, COLLEGE-WIDE) -->
+            <div style="border: 1px solid #e9d5ff; background: #faf5ff; border-radius: 10px; padding: 16px 18px; margin-bottom: 18px;">
+                <h4 style="margin: 0 0 6px 0; color: #6b21a8; font-size: 0.98rem; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-university"></i> Institutional Leadership (College-Wide)
                 </h4>
-                <p style="margin: 0 0 12px 0; color: #78350f; font-size: 0.83rem;">
-                    Institutional Rule: Assigning this faculty member as HOD will automatically relieve the department's existing HOD back to regular faculty.
+                <p style="margin: 0 0 14px 0; color: #581c87; font-size: 0.82rem; line-height: 1.4;">
+                    Strict Institutional Rules: <strong>Strictly 1 holder college-wide</strong>. Appointing this member transfers leadership from the previous holder. Institutional leaders <strong>cannot simultaneously hold HOD</strong> (any active HOD post will be automatically stepped down).
                 </p>
-                <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/set_hod" style="display: flex; gap: 8px; align-items: center;">
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    
+                    <!-- IQAC Coordinator -->
+                    <div style="background: white; border: 1px solid #d8b4fe; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <div style="font-weight: 700; color: #6b21a8; font-size: 0.92rem;">
+                                <i class="fas fa-award"></i> IQAC Coordinator
+                            </div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+                                Current Holder: <strong style="color: #1e293b;"><?= !empty($institutional_leaders[ROLE_IQAC]) ? htmlspecialchars($institutional_leaders[ROLE_IQAC]['full_name'] . ' (' . $institutional_leaders[ROLE_IQAC]['email'] . ')') : 'None assigned' ?></strong>
+                            </div>
+                        </div>
+                        <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/set_institutional_role" style="margin: 0;">
+                            <?= csrfField() ?>
+                            <input type="hidden" name="user_id" class="modalFormUserId" value="">
+                            <input type="hidden" name="role_id" value="<?= ROLE_IQAC ?>">
+                            <div id="iqacActionBtnContainer"></div>
+                        </form>
+                    </div>
+
+                    <!-- Central Coordinator -->
+                    <div style="background: white; border: 1px solid #c7d2fe; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <div style="font-weight: 700; color: #3730a3; font-size: 0.92rem;">
+                                <i class="fas fa-sitemap"></i> Central Coordinator
+                            </div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+                                Current Holder: <strong style="color: #1e293b;"><?= !empty($institutional_leaders[ROLE_CENTRAL_COORDINATOR]) ? htmlspecialchars($institutional_leaders[ROLE_CENTRAL_COORDINATOR]['full_name'] . ' (' . $institutional_leaders[ROLE_CENTRAL_COORDINATOR]['email'] . ')') : 'None assigned' ?></strong>
+                            </div>
+                        </div>
+                        <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/set_institutional_role" style="margin: 0;">
+                            <?= csrfField() ?>
+                            <input type="hidden" name="user_id" class="modalFormUserId" value="">
+                            <input type="hidden" name="role_id" value="<?= ROLE_CENTRAL_COORDINATOR ?>">
+                            <div id="centralActionBtnContainer"></div>
+                        </form>
+                    </div>
+
+                    <!-- Dean R&D -->
+                    <div style="background: white; border: 1px solid #99f6e4; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <div style="font-weight: 700; color: #0f766e; font-size: 0.92rem;">
+                                <i class="fas fa-flask"></i> Dean of R&D
+                            </div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+                                Current Holder: <strong style="color: #1e293b;"><?= !empty($institutional_leaders[ROLE_RND_DEAN]) ? htmlspecialchars($institutional_leaders[ROLE_RND_DEAN]['full_name'] . ' (' . $institutional_leaders[ROLE_RND_DEAN]['email'] . ')') : 'None assigned' ?></strong>
+                            </div>
+                        </div>
+                        <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/set_institutional_role" style="margin: 0;">
+                            <?= csrfField() ?>
+                            <input type="hidden" name="user_id" class="modalFormUserId" value="">
+                            <input type="hidden" name="role_id" value="<?= ROLE_RND_DEAN ?>">
+                            <div id="rndActionBtnContainer"></div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SECTION 2: DEPARTMENT LEADERSHIP (HOD / COORDINATOR) -->
+            <div style="border: 1px solid #fde68a; background: #fffbeb; border-radius: 10px; padding: 16px 18px; margin-bottom: 18px;">
+                <h4 style="margin: 0 0 6px 0; color: #92400e; font-size: 0.98rem; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-crown"></i> Department Leadership
+                </h4>
+                <p style="margin: 0 0 14px 0; color: #78350f; font-size: 0.82rem; line-height: 1.4;">
+                    Strict Institutional Rule: <strong>Strictly 1 HOD active per department</strong> (auto-transfers previous HOD). Appointing as HOD will automatically step down any active Institutional Leadership post.
+                </p>
+
+                <!-- Sub-Item A: Head of Department -->
+                <div style="background: white; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;">
+                    <div style="font-weight: 700; color: #b45309; font-size: 0.9rem; margin-bottom: 8px;">
+                        Appoint as Head of Department (HOD)
+                    </div>
+                    <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/set_hod" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="user_id" class="modalFormUserId" value="">
+                        <select name="dept_id" id="hodDeptSelect" required style="flex: 1; min-width: 200px; padding: 8px 10px; border: 1.5px solid #d97706; border-radius: 6px; font-size: 0.88rem; background: white;">
+                            <option value="">-- Select Department --</option>
+                            <?php foreach ($departments as $d): ?>
+                                <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" style="background: #d97706; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;">
+                            Set as HOD
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Sub-Item B: Department Coordinator -->
+                <div style="background: white; border: 1px solid #bae6fd; border-radius: 8px; padding: 12px 14px;">
+                    <div style="font-weight: 700; color: #0369a1; font-size: 0.9rem; margin-bottom: 8px;">
+                        Department Coordinator Role
+                    </div>
+                    <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/toggle_coordinator" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="user_id" class="modalFormUserId" value="">
+                        <select name="dept_id" id="coordDeptSelect" required style="flex: 1; min-width: 200px; padding: 8px 10px; border: 1.5px solid #0284c7; border-radius: 6px; font-size: 0.88rem; background: white;">
+                            <option value="">-- Select Department --</option>
+                            <?php foreach ($departments as $d): ?>
+                                <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" name="action" value="appoint" style="background: #0284c7; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;">
+                            Appoint
+                        </button>
+                        <button type="submit" name="action" value="revoke" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;" onclick="return confirm('Revoke coordinator role from this user for selected department?');">
+                            Revoke
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 3: DEPARTMENT TRANSFER (SINGLE-DEPARTMENT ENFORCEMENT) -->
+            <div style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 10px; padding: 16px 18px;">
+                <h4 style="margin: 0 0 6px 0; color: #334155; font-size: 0.98rem; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-exchange-alt"></i> Transfer Faculty Member Department
+                </h4>
+                <p style="margin: 0 0 12px 0; color: #64748b; font-size: 0.82rem; line-height: 1.4;">
+                    Strict Institutional Rule: Every faculty member belongs to <strong>strictly one department</strong>. Transferring reassigns their base Faculty role and relieves any department-specific leadership (HOD or Coordinator) from their previous department.
+                </p>
+                <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/transfer_department" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;" onsubmit="return confirm('Transfer this faculty member to the selected department? Any departmental leadership in their old department will be relieved.');">
                     <?= csrfField() ?>
-                    <input type="hidden" name="user_id" id="hodUserId" value="">
-                    <select name="dept_id" required style="flex: 1; padding: 8px 10px; border: 1px solid #d97706; border-radius: 6px; font-size: 0.88rem; background: white;">
-                        <option value="">-- Select Department --</option>
+                    <input type="hidden" name="user_id" class="modalFormUserId" value="">
+                    <select name="dept_id" id="transferDeptSelect" required style="flex: 1; min-width: 220px; padding: 8px 10px; border: 1.5px solid #64748b; border-radius: 6px; font-size: 0.88rem; background: white;">
+                        <option value="">-- Select Target Department --</option>
                         <?php foreach ($departments as $d): ?>
                             <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <button type="submit" style="background: #d97706; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;">
-                        Set as HOD
+                    <button type="submit" style="background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;">
+                        Transfer Department
                     </button>
                 </form>
             </div>
 
-            <!-- Action Tab 2: Manage Coordinator -->
-            <div style="border: 1px solid #bae6fd; background: #f0f9ff; border-radius: 8px; padding: 16px;">
-                <h4 style="margin: 0 0 8px 0; color: #075985; font-size: 0.96rem; display: flex; align-items: center; gap: 6px;">
-                    <i class="fas fa-tasks"></i> Department Coordinator Role
-                </h4>
-                <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/toggle_coordinator" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <?= csrfField() ?>
-                    <input type="hidden" name="user_id" id="coordUserId" value="">
-                    <select name="dept_id" required style="flex: 1; min-width: 180px; padding: 8px 10px; border: 1px solid #0284c7; border-radius: 6px; font-size: 0.88rem; background: white;">
-                        <option value="">-- Select Department --</option>
-                        <?php foreach ($departments as $d): ?>
-                            <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit" name="action" value="appoint" style="background: #0284c7; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;">
-                        Appoint
-                    </button>
-                    <button type="submit" name="action" value="revoke" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;" onclick="return confirm('Revoke coordinator role from this user for selected department?');">
-                        Revoke
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 </div>
+
+<!-- Hidden Quick Role Revoke Form -->
+<form id="hiddenRevokeForm" method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/revoke_role" style="display: none;">
+    <?= csrfField() ?>
+    <input type="hidden" name="user_id" id="revokeUserId" value="">
+    <input type="hidden" name="role_id" id="revokeRoleId" value="">
+    <input type="hidden" name="dept_id" id="revokeDeptId" value="">
+</form>
 
 <script>
 function openAddUserModal() {
@@ -408,17 +536,157 @@ function closeAddUserModal() {
     const m = document.getElementById('addUserModal');
     if (m) m.style.display = 'none';
 }
-function openAssignModal(userId, userName) {
-    document.getElementById('hodUserId').value = userId;
-    document.getElementById('coordUserId').value = userId;
+
+function openAssignModal(userId, userName, userEmail, primaryDeptId, primaryDeptName, roles) {
     document.getElementById('modalUserName').textContent = userName;
+    document.getElementById('modalUserEmail').textContent = userEmail;
+    document.getElementById('modalUserDeptBadge').textContent = primaryDeptName ? ('Department: ' + primaryDeptName) : 'No Department Assigned';
+
+    // Populate all user ID hidden inputs in the modal
+    const userInputs = document.querySelectorAll('.modalFormUserId');
+    userInputs.forEach(input => input.value = userId);
+
+    // Pre-select primary department in dropdowns
+    if (primaryDeptId > 0) {
+        const hodSelect = document.getElementById('hodDeptSelect');
+        const coordSelect = document.getElementById('coordDeptSelect');
+        const transferSelect = document.getElementById('transferDeptSelect');
+        if (hodSelect) hodSelect.value = primaryDeptId;
+        if (coordSelect) coordSelect.value = primaryDeptId;
+        if (transferSelect) transferSelect.value = primaryDeptId;
+    }
+
+    // Role ID map
+    const ROLE_IQAC = <?= ROLE_IQAC ?>;
+    const ROLE_HOD = <?= ROLE_HOD ?>;
+    const ROLE_FACULTY = <?= ROLE_FACULTY ?>;
+    const ROLE_DEPT_COORDINATOR = <?= ROLE_DEPT_COORDINATOR ?>;
+    const ROLE_CENTRAL_COORDINATOR = <?= ROLE_CENTRAL_COORDINATOR ?>;
+    const ROLE_RND_DEAN = <?= ROLE_RND_DEAN ?>;
+
+    let hasIqac = false;
+    let hasCentral = false;
+    let hasRnd = false;
+
+    // Render active roles badges
+    const badgesContainer = document.getElementById('modalActiveRolesBadges');
+    badgesContainer.innerHTML = '';
+
+    if (!roles || roles.length === 0) {
+        badgesContainer.innerHTML = '<span style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">No active roles assigned.</span>';
+    } else {
+        roles.forEach(r => {
+            const roleId = parseInt(r.role_id, 10);
+            const deptId = r.dept_id ? parseInt(r.dept_id, 10) : 0;
+            const deptName = r.dept_name || '';
+
+            if (roleId === ROLE_IQAC) hasIqac = true;
+            if (roleId === ROLE_CENTRAL_COORDINATOR) hasCentral = true;
+            if (roleId === ROLE_RND_DEAN) hasRnd = true;
+
+            const badge = document.createElement('div');
+            badge.style.display = 'inline-flex';
+            badge.style.alignItems = 'center';
+            badge.style.gap = '6px';
+            badge.style.padding = '4px 10px';
+            badge.style.borderRadius = '6px';
+            badge.style.fontSize = '0.82rem';
+            badge.style.fontWeight = '600';
+
+            let label = r.role_name + (deptName ? (' (' + deptName + ')') : '');
+
+            if (roleId === ROLE_HOD) {
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#92400e';
+                badge.style.border = '1px solid #fde68a';
+                badge.innerHTML = '<span><i class="fas fa-crown"></i> ' + escapeHtml(label) + '</span>' +
+                    '<button type="button" onclick="triggerRevoke(' + userId + ', ' + roleId + ', ' + deptId + ', \'HOD\')" style="background: none; border: none; color: #dc2626; cursor: pointer; font-weight: 700; font-size: 0.95rem; margin-left: 4px;" title="Step down from HOD">&times;</button>';
+            } else if (roleId === ROLE_DEPT_COORDINATOR) {
+                badge.style.background = '#e0f2fe';
+                badge.style.color = '#0369a1';
+                badge.style.border = '1px solid #bae6fd';
+                badge.innerHTML = '<span><i class="fas fa-tasks"></i> ' + escapeHtml(label) + '</span>' +
+                    '<button type="button" onclick="triggerRevoke(' + userId + ', ' + roleId + ', ' + deptId + ', \'Coordinator\')" style="background: none; border: none; color: #dc2626; cursor: pointer; font-weight: 700; font-size: 0.95rem; margin-left: 4px;" title="Revoke Coordinator role">&times;</button>';
+            } else if (roleId === ROLE_IQAC) {
+                badge.style.background = '#f3e8ff';
+                badge.style.color = '#6b21a8';
+                badge.style.border = '1px solid #d8b4fe';
+                badge.innerHTML = '<span><i class="fas fa-award"></i> ' + escapeHtml(label) + '</span>' +
+                    '<button type="button" onclick="triggerRevoke(' + userId + ', ' + roleId + ', null, \'IQAC Coordinator\')" style="background: none; border: none; color: #dc2626; cursor: pointer; font-weight: 700; font-size: 0.95rem; margin-left: 4px;" title="Step down as IQAC Coordinator">&times;</button>';
+            } else if (roleId === ROLE_CENTRAL_COORDINATOR) {
+                badge.style.background = '#e0e7ff';
+                badge.style.color = '#3730a3';
+                badge.style.border = '1px solid #c7d2fe';
+                badge.innerHTML = '<span><i class="fas fa-sitemap"></i> ' + escapeHtml(label) + '</span>' +
+                    '<button type="button" onclick="triggerRevoke(' + userId + ', ' + roleId + ', null, \'Central Coordinator\')" style="background: none; border: none; color: #dc2626; cursor: pointer; font-weight: 700; font-size: 0.95rem; margin-left: 4px;" title="Step down as Central Coordinator">&times;</button>';
+            } else if (roleId === ROLE_RND_DEAN) {
+                badge.style.background = '#ccfbf1';
+                badge.style.color = '#0f766e';
+                badge.style.border = '1px solid #99f6e4';
+                badge.innerHTML = '<span><i class="fas fa-flask"></i> ' + escapeHtml(label) + '</span>' +
+                    '<button type="button" onclick="triggerRevoke(' + userId + ', ' + roleId + ', null, \'Dean of R&D\')" style="background: none; border: none; color: #dc2626; cursor: pointer; font-weight: 700; font-size: 0.95rem; margin-left: 4px;" title="Step down as Dean of R&D">&times;</button>';
+            } else {
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#15803d';
+                badge.style.border = '1px solid #bbf7d0';
+                badge.innerHTML = '<span><i class="fas fa-chalkboard-teacher"></i> ' + escapeHtml(label) + ' <small style="opacity: 0.8; font-weight: 500;">(Base Role)</small></span>';
+            }
+
+            badgesContainer.appendChild(badge);
+        });
+    }
+
+    // Update Action Buttons for Institutional Leadership
+    updateInstButton('iqacActionBtnContainer', hasIqac, 'IQAC Coordinator', '#6b21a8', '#f3e8ff');
+    updateInstButton('centralActionBtnContainer', hasCentral, 'Central Coordinator', '#3730a3', '#e0e7ff');
+    updateInstButton('rndActionBtnContainer', hasRnd, 'Dean of R&D', '#0f766e', '#ccfbf1');
+
     const m = document.getElementById('assignModal');
     if (m) m.style.display = 'flex';
 }
+
+function updateInstButton(containerId, isHolder, roleName, mainColor, lightBg) {
+    const c = document.getElementById(containerId);
+    if (!c) return;
+
+    if (isHolder) {
+        c.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px;">' +
+            '<span style="background: ' + lightBg + '; color: ' + mainColor + '; font-weight: 700; font-size: 0.78rem; padding: 4px 8px; border-radius: 4px;">Active Holder</span>' +
+            '<button type="submit" name="action" value="revoke" style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; cursor: pointer;" onclick="return confirm(\'Relieve this member from ' + roleName + '?\');">' +
+                '<i class="fas fa-user-minus"></i> Step Down' +
+            '</button>' +
+        '</span>';
+    } else {
+        c.innerHTML = '<button type="submit" name="action" value="appoint" style="background: ' + mainColor + '; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; cursor: pointer;" onclick="return confirm(\'Appoint as ' + roleName + '? This will transfer the position from the current holder and step down any active HOD role.\');">' +
+            '<i class="fas fa-crown"></i> Appoint as ' + roleName +
+        '</button>';
+    }
+}
+
+function triggerRevoke(userId, roleId, deptId, roleName) {
+    if (!confirm('Step down / revoke ' + roleName + ' from this faculty member?')) {
+        return;
+    }
+    document.getElementById('revokeUserId').value = userId;
+    document.getElementById('revokeRoleId').value = roleId;
+    document.getElementById('revokeDeptId').value = deptId || '';
+    document.getElementById('hiddenRevokeForm').submit();
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 function closeAssignModal() {
     const m = document.getElementById('assignModal');
     if (m) m.style.display = 'none';
 }
+
 window.addEventListener('click', function(e) {
     const m1 = document.getElementById('addUserModal');
     const m2 = document.getElementById('assignModal');

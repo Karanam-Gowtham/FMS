@@ -129,6 +129,15 @@ if ($route === 'dashboard') {
 } elseif ($route === 'admin/users/delete') {
     $controller = new \App\Controllers\UserController();
     $controller->delete();
+} elseif ($route === 'admin/users/set_institutional_role') {
+    $controller = new \App\Controllers\UserController();
+    $controller->setInstitutionalRole();
+} elseif ($route === 'admin/users/transfer_department') {
+    $controller = new \App\Controllers\UserController();
+    $controller->transferDepartment();
+} elseif ($route === 'admin/users/revoke_role') {
+    $controller = new \App\Controllers\UserController();
+    $controller->revokeRole();
 } elseif ($route === 'admin/users/create') {
     $controller = new \App\Controllers\UserController();
     $controller->create();

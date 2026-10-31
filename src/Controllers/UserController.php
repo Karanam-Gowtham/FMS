@@ -132,6 +132,41 @@ class UserController {
             }
         }
 
+        // Determine primary department and format roles for each user
+        foreach ($users as $uid => &$u_data) {
+            $u_data['primary_dept_id'] = 0;
+            $u_data['primary_dept_name'] = '';
+            foreach ($u_data['roles'] as $r) {
+                if (!empty($r['dept_id'])) {
+                    $u_data['primary_dept_id'] = (int)$r['dept_id'];
+                    $u_data['primary_dept_name'] = $r['dept_name'] ?? '';
+                    break;
+                }
+            }
+        }
+        unset($u_data);
+
+        // Fetch current single-holder institutional leadership
+        $institutional_leaders = [
+            ROLE_IQAC => null,
+            ROLE_CENTRAL_COORDINATOR => null,
+            ROLE_RND_DEAN => null,
+        ];
+        $ldr_res = $conn->query("
+            SELECT ur.role_id, u.user_id, u.full_name, u.email
+            FROM user_roles ur
+            JOIN users u ON ur.user_id = u.user_id
+            WHERE ur.role_id IN (2, 6, 8) AND ur.dept_id IS NULL
+        ");
+        if ($ldr_res) {
+            while ($lrow = $ldr_res->fetch_assoc()) {
+                $rid = (int)$lrow['role_id'];
+                if (isset($institutional_leaders[$rid]) && !$institutional_leaders[$rid]) {
+                    $institutional_leaders[$rid] = $lrow;
+                }
+            }
+        }
+
         $disp_success = $_SESSION['success_msg'] ?? null;
         $disp_error = $_SESSION['error_msg'] ?? null;
         unset($_SESSION['success_msg'], $_SESSION['error_msg']);
@@ -186,6 +221,30 @@ class UserController {
             $this->redirectBack();
         }
 
+        // Mutual Exclusivity: Institutional Leaders cannot hold HOD simultaneously
+        $inst_roles = [ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_RND_DEAN];
+        $in_clause = implode(',', $inst_roles);
+        $chk_inst = $conn->query("
+            SELECT ur.role_id, r.role_name 
+            FROM user_roles ur 
+            JOIN roles r ON ur.role_id = r.role_id 
+            WHERE ur.user_id = {$user_id} AND ur.role_id IN ({$in_clause})
+        ");
+        $relieved_inst_msgs = [];
+        if ($chk_inst && $chk_inst->num_rows > 0) {
+            while ($inst_row = $chk_inst->fetch_assoc()) {
+                $rel_inst = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id IS NULL");
+                $rel_inst->bind_param("ii", $user_id, $inst_row['role_id']);
+                $rel_inst->execute();
+                $rel_inst->close();
+
+                $relieved_inst_msgs[] = $inst_row['role_name'];
+                if (function_exists('system_audit_log')) {
+                    system_audit_log($conn, 'INSTITUTIONAL_RELIEVE', "Relieved {$user['full_name']} from {$inst_row['role_name']} upon appointment as HOD.", 'user', $user_id);
+                }
+            }
+        }
+
         // 2. Remove HOD role from previous HOD (they remain Faculty)
         $prev_hod_name = '';
         if ($prev_hod_id > 0) {
@@ -206,10 +265,11 @@ class UserController {
         // Also ensure they have basic Faculty role
         $this->ensureRoleExists($conn, $user_id, ROLE_FACULTY, $dept_id);
 
+        $extra_note = !empty($relieved_inst_msgs) ? " (Stepped down from: " . implode(', ', $relieved_inst_msgs) . ")." : "";
         if (!empty($prev_hod_name)) {
-            $_SESSION['success_msg'] = "HOD role for {$dept['dept_name']} successfully transferred from {$prev_hod_name} to {$user['full_name']}.";
+            $_SESSION['success_msg'] = "HOD role for {$dept['dept_name']} successfully transferred from {$prev_hod_name} to {$user['full_name']}{$extra_note}.";
         } else {
-            $_SESSION['success_msg'] = "{$user['full_name']} is now appointed as HOD of {$dept['dept_name']}.";
+            $_SESSION['success_msg'] = "{$user['full_name']} is now appointed as HOD of {$dept['dept_name']}{$extra_note}.";
         }
 
         if (function_exists('system_audit_log')) {
@@ -266,6 +326,271 @@ class UserController {
             $coord_act = ($action === 'revoke') ? 'COORDINATOR_REVOKE' : 'COORDINATOR_APPOINT';
             $coord_msg = ($action === 'revoke') ? "Revoked Coordinator role from {$user['full_name']} for {$dept['dept_name']}." : "Appointed {$user['full_name']} as Coordinator for {$dept['dept_name']}.";
             system_audit_log($conn, $coord_act, $coord_msg, 'user', $user_id);
+        }
+
+        $this->redirectBack();
+    }
+
+    /**
+     * Appoint or Revoke Institutional Leadership role (IQAC, Central Coordinator, RnD Dean)
+     * Strict Institutional Rule: Single active holder college-wide.
+     * Mutual Exclusivity: Institutional Leaders cannot hold HOD simultaneously.
+     */
+    public function setInstitutionalRole(): void {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
+        $this->ensureAdminAccess();
+        csrfValidate();
+
+        global $conn;
+
+        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+        $role_id = isset($_POST['role_id']) ? (int)$_POST['role_id'] : 0;
+        $action = isset($_POST['action']) ? trim($_POST['action']) : 'appoint';
+
+        $valid_roles = [
+            ROLE_IQAC => 'IQAC Coordinator',
+            ROLE_CENTRAL_COORDINATOR => 'Central Coordinator',
+            ROLE_RND_DEAN => 'Dean of R&D'
+        ];
+
+        if ($user_id <= 0 || !isset($valid_roles[$role_id])) {
+            $_SESSION['error_msg'] = "Invalid institutional role request.";
+            $this->redirectBack();
+        }
+
+        $role_name = $valid_roles[$role_id];
+        $user = $this->getUserBasic($conn, $user_id);
+
+        if (!$user) {
+            $_SESSION['error_msg'] = "Faculty member not found.";
+            $this->redirectBack();
+        }
+
+        if ($action === 'revoke') {
+            $del = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id IS NULL");
+            $del->bind_param("ii", $user_id, $role_id);
+            $del->execute();
+            $del->close();
+
+            $_SESSION['success_msg'] = "Relieved {$user['full_name']} from {$role_name} role.";
+            if (function_exists('system_audit_log')) {
+                system_audit_log($conn, 'INSTITUTIONAL_RELIEVE', "Relieved {$user['full_name']} ({$user['email']}) from {$role_name}.", 'user', $user_id);
+            }
+            $this->redirectBack();
+        }
+
+        // Action: APPOINT
+        // 1. Mutual Exclusivity: Relieve any active HOD role held by this user
+        $hod_role = ROLE_HOD;
+        $chk_hod = $conn->prepare("
+            SELECT ur.dept_id, d.dept_name 
+            FROM user_roles ur 
+            LEFT JOIN departments d ON ur.dept_id = d.dept_id 
+            WHERE ur.user_id = ? AND ur.role_id = ?
+        ");
+        $chk_hod->bind_param("ii", $user_id, $hod_role);
+        $chk_hod->execute();
+        $hod_res = $chk_hod->get_result();
+        $relieved_hod_depts = [];
+        while ($hod_row = $hod_res->fetch_assoc()) {
+            $old_dept_id = (int)$hod_row['dept_id'];
+            $rel_h = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id = ?");
+            $rel_h->bind_param("iii", $user_id, $hod_role, $old_dept_id);
+            $rel_h->execute();
+            $rel_h->close();
+
+            $relieved_hod_depts[] = $hod_row['dept_name'] ?? "Dept #{$old_dept_id}";
+            if (function_exists('system_audit_log')) {
+                system_audit_log($conn, 'HOD_RELIEVE', "Relieved {$user['full_name']} from HOD of {$hod_row['dept_name']} upon appointment as {$role_name}.", 'user', $user_id);
+            }
+        }
+        $chk_hod->close();
+
+        // 2. Single-Holder Rule: Identify and relieve previous holder(s) of this institutional role
+        $prev_stmt = $conn->prepare("SELECT user_id FROM user_roles WHERE role_id = ? AND dept_id IS NULL");
+        $prev_stmt->bind_param("i", $role_id);
+        $prev_stmt->execute();
+        $pres = $prev_stmt->get_result();
+        $prev_holders = [];
+        while ($prow = $pres->fetch_assoc()) {
+            $pid = (int)$prow['user_id'];
+            if ($pid !== $user_id) {
+                $prev_holders[] = $pid;
+            }
+        }
+        $prev_stmt->close();
+
+        $prev_holder_names = [];
+        foreach ($prev_holders as $pid) {
+            $del_p = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id IS NULL");
+            $del_p->bind_param("ii", $pid, $role_id);
+            $del_p->execute();
+            $del_p->close();
+
+            $p_user = $this->getUserBasic($conn, $pid);
+            if ($p_user) {
+                $prev_holder_names[] = $p_user['full_name'];
+            }
+        }
+
+        // 3. Grant institutional role to new user
+        $this->ensureRoleExists($conn, $user_id, $role_id, null);
+
+        // Ensure user maintains their base faculty role in their parent department
+        $dept_stmt = $conn->prepare("SELECT dept_id FROM user_roles WHERE user_id = ? AND dept_id IS NOT NULL LIMIT 1");
+        $dept_stmt->bind_param("i", $user_id);
+        $dept_stmt->execute();
+        $dres = $dept_stmt->get_result()->fetch_assoc();
+        $dept_stmt->close();
+        if ($dres && !empty($dres['dept_id'])) {
+            $this->ensureRoleExists($conn, $user_id, ROLE_FACULTY, (int)$dres['dept_id']);
+        }
+
+        $trans_msg = !empty($prev_holder_names) ? " (transferred from " . implode(', ', $prev_holder_names) . ")" : "";
+        $hod_note = !empty($relieved_hod_depts) ? " Stepped down from HOD of " . implode(', ', $relieved_hod_depts) . "." : "";
+        $_SESSION['success_msg'] = "{$user['full_name']} appointed as {$role_name}{$trans_msg}.{$hod_note}";
+
+        if (function_exists('system_audit_log')) {
+            $prev_str = !empty($prev_holder_names) ? "from " . implode(', ', $prev_holder_names) . " " : "";
+            system_audit_log($conn, 'INSTITUTIONAL_ASSIGN', "Appointed {$user['full_name']} as {$role_name} {$prev_str}college-wide.", 'user', $user_id);
+        }
+
+        $this->redirectBack();
+    }
+
+    /**
+     * Transfer a Faculty member to a new department
+     * Strict Rule: Faculty member belongs to strictly one parent department.
+     */
+    public function transferDepartment(): void {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
+        $this->ensureAdminAccess();
+        csrfValidate();
+
+        global $conn;
+
+        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+        $new_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : 0;
+
+        if ($user_id <= 0 || $new_dept_id <= 0) {
+            $_SESSION['error_msg'] = "Invalid user or target department.";
+            $this->redirectBack();
+        }
+
+        $user = $this->getUserBasic($conn, $user_id);
+        $new_dept = $this->getDeptBasic($conn, $new_dept_id);
+
+        if (!$user || !$new_dept) {
+            $_SESSION['error_msg'] = "User or target department not found.";
+            $this->redirectBack();
+        }
+
+        // Identify current department
+        $old_dept_stmt = $conn->prepare("
+            SELECT d.dept_id, d.dept_name 
+            FROM user_roles ur 
+            JOIN departments d ON ur.dept_id = d.dept_id 
+            WHERE ur.user_id = ? AND ur.dept_id IS NOT NULL 
+            LIMIT 1
+        ");
+        $old_dept_stmt->bind_param("i", $user_id);
+        $old_dept_stmt->execute();
+        $old_dept = $old_dept_stmt->get_result()->fetch_assoc();
+        $old_dept_stmt->close();
+
+        if ($old_dept && (int)$old_dept['dept_id'] === $new_dept_id) {
+            $_SESSION['success_msg'] = "{$user['full_name']} is already assigned to {$new_dept['dept_name']}.";
+            $this->redirectBack();
+        }
+
+        $old_name = $old_dept ? $old_dept['dept_name'] : 'Unassigned';
+
+        // 1. Relieve any HOD or Coordinator role in old department
+        $del_lead = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id IN (?, ?) AND dept_id IS NOT NULL");
+        $hod = ROLE_HOD;
+        $coord = ROLE_DEPT_COORDINATOR;
+        $del_lead->bind_param("iii", $user_id, $hod, $coord);
+        $del_lead->execute();
+        $del_lead->close();
+
+        // 2. Remove all previous department-bound faculty roles
+        $del_fac = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ?");
+        $fac = ROLE_FACULTY;
+        $del_fac->bind_param("ii", $user_id, $fac);
+        $del_fac->execute();
+        $del_fac->close();
+
+        // 3. Ensure single Faculty role in new department
+        $this->ensureRoleExists($conn, $user_id, ROLE_FACULTY, $new_dept_id);
+
+        $_SESSION['success_msg'] = "{$user['full_name']} successfully transferred from {$old_name} to {$new_dept['dept_name']}.";
+
+        if (function_exists('system_audit_log')) {
+            system_audit_log($conn, 'DEPARTMENT_TRANSFER', "Transferred faculty member {$user['full_name']} from {$old_name} to {$new_dept['dept_name']}.", 'user', $user_id);
+        }
+
+        $this->redirectBack();
+    }
+
+    /**
+     * Revoke a specific leadership or institutional role
+     */
+    public function revokeRole(): void {
+        require_once __DIR__ . '/../../core/bootstrap.php';
+        require_login();
+        $this->ensureAdminAccess();
+        csrfValidate();
+
+        global $conn;
+
+        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+        $role_id = isset($_POST['role_id']) ? (int)$_POST['role_id'] : 0;
+        $dept_id = isset($_POST['dept_id']) && is_numeric($_POST['dept_id']) && (int)$_POST['dept_id'] > 0 ? (int)$_POST['dept_id'] : null;
+
+        if ($user_id <= 0 || $role_id <= 0) {
+            $_SESSION['error_msg'] = "Invalid parameters to revoke role.";
+            $this->redirectBack();
+        }
+
+        if ($role_id === ROLE_FACULTY) {
+            $_SESSION['error_msg'] = "Every faculty member must maintain base Faculty status. Use Department Transfer or Inactive Status instead of removing base faculty status.";
+            $this->redirectBack();
+        }
+
+        if ($role_id === ROLE_ADMIN) {
+            $_SESSION['error_msg'] = "Administrator roles cannot be revoked via this interface.";
+            $this->redirectBack();
+        }
+
+        $user = $this->getUserBasic($conn, $user_id);
+        if (!$user) {
+            $_SESSION['error_msg'] = "User not found.";
+            $this->redirectBack();
+        }
+
+        if ($dept_id === null) {
+            $del = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id IS NULL");
+            $del->bind_param("ii", $user_id, $role_id);
+        } else {
+            $del = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id = ?");
+            $del->bind_param("iii", $user_id, $role_id, $dept_id);
+        }
+        $del->execute();
+        $del->close();
+
+        // Fetch role name for notification
+        $r_stmt = $conn->prepare("SELECT role_name FROM roles WHERE role_id = ?");
+        $r_stmt->bind_param("i", $role_id);
+        $r_stmt->execute();
+        $r_name = $r_stmt->get_result()->fetch_assoc()['role_name'] ?? "Role #{$role_id}";
+        $r_stmt->close();
+
+        $_SESSION['success_msg'] = "Revoked {$r_name} role from {$user['full_name']}.";
+
+        if (function_exists('system_audit_log')) {
+            system_audit_log($conn, 'ROLE_REVOKE', "Revoked {$r_name} role from {$user['full_name']} ({$user['email']}).", 'user', $user_id);
         }
 
         $this->redirectBack();
@@ -505,6 +830,30 @@ class UserController {
             $this->ensureRoleExists($conn, $new_user_id, ROLE_HOD, $dept_id);
         } elseif ($role_key === 'coordinator') {
             $this->ensureRoleExists($conn, $new_user_id, ROLE_DEPT_COORDINATOR, $dept_id);
+        } elseif (in_array($role_key, ['iqac', 'central_coordinator', 'rnd_dean'], true)) {
+            $target_inst_role = match ($role_key) {
+                'iqac' => ROLE_IQAC,
+                'central_coordinator' => ROLE_CENTRAL_COORDINATOR,
+                'rnd_dean' => ROLE_RND_DEAN,
+            };
+
+            // Single-holder institutional transfer
+            $prev_inst = $conn->prepare("SELECT user_id FROM user_roles WHERE role_id = ? AND dept_id IS NULL");
+            $prev_inst->bind_param("i", $target_inst_role);
+            $prev_inst->execute();
+            $ires = $prev_inst->get_result();
+            while ($irow = $ires->fetch_assoc()) {
+                $ipid = (int)$irow['user_id'];
+                if ($ipid !== $new_user_id) {
+                    $del_i = $conn->prepare("DELETE FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id IS NULL");
+                    $del_i->bind_param("ii", $ipid, $target_inst_role);
+                    $del_i->execute();
+                    $del_i->close();
+                }
+            }
+            $prev_inst->close();
+
+            $this->ensureRoleExists($conn, $new_user_id, $target_inst_role, null);
         }
 
         $_SESSION['success_msg'] = "Faculty account for {$full_name} created successfully with default password Admin@123.";
@@ -544,15 +893,25 @@ class UserController {
     }
 
     private function ensureRoleExists(\mysqli $conn, int $user_id, int $role_id, ?int $dept_id): void {
-        $check = $conn->prepare("SELECT user_role_id FROM user_roles WHERE user_id = ? AND role_id = ? AND (dept_id = ? OR (dept_id IS NULL AND ? IS NULL))");
-        $check->bind_param("iiii", $user_id, $role_id, $dept_id, $dept_id);
+        if ($dept_id === null) {
+            $check = $conn->prepare("SELECT user_role_id FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id IS NULL");
+            $check->bind_param("ii", $user_id, $role_id);
+        } else {
+            $check = $conn->prepare("SELECT user_role_id FROM user_roles WHERE user_id = ? AND role_id = ? AND dept_id = ?");
+            $check->bind_param("iii", $user_id, $role_id, $dept_id);
+        }
         $check->execute();
         $has_role = $check->get_result()->fetch_assoc();
         $check->close();
 
         if (!$has_role) {
-            $ins = $conn->prepare("INSERT INTO user_roles (user_id, role_id, dept_id) VALUES (?, ?, ?)");
-            $ins->bind_param("iii", $user_id, $role_id, $dept_id);
+            if ($dept_id === null) {
+                $ins = $conn->prepare("INSERT INTO user_roles (user_id, role_id, dept_id) VALUES (?, ?, NULL)");
+                $ins->bind_param("ii", $user_id, $role_id);
+            } else {
+                $ins = $conn->prepare("INSERT INTO user_roles (user_id, role_id, dept_id) VALUES (?, ?, ?)");
+                $ins->bind_param("iii", $user_id, $role_id, $dept_id);
+            }
             $ins->execute();
             $ins->close();
         }
