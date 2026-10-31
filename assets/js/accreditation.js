@@ -197,9 +197,97 @@
         }
     }
 
+    /**
+     * Unified AJAX saver for NBA/NAAC criteria.
+     */
+    async function saveAccreditationCriterion(critId, payload, silent = false, module = 'nba') {
+        const deptId = getActiveDeptId();
+        const yearVal = getAcademicYear();
+        const csrf = getCsrfToken();
+        const baseUrl = window.FMS_BASE_URL || '';
+
+        const formData = new URLSearchParams();
+        formData.append('dept_id', deptId);
+        formData.append('year', yearVal);
+        formData.append('json_data', JSON.stringify(payload));
+        formData.append('_csrf_token', csrf);
+        formData.append('csrf_token', csrf);
+
+        try {
+            const res = await fetch(`${baseUrl}/public/index.php?route=api/${module}/save&id=${critId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+
+            if (!res.ok) {
+                throw new Error('Server returned HTTP ' + res.status);
+            }
+
+            const data = await res.json();
+            if (data.status === 'success' || data.success) {
+                if (!silent) {
+                    showToast('Data saved successfully!');
+                }
+                return true;
+            } else {
+                if (!silent) {
+                    alert('Error saving data: ' + (data.error || data.message || 'Unknown error'));
+                }
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            if (!silent) {
+                alert('Failed to communicate with server: ' + err.message);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Unified PDF proof uploader for NBA criteria.
+     */
+    async function uploadAccreditationPdf(critId, section, file, module = 'nba') {
+        if (!file || file.type !== 'application/pdf') {
+            alert('Only PDF files are allowed.');
+            return null;
+        }
+        const deptId = getActiveDeptId();
+        const csrf = getCsrfToken();
+        const baseUrl = window.FMS_BASE_URL || '';
+
+        const formData = new FormData();
+        formData.append('_csrf_token', csrf);
+        formData.append('csrf_token', csrf);
+        formData.append('dept_id', deptId);
+        formData.append('pdf_file', file);
+        formData.append('section', section);
+
+        try {
+            const response = await fetch(`${baseUrl}/public/index.php?route=api/${module}/upload_pdf&id=${critId}`, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                return result.file_path;
+            } else {
+                alert('Upload failed: ' + (result.message || result.error || 'Unknown error'));
+                return null;
+            }
+        } catch (error) {
+            console.error('Error uploading PDF:', error);
+            alert('An error occurred during upload: ' + error.message);
+            return null;
+        }
+    }
+
     // Expose Global Public API & Backward-Compatible Aliases
     window.showToast = showToast;
     window.generateAccreditationPDF = generateAccreditationPDF;
+    window.saveAccreditationCriterion = saveAccreditationCriterion;
+    window.uploadAccreditationPdf = uploadAccreditationPdf;
     window.generateMasterPDF = function(critId = 1) {
         return generateAccreditationPDF('nba', critId);
     };

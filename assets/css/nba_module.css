@@ -156,3 +156,60 @@
     pointer-events: none;
     box-sizing: border-box;
 }
+
+/* Reusable Accreditation Table Styles */
+.nba-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    background: #fff;
+    border: 1px solid #dee2e6;
+}
+.nba-table th, .nba-table td {
+    padding: 8px 10px;
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+.nba-table thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+.nba-table .th-highlight {
+    background: #fff3cd !important;
+    color: #000;
+}
+.nba-table .td-shaded {
+    background: #e9ecef;
+}
+.nba-table .td-total {
+    background: #f1f3f5;
+    font-weight: bold;
+}
+.nba-table .cell-center { text-align: center; }
+.nba-table .cell-right  { text-align: right; }
+.nba-table .cell-left   { text-align: left; }
+.nba-table input[type="number"], .nba-table input[type="text"] {
+    width: 100%;
+    border: 1px solid #ced4da;
+    padding: 6px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+.nba-table input.cell-center { text-align: center; }
+.nba-example-details {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: #495057;
+    background: #f8f9fa;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+.nba-example-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #2563eb;
+    user-select: none;
+}

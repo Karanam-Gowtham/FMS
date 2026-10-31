@@ -1,56 +1,8 @@
 <?php
-if (!isset($criteria_data)) {
-    $criteria_data = [];
-}
+$criterion_num = 6;
+$criterion_title = "Faculty Contribution (120)";
+include __DIR__ . '/../partials/nba_header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?? 'Criterion 6' ?> &mdash; FMS</title>
-    <link href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1" rel="stylesheet">
-    <link href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <style>
-        .nba-table th, .nba-table td { padding: 8px; text-align: left; }
-        .nba-table thead { font-weight: bold; background: #fff3cd; }
-        .nba-table th { text-align: center; vertical-align: middle; }
-        .section-card { margin-bottom: 2rem; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #dee2e6; }
-        .calc-box { width:100%; text-align:center; border:1px solid #ced4da; padding:5px; box-sizing:border-box; }
-        .readonly-box { background:transparent; border:none; font-weight:bold; }
-        .btn-add { padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; margin-bottom: 10px; }
-        .btn-remove { padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
-    </style>
-</head>
-<body>
-<?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-
-<div class="container">
-
-    <div style="margin-bottom: 1rem;">
-        <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&amp;year=<?= urlencode($year) ?>" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
-            &larr; Back to NBA Dashboard (<?= htmlspecialchars($year) ?>)
-        </a>
-    </div>
-
-    <div class="header-row">
-        <h1>Criterion 6: Faculty Contribution (120)</h1>
-        <p>Academic Year: <strong><?= htmlspecialchars($year) ?></strong></p>
-    </div>
-
-    <div style="margin-bottom: 2rem; background: #fff; padding: 1rem; border-radius: 8px; border: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px;">
-        <label for="level-select" style="font-weight: 600; color: #495057;">Select Scope / Department:</label>
-        <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="changeDepartment()">
-            <?php foreach ($departments as $d): ?>
-                <option value="<?= (int)$d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($d['dept_name'] === 'Complete University' ? 'Complete University (Institutional)' : 'Department: ' . $d['dept_name']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    
     <form id="nbaForm">
 
         <!-- 6.1 Professional Development Activities -->
@@ -551,54 +503,7 @@ if (!isset($criteria_data)) {
 
     async function saveCriterionData(silent = false) {
         saveCurrentLevel();
-
-        const payload = { levelData: levelData };
-        const formData = new FormData(document.getElementById('nbaForm'));
-        formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('json_data', JSON.stringify(payload));
-        const activeDeptId = document.getElementById('level-select') ? document.getElementById('level-select').value : '<?= $dept_id ?>';
-        formData.append('dept_id', activeDeptId);
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
-
-        const btn = document.querySelector('.btn-save');
-        let oldText = '';
-        if (btn && !silent) {
-            oldText = btn.innerText;
-            btn.innerText = 'Saving...';
-            btn.disabled = true;
-        }
-
-        try {
-            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save_criterion&id=6', {
-                method: 'POST', body: formData
-            });
-            const data = await res.json();
-            if (btn && !silent) {
-                btn.innerText = oldText;
-                btn.disabled = false;
-            }
-            if (data.success || data.status === 'success') {
-                if (!silent) {
-                    showToast('Data saved successfully!');
-                }
-                return true;
-            } else {
-                if (!silent) {
-                    alert('Error: ' + (data.error || data.message || 'Unknown error'));
-                }
-                return false;
-            }
-        } catch (err) {
-            console.error(err);
-            if (btn && !silent) {
-                btn.innerText = oldText;
-                btn.disabled = false;
-            }
-            if (!silent) {
-                alert('A network error occurred: ' + err.message);
-            }
-            return false;
-        }
+        return await saveAccreditationCriterion(6, { levelData: levelData }, silent);
     }
 
 

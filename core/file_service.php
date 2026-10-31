@@ -332,3 +332,35 @@ function file_get_by_document(mysqli $conn, int $doc_id): array
     $stmt->close();
     return $files;
 }
+
+/**
+ * Safely streams a generated/downloaded file and automatically purges temporary files.
+ */
+function file_stream_and_cleanup(string $filePath, string $downloadName, string $mimeType, bool $inline = false, array $tempFilesToCleanup = []): void {
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    $safe_name = str_replace(['"', ';', "\r", "\n"], '', basename($downloadName));
+    $disposition = $inline ? 'inline' : 'attachment';
+    header('X-Content-Type-Options: nosniff');
+    header('Content-Type: ' . $mimeType);
+    header('Content-Disposition: ' . $disposition . '; filename="' . $safe_name . '"; filename*=UTF-8\'\'' . rawurlencode($safe_name));
+    $fsize = @filesize($filePath);
+    if ($fsize !== false && $fsize >= 0) {
+        header('Content-Length: ' . $fsize);
+    }
+    header('Cache-Control: private, max-age=0, must-revalidate');
+    header('Pragma: public');
+    try {
+        readfile($filePath);
+    } finally {
+        $to_delete = array_unique(array_merge([$filePath], $tempFilesToCleanup));
+        foreach ($to_delete as $f) {
+            if (!empty($f) && file_exists($f)) {
+                @unlink($f);
+            }
+        }
+    }
+    exit;
+}
+

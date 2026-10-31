@@ -204,6 +204,30 @@ abstract class BaseController {
         exit;
     }
 
+    protected function redirectBack(string $default = ''): void {
+        if (php_sapi_name() === 'cli') {
+            return;
+        }
+        $target = $default;
+        if (empty($target) && !empty($_SERVER['HTTP_REFERER'])) {
+            $referer = $_SERVER['HTTP_REFERER'];
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            $parsed = parse_url($referer);
+            $query = $parsed['query'] ?? '';
+            if (!str_contains($query, 'route=documents/download')) {
+                if (!empty($parsed['host']) && $parsed['host'] === $host) {
+                    $target = $referer;
+                } elseif (empty($parsed['host']) && str_starts_with($referer, '/')) {
+                    $target = $referer;
+                }
+            }
+        }
+        if (empty($target)) {
+            $target = BASE_URL . '/public/index.php?route=documents/list';
+        }
+        $this->redirect($target);
+    }
+
     protected function json(array $data, int $statusCode = 200): void {
         if (!headers_sent()) {
             http_response_code($statusCode);

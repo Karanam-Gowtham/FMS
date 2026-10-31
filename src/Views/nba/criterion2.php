@@ -1,41 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?> &mdash; FMS</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css?v=2.1">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
-</head>
-<body>
-<?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-
-<div class="container">
-
-    <div style="margin-bottom: 1rem;">
-        <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&amp;year=<?= urlencode($year) ?>" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
-            &larr; Back to NBA Dashboard (<?= htmlspecialchars($year) ?>)
-        </a>
-    </div>
-
-    <div class="header-row">
-        <h1>Criterion 2: Teaching-Learning Processes</h1>
-        <p>Academic Year: <strong><?= htmlspecialchars($year) ?></strong></p>
-    </div>
-
-    <div style="margin-bottom: 2rem; background: #fff; padding: 1rem; border-radius: 8px; border: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px;">
-        <label for="level-select" style="font-weight: 600; color: #495057;">Select Scope / Department:</label>
-        <select id="level-select" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px;" onchange="changeDepartment()">
-            <?php foreach ($departments as $d): ?>
-                <option value="<?= (int)$d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($d['dept_name'] === 'Complete University' ? 'Complete University (Institutional)' : 'Department: ' . $d['dept_name']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
+<?php
+$criterion_num = 2;
+$criterion_title = "Teaching-Learning Processes";
+include __DIR__ . '/../partials/nba_header.php';
+?>
 
     <!-- Section 2.1 -->
     <div class="section-card">
@@ -289,100 +256,29 @@
     async function handlePDFUpload(input, section) {
         const file = input.files[0];
         if (!file) return;
-
-        if (file.type !== 'application/pdf') {
-            alert('Only PDF files are allowed.');
-            input.value = '';
-            return;
-        }
-
         const overlay = document.getElementById('overlay_' + section);
-        overlay.style.display = 'flex';
+        if (overlay) overlay.style.display = 'flex';
 
-        const deptSelect = document.getElementById('level-select');
-        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
-
-        const formData = new FormData();
-        formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', activeDeptId);
-        formData.append('pdf_file', file);
-        formData.append('section', section);
-
-        try {
-            const response = await fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/upload_pdf&id=2', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                levelData[currentLevel]['pdf_' + section] = result.file_path;
-                updatePDFUI(section);
-                saveData(true); // Auto-save after successful upload
-            } else {
-                alert('Upload failed: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred during upload.');
-        } finally {
-            overlay.style.display = 'none';
-            input.value = ''; // Reset input
+        const path = await uploadAccreditationPdf(2, section, file);
+        if (overlay) overlay.style.display = 'none';
+        if (path) {
+            levelData[currentLevel]['pdf_' + section] = path;
+            updatePDFUI(section);
+            saveData(true);
         }
+        input.value = '';
     }
 
     function removePDF(section) {
-        if(confirm("Are you sure you want to remove this document?")) {
+        if (confirm("Are you sure you want to remove this document?")) {
             levelData[currentLevel]['pdf_' + section] = '';
             updatePDFUI(section);
-            saveData(true); // Auto-save after removal
+            saveData(true);
         }
     }
 
-
     async function saveData(silent = false) {
-        const deptSelect = document.getElementById('level-select');
-        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
-
-        const formData = new URLSearchParams();
-        formData.append('dept_id', activeDeptId);
-        formData.append('year', year);
-        
-        const payload = { levelData: levelData };
-        formData.append('json_data', JSON.stringify(payload));
-        formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('csrf_token', '<?= csrfToken() ?>');
-
-        try {
-            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=2', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-
-            if (!res.ok) {
-                throw new Error('Server returned HTTP ' + res.status);
-            }
-
-            const data = await res.json();
-            if (data.status === 'success' || data.success) {
-                if (!silent) {
-                    showToast('Data saved successfully!');
-                }
-                return true;
-            } else {
-                if (!silent) {
-                    alert('Error saving data: ' + (data.error || data.message || 'Unknown error'));
-                }
-                return false;
-            }
-        } catch (err) {
-            console.error(err);
-            if (!silent) {
-                alert('Failed to communicate with server: ' + err.message);
-            }
-            return false;
-        }
+        return await saveAccreditationCriterion(2, { levelData: levelData }, silent);
     }
 
 

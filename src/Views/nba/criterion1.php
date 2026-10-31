@@ -1,49 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?> &mdash; FMS</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css?v=2.1">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-</head>
-<body>
-<?php include __DIR__ . '/../../../includes/header.php'; ?>
-
-<div class="container">
-
-    <div style="margin-bottom: 1rem;">
-        <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard&amp;year=<?= urlencode($year) ?>" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
-            &larr; Back to NBA Dashboard (<?= htmlspecialchars($year) ?>)
-        </a>
-    </div>
-
-    <div class="header-row">
-        <h1>Criterion 1: Outcome-Based Curriculum</h1>
-        <p>Academic Year: <strong><?= htmlspecialchars($year) ?></strong></p>
-    </div>
-
+<?php
+$criterion_num = 1;
+$criterion_title = "Outcome-Based Curriculum";
+$extra_head = '<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+include __DIR__ . '/../partials/nba_header.php';
+?>
     <form id="nbaForm">
-        <!-- 1.1 Vision, Mission, PEOs -->
-        <div class="section-card">
-            <h3>1.1 Vision, Mission and Program Educational Objectives</h3>
-            
-            <h4>1.1.1 State the Vision and Mission of the Institute and the Department</h4>
-            <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 15px;">(Vision statement typically indicates aspirations and Mission statement states the broad approach to achieve aspirations.)</p>
-            
-            <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; display: flex; align-items: center; gap: 15px;">
-                <label for="level-select" style="font-weight: 600; color: #333;">Select Scope / Department:</label>
-                <select id="level-select" onchange="changeDepartment()" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.95rem;">
-                    <?php foreach ($departments as $d): ?>
-                        <option value="<?= (int)$d['dept_id'] ?>" <?= (int)$d['dept_id'] === (int)$dept_id ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($d['dept_name'] === 'Complete University' ? 'Complete University (Institutional)' : 'Department: ' . $d['dept_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
 
             <div id="vm-form-container" style="display: flex; flex-direction: column; gap: 20px;">
                 
@@ -1156,53 +1117,42 @@
             matrix: matrixData
         };
 
-        const deptSelect = document.getElementById('level-select');
-        const activeDeptId = deptSelect ? deptSelect.value.replace('dept_', '') : '<?= $dept_id ?>';
+    async function saveCriterionData() {
+        saveCurrentLevel();
+        const payload = {
+            levelData: levelData,
+            peos: peos,
+            matrix: matrixData
+        };
 
+        const activeDeptId = (document.getElementById('level-select')?.value || '<?= $dept_id ?>').replace('dept_', '');
         const formData = new FormData();
         formData.append('dept_id', activeDeptId);
         formData.append('year', '<?= htmlspecialchars($year) ?>');
         formData.append('json_data', JSON.stringify(payload));
+        formData.append('_csrf_token', window.FMS_CSRF_TOKEN || '<?= csrfToken() ?>');
+        formData.append('csrf_token', window.FMS_CSRF_TOKEN || '<?= csrfToken() ?>');
 
-        // Append files if they exist
-        const file113 = document.querySelector('input[name="file_1_1_3"]').files[0];
-        const file114 = document.querySelector('input[name="file_1_1_4"]').files[0];
-
+        const file113 = document.querySelector('input[name="file_1_1_3"]')?.files[0];
+        const file114 = document.querySelector('input[name="file_1_1_4"]')?.files[0];
         if (file113) formData.append('file_1_1_3', file113);
         if (file114) formData.append('file_1_1_4', file114);
         
-        // Append the processed CSV blob from SheetJS, or fallback to the raw input
-        if (processedCSVFile) {
-            formData.append('csv_file', processedCSVFile);
-        } else {
-            const rawCsv = document.getElementById('csvInput').files[0];
-            if (rawCsv) formData.append('csv_file', rawCsv);
-        }
+        const csvFile = processedCSVFile || document.getElementById('csvInput')?.files[0];
+        if (csvFile) formData.append('csv_file', csvFile);
 
-        // Send AJAX POST
-        formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('csrf_token', '<?= csrfToken() ?>');
-        fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=1', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error('Server returned HTTP ' + res.status);
-            }
-            return res.json();
-        })
-        .then(data => {
+        try {
+            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/nba/save&id=1', { method: 'POST', body: formData });
+            const data = await res.json();
             if (data.success || data.status === 'success') {
                 showToast('Data saved successfully!');
             } else {
                 alert('Error: ' + (data.error || data.message || 'Unknown error'));
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.error(err);
             alert('A network error occurred while saving.');
-        });
+        }
     }
 
     // Boot

@@ -317,76 +317,17 @@
             });
         });
 
-        const activeDeptId = document.getElementById('level-select') ? document.getElementById('level-select').value : '<?= $dept_id ?>';
-
         for (const id of fileFields) {
             const fileInput = document.getElementById(id);
             if (fileInput && fileInput.files.length > 0) {
-                const fileFormData = new FormData();
-                fileFormData.append('_csrf_token', '<?= csrfToken() ?>');
-                fileFormData.append('dept_id', activeDeptId);
-                fileFormData.append('pdf_file', fileInput.files[0]);
-                fileFormData.append('section', id);
-                
-                try {
-                    const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/naac/upload_pdf', {
-                        method: 'POST',
-                        body: fileFormData
-                    });
-                    const data = await res.json();
-                    if (data.success || data.status === 'success') {
-                        payload[id + '_path'] = data.file_path;
-                    } else {
-                        alert('File upload failed for ' + id + ': ' + (data.message || 'Unknown error'));
-                    }
-                } catch (e) {
-                    console.error('Upload error', e);
+                const path = await uploadAccreditationPdf(<?= (int)$crit_id ?>, id, fileInput.files[0], 'naac');
+                if (path) {
+                    payload[id + '_path'] = path;
                 }
             }
         }
 
-        // Save JSON data
-        const formData = new FormData();
-        formData.append('_csrf_token', '<?= csrfToken() ?>');
-        formData.append('dept_id', activeDeptId);
-        formData.append('year', '<?= htmlspecialchars($year) ?>');
-        formData.append('criterion_number', '<?= $crit_id ?>');
-        formData.append('json_data', JSON.stringify(payload));
-        
-        try {
-            const res = await fetch('<?= BASE_URL ?>/public/index.php?route=api/naac/save&id=<?= $crit_id ?>', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!res.ok) {
-                throw new Error('HTTP error ' + res.status);
-            }
-
-            const data = await res.json();
-            if (data.success || data.status === 'success') {
-                if (!silent) {
-                    showToast('Data saved successfully!');
-                }
-                return true;
-            } else {
-                if (!silent) {
-                    alert('Error: ' + (data.error || data.message || 'Failed to save data.'));
-                }
-                return false;
-            }
-        } catch (err) {
-            console.error('Save error:', err);
-            if (!silent) {
-                alert('An error occurred while saving: ' + err.message);
-            }
-            return false;
-        } finally {
-            if (!silent && btn) {
-                btn.innerText = 'Save Criterion <?= $crit_id ?>';
-                btn.disabled = false;
-            }
-        }
+        return await saveAccreditationCriterion(<?= (int)$crit_id ?>, payload, silent, 'naac');
     }
 
 </script>
