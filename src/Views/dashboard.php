@@ -206,9 +206,10 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
 
         <?php
         $role_id = $active_role ? (int)$active_role['role_id'] : 0;
+        $is_admin = ($role_id === ROLE_ADMIN);
         $is_faculty = ($role_id === ROLE_FACULTY);
-        $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
-        $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+        $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+        $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
         ?>
         
         <?php if ($is_faculty): ?>
@@ -493,13 +494,13 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
             </div>
         <?php endif; ?>
 
-        <?php if ($is_reviewer || $is_dept_manager): ?>
-            <!-- HOD / REVIEWER DASHBOARD (Viewing & Approving) -->
+        <?php if ($is_admin || $is_reviewer || $is_dept_manager): ?>
+            <!-- HOD / REVIEWER / ADMIN DASHBOARD -->
             <?php 
             $hod_view = $current_view; 
             ?>
 
-            <?php if ($hod_view === 'upload_dept_files' && $is_dept_manager): ?>
+            <?php if ($hod_view === 'upload_dept_files' && ($is_dept_manager || $is_admin)): ?>
 
                 <div class="header-title d-flex justify-content-between align-items-center" style="margin-top: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 1.5rem;">
                     <h1 style="font-size: 1.4rem; margin: 0;">Upload Department Files</h1>
@@ -667,124 +668,146 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
                     });
                 </script>
                 
-                <div class="header-title" style="margin-top: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 1.5rem;">
-                    <h1 style="font-size: 1.4rem; margin: 0;"><?= ($role_id === ROLE_ADMIN) ? 'Administrator Control & Actions' : 'Management Actions' ?></h1>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                    <?php if ($role_id === ROLE_ADMIN): ?>
-                        <!-- User Management (Admin Primary) -->
+                <?php if ($is_admin): ?>
+                    <!-- SECTION 1: GOVERNANCE & SYSTEM ADMINISTRATION -->
+                    <div class="header-title" style="margin-top: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 1.25rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-sliders-h" style="color: #0284c7;"></i> System Administration &amp; Governance
+                        </h2>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2.2rem;">
+                        <!-- User Management -->
                         <a href="<?= BASE_URL ?>/public/index.php?route=admin/users" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #0284c7; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(2, 132, 199, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #e0f2fe; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                            <div style="background: #e0f2fe; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
                                 <i class="fas fa-users-cog" style="color: #0284c7; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">User Management</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">Manage faculty, assign HODs & roles</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Users &amp; Leadership</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Manage accounts, assign HODs &amp; roles</div>
                             </div>
                         </a>
 
-                        <!-- Audit Trail & Activity Log (Admin Primary) -->
-                        <a href="<?= BASE_URL ?>/public/index.php?route=admin/audit_logs" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #0284c7; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(2, 132, 199, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #f0f9ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
-                                <i class="fas fa-history" style="color: #0284c7; font-size: 1.2rem;"></i>
+                        <!-- Dynamic Workflow Management -->
+                        <a href="<?= BASE_URL ?>/public/index.php?route=admin/workflows" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                            <div style="background: #eef2ff; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                                <i class="fas fa-project-diagram" style="color: #6366f1; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">Audit Trail &amp; Activity</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">College-wide event &amp; security logs</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Workflow Management</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Approval state machine &amp; doc routing</div>
                             </div>
                         </a>
 
-                        <!-- Departments & Units (Admin Primary) -->
+                        <!-- Departments & Support Units -->
                         <a href="<?= BASE_URL ?>/public/index.php?route=admin/departments" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #0284c7; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(2, 132, 199, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #f0f9ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                            <div style="background: #f0f9ff; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
                                 <i class="fas fa-sitemap" style="color: #0284c7; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">Departments &amp; Units</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">Academic &amp; support cell settings</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Departments &amp; Units</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Academic branches &amp; administrative cells</div>
                             </div>
                         </a>
 
-                        <!-- Academic Years (Admin Primary) -->
+                        <!-- Academic Years -->
                         <a href="<?= BASE_URL ?>/public/index.php?route=academic_years/list" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #fffbeb; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                            <div style="background: #fffbeb; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
                                 <i class="fas fa-calendar-alt" style="color: #f59e0b; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">Manage Academic Years</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">Configure & add session years</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Academic Years</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Configure cycles &amp; active calendar</div>
                             </div>
                         </a>
 
-                        <!-- All College Documents -->
-                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #8b5cf6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #f5f3ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
-                                <i class="fas fa-university" style="color: #8b5cf6; font-size: 1.2rem;"></i>
+                        <!-- Audit Trail & Activity Log -->
+                        <a href="<?= BASE_URL ?>/public/index.php?route=admin/audit_logs" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #0284c7; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(2, 132, 199, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                            <div style="background: #f0f9ff; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                                <i class="fas fa-history" style="color: #0284c7; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">All College Documents</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">Research, FDPs & faculty proofs</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Audit Trail &amp; Logs</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">College-wide security &amp; event trace</div>
                             </div>
                         </a>
+                    </div>
 
-                        <!-- View Department Files -->
-                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&amp;context=dept_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #06b6d4; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(6, 182, 212, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #ecfeff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
-                                <i class="fas fa-folder-open" style="color: #06b6d4; font-size: 1.2rem;"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">All Department Files</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">Departmental accreditation files</div>
-                            </div>
-                        </a>
-
-                        <!-- Upload Department Files -->
-                        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard&amp;view=upload_dept_files" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #ecfdf5; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
-                                <i class="fas fa-cloud-upload-alt" style="color: #10b981; font-size: 1.2rem;"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">Upload Department Files</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">Upload for any department</div>
-                            </div>
-                        </a>
-
-                        <!-- NBA Accreditation -->
+                    <!-- SECTION 2: INSTITUTIONAL ACCREDITATION & PORTALS -->
+                    <div class="header-title" style="margin-top: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 1.25rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-university" style="color: #3b82f6;"></i> Institutional Accreditation &amp; Campus Portals
+                        </h2>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2.2rem;">
+                        <!-- NBA -->
                         <a href="<?= BASE_URL ?>/public/index.php?route=nba/dashboard" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #eff6ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                            <div style="background: #eff6ff; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
                                 <i class="fas fa-award" style="color: #3b82f6; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">NBA Accreditation Portal</div>
-                                <div style="font-size: 0.78rem; color: #64748b;">Inspect & evaluate NBA criteria</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">NBA Accreditation Portal</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Inspect &amp; evaluate NBA criteria</div>
                             </div>
                         </a>
 
-                        <!-- NAAC Accreditation -->
+                        <!-- NAAC -->
                         <a href="<?= BASE_URL ?>/public/index.php?route=naac/dashboard" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #ec4899; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(236, 72, 153, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #fdf2f8; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                            <div style="background: #fdf2f8; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
                                 <i class="fas fa-certificate" style="color: #ec4899; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">NAAC Accreditation Portal</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">NAAC Accreditation Portal</div>
                                 <div style="font-size: 0.78rem; color: #64748b;">Monitor institutional NAAC metrics</div>
                             </div>
                         </a>
 
                         <!-- Student Activities -->
                         <a href="<?= BASE_URL ?>/public/index.php?route=student_activities/dashboard" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #14b8a6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(20, 184, 166, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
-                            <div style="background: #f0fdfa; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                            <div style="background: #f0fdfa; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
                                 <i class="fas fa-user-graduate" style="color: #14b8a6; font-size: 1.2rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">Student Activities & Clubs</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Student Activities &amp; Clubs</div>
                                 <div style="font-size: 0.78rem; color: #64748b;">Campus-wide student achievements</div>
                             </div>
                         </a>
+                    </div>
 
-                    <?php else: ?>
-                        <!-- Standard Reviewer Cards (Untouched for HOD, Coordinator, Dean, etc.) -->
+                    <!-- SECTION 3: MASTER DOCUMENT REPOSITORY -->
+                    <div class="header-title" style="margin-top: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 1.25rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-folder-open" style="color: #8b5cf6;"></i> College-Wide Master Document Repository
+                        </h2>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        <!-- All College Documents -->
+                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #8b5cf6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                            <div style="background: #f5f3ff; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                                <i class="fas fa-file-invoice" style="color: #8b5cf6; font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">All College Documents</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Search, view, download or purge faculty records</div>
+                            </div>
+                        </a>
+
+                        <!-- All Department Files -->
+                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list&amp;context=dept_file" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #06b6d4; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(6, 182, 212, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                            <div style="background: #ecfeff; width: 42px; height: 42px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem; flex-shrink: 0;">
+                                <i class="fas fa-folder" style="color: #06b6d4; font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">All Department Files</div>
+                                <div style="font-size: 0.78rem; color: #64748b;">Departmental accreditation proofs &amp; archives</div>
+                            </div>
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="header-title" style="margin-top: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 1.5rem;">
+                        <h1 style="font-size: 1.4rem; margin: 0;">Management Actions</h1>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                         <?php if ($is_reviewer): ?>
                         <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="background: white; padding: 1.2rem; border: 1px solid #e2e8f0; border-left: 4px solid #8b5cf6; border-radius: 8px; text-decoration: none; color: #1e293b; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
                             <div style="background: #f5f3ff; width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 1rem;">
@@ -897,7 +920,7 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
         <?php endif; ?>
 
 
-        <?php if (!$is_faculty && !$is_reviewer && !$is_dept_manager): ?>
+        <?php if (!$is_faculty && !$is_reviewer && !$is_dept_manager && !$is_admin): ?>
             <div class="header-title">
                 <h1>Quick Actions</h1>
             </div>
@@ -909,7 +932,7 @@ $current_view = (isset($_GET['view']) && is_string($_GET['view'])) ? trim($_GET[
         <?php endif; ?>
 
         <?php if (empty($current_view)): ?>
-        <?php if ($is_faculty || !empty($recent_uploads)): ?>
+        <?php if (($is_faculty || !empty($recent_uploads)) && !$is_admin): ?>
         <!-- MY SUBMISSIONS -->
         <div class="header-title" style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
             <div>

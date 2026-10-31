@@ -174,14 +174,17 @@ class DashboardController {
         $dept_categories = [];
         $dept_timeline = [];
 
-        if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY, ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+        $active_role_id = $active_role ? (int)$active_role['role_id'] : 0;
+
+        if ($active_role && $active_role_id !== ROLE_ADMIN && in_array($active_role_id, [ROLE_FACULTY, ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
             require_once __DIR__ . '/../../core/document_service.php';
             $pending_res = doc_list_pending_for_user($conn, $auth, 10, 0);
             $pending_approvals = $pending_res['rows'];
+        }
 
-            // Reviewer Analytics (Department / College level)
-            if (in_array((int)$active_role['role_id'], [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
-                $is_college_wide = in_array((int)$active_role['role_id'], [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+        // Reviewer Analytics (Department / College level)
+        if (in_array($active_role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+            $is_college_wide = in_array($active_role_id, [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
                 $dept_query = "
                     SELECT dt.label as type_label, d.status, d.created_at,
                            COALESCE(
@@ -254,7 +257,6 @@ class DashboardController {
                     ksort($dept_timeline);
                 }
             }
-        }
 
         $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
         $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');

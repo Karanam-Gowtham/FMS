@@ -925,11 +925,11 @@ if (isset($extra_head)) {
                     <a href="<?= $app_url ?>/public/index.php?route=nba/dashboard">NBA</a>
                     <a href="<?= $app_url ?>/public/index.php?route=naac/dashboard">NAAC</a>
                     <a href="<?= $app_url ?>/public/index.php?route=student_activities/dashboard">Student Activities</a>
-                    <?php if (in_array($header_role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD], true)): ?>
+                    <?php if (in_array($header_role_id, [ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD], true)): ?>
                     <a href="<?= $app_url ?>/public/index.php?route=academic_years/list">Academic Years</a>
                     <a href="<?= $app_url ?>/public/index.php?route=admin/departments">Departments &amp; Units</a>
                     <?php endif; ?>
-                    <?php if (in_array($header_role_id, [ROLE_ADMIN, ROLE_IQAC], true)): ?>
+                    <?php if ($header_role_id === ROLE_IQAC): ?>
                     <a href="<?= $app_url ?>/public/index.php?route=admin/audit_logs">Audit Trail</a>
                     <?php endif; ?>
                 </div>
@@ -952,22 +952,30 @@ if (isset($extra_head)) {
                 </a>
 
                 <?php if ($header_role_id === ROLE_ADMIN): ?>
-                <!-- User Management Link for Admin -->
-                <a href="<?= $app_url ?>/public/index.php?route=admin/users" class="nav-btn-link dashboard-link">
-                    Users & Leadership
-                </a>
-                <!-- Department Settings Link for Admin -->
-                <a href="<?= $app_url ?>/public/index.php?route=admin/departments" class="nav-btn-link dashboard-link">
-                    Departments
-                </a>
-                <!-- Academic Years Direct Link for Admin -->
-                <a href="<?= $app_url ?>/public/index.php?route=academic_years/list" class="nav-btn-link dashboard-link">
-                    Academic Years
-                </a>
-                <!-- Audit Trail Direct Link for Admin -->
-                <a href="<?= $app_url ?>/public/index.php?route=admin/audit_logs" class="nav-btn-link dashboard-link">
-                    Audit Trail
-                </a>
+                <!-- Admin Governance Dropdown -->
+                <div class="dropdown">
+                    <button type="button" class="dropdown-toggle" style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-sliders-h" style="font-size: 0.82rem;"></i> System Admin
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="<?= $app_url ?>/public/index.php?route=admin/users"><i class="fas fa-users-cog me-2"></i> Users &amp; Leadership</a>
+                        <a href="<?= $app_url ?>/public/index.php?route=admin/workflows"><i class="fas fa-project-diagram me-2"></i> Workflows</a>
+                        <a href="<?= $app_url ?>/public/index.php?route=admin/departments"><i class="fas fa-sitemap me-2"></i> Departments &amp; Units</a>
+                        <a href="<?= $app_url ?>/public/index.php?route=academic_years/list"><i class="fas fa-calendar-alt me-2"></i> Academic Years</a>
+                        <a href="<?= $app_url ?>/public/index.php?route=admin/audit_logs"><i class="fas fa-history me-2"></i> Audit Trail</a>
+                    </div>
+                </div>
+
+                <!-- Admin Documents Dropdown -->
+                <div class="dropdown">
+                    <button type="button" class="dropdown-toggle" style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-folder me-1" style="font-size: 0.82rem;"></i> Documents
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="<?= $app_url ?>/public/index.php?route=documents/list"><i class="fas fa-university me-2"></i> All College Documents</a>
+                        <a href="<?= $app_url ?>/public/index.php?route=documents/list&amp;context=dept_file"><i class="fas fa-folder-open me-2"></i> All Department Files</a>
+                    </div>
+                </div>
                 <?php endif; ?>
 
                 <?php if ($header_role_id === ROLE_FACULTY): ?>

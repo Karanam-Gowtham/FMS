@@ -144,6 +144,21 @@ if ($route === 'dashboard') {
 } elseif ($route === 'admin/audit_logs' || $route === 'audit_logs') {
     $controller = new \App\Controllers\AuditController();
     $controller->index();
+} elseif ($route === 'admin/workflows' || $route === 'workflows/list') {
+    $controller = new \App\Controllers\WorkflowController();
+    $controller->index();
+} elseif ($route === 'admin/workflows/save') {
+    $controller = new \App\Controllers\WorkflowController();
+    $controller->saveWorkflow();
+} elseif ($route === 'admin/workflows/save_steps') {
+    $controller = new \App\Controllers\WorkflowController();
+    $controller->saveSteps();
+} elseif ($route === 'admin/workflows/assign_type') {
+    $controller = new \App\Controllers\WorkflowController();
+    $controller->assignType();
+} elseif ($route === 'admin/workflows/delete') {
+    $controller = new \App\Controllers\WorkflowController();
+    $controller->delete();
 } elseif ($route === 'public/department') {
     $controller = new \App\Controllers\PublicController();
     $controller->department();
