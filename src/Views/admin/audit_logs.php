@@ -40,8 +40,10 @@ $is_admin = ((int)($active_role['role_id'] ?? 0) === ROLE_ADMIN);
                     <i class="fas fa-users-cog"></i> User Management
                 </a>
             <?php endif; ?>
-        </div>
     </div>
+
+    <!-- Flash Alerts -->
+    <?php include __DIR__ . '/../partials/alerts.php'; ?>
 
     <!-- Metric Summary Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.8rem;">

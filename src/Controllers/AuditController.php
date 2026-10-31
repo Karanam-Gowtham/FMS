@@ -10,14 +10,10 @@ use mysqli;
  * Allows Administrators and IQAC coordinators to inspect, filter,
  * and export all historical document workflows and system events.
  */
-class AuditController {
+class AuditController extends BaseController {
 
     public function index(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAccess();
-
-        global $conn;
+        $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_RND_DEAN]);
 
         // 1. Parse Filter Parameters
         $source_type = isset($_GET['type']) ? trim((string)$_GET['type']) : 'all';
@@ -43,7 +39,7 @@ class AuditController {
         $offset = ($page - 1) * $per_page;
 
         // 2. Build Query
-        $data = $this->fetchAuditLogs($conn, $source_type, $filter_action, $filter_dept, $date_from, $date_to, $search, $per_page, $offset);
+        $data = $this->fetchAuditLogs($this->conn, $source_type, $filter_action, $filter_dept, $date_from, $date_to, $search, $per_page, $offset);
         $logs = $data['rows'];
         $total_records = $data['total'];
         $total_pages = (int)ceil($total_records / $per_page);
@@ -55,11 +51,11 @@ class AuditController {
         }
 
         // 4. Fetch Summary Statistics
-        $stats = $this->fetchAuditStats($conn);
+        $stats = $this->fetchAuditStats($this->conn);
 
         // 5. Fetch Departments for Dropdown
         $departments = [];
-        $d_res = $conn->query("SELECT dept_id, dept_name FROM departments WHERE is_academic = 1 ORDER BY dept_name ASC");
+        $d_res = $this->conn->query("SELECT dept_id, dept_name FROM departments WHERE is_academic = 1 ORDER BY dept_name ASC");
         if ($d_res) {
             while ($row = $d_res->fetch_assoc()) {
                 $departments[] = $row;
@@ -86,7 +82,7 @@ class AuditController {
             ]
         ];
 
-        require __DIR__ . '/../Views/admin/audit_logs.php';
+        $this->renderView('admin/audit_logs', get_defined_vars());
     }
 
     /**
@@ -375,16 +371,6 @@ class AuditController {
         fclose($out);
         if (php_sapi_name() !== 'cli') {
             exit;
-        }
-    }
-
-    private function ensureAccess(): void {
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
-        if (!in_array($role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_RND_DEAN], true)) {
-            $_SESSION['error_msg'] = "Access denied. Audit logs are restricted to Administrators and IQAC Coordinators.";
-            header("Location: " . BASE_URL . "/public/index.php?route=dashboard");
-            exit();
         }
     }
 }

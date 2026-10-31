@@ -1485,3 +1485,43 @@ function doc_can_delete_department(mysqli $conn, int $dept_id): array {
     ];
 }
 
+/**
+ * Returns SQL expression resolving the effective event/publication date
+ * across all document metadata tables.
+ */
+function doc_meta_event_date_coalesce_sql(string $docAlias = 'd'): string {
+    return "COALESCE(
+        msaf.date_from,
+        mc.from_date,
+        mj.date_of_publication,
+        mp.date_of_issue,
+        mfa.date_from,
+        mfo.date_from,
+        mco.date_from,
+        mse.from_date,
+        msb.from_date,
+        msc.from_date,
+        msj.date_of_submission,
+        {$docAlias}.created_at
+    )";
+}
+
+/**
+ * Returns standard LEFT JOIN clauses for all document metadata tables.
+ */
+function doc_meta_joins_sql(string $docAlias = 'd'): string {
+    return "
+        LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_conference mc ON mc.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_journal mj ON mj.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_patent mp ON mp.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_fdp_attended mfa ON mfa.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_fdp_organised mfo ON mfo.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_conf_organised mco ON mco.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_student_event mse ON mse.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_student_body msb ON msb.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_student_conference msc ON msc.doc_id = {$docAlias}.doc_id
+        LEFT JOIN meta_student_journal msj ON msj.doc_id = {$docAlias}.doc_id
+    ";
+}
+

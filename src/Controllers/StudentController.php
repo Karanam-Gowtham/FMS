@@ -1,39 +1,39 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-class StudentController {
-    public function dashboard() {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_role(ROLE_STUDENT);
+use mysqli_result;
 
-        $auth = auth_context();
-        $user_id = (int)($auth['user_id'] ?? 0);
+/**
+ * StudentController
+ * 
+ * Manages the self-service student achievement dashboard, upload metrics, and progress tracking.
+ */
+class StudentController extends BaseController {
+
+    public function dashboard(): void {
+        $this->requireRole(ROLE_STUDENT);
+
+        $auth = $this->auth;
+        $user_id = $this->userId;
         $roll_number = !empty($auth['email']) ? strtoupper(explode('@', $auth['email'])[0]) : 'Student';
-        
-        global $conn;
-        $stmt = $conn->prepare("
+
+        $event_date_coalesce = doc_meta_event_date_coalesce_sql('d');
+        $meta_joins = doc_meta_joins_sql('d');
+
+        $stmt = $this->conn->prepare("
             SELECT d.doc_id, d.uploaded_by, d.dept_id, d.status, d.created_at,
-                   COALESCE(msaf.activity_category, dmsa.activity_category, dt.label) as activity_category,
+                   COALESCE(msaf.activity_category, dt.label) as activity_category,
                    COALESCE(msaf.event_title, d.title) as event_title,
-                   COALESCE(
-                       msaf.date_from,
-                       mse.from_date,
-                       msb.from_date,
-                       msc.from_date,
-                       msj.date_of_submission,
-                       d.created_at
-                   ) as event_date
+                   {$event_date_coalesce} as event_date
             FROM documents d
             JOIN document_types dt ON dt.type_id = d.type_id
-            LEFT JOIN meta_student_activity_file msaf ON msaf.doc_id = d.doc_id
-            LEFT JOIN document_meta_student_activity dmsa ON dmsa.doc_id = d.doc_id
-            LEFT JOIN meta_student_event mse ON mse.doc_id = d.doc_id
-            LEFT JOIN meta_student_body msb ON msb.doc_id = d.doc_id
-            LEFT JOIN meta_student_conference msc ON msc.doc_id = d.doc_id
-            LEFT JOIN meta_student_journal msj ON msj.doc_id = d.doc_id
+            {$meta_joins}
             WHERE d.uploaded_by = ?
             ORDER BY d.created_at DESC
         ");
+
         $submissions = [];
         $stats = ['pending' => 0, 'accepted' => 0, 'rejected' => 0, 'draft' => 0];
         $chart_categories = [];
@@ -49,36 +49,27 @@ class StudentController {
                 if (isset($stats[$row['status']])) {
                     $stats[$row['status']]++;
                 }
-                
-                // For Categories Chart
+
                 $cat = $row['activity_category'] ?: 'Uncategorized';
-                if (!isset($chart_categories[$cat])) {
-                    $chart_categories[$cat] = 0;
-                }
-                $chart_categories[$cat]++;
-                
-                // For Timeline Chart (Group by Month-Year based on event start date)
+                $chart_categories[$cat] = ($chart_categories[$cat] ?? 0) + 1;
+
                 $event_dt = (!empty($row['event_date']) && $row['event_date'] !== '0000-00-00') ? $row['event_date'] : $row['created_at'];
                 $ts = strtotime($event_dt);
                 if ($ts === false) {
                     $ts = !empty($row['created_at']) ? (strtotime($row['created_at']) ?: time()) : time();
                 }
                 $date = date('Y-m', $ts);
-                if (!isset($chart_timeline[$date])) {
-                    $chart_timeline[$date] = 0;
-                }
-                $chart_timeline[$date]++;
+                $chart_timeline[$date] = ($chart_timeline[$date] ?? 0) + 1;
             }
             $stmt->close();
         }
-        
-        // Sort timeline chronologically
+
         ksort($chart_timeline);
 
-        // Check if there are academic years (for the form)
-        $ay_res = $conn->query("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
+        // Fetch academic years for student forms
+        $ay_res = $this->conn->query("SELECT year_id, year_label FROM academic_years ORDER BY year_label DESC");
         $academic_years = [];
-        if ($ay_res instanceof \mysqli_result) {
+        if ($ay_res instanceof mysqli_result) {
             while ($ay_row = $ay_res->fetch_assoc()) {
                 $academic_years[] = [
                     'ay_id' => (int)$ay_row['year_id'],
@@ -88,12 +79,10 @@ class StudentController {
             $ay_res->close();
         }
 
-        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
-        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
-        $success_msg = is_string($raw_success) ? $raw_success : '';
-        $error_msg   = is_string($raw_error)   ? $raw_error   : '';
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
+        $flash = $this->getFlashMessages();
+        $success_msg = $flash['success'] ?? ($this->stringParam('msg', '', 'get'));
+        $error_msg   = $flash['error']   ?? ($this->stringParam('err', '', 'get'));
 
-        include __DIR__ . '/../Views/student/dashboard.php';
+        $this->renderView('student/dashboard', get_defined_vars());
     }
 }

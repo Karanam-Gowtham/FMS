@@ -13,50 +13,33 @@ require_once __DIR__ . '/../../../includes/header.php';
 $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'mappings' ? 'mappings' : 'pipelines';
 ?>
 
-<div class="main-container" style="max-width: 1400px; margin: 30px auto; padding: 0 20px;">
+<div class="fms-container">
     
     <!-- Top Header Banner -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div class="fms-header-banner">
         <div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                <span style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">State Machine Engine</span>
-                <span style="background: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px;">Institutional Governance</span>
+            <div class="fms-tags-wrapper">
+                <span class="fms-tag fms-tag-blue">State Machine Engine</span>
+                <span class="fms-tag fms-tag-gray">Institutional Governance</span>
             </div>
-            <h1 style="margin: 0; font-size: 1.65rem; color: #0f172a; font-weight: 800; letter-spacing: -0.5px;">Dynamic Workflow Management</h1>
-            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.92rem;">
+            <h1 class="fms-header-title">Dynamic Workflow Management</h1>
+            <p class="fms-header-subtitle">
                 Configure approval pipelines, define multi-tier review steps, and govern how faculty and departmental records flow across the institution.
             </p>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
-            <button type="button" onclick="openCreateWorkflowModal()" style="background: #0284c7; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2); transition: background 0.2s;">
+            <button type="button" onclick="openCreateWorkflowModal()" class="fms-btn fms-btn-primary">
                 <i class="fas fa-plus-circle"></i> Create New Workflow
             </button>
-            <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 9px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" class="fms-btn fms-btn-secondary">
                 <i class="fas fa-arrow-left"></i> Dashboard
             </a>
         </div>
     </div>
 
     <!-- Alert Messages -->
-    <?php if (!empty($success_msg)): ?>
-        <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.1rem;"></i>
-                <span><?= htmlspecialchars($success_msg) ?></span>
-            </div>
-            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #065f46; cursor: pointer;"><i class="fas fa-times"></i></button>
-        </div>
-    <?php endif; ?>
+    <?php include __DIR__ . '/../partials/alerts.php'; ?>
 
-    <?php if (!empty($error_msg)): ?>
-        <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-exclamation-circle" style="color: #ef4444; font-size: 1.1rem;"></i>
-                <span><?= htmlspecialchars($error_msg) ?></span>
-            </div>
-            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #991b1b; cursor: pointer;"><i class="fas fa-times"></i></button>
-        </div>
-    <?php endif; ?>
 
     <!-- Navigation Tabs -->
     <div style="display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px;">

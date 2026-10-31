@@ -45,6 +45,7 @@ if (isset($extra_head)) {
 </script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="<?= htmlspecialchars($app_url, ENT_QUOTES, 'UTF-8') ?>/assets/css/fms-components.css?v=1.0">
 <script src="<?= htmlspecialchars($app_url, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js" defer></script>
 <script src="<?= htmlspecialchars($app_url, ENT_QUOTES, 'UTF-8') ?>/assets/js/accreditation.js?v=2.2"></script>
 

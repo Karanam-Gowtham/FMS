@@ -9,40 +9,28 @@ $page_title = "User Management | GMRIT FMS";
 require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
-<div class="main-container" style="max-width: 1380px; margin: 30px auto; padding: 0 20px;">
+<div class="fms-container">
     
     <!-- Top Header Banner -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div class="fms-header-banner">
         <div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                <span style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">Institutional Control</span>
+            <div class="fms-tags-wrapper">
+                <span class="fms-tag fms-tag-blue">Institutional Control</span>
             </div>
-            <h1 style="margin: 0; font-size: 1.65rem; color: #0f172a; font-weight: 800; letter-spacing: -0.5px;">Faculty & Leadership Management</h1>
-            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.92rem;">
+            <h1 class="fms-header-title">Faculty &amp; Leadership Management</h1>
+            <p class="fms-header-subtitle">
                 Manage departmental leadership, appoint HODs, assign coordinators, and manage faculty account lifecycles.
             </p>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
-            <button type="button" onclick="openAddUserModal()" style="background: #0284c7; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2); transition: background 0.2s;">
+            <button type="button" onclick="openAddUserModal()" class="fms-btn fms-btn-primary">
                 <i class="fas fa-user-plus"></i> Add New Faculty
             </button>
         </div>
     </div>
 
     <!-- Alert Messages -->
-    <?php if (!empty($disp_success)): ?>
-        <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.1rem;"></i>
-            <span><?= htmlspecialchars($disp_success) ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($disp_error)): ?>
-        <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-exclamation-circle" style="color: #ef4444; font-size: 1.1rem;"></i>
-            <span><?= htmlspecialchars($disp_error) ?></span>
-        </div>
-    <?php endif; ?>
+    <?php include __DIR__ . '/../partials/alerts.php'; ?>
 
     <!-- Search & Filter Bar -->
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">

@@ -1,39 +1,25 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-use mysqli;
+use Throwable;
 
 /**
  * Controller for Managing Institutional Departments & Operating Units
  */
-class DepartmentController {
+class DepartmentController extends BaseController {
 
     public function index(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
+        $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
 
-        $auth = auth_context();
-        $active_role = auth_active_role();
-
-        if (!$active_role) {
-            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
-            exit();
-        }
-
-        global $conn;
-
-        $role_id = (int)$active_role['role_id'];
-        $can_view = in_array($role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD], true);
+        $auth = $this->auth;
+        $active_role = $this->activeRole;
+        $role_id = $this->activeRoleId;
         $is_admin = ($role_id === ROLE_ADMIN);
 
-        if (!$can_view) {
-            $_SESSION['error_msg'] = "You do not have permission to access Department Settings.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=dashboard");
-            return;
-        }
-
-        $search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
-        $type_filter = isset($_GET['type']) ? trim((string)$_GET['type']) : 'all';
+        $search = $this->stringParam('search', '', 'get');
+        $type_filter = $this->stringParam('type', 'all', 'get');
 
         // Summary Statistics
         $stats = [
@@ -44,7 +30,7 @@ class DepartmentController {
             'total_docs'     => 0
         ];
 
-        $stat_res = $conn->query("
+        $stat_res = $this->conn->query("
             SELECT 
                 COUNT(*) AS total_depts,
                 SUM(CASE WHEN is_academic = 1 THEN 1 ELSE 0 END) AS academic_cnt,
@@ -57,188 +43,162 @@ class DepartmentController {
             $stats['non_academic']  = (int)($row['non_academic_cnt'] ?? 0);
         }
 
-        $fac_res = $conn->query("SELECT COUNT(DISTINCT user_id) AS total_fac FROM user_roles WHERE dept_id IS NOT NULL");
+        $fac_res = $this->conn->query("SELECT COUNT(DISTINCT user_id) AS total_fac FROM user_roles WHERE dept_id IS NOT NULL");
         if ($fac_res && $row = $fac_res->fetch_assoc()) {
             $stats['total_faculty'] = (int)($row['total_fac'] ?? 0);
         }
 
-        $doc_res = $conn->query("SELECT COUNT(*) AS total_docs FROM documents WHERE dept_id IS NOT NULL");
+        $doc_res = $this->conn->query("SELECT COUNT(*) AS total_docs FROM documents WHERE dept_id IS NOT NULL");
         if ($doc_res && $row = $doc_res->fetch_assoc()) {
             $stats['total_docs'] = (int)($row['total_docs'] ?? 0);
         }
 
-        // Build filtered query
+        // Build list query with faculty & document counts
         $where = ["1=1"];
         $params = [];
         $types = "";
 
-        if ($type_filter === 'academic') {
-            $where[] = "dep.is_academic = 1";
-        } elseif ($type_filter === 'non_academic') {
-            $where[] = "dep.is_academic = 0";
-        }
-
-        if (!empty($search)) {
-            $where[] = "dep.dept_name LIKE ?";
+        if ($search !== '') {
+            $where[] = "d.dept_name LIKE ?";
             $params[] = '%' . $search . '%';
             $types .= "s";
         }
 
+        if ($type_filter === 'academic') {
+            $where[] = "d.is_academic = 1";
+        } elseif ($type_filter === 'non_academic') {
+            $where[] = "d.is_academic = 0";
+        }
+
         $where_sql = implode(" AND ", $where);
-        $sql = "
+
+        $query = "
             SELECT 
-                dep.dept_id, 
-                dep.dept_name, 
-                dep.is_academic, 
-                dep.created_at,
-                (SELECT COUNT(DISTINCT ur.user_id) FROM user_roles ur WHERE ur.dept_id = dep.dept_id) AS faculty_count,
-                (SELECT COUNT(*) FROM documents d WHERE d.dept_id = dep.dept_id) AS doc_count,
-                (SELECT u.full_name 
-                 FROM user_roles ur2 
-                 JOIN users u ON ur2.user_id = u.user_id 
-                 WHERE ur2.dept_id = dep.dept_id AND ur2.role_id = " . ROLE_HOD . " 
-                 LIMIT 1) AS hod_name
-            FROM departments dep
+                d.dept_id,
+                d.dept_name,
+                d.is_academic,
+                (SELECT COUNT(DISTINCT ur.user_id) FROM user_roles ur WHERE ur.dept_id = d.dept_id) AS faculty_count,
+                (SELECT COUNT(*) FROM documents doc WHERE doc.dept_id = d.dept_id) AS document_count
+            FROM departments d
             WHERE {$where_sql}
-            ORDER BY dep.is_academic DESC, dep.dept_name ASC
+            ORDER BY 
+                CASE WHEN d.dept_name = 'Complete University' THEN 0 ELSE 1 END,
+                d.is_academic DESC,
+                d.dept_name ASC
         ";
 
-        $stmt = $conn->prepare($sql);
-        if (!empty($params)) {
-            $stmt->bind_param($types, ...$params);
+        $stmt = $this->conn->prepare($query);
+        if ($stmt) {
+            if (!empty($params)) {
+                $stmt->bind_param($types, ...$params);
+            }
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $departments = [];
+            while ($row = $res->fetch_assoc()) {
+                $departments[] = $row;
+            }
+            $stmt->close();
+        } else {
+            $departments = [];
         }
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $departments = [];
-        while ($r = $res->fetch_assoc()) {
-            $departments[] = $r;
-        }
-        $stmt->close();
 
-        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
-        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
-        $error_msg   = is_string($raw_error)   ? $raw_error   : '';
-        $success_msg = is_string($raw_success) ? $raw_success : '';
-        unset($_SESSION['error_msg'], $_SESSION['success_msg']);
+        $flash = $this->getFlashMessages();
+        $success_msg = $flash['success'];
+        $error_msg   = $flash['error'];
 
-        require __DIR__ . '/../Views/admin/departments.php';
+        $this->renderView('admin/departments', get_defined_vars());
     }
 
     /**
-     * Create or update a department.
+     * Create or edit a department
      */
     public function save(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        global $conn;
+        $this->requireAdmin();
 
-        $auth = auth_context();
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
-
-        if ($role_id !== ROLE_ADMIN) {
-            $_SESSION['error_msg'] = "Only Administrators can create or modify departments.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+        if (!$this->isPost()) {
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
-        csrfValidate();
+        $this->validateCsrf();
 
-        $dept_id = (int)($_POST['dept_id'] ?? 0);
-        $dept_name = trim((string)($_POST['dept_name'] ?? ''));
+        $dept_id = $this->intParam('dept_id', 0, 'post');
+        $dept_name = $this->stringParam('dept_name', '', 'post');
         $is_academic = !empty($_POST['is_academic']) ? 1 : 0;
 
         if (empty($dept_name)) {
-            $_SESSION['error_msg'] = "Department name cannot be empty.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+            $this->flashError("Department name cannot be empty.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
         if (strlen($dept_name) > 100) {
-            $_SESSION['error_msg'] = "Department name cannot exceed 100 characters.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+            $this->flashError("Department name cannot exceed 100 characters.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
         // Uniqueness check
-        $chk = $conn->prepare("SELECT dept_id FROM departments WHERE LOWER(dept_name) = LOWER(?) AND dept_id != ?");
+        $chk = $this->conn->prepare("SELECT dept_id FROM departments WHERE LOWER(dept_name) = LOWER(?) AND dept_id != ?");
         $chk->bind_param("si", $dept_name, $dept_id);
         $chk->execute();
         $existing = $chk->get_result()->fetch_assoc();
         $chk->close();
 
         if ($existing) {
-            $_SESSION['error_msg'] = "A department with the name '{$dept_name}' already exists.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+            $this->flashError("A department with the name '{$dept_name}' already exists.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
-        $actor_uid = (int)($auth['user_id'] ?? 0);
+        $actor_uid = $this->userId;
 
         if ($dept_id > 0) {
             // Update
-            $u_stmt = $conn->prepare("UPDATE departments SET dept_name = ?, is_academic = ? WHERE dept_id = ?");
+            $u_stmt = $this->conn->prepare("UPDATE departments SET dept_name = ?, is_academic = ? WHERE dept_id = ?");
             $u_stmt->bind_param("sii", $dept_name, $is_academic, $dept_id);
             $u_stmt->execute();
             $u_stmt->close();
 
-            if (function_exists('system_audit_log')) {
-                system_audit_log($conn, 'DEPARTMENT_UPDATE', "Updated department #{$dept_id} ('{$dept_name}', academic={$is_academic})", 'department', $dept_id, $actor_uid);
-            }
-
-            $_SESSION['success_msg'] = "Department '{$dept_name}' updated successfully.";
+            system_audit_log($this->conn, 'DEPARTMENT_UPDATE', "Updated department #{$dept_id} ('{$dept_name}', academic={$is_academic})", 'department', $dept_id, $actor_uid);
+            $this->flashSuccess("Department '{$dept_name}' updated successfully.");
         } else {
             // Create
-            $i_stmt = $conn->prepare("INSERT INTO departments (dept_name, is_academic) VALUES (?, ?)");
+            $i_stmt = $this->conn->prepare("INSERT INTO departments (dept_name, is_academic) VALUES (?, ?)");
             $i_stmt->bind_param("si", $dept_name, $is_academic);
             $i_stmt->execute();
-            $new_id = $conn->insert_id;
+            $new_id = $this->conn->insert_id;
             $i_stmt->close();
 
-            if (function_exists('system_audit_log')) {
-                system_audit_log($conn, 'DEPARTMENT_CREATE', "Created department '{$dept_name}' (ID #{$new_id}, academic={$is_academic})", 'department', $new_id, $actor_uid);
-            }
-
-            $_SESSION['success_msg'] = "Department '{$dept_name}' created successfully.";
+            system_audit_log($this->conn, 'DEPARTMENT_CREATE', "Created department '{$dept_name}' (ID #{$new_id}, academic={$is_academic})", 'department', $new_id, $actor_uid);
+            $this->flashSuccess("Department '{$dept_name}' created successfully.");
         }
 
-        $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
+        $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
     }
 
     /**
      * Quick toggle for Academic vs Non-Academic classification.
      */
     public function toggleAcademic(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        global $conn;
+        $this->requireAdmin();
 
-        $auth = auth_context();
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
-
-        if ($role_id !== ROLE_ADMIN) {
-            $_SESSION['error_msg'] = "Only Administrators can modify department classifications.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+        if (!$this->isPost()) {
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
-        csrfValidate();
-        $dept_id = (int)($_POST['dept_id'] ?? 0);
+        $this->validateCsrf();
+        $dept_id = $this->intParam('dept_id', 0, 'post');
 
         if ($dept_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid department ID.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+            $this->flashError("Invalid department ID.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
-        $t_stmt = $conn->prepare("UPDATE departments SET is_academic = IF(is_academic = 1, 0, 1) WHERE dept_id = ?");
+        $t_stmt = $this->conn->prepare("UPDATE departments SET is_academic = IF(is_academic = 1, 0, 1) WHERE dept_id = ?");
         $t_stmt->bind_param("i", $dept_id);
         $t_stmt->execute();
         $t_stmt->close();
 
         // Query new status
-        $r_stmt = $conn->prepare("SELECT dept_name, is_academic FROM departments WHERE dept_id = ?");
+        $r_stmt = $this->conn->prepare("SELECT dept_name, is_academic FROM departments WHERE dept_id = ?");
         $r_stmt->bind_param("i", $dept_id);
         $r_stmt->execute();
         $dept = $r_stmt->get_result()->fetch_assoc();
@@ -246,92 +206,63 @@ class DepartmentController {
 
         if ($dept) {
             $class_label = ((int)$dept['is_academic'] === 1) ? 'Academic Teaching Department' : 'Administrative / Support Unit';
-            if (function_exists('system_audit_log')) {
-                $actor_uid = (int)($auth['user_id'] ?? 0);
-                system_audit_log($conn, 'DEPARTMENT_TOGGLE_ACADEMIC', "Changed classification of '{$dept['dept_name']}' to {$class_label}", 'department', $dept_id, $actor_uid);
-            }
-            $_SESSION['success_msg'] = "'{$dept['dept_name']}' is now classified as: {$class_label}.";
+            system_audit_log($this->conn, 'DEPARTMENT_TOGGLE_ACADEMIC', "Changed classification of '{$dept['dept_name']}' to {$class_label}", 'department', $dept_id, $this->userId);
+            $this->flashSuccess("'{$dept['dept_name']}' is now classified as: {$class_label}.");
         }
 
-        $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
+        $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
     }
 
     /**
      * Delete department with strict zero-faculty and zero-document protection.
      */
     public function delete(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        global $conn;
+        $this->requireAdmin();
 
-        $auth = auth_context();
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
-
-        if ($role_id !== ROLE_ADMIN) {
-            $_SESSION['error_msg'] = "Only Administrators can delete departments.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+        if (!$this->isPost()) {
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
-        csrfValidate();
-        $dept_id = (int)($_POST['dept_id'] ?? 0);
+        $this->validateCsrf();
+        $dept_id = $this->intParam('dept_id', 0, 'post');
 
         if ($dept_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid department ID.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+            $this->flashError("Invalid department ID.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
         // Fetch department info
-        $stmt = $conn->prepare("SELECT dept_name FROM departments WHERE dept_id = ?");
+        $stmt = $this->conn->prepare("SELECT dept_name FROM departments WHERE dept_id = ?");
         $stmt->bind_param("i", $dept_id);
         $stmt->execute();
         $dept = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
         if (!$dept) {
-            $_SESSION['error_msg'] = "Department not found.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+            $this->flashError("Department not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
         // Integrity check via doc_can_delete_department
-        $can_delete = doc_can_delete_department($conn, $dept_id);
+        $can_delete = doc_can_delete_department($this->conn, $dept_id);
         if (!$can_delete['allowed']) {
-            $_SESSION['error_msg'] = $can_delete['reason'];
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-            return;
+            $this->flashError($can_delete['reason']);
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
         }
 
         try {
-            $del_stmt = $conn->prepare("DELETE FROM departments WHERE dept_id = ?");
+            $del_stmt = $this->conn->prepare("DELETE FROM departments WHERE dept_id = ?");
             $del_stmt->bind_param("i", $dept_id);
             $del_stmt->execute();
             $del_stmt->close();
 
-            if (function_exists('system_audit_log')) {
-                $actor_uid = (int)($auth['user_id'] ?? 0);
-                system_audit_log($conn, 'DEPARTMENT_DELETE', "Deleted empty department '{$dept['dept_name']}' (ID #{$dept_id})", 'department', $dept_id, $actor_uid);
-            }
-
-            $_SESSION['success_msg'] = "Department '{$dept['dept_name']}' was deleted successfully.";
-        } catch (\Throwable $e) {
+            system_audit_log($this->conn, 'DEPARTMENT_DELETE', "Deleted empty department '{$dept['dept_name']}' (ID #{$dept_id})", 'department', $dept_id, $this->userId);
+            $this->flashSuccess("Department '{$dept['dept_name']}' was deleted successfully.");
+        } catch (Throwable $e) {
             error_log("Failed to delete department: " . $e->getMessage());
-            $_SESSION['error_msg'] = "Database error while deleting department: " . $e->getMessage();
+            $this->flashError("Database error while deleting department: " . $e->getMessage());
         }
 
-        $this->safeRedirect(BASE_URL . "/public/index.php?route=admin/departments");
-    }
-
-    /**
-     * Environment-aware redirect that doesn't terminate PHP process under CLI / unit tests.
-     */
-    protected function safeRedirect(string $url): void {
-        if (php_sapi_name() === 'cli') {
-            return;
-        }
-        header("Location: " . $url);
-        exit;
+        $this->redirect(BASE_URL . "/public/index.php?route=admin/departments");
     }
 }

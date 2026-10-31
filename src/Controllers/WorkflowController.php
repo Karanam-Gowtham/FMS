@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-use mysqli;
+use Exception;
 
 /**
  * WorkflowController
@@ -12,43 +14,17 @@ use mysqli;
  * - Add/update/reorder steps with automated deterministic transitions
  * - Institutional audit logging for all changes
  */
-class WorkflowController {
-
-    private mysqli $conn;
-
-    public function __construct() {
-        global $conn;
-        $this->conn = $conn;
-    }
-
-    /**
-     * Enforces Administrator authentication.
-     */
-    private function ensureAdmin(): array {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $auth = auth_context();
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
-
-        if ($role_id !== ROLE_ADMIN) {
-            $_SESSION['error_msg'] = "Access denied. Workflow management is restricted to Administrators.";
-            header("Location: " . BASE_URL . "/public/index.php?route=dashboard");
-            exit;
-        }
-
-        return $auth;
-    }
+class WorkflowController extends BaseController {
 
     /**
      * Main Workflow Management Dashboard
      */
     public function index(): void {
-        $auth = $this->ensureAdmin();
+        $auth = $this->requireAdmin();
 
-        $success_msg = $_SESSION['success_msg'] ?? null;
-        $error_msg   = $_SESSION['error_msg'] ?? null;
-        unset($_SESSION['success_msg'], $_SESSION['error_msg']);
+        $flash = $this->getFlashMessages();
+        $success_msg = $flash['success'];
+        $error_msg   = $flash['error'];
 
         // 1. Fetch all workflows with step count & doc type count
         $workflows = [];
@@ -112,29 +88,27 @@ class WorkflowController {
             }
         }
 
-        require __DIR__ . '/../Views/admin/workflows.php';
+        $this->renderView('admin/workflows', compact('workflows', 'doc_types', 'roles', 'success_msg', 'error_msg'));
     }
 
     /**
      * Reassign a document type to a different workflow
      */
     public function assignType(): void {
-        $auth = $this->ensureAdmin();
+        $this->requireAdmin();
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+        if (!$this->isPost()) {
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
-        csrfValidate();
+        $this->validateCsrf();
 
-        $type_id = isset($_POST['type_id']) ? (int)$_POST['type_id'] : 0;
-        $workflow_id = isset($_POST['workflow_id']) ? (int)$_POST['workflow_id'] : 0;
+        $type_id = $this->intParam('type_id', 0, 'post');
+        $workflow_id = $this->intParam('workflow_id', 0, 'post');
 
         if ($type_id <= 0 || $workflow_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid document type or workflow selection.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Invalid document type or workflow selection.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Verify workflow exists
@@ -146,9 +120,8 @@ class WorkflowController {
         $wf_stmt->close();
 
         if (!$wf) {
-            $_SESSION['error_msg'] = "Target workflow not found.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Target workflow not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Get doc type info
@@ -160,9 +133,8 @@ class WorkflowController {
         $dt_stmt->close();
 
         if (!$dt) {
-            $_SESSION['error_msg'] = "Document type not found.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Document type not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Update document_types
@@ -176,38 +148,35 @@ class WorkflowController {
                 'workflow',
                 $workflow_id
             );
-            $_SESSION['success_msg'] = "Document category '{$dt['label']}' successfully mapped to '{$wf['label']}'.";
+            $this->flashSuccess("Document category '{$dt['label']}' successfully mapped to '{$wf['label']}'.");
         } else {
-            $_SESSION['error_msg'] = "Failed to update workflow mapping: " . $this->conn->error;
+            $this->flashError("Failed to update workflow mapping: " . $this->conn->error);
         }
         $up_stmt->close();
 
-        header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows&tab=mappings");
-        exit;
+        $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows&tab=mappings");
     }
 
     /**
      * Create or edit workflow basic metadata
      */
     public function saveWorkflow(): void {
-        $auth = $this->ensureAdmin();
+        $this->requireAdmin();
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+        if (!$this->isPost()) {
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
-        csrfValidate();
+        $this->validateCsrf();
 
-        $workflow_id = isset($_POST['workflow_id']) ? (int)$_POST['workflow_id'] : 0;
-        $label = trim($_POST['label'] ?? '');
-        $workflow_key = trim($_POST['workflow_key'] ?? '');
-        $description = trim($_POST['description'] ?? '');
+        $workflow_id = $this->intParam('workflow_id', 0, 'post');
+        $label = $this->stringParam('label', '', 'post');
+        $workflow_key = $this->stringParam('workflow_key', '', 'post');
+        $description = $this->stringParam('description', '', 'post');
 
         if (empty($label)) {
-            $_SESSION['error_msg'] = "Workflow title is required.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Workflow title is required.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Sanitize key
@@ -224,9 +193,8 @@ class WorkflowController {
             $check_stmt->execute();
             if ($check_stmt->get_result()->num_rows > 0) {
                 $check_stmt->close();
-                $_SESSION['error_msg'] = "A workflow with key '{$workflow_key}' already exists.";
-                header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-                exit;
+                $this->flashError("A workflow with key '{$workflow_key}' already exists.");
+                $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
             }
             $check_stmt->close();
 
@@ -240,9 +208,9 @@ class WorkflowController {
                     'workflow',
                     $workflow_id
                 );
-                $_SESSION['success_msg'] = "Workflow '{$label}' updated successfully.";
+                $this->flashSuccess("Workflow '{$label}' updated successfully.");
             } else {
-                $_SESSION['error_msg'] = "Database error: " . $this->conn->error;
+                $this->flashError("Database error: " . $this->conn->error);
             }
             $up_stmt->close();
         } else {
@@ -252,9 +220,8 @@ class WorkflowController {
             $check_stmt->execute();
             if ($check_stmt->get_result()->num_rows > 0) {
                 $check_stmt->close();
-                $_SESSION['error_msg'] = "A workflow with key '{$workflow_key}' already exists.";
-                header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-                exit;
+                $this->flashError("A workflow with key '{$workflow_key}' already exists.");
+                $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
             }
             $check_stmt->close();
 
@@ -269,35 +236,32 @@ class WorkflowController {
                     'workflow',
                     $new_id
                 );
-                $_SESSION['success_msg'] = "Workflow '{$label}' created. You can now configure its approval steps.";
+                $this->flashSuccess("Workflow '{$label}' created. You can now configure its approval steps.");
             } else {
-                $_SESSION['error_msg'] = "Database error: " . $this->conn->error;
+                $this->flashError("Database error: " . $this->conn->error);
             }
             $ins_stmt->close();
         }
 
-        header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-        exit;
+        $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
     }
 
     /**
      * Configure steps for a workflow with deterministic transition generation
      */
     public function saveSteps(): void {
-        $auth = $this->ensureAdmin();
+        $this->requireAdmin();
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+        if (!$this->isPost()) {
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
-        csrfValidate();
+        $this->validateCsrf();
 
-        $workflow_id = isset($_POST['workflow_id']) ? (int)$_POST['workflow_id'] : 0;
+        $workflow_id = $this->intParam('workflow_id', 0, 'post');
         if ($workflow_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid workflow ID.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Invalid workflow ID.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Get workflow
@@ -308,14 +272,13 @@ class WorkflowController {
         $wf_stmt->close();
 
         if (!$wf_row) {
-            $_SESSION['error_msg'] = "Workflow not found.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Workflow not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
-        $step_labels = $_POST['step_labels'] ?? [];
-        $role_ids    = $_POST['role_ids'] ?? [];
-        $scopes      = $_POST['scopes'] ?? [];
+        $step_labels = (array)($this->postParam('step_labels', []));
+        $role_ids    = (array)($this->postParam('role_ids', []));
+        $scopes      = (array)($this->postParam('scopes', []));
 
         // Fetch existing steps for this workflow
         $old_steps = [];
@@ -342,103 +305,112 @@ class WorkflowController {
                 $chk_doc->close();
 
                 if (($doc_res['pending_cnt'] ?? 0) > 0) {
-                    $_SESSION['error_msg'] = "Cannot remove step '{$old_steps[$k]['step_label']}' because {$doc_res['pending_cnt']} pending document(s) are currently awaiting review at this step. Please process those documents before altering the pipeline.";
-                    header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-                    exit;
+                    $this->flashError("Cannot remove step '{$old_steps[$k]['step_label']}' because {$doc_res['pending_cnt']} pending document(s) are currently awaiting review at this step. Please process those documents before altering the pipeline.");
+                    $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
                 }
             }
         }
 
-        // Start transaction
+        // Validate that each step has a label and role
+        for ($i = 0; $i < $new_count; $i++) {
+            $lbl = trim((string)($step_labels[$i] ?? ''));
+            $rid = (int)($role_ids[$i] ?? 0);
+            if (empty($lbl) || $rid <= 0) {
+                $this->flashError("Each step must have a title and a designated reviewing role.");
+                $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            }
+        }
+
+        // Begin transaction
         $this->conn->begin_transaction();
         try {
-            // First, delete all transitions for the current steps of this workflow to prevent foreign key blocks
-            if (!empty($old_steps)) {
-                $old_ids = array_column($old_steps, 'step_id');
-                $placeholders = implode(',', array_fill(0, count($old_ids), '?'));
-                $types = str_repeat('i', count($old_ids));
-                
-                $del_trans = $this->conn->prepare("DELETE FROM workflow_transitions WHERE step_id IN ($placeholders) OR to_step_id IN ($placeholders)");
-                $del_trans->bind_param($types . $types, ...array_merge($old_ids, $old_ids));
-                $del_trans->execute();
-                $del_trans->close();
-            }
+            $saved_step_ids = [];
 
-            // Remove steps that are trimmed off if new_count < old_count
-            if ($old_count > $new_count) {
-                for ($k = $new_count; $k < $old_count; $k++) {
-                    $del_s = $this->conn->prepare("DELETE FROM workflow_steps WHERE step_id = ?");
-                    $del_s->bind_param("i", $old_steps[$k]['step_id']);
-                    $del_s->execute();
-                    $del_s->close();
-                }
-            }
-
-            // Process each new step
-            $active_step_ids = [];
             for ($i = 0; $i < $new_count; $i++) {
-                $order = $i + 1;
-                $label = trim($step_labels[$i] ?? "Step $order");
-                $role_id = (int)($role_ids[$i] ?? 0);
-                $scope = in_array(strtolower($scopes[$i] ?? ''), ['department', 'global'], true) ? strtolower($scopes[$i]) : 'department';
+                $s_order = $i + 1;
+                $s_label = trim((string)$step_labels[$i]);
+                $s_role  = (int)$role_ids[$i];
+                $s_scope = in_array($scopes[$i] ?? '', ['department', 'institutional'], true) ? $scopes[$i] : 'department';
 
                 if ($i < $old_count) {
-                    // Update existing step row
-                    $current_step_id = (int)$old_steps[$i]['step_id'];
-                    $up_s = $this->conn->prepare("
+                    // Update existing step in place
+                    $curr_step_id = (int)$old_steps[$i]['step_id'];
+                    $up_st = $this->conn->prepare("
                         UPDATE workflow_steps 
-                        SET step_order = ?, step_label = ?, responsible_role_id = ?, scope = ? 
+                        SET step_order = ?, step_label = ?, responsible_role_id = ?, scope = ?
                         WHERE step_id = ?
                     ");
-                    $up_s->bind_param("isisi", $order, $label, $role_id, $scope, $current_step_id);
-                    $up_s->execute();
-                    $up_s->close();
-                    $active_step_ids[] = $current_step_id;
+                    $up_st->bind_param("isisi", $s_order, $s_label, $s_role, $s_scope, $curr_step_id);
+                    $up_st->execute();
+                    $up_st->close();
+                    $saved_step_ids[] = $curr_step_id;
                 } else {
-                    // Insert new step row
-                    $ins_s = $this->conn->prepare("
-                        INSERT INTO workflow_steps (workflow_id, step_order, step_label, responsible_role_id, scope) 
+                    // Insert new step
+                    $ins_st = $this->conn->prepare("
+                        INSERT INTO workflow_steps (workflow_id, step_order, step_label, responsible_role_id, scope)
                         VALUES (?, ?, ?, ?, ?)
                     ");
-                    $ins_s->bind_param("iisis", $workflow_id, $order, $label, $role_id, $scope);
-                    $ins_s->execute();
-                    $active_step_ids[] = (int)$this->conn->insert_id;
-                    $ins_s->close();
+                    $ins_st->bind_param("iisis", $workflow_id, $s_order, $s_label, $s_role, $s_scope);
+                    $ins_st->execute();
+                    $saved_step_ids[] = $this->conn->insert_id;
+                    $ins_st->close();
                 }
             }
 
-            // Deterministic Transitions Generation
-            // Action IDs: approve = 1, reject = 2, resubmit = 3
-            if (!empty($active_step_ids)) {
-                $step_count = count($active_step_ids);
-                $first_step_id = $active_step_ids[0];
+            // If there are extra old steps beyond new count, delete them and their transitions
+            if ($old_count > $new_count) {
+                for ($k = $new_count; $k < $old_count; $k++) {
+                    $del_id = (int)$old_steps[$k]['step_id'];
+                    // Delete transitions referencing this step
+                    $del_tr = $this->conn->prepare("DELETE FROM workflow_transitions WHERE step_id = ? OR to_step_id = ?");
+                    $del_tr->bind_param("ii", $del_id, $del_id);
+                    $del_tr->execute();
+                    $del_tr->close();
 
-                for ($idx = 0; $idx < $step_count; $idx++) {
-                    $curr_id = $active_step_ids[$idx];
-                    $is_last = ($idx === $step_count - 1);
+                    // Delete step
+                    $del_st = $this->conn->prepare("DELETE FROM workflow_steps WHERE step_id = ?");
+                    $del_st->bind_param("i", $del_id);
+                    $del_st->execute();
+                    $del_st->close();
+                }
+            }
+
+            // Rebuild transitions for all saved steps
+            if (!empty($saved_step_ids)) {
+                $placeholders = implode(',', array_fill(0, count($saved_step_ids), '?'));
+                $types = str_repeat('i', count($saved_step_ids));
+                
+                $del_exist = $this->conn->prepare("DELETE FROM workflow_transitions WHERE step_id IN ($placeholders)");
+                $del_exist->bind_param($types, ...$saved_step_ids);
+                $del_exist->execute();
+                $del_exist->close();
+
+                $total_steps = count($saved_step_ids);
+                $first_step_id = $saved_step_ids[0];
+
+                for ($idx = 0; $idx < $total_steps; $idx++) {
+                    $curr_id = $saved_step_ids[$idx];
+                    $is_final = ($idx === $total_steps - 1);
+                    $next_id  = $is_final ? null : $saved_step_ids[$idx + 1];
 
                     // 1. Approve transition
-                    if (!$is_last) {
-                        $next_id = $active_step_ids[$idx + 1];
-                        $tr_app = $this->conn->prepare("
-                            INSERT INTO workflow_transitions (step_id, action_id, to_step_id, resulting_status) 
-                            VALUES (?, 1, ?, 'pending')
-                        ");
-                        $tr_app->bind_param("ii", $curr_id, $next_id);
-                        $tr_app->execute();
-                        $tr_app->close();
-                    } else {
-                        // Final step approve -> Accepted
+                    if ($is_final) {
                         $tr_app = $this->conn->prepare("
                             INSERT INTO workflow_transitions (step_id, action_id, to_step_id, resulting_status) 
                             VALUES (?, 1, NULL, 'accepted')
                         ");
                         $tr_app->bind_param("i", $curr_id);
-                        $tr_app->execute();
-                        $tr_app->close();
+                    } else {
+                        $tr_app = $this->conn->prepare("
+                            INSERT INTO workflow_transitions (step_id, action_id, to_step_id, resulting_status) 
+                            VALUES (?, 1, ?, 'pending')
+                        ");
+                        $tr_app->bind_param("ii", $curr_id, $next_id);
                     }
+                    $tr_app->execute();
+                    $tr_app->close();
 
-                    // 2. Reject transition -> Rejected
+                    // 2. Reject transition -> Direct to rejected terminal status
                     $tr_rej = $this->conn->prepare("
                         INSERT INTO workflow_transitions (step_id, action_id, to_step_id, resulting_status) 
                         VALUES (?, 2, NULL, 'rejected')
@@ -468,34 +440,31 @@ class WorkflowController {
                 $workflow_id
             );
 
-            $_SESSION['success_msg'] = "Approval pipeline for '{$wf_row['label']}' updated successfully with $new_count step(s).";
-        } catch (\Exception $e) {
+            $this->flashSuccess("Approval pipeline for '{$wf_row['label']}' updated successfully with $new_count step(s).");
+        } catch (Exception $e) {
             $this->conn->rollback();
-            $_SESSION['error_msg'] = "Failed to update workflow steps: " . $e->getMessage();
+            $this->flashError("Failed to update workflow steps: " . $e->getMessage());
         }
 
-        header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-        exit;
+        $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
     }
 
     /**
      * Delete a custom workflow safely
      */
     public function delete(): void {
-        $auth = $this->ensureAdmin();
+        $this->requireAdmin();
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+        if (!$this->isPost()) {
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
-        csrfValidate();
+        $this->validateCsrf();
 
-        $workflow_id = isset($_POST['workflow_id']) ? (int)$_POST['workflow_id'] : 0;
+        $workflow_id = $this->intParam('workflow_id', 0, 'post');
         if ($workflow_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid workflow ID.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Invalid workflow ID.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Get workflow
@@ -506,16 +475,14 @@ class WorkflowController {
         $wf_stmt->close();
 
         if (!$wf) {
-            $_SESSION['error_msg'] = "Workflow not found.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Workflow not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // System core workflows protection
         if (in_array($wf['workflow_key'], ['department_standard', 'auto_accept'], true)) {
-            $_SESSION['error_msg'] = "System core workflow '{$wf['label']}' cannot be deleted.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("System core workflow '{$wf['label']}' cannot be deleted.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Check if any document type is assigned to this workflow
@@ -526,9 +493,8 @@ class WorkflowController {
         $dt_chk->close();
 
         if (($dt_row['cnt'] ?? 0) > 0) {
-            $_SESSION['error_msg'] = "Cannot delete workflow '{$wf['label']}' because {$dt_row['cnt']} document category(s) are currently assigned to it. Please reassign them first.";
-            header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-            exit;
+            $this->flashError("Cannot delete workflow '{$wf['label']}' because {$dt_row['cnt']} document category(s) are currently assigned to it. Please reassign them first.");
+            $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
         }
 
         // Start transaction
@@ -557,7 +523,7 @@ class WorkflowController {
                 $doc_chk->close();
 
                 if (($dc_row['doc_cnt'] ?? 0) > 0) {
-                    throw new \Exception("Cannot delete workflow because documents currently reference its steps.");
+                    throw new Exception("Cannot delete workflow because documents currently reference its steps.");
                 }
 
                 // Delete transitions
@@ -589,13 +555,12 @@ class WorkflowController {
                 $workflow_id
             );
 
-            $_SESSION['success_msg'] = "Workflow '{$wf['label']}' deleted successfully.";
-        } catch (\Exception $e) {
+            $this->flashSuccess("Workflow '{$wf['label']}' deleted successfully.");
+        } catch (Exception $e) {
             $this->conn->rollback();
-            $_SESSION['error_msg'] = "Deletion failed: " . $e->getMessage();
+            $this->flashError("Deletion failed: " . $e->getMessage());
         }
 
-        header("Location: " . BASE_URL . "/public/index.php?route=admin/workflows");
-        exit;
+        $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
     }
 }

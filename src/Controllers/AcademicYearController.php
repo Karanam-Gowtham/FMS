@@ -1,34 +1,28 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-use mysqli;
+use mysqli_result;
+use Throwable;
 
 /**
  * Controller for Managing Institutional Academic Years
  */
-class AcademicYearController {
+class AcademicYearController extends BaseController {
 
     public function list(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
+        $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
 
-        $auth = auth_context();
-        $active_role = auth_active_role();
-
-        if (!$active_role) {
-            header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
-            exit();
-        }
-
-        global $conn;
-        
-        $role_id = (int)$active_role['role_id'];
+        $auth = $this->auth;
+        $active_role = $this->activeRole;
+        $role_id = $this->activeRoleId;
         $can_manage = in_array($role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD], true);
         $is_admin = ($role_id === ROLE_ADMIN);
 
         // Handle POST actions if submitted directly to academic_years/list
-        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
-            $subaction = $_POST['subaction'] ?? 'create';
+        if ($this->isPost()) {
+            $subaction = $this->stringParam('subaction', 'create', 'post');
             if ($subaction === 'set_current') {
                 $this->setCurrent();
                 return;
@@ -40,13 +34,11 @@ class AcademicYearController {
                 return;
             }
         }
-        
-        $raw_error   = $_SESSION['error_msg']   ?? ($_GET['err'] ?? '');
-        $raw_success = $_SESSION['success_msg'] ?? ($_GET['msg'] ?? '');
-        $error_msg   = is_string($raw_error)   ? $raw_error   : '';
-        $success_msg = is_string($raw_success) ? $raw_success : '';
-        unset($_SESSION['error_msg'], $_SESSION['success_msg']);
-        
+
+        $flash = $this->getFlashMessages();
+        $error_msg   = $flash['error']   ?? ($this->stringParam('err', '', 'get'));
+        $success_msg = $flash['success'] ?? ($this->stringParam('msg', '', 'get'));
+
         // Fetch academic years with mapped document counts
         $sql = "
             SELECT ay.year_id, ay.year_label, ay.is_current, ay.created_at,
@@ -56,12 +48,12 @@ class AcademicYearController {
             GROUP BY ay.year_id, ay.year_label, ay.is_current, ay.created_at
             ORDER BY ay.year_label DESC
         ";
-        $result = $conn->query($sql);
+        $result = $this->conn->query($sql);
         $academic_years = [];
         $total_documents_mapped = 0;
         $active_year_label = 'None Set';
 
-        if ($result instanceof \mysqli_result) {
+        if ($result instanceof mysqli_result) {
             while ($row = $result->fetch_assoc()) {
                 $academic_years[] = $row;
                 $total_documents_mapped += (int)$row['doc_count'];
@@ -78,34 +70,21 @@ class AcademicYearController {
             'total_docs'  => $total_documents_mapped
         ];
 
-        include __DIR__ . '/../Views/academic_years/list.php';
+        $this->renderView('academic_years/list', get_defined_vars());
     }
 
     /**
      * Create a new academic year with format and continuity validation.
      */
     public function create(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        global $conn;
+        $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
 
-        $auth = auth_context();
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
+        $this->validateCsrf();
+        $new_year = $this->stringParam('academic_year', '', 'post');
 
-        if (!in_array($role_id, [ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD], true)) {
-            $_SESSION['error_msg'] = "You do not have permission to add academic years.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
-        }
-
-        csrfValidate();
-        $new_year = (isset($_POST['academic_year']) && is_string($_POST['academic_year'])) ? trim($_POST['academic_year']) : '';
-        
         if (empty($new_year)) {
-            $_SESSION['error_msg'] = "Academic Year cannot be empty.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            $this->flashError("Academic Year cannot be empty.");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
         }
 
         // Automatically normalize YYYY-YYYY (e.g. 2026-2027) into canonical YYYY-YY (e.g. 2026-27)
@@ -114,207 +93,141 @@ class AcademicYearController {
         }
 
         if (!preg_match('/^\d{4}-\d{2}$/', $new_year)) {
-            $_SESSION['error_msg'] = "Invalid Academic Year format. Please use YYYY-YY (e.g. 2025-26).";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            $this->flashError("Invalid Academic Year format. Please use YYYY-YY (e.g. 2025-26).");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
         }
 
         $start_yr = (int)substr($new_year, 0, 4);
         $end_yy = (int)substr($new_year, 5, 2);
         $expected_end_yy = ($start_yr + 1) % 100;
         if ($end_yy !== $expected_end_yy || $start_yr < 1950 || $start_yr > 2100) {
-            $_SESSION['error_msg'] = "Invalid Academic Year. Years must be consecutive (e.g. " . $start_yr . "-" . sprintf('%02d', $expected_end_yy) . ").";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            $this->flashError("Invalid Academic Year. Years must be consecutive (e.g. " . $start_yr . "-" . sprintf('%02d', $expected_end_yy) . ").");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
         }
 
-        $chk = $conn->prepare("SELECT year_id FROM academic_years WHERE year_label = ?");
+        $chk = $this->conn->prepare("SELECT year_id FROM academic_years WHERE year_label = ?");
         if ($chk) {
             $chk->bind_param("s", $new_year);
             $chk->execute();
             $existing = $chk->get_result()->fetch_assoc();
             $chk->close();
             if ($existing) {
-                $_SESSION['error_msg'] = "Academic Year '{$new_year}' already exists.";
-                $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-                return;
+                $this->flashError("Academic Year '{$new_year}' already exists.");
+                $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
             }
         }
 
-        try {
-            $stmt = $conn->prepare("INSERT INTO academic_years (year_label, is_current) VALUES (?, 0)");
-            if ($stmt) {
-                $stmt->bind_param("s", $new_year);
-                $stmt->execute();
-                $new_id = $conn->insert_id;
-                $stmt->close();
-
-                if (function_exists('system_audit_log')) {
-                    $actor_uid = (int)($auth['user_id'] ?? 0);
-                    system_audit_log($conn, 'ACADEMIC_YEAR_CREATE', "Added new academic year '{$new_year}' (ID #{$new_id})", 'academic_year', $new_id, $actor_uid);
-                }
-
-                $_SESSION['success_msg'] = "Academic Year '{$new_year}' added successfully.";
+        $stmt = $this->conn->prepare("INSERT INTO academic_years (year_label, is_current) VALUES (?, 0)");
+        if ($stmt) {
+            $stmt->bind_param("s", $new_year);
+            if ($stmt->execute()) {
+                $new_id = $this->conn->insert_id;
+                system_audit_log($this->conn, 'ACADEMIC_YEAR_CREATE', "Added new academic year '{$new_year}' (ID #{$new_id})", 'academic_year', $new_id, $this->userId);
+                $this->flashSuccess("Academic Year '{$new_year}' added successfully.");
             } else {
-                $_SESSION['error_msg'] = "Database error: unable to prepare insert statement.";
+                $this->flashError("Database error while creating academic year: " . $stmt->error);
             }
-        } catch (\Throwable $e) {
-            error_log("Failed to add academic year: " . $e->getMessage());
-            $_SESSION['error_msg'] = "Failed to add academic year: " . $e->getMessage();
+            $stmt->close();
+        } else {
+            $this->flashError("Database error preparing statement.");
         }
 
-        $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
+        $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
     }
 
     /**
-     * Designate an academic year as the active / current academic year for the college.
+     * Designate a specific academic year as the institutional active year.
      */
     public function setCurrent(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        global $conn;
+        $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
 
-        $auth = auth_context();
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
-
-        if (!in_array($role_id, [ROLE_ADMIN, ROLE_IQAC], true)) {
-            $_SESSION['error_msg'] = "Only Administrators and IQAC can designate the active academic year.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
-        }
-
-        csrfValidate();
-        $year_id = (int)($_POST['year_id'] ?? 0);
+        $this->validateCsrf();
+        $year_id = $this->intParam('year_id', 0, 'post');
 
         if ($year_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid academic year ID.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            $this->flashError("Invalid Academic Year selection.");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
         }
 
-        // Verify target exists
-        $stmt = $conn->prepare("SELECT year_label FROM academic_years WHERE year_id = ?");
-        $stmt->bind_param("i", $year_id);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        if (!$row) {
-            $_SESSION['error_msg'] = "Academic Year not found.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
-        }
-
-        $year_label = $row['year_label'];
-
-        $conn->begin_transaction();
-        try {
-            $conn->query("UPDATE academic_years SET is_current = 0");
-            $u_stmt = $conn->prepare("UPDATE academic_years SET is_current = 1 WHERE year_id = ?");
-            $u_stmt->bind_param("i", $year_id);
-            $u_stmt->execute();
-            $u_stmt->close();
-
-            $conn->commit();
-
-            if (function_exists('system_audit_log')) {
-                $actor_uid = (int)($auth['user_id'] ?? 0);
-                system_audit_log($conn, 'ACADEMIC_YEAR_SET_CURRENT', "Designated Academic Year '{$year_label}' as the current active institutional year", 'academic_year', $year_id, $actor_uid);
-            }
-
-            $_SESSION['success_msg'] = "Academic Year '{$year_label}' is now designated as the active institutional year.";
-        } catch (\Throwable $t) {
-            $conn->rollback();
-            error_log("Failed to set current academic year: " . $t->getMessage());
-            $_SESSION['error_msg'] = "Failed to update active academic year: " . $t->getMessage();
-        }
-
-        $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-    }
-
-    /**
-     * Delete an academic year with strict protection against deleting years that have documents.
-     */
-    public function delete(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        global $conn;
-
-        $auth = auth_context();
-        $active_role = auth_active_role();
-        $role_id = $active_role ? (int)$active_role['role_id'] : 0;
-
-        if ($role_id !== ROLE_ADMIN) {
-            $_SESSION['error_msg'] = "Only Administrators can delete academic years.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
-        }
-
-        csrfValidate();
-        $year_id = (int)($_POST['year_id'] ?? 0);
-
-        if ($year_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid academic year ID.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
-        }
-
-        // Fetch year info
-        $stmt = $conn->prepare("SELECT year_label, is_current FROM academic_years WHERE year_id = ?");
+        $stmt = $this->conn->prepare("SELECT year_label FROM academic_years WHERE year_id = ?");
         $stmt->bind_param("i", $year_id);
         $stmt->execute();
         $target = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
         if (!$target) {
-            $_SESSION['error_msg'] = "Academic Year not found.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            $this->flashError("Academic Year not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+        }
+
+        $this->conn->begin_transaction();
+        try {
+            $this->conn->query("UPDATE academic_years SET is_current = 0");
+            $u_stmt = $this->conn->prepare("UPDATE academic_years SET is_current = 1 WHERE year_id = ?");
+            $u_stmt->bind_param("i", $year_id);
+            $u_stmt->execute();
+            $u_stmt->close();
+
+            $this->conn->commit();
+            system_audit_log($this->conn, 'ACADEMIC_YEAR_SET_ACTIVE', "Designated '{$target['year_label']}' (ID #{$year_id}) as the institutional active academic year", 'academic_year', $year_id, $this->userId);
+            $this->flashSuccess("Active academic year successfully changed to '{$target['year_label']}'.");
+        } catch (Throwable $e) {
+            $this->conn->rollback();
+            $this->flashError("Failed to update active year: " . $e->getMessage());
+        }
+
+        $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+    }
+
+    /**
+     * Delete an academic year only if it has zero linked documents and is not current.
+     */
+    public function delete(): void {
+        $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
+
+        $this->validateCsrf();
+        $year_id = $this->intParam('year_id', 0, 'post');
+
+        if ($year_id <= 0) {
+            $this->flashError("Invalid Academic Year ID.");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+        }
+
+        $stmt = $this->conn->prepare("SELECT year_label, is_current FROM academic_years WHERE year_id = ?");
+        $stmt->bind_param("i", $year_id);
+        $stmt->execute();
+        $target = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if (!$target) {
+            $this->flashError("Academic Year not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
         }
 
         if ((int)$target['is_current'] === 1) {
-            $_SESSION['error_msg'] = "Cannot delete the currently active academic year. Please designate another year as active first.";
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            $this->flashError("Cannot delete the currently active academic year. Please designate another year as active first.");
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
         }
 
-        // Safe integrity check via doc_can_delete_academic_year
-        $can_delete = doc_can_delete_academic_year($conn, $year_id);
+        $can_delete = doc_can_delete_academic_year($this->conn, $year_id);
         if (!$can_delete['allowed']) {
-            $_SESSION['error_msg'] = $can_delete['reason'];
-            $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            $this->flashError($can_delete['reason']);
+            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
         }
 
         try {
-            $del_stmt = $conn->prepare("DELETE FROM academic_years WHERE year_id = ?");
+            $del_stmt = $this->conn->prepare("DELETE FROM academic_years WHERE year_id = ?");
             $del_stmt->bind_param("i", $year_id);
             $del_stmt->execute();
             $del_stmt->close();
 
-            if (function_exists('system_audit_log')) {
-                $actor_uid = (int)($auth['user_id'] ?? 0);
-                system_audit_log($conn, 'ACADEMIC_YEAR_DELETE', "Deleted unused academic year '{$target['year_label']}' (ID #{$year_id})", 'academic_year', $year_id, $actor_uid);
-            }
-
-            $_SESSION['success_msg'] = "Academic Year '{$target['year_label']}' was deleted successfully.";
-        } catch (\Throwable $e) {
+            system_audit_log($this->conn, 'ACADEMIC_YEAR_DELETE', "Deleted unused academic year '{$target['year_label']}' (ID #{$year_id})", 'academic_year', $year_id, $this->userId);
+            $this->flashSuccess("Academic Year '{$target['year_label']}' was deleted successfully.");
+        } catch (Throwable $e) {
             error_log("Failed to delete academic year: " . $e->getMessage());
-            $_SESSION['error_msg'] = "Database error while deleting academic year: " . $e->getMessage();
+            $this->flashError("Database error while deleting academic year: " . $e->getMessage());
         }
 
-        $this->safeRedirect(BASE_URL . "/public/index.php?route=academic_years/list");
-    }
-
-    /**
-     * Environment-aware redirect that doesn't terminate PHP process under CLI / unit tests.
-     */
-    protected function safeRedirect(string $url): void {
-        if (php_sapi_name() === 'cli') {
-            return;
-        }
-        header("Location: " . $url);
-        exit;
+        $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
     }
 }

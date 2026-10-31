@@ -49,25 +49,8 @@ $can_manage = in_array((int)($active_role['role_id'] ?? 0), [ROLE_ADMIN, ROLE_IQ
     </div>
 
     <!-- Flash Alerts -->
-    <?php if (!empty($success_msg)): ?>
-        <div style="background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; padding: 0.9rem 1.2rem; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-check-circle" style="font-size: 1.1rem; color: #10b981;"></i>
-                <span style="font-size: 0.92rem; font-weight: 600;"><?= htmlspecialchars($success_msg, ENT_QUOTES, 'UTF-8') ?></span>
-            </div>
-            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #065f46; cursor: pointer; font-size: 1rem;"><i class="fas fa-times"></i></button>
-        </div>
-    <?php endif; ?>
+    <?php include __DIR__ . '/../partials/alerts.php'; ?>
 
-    <?php if (!empty($error_msg)): ?>
-        <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.9rem 1.2rem; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 1.1rem; color: #ef4444;"></i>
-                <span style="font-size: 0.92rem; font-weight: 600;"><?= htmlspecialchars($error_msg, ENT_QUOTES, 'UTF-8') ?></span>
-            </div>
-            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #991b1b; cursor: pointer; font-size: 1rem;"><i class="fas fa-times"></i></button>
-        </div>
-    <?php endif; ?>
 
     <!-- Summary Metrics -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
