@@ -140,21 +140,20 @@ class AcademicYearController extends BaseController {
     }
 
     /**
-     * Designate a specific academic year as the institutional active year.
+     * Resolves target academic year and enforces permissions and CSRF.
      */
-    public function setCurrent(): void {
+    private function getTargetAcademicYear(): ?array {
         $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
-
         $this->validateCsrf();
         $year_id = $this->intParam('year_id', 0, 'post');
 
         if ($year_id <= 0) {
             $this->flashError("Invalid Academic Year selection.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
+            return null;
         }
 
-        $stmt = $this->conn->prepare("SELECT year_label FROM academic_years WHERE year_id = ?");
+        $stmt = $this->conn->prepare("SELECT year_id, year_label, is_current FROM academic_years WHERE year_id = ?");
         $stmt->bind_param("i", $year_id);
         $stmt->execute();
         $target = $stmt->get_result()->fetch_assoc();
@@ -163,8 +162,21 @@ class AcademicYearController extends BaseController {
         if (!$target) {
             $this->flashError("Academic Year not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
+            return null;
+        }
+
+        return $target;
+    }
+
+    /**
+     * Designate a specific academic year as the institutional active year.
+     */
+    public function setCurrent(): void {
+        $target = $this->getTargetAcademicYear();
+        if (!$target) {
             return;
         }
+        $year_id = (int)$target['year_id'];
 
         $this->conn->begin_transaction();
         try {
@@ -189,28 +201,11 @@ class AcademicYearController extends BaseController {
      * Delete an academic year only if it has zero linked documents and is not current.
      */
     public function delete(): void {
-        $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
-
-        $this->validateCsrf();
-        $year_id = $this->intParam('year_id', 0, 'post');
-
-        if ($year_id <= 0) {
-            $this->flashError("Invalid Academic Year ID.");
-            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
-            return;
-        }
-
-        $stmt = $this->conn->prepare("SELECT year_label, is_current FROM academic_years WHERE year_id = ?");
-        $stmt->bind_param("i", $year_id);
-        $stmt->execute();
-        $target = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
+        $target = $this->getTargetAcademicYear();
         if (!$target) {
-            $this->flashError("Academic Year not found.");
-            $this->redirect(BASE_URL . "/public/index.php?route=academic_years/list");
             return;
         }
+        $year_id = (int)$target['year_id'];
 
         if ((int)$target['is_current'] === 1) {
             $this->flashError("Cannot delete the currently active academic year. Please designate another year as active first.");

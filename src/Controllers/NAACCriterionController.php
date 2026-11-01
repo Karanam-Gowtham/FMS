@@ -5,18 +5,9 @@ require_once __DIR__ . '/AbstractAccreditationCriterionController.php';
 
 class NAACCriterionController extends AbstractAccreditationCriterionController {
     public function show() {
-        $raw_id = $_GET['id'] ?? ($_GET['amp;id'] ?? ($_GET['criterion'] ?? 1));
-        $crit_id = (int)$raw_id;
-
+        $crit_id = $this->getCriterionIdFromRequest();
         $ctx = $this->resolveAccreditationContext('naac', $crit_id, 7, 'naac_submissions', 'naac_criteria_data');
-
-        $auth = $ctx['auth'];
-        $active_role = $ctx['active_role'];
-        $year = $ctx['year'];
-        $dept_id = $ctx['dept_id'];
-        $departments = $ctx['departments'];
-        $submission = $ctx['submission'];
-        $criteria_data = $ctx['criteria_data'];
+        extract($ctx, EXTR_SKIP);
 
         global $conn;
         // Fetch active schema for this criterion

@@ -114,8 +114,8 @@ $is_admin = ((int)($active_role['role_id'] ?? 0) === ROLE_ADMIN);
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
                 
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">Action</label>
-                    <select name="action" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; background: #fff;">
+                    <label for="auditFilterAction" style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">Action</label>
+                    <select id="auditFilterAction" name="action" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; background: #fff;">
                         <option value="">All Actions</option>
                         <optgroup label="Document Workflows">
                             <?php foreach ($available_actions['document'] as $k => $v): ?>
@@ -131,8 +131,8 @@ $is_admin = ((int)($active_role['role_id'] ?? 0) === ROLE_ADMIN);
                 </div>
 
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">Department</label>
-                    <select name="dept_id" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; background: #fff;">
+                    <label for="auditFilterDept" style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">Department</label>
+                    <select id="auditFilterDept" name="dept_id" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; background: #fff;">
                         <option value="0">All Departments</option>
                         <?php foreach ($departments as $d): ?>
                             <option value="<?= (int)$d['dept_id'] ?>" <?= ($filter_dept === (int)$d['dept_id']) ? 'selected' : '' ?>>
@@ -143,20 +143,20 @@ $is_admin = ((int)($active_role['role_id'] ?? 0) === ROLE_ADMIN);
                 </div>
 
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">From Date</label>
-                    <input type="date" name="date_from" value="<?= htmlspecialchars($date_from) ?>" 
+                    <label for="auditFilterDateFrom" style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">From Date</label>
+                    <input type="date" id="auditFilterDateFrom" name="date_from" value="<?= htmlspecialchars($date_from) ?>" 
                            style="width: 100%; padding: 0.45rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;">
                 </div>
 
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">To Date</label>
-                    <input type="date" name="date_to" value="<?= htmlspecialchars($date_to) ?>" 
+                    <label for="auditFilterDateTo" style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">To Date</label>
+                    <input type="date" id="auditFilterDateTo" name="date_to" value="<?= htmlspecialchars($date_to) ?>" 
                            style="width: 100%; padding: 0.45rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;">
                 </div>
 
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">Search Query</label>
-                    <input type="text" name="search" placeholder="Actor, title, details..." value="<?= htmlspecialchars($search) ?>" 
+                    <label for="auditFilterSearch" style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase;">Search Query</label>
+                    <input type="text" id="auditFilterSearch" name="search" placeholder="Actor, title, details..." value="<?= htmlspecialchars($search) ?>" 
                            style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;">
                 </div>
 

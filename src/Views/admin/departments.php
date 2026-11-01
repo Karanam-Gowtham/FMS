@@ -105,9 +105,11 @@ $can_manage = in_array((int)($active_role['role_id'] ?? 0), [ROLE_ADMIN, ROLE_IQ
             <!-- Search input -->
             <div style="flex: 1; min-width: 250px;">
                 <div style="position: relative;">
+                    <label for="deptSearchInput" class="visually-hidden">Search department or unit name</label>
                     <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="text" name="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" 
+                    <input type="text" id="deptSearchInput" name="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" 
                            placeholder="Search department or unit name..." 
+                           aria-label="Search department or unit name"
                            style="width: 100%; padding: 0.55rem 0.85rem 0.55rem 2.2rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem;">
                 </div>
             </div>
@@ -328,7 +330,7 @@ $can_manage = in_array((int)($active_role['role_id'] ?? 0), [ROLE_ADMIN, ROLE_IQ
             <input type="hidden" name="dept_id" id="deptModalId" value="0">
 
             <div style="margin-bottom: 1.2rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
+                <label for="deptModalName" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
                     Department / Unit Name <span style="color: #ef4444;">*</span>
                 </label>
                 <input type="text" name="dept_name" id="deptModalName" required placeholder="e.g. Data Science or Examination Cell" maxlength="100"
@@ -336,7 +338,7 @@ $can_manage = in_array((int)($active_role['role_id'] ?? 0), [ROLE_ADMIN, ROLE_IQ
             </div>
 
             <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
+                <label for="deptModalAcademic" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
                     Classification
                 </label>
                 <select name="is_academic" id="deptModalAcademic" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; background: white;">

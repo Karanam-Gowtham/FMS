@@ -39,13 +39,15 @@ require_once __DIR__ . '/../../../includes/header.php';
 
             <!-- Search input -->
             <div style="flex: 2; min-width: 220px; position: relative;">
+                <label for="adminUserSearch" class="visually-hidden">Search users</label>
                 <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
-                <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search by name, email, or personnel ID..." style="width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#0284c7';" onblur="this.style.borderColor='#cbd5e1';">
+                <input type="text" id="adminUserSearch" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search by name, email, or personnel ID..." aria-label="Search by name, email, or personnel ID" style="width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; transition: border 0.2s;">
             </div>
 
             <!-- Department filter -->
             <div style="flex: 1; min-width: 160px;">
-                <select name="dept_id" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
+                <label for="adminUserDeptFilter" class="visually-hidden">Filter by department</label>
+                <select id="adminUserDeptFilter" name="dept_id" aria-label="Filter by department" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
                     <option value="0">All Departments</option>
                     <?php foreach ($departments as $d): ?>
                         <option value="<?= (int)$d['dept_id'] ?>" <?= ($filter_dept_id === (int)$d['dept_id']) ? 'selected' : '' ?>>
@@ -57,7 +59,8 @@ require_once __DIR__ . '/../../../includes/header.php';
 
             <!-- Role filter -->
             <div style="flex: 1; min-width: 150px;">
-                <select name="role_id" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
+                <label for="adminUserRoleFilter" class="visually-hidden">Filter by role</label>
+                <select id="adminUserRoleFilter" name="role_id" aria-label="Filter by role" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
                     <option value="0">All Roles</option>
                     <?php foreach ($roles as $r): ?>
                         <option value="<?= (int)$r['role_id'] ?>" <?= ($filter_role_id === (int)$r['role_id']) ? 'selected' : '' ?>>
@@ -69,7 +72,8 @@ require_once __DIR__ . '/../../../includes/header.php';
 
             <!-- Status filter -->
             <div style="width: 140px;">
-                <select name="status" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
+                <label for="adminUserStatusFilter" class="visually-hidden">Filter by account status</label>
+                <select id="adminUserStatusFilter" name="status" aria-label="Filter by account status" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
                     <option value="">All Statuses</option>
                     <option value="active" <?= ($filter_status === 'active') ? 'selected' : '' ?>>Active Only</option>
                     <option value="inactive" <?= ($filter_status === 'inactive') ? 'selected' : '' ?>>Relieved Only</option>
@@ -285,18 +289,18 @@ require_once __DIR__ . '/../../../includes/header.php';
             <?= csrfField() ?>
 
             <div style="margin-bottom: 16px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Full Name *</label>
-                <input type="text" name="full_name" required placeholder="e.g. Dr. K. Satyanarayana" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
+                <label for="addUserFullName" style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Full Name *</label>
+                <input type="text" id="addUserFullName" name="full_name" required placeholder="e.g. Dr. K. Satyanarayana" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 16px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Institutional Email *</label>
-                <input type="email" name="email" required placeholder="e.g. satyanarayana.k@gmrit.edu.in" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
+                <label for="addUserEmail" style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Institutional Email *</label>
+                <input type="email" id="addUserEmail" name="email" required placeholder="e.g. satyanarayana.k@gmrit.edu.in" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 16px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Department *</label>
-                <select name="dept_id" required style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box; background: white;">
+                <label for="addUserDeptId" style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Department *</label>
+                <select id="addUserDeptId" name="dept_id" required style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box; background: white;">
                     <option value="">-- Select Department --</option>
                     <?php foreach ($departments as $d): ?>
                         <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
@@ -305,8 +309,8 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
 
             <div style="margin-bottom: 22px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Initial Designation</label>
-                <select name="initial_role" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box; background: white;">
+                <label for="addUserInitialRole" style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Initial Designation</label>
+                <select id="addUserInitialRole" name="initial_role" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box; background: white;">
                     <option value="faculty">Regular Faculty Member</option>
                     <option value="hod">Head of Department (HOD)</option>
                     <option value="coordinator">Department Coordinator</option>
@@ -444,7 +448,8 @@ require_once __DIR__ . '/../../../includes/header.php';
                     <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/set_hod" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                         <?= csrfField() ?>
                         <input type="hidden" name="user_id" class="modalFormUserId" value="">
-                        <select name="dept_id" id="hodDeptSelect" required style="flex: 1; min-width: 200px; padding: 8px 10px; border: 1.5px solid #d97706; border-radius: 6px; font-size: 0.88rem; background: white;">
+                        <label for="hodDeptSelect" class="visually-hidden">Select department to appoint as HOD</label>
+                        <select name="dept_id" id="hodDeptSelect" required aria-label="Select department to appoint as HOD" style="flex: 1; min-width: 200px; padding: 8px 10px; border: 1.5px solid #d97706; border-radius: 6px; font-size: 0.88rem; background: white;">
                             <option value="">-- Select Department --</option>
                             <?php foreach ($departments as $d): ?>
                                 <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
@@ -464,7 +469,8 @@ require_once __DIR__ . '/../../../includes/header.php';
                     <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/toggle_coordinator" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                         <?= csrfField() ?>
                         <input type="hidden" name="user_id" class="modalFormUserId" value="">
-                        <select name="dept_id" id="coordDeptSelect" required style="flex: 1; min-width: 200px; padding: 8px 10px; border: 1.5px solid #0284c7; border-radius: 6px; font-size: 0.88rem; background: white;">
+                        <label for="coordDeptSelect" class="visually-hidden">Select department for Coordinator role</label>
+                        <select name="dept_id" id="coordDeptSelect" required aria-label="Select department for Coordinator role" style="flex: 1; min-width: 200px; padding: 8px 10px; border: 1.5px solid #0284c7; border-radius: 6px; font-size: 0.88rem; background: white;">
                             <option value="">-- Select Department --</option>
                             <?php foreach ($departments as $d): ?>
                                 <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>
@@ -491,7 +497,8 @@ require_once __DIR__ . '/../../../includes/header.php';
                 <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/users/transfer_department" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;" onsubmit="return confirm('Transfer this faculty member to the selected department? Any departmental leadership in their old department will be relieved.');">
                     <?= csrfField() ?>
                     <input type="hidden" name="user_id" class="modalFormUserId" value="">
-                    <select name="dept_id" id="transferDeptSelect" required style="flex: 1; min-width: 220px; padding: 8px 10px; border: 1.5px solid #64748b; border-radius: 6px; font-size: 0.88rem; background: white;">
+                    <label for="transferDeptSelect" class="visually-hidden">Select target department for transfer</label>
+                    <select name="dept_id" id="transferDeptSelect" required aria-label="Select target department for transfer" style="flex: 1; min-width: 220px; padding: 8px 10px; border: 1.5px solid #64748b; border-radius: 6px; font-size: 0.88rem; background: white;">
                         <option value="">-- Select Target Department --</option>
                         <?php foreach ($departments as $d): ?>
                             <option value="<?= (int)$d['dept_id'] ?>"><?= htmlspecialchars($d['dept_name']) ?></option>

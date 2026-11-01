@@ -5,18 +5,9 @@ require_once __DIR__ . '/AbstractAccreditationCriterionController.php';
 
 class NBACriterionController extends AbstractAccreditationCriterionController {
     public function show() {
-        $raw_id = $_GET['id'] ?? ($_GET['amp;id'] ?? ($_GET['criterion'] ?? 1));
-        $crit_id = (int)$raw_id;
-
+        $crit_id = $this->getCriterionIdFromRequest();
         $ctx = $this->resolveAccreditationContext('nba', $crit_id, 9, 'nba_submissions', 'nba_criteria_data');
-
-        $auth = $ctx['auth'];
-        $active_role = $ctx['active_role'];
-        $year = $ctx['year'];
-        $dept_id = $ctx['dept_id'];
-        $departments = $ctx['departments'];
-        $submission = $ctx['submission'];
-        $criteria_data = $ctx['criteria_data'];
+        extract($ctx, EXTR_SKIP);
 
         // Check for an existing generated final/master PDF
         $existing_pdf_url = null;

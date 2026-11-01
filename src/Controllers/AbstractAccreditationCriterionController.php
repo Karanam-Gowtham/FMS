@@ -3,6 +3,14 @@ namespace App\Controllers;
 
 abstract class AbstractAccreditationCriterionController {
     /**
+     * Extracts and validates criterion identifier from request.
+     */
+    protected function getCriterionIdFromRequest(): int {
+        $raw_id = $_GET['id'] ?? ($_GET['amp;id'] ?? ($_GET['criterion'] ?? 1));
+        return (int)$raw_id;
+    }
+
+    /**
      * Resolves common criterion context: departments, submission, criteria_data.
      */
     protected function resolveAccreditationContext(

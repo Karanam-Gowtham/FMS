@@ -121,7 +121,7 @@ function showToast(message, type = 'info') {
         if (type === 'number') return true;
         if (el.classList.contains('calc-box') && type !== 'text' && type !== 'hidden') return true;
         if (el.classList.contains('t4a-input') || el.classList.contains('t4b-input') || el.classList.contains('t4c-input') || el.classList.contains('t441-input') || el.classList.contains('t451-input') || el.classList.contains('t461-input')) return true;
-        if (el.hasAttribute('min') && parseFloat(el.getAttribute('min')) >= 0) return true;
+        if (el.hasAttribute('min') && Number.parseFloat(el.getAttribute('min')) >= 0) return true;
         return false;
     }
 
@@ -138,8 +138,8 @@ function showToast(message, type = 'info') {
                 val = val.replace(/-/g, '');
                 el.value = val;
             }
-            const num = parseFloat(val);
-            if (!isNaN(num) && num < 0) {
+            const num = Number.parseFloat(val);
+            if (!Number.isNaN(num) && num < 0) {
                 el.value = '0';
                 el.dispatchEvent(new Event('change', { bubbles: true }));
             }
@@ -189,8 +189,8 @@ function showToast(message, type = 'info') {
             if (pasteData && pasteData.includes('-')) {
                 e.preventDefault();
                 const sanitized = pasteData.replace(/-/g, '');
-                const num = parseFloat(sanitized);
-                if (!isNaN(num) && num >= 0) {
+                const num = Number.parseFloat(sanitized);
+                if (!Number.isNaN(num) && num >= 0) {
                     target.value = sanitized;
                     target.dispatchEvent(new Event('input', { bubbles: true }));
                     target.dispatchEvent(new Event('change', { bubbles: true }));

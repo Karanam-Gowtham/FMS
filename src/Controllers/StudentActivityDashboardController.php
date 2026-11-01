@@ -69,71 +69,26 @@ class StudentActivityDashboardController extends BaseController
             $d_res->close();
         }
 
-        $global_filter_options = ['modes' => [], 'domains' => [], 'event_types' => []];
-
-        $res = $conn->query("SELECT DISTINCT event_mode FROM meta_student_activity_file WHERE event_mode IS NOT NULL AND event_mode != '' ORDER BY event_mode ASC");
-        if ($res instanceof \mysqli_result) {
-            while ($row = $res->fetch_assoc()) {
-                $global_filter_options['modes'][] = $row['event_mode'];
-            }
-            $res->close();
-        }
-        foreach (['Online', 'Offline', 'Hybrid'] as $m) {
-            if (!in_array($m, $global_filter_options['modes'], true)) {
-                $global_filter_options['modes'][] = $m;
-            }
-        }
-        $global_filter_options['modes'] = array_values(array_unique($global_filter_options['modes']));
-        sort($global_filter_options['modes']);
-
-        $res = $conn->query("SELECT DISTINCT topic_domain FROM meta_student_activity_file WHERE topic_domain IS NOT NULL AND topic_domain != '' ORDER BY topic_domain ASC");
-        if ($res instanceof \mysqli_result) {
-            while ($row = $res->fetch_assoc()) {
-                $global_filter_options['domains'][] = $row['topic_domain'];
-            }
-            $res->close();
-        }
-        $canonical_domains = [
-            'Career Counselling', 'Awareness of Trends and Technologies', 
-            'Domain Specific / Technical Skill', 'Cultural / Arts', 
-            'Social / Community Service', 'Other'
-        ];
-        foreach ($canonical_domains as $cd) {
-            if (!in_array($cd, $global_filter_options['domains'], true)) {
-                $global_filter_options['domains'][] = $cd;
-            }
-        }
-        $global_filter_options['domains'] = array_values(array_unique($global_filter_options['domains']));
-        sort($global_filter_options['domains']);
-
-        $res = $conn->query("SELECT DISTINCT event_type FROM meta_student_activity_file WHERE event_type IS NOT NULL AND event_type != '' ORDER BY event_type ASC");
-        if ($res instanceof \mysqli_result) {
-            while ($row = $res->fetch_assoc()) {
-                $global_filter_options['event_types'][] = $row['event_type'];
-            }
-            $res->close();
-        }
-
-        $res = $conn->query("SELECT DISTINCT activity_category FROM meta_student_activity_file WHERE activity_category IS NOT NULL AND activity_category != '' ORDER BY activity_category ASC");
-        if ($res instanceof \mysqli_result) {
-            while ($row = $res->fetch_assoc()) {
-                $global_filter_options['event_types'][] = $row['activity_category'];
-            }
-            $res->close();
-        }
-        
         $saf_cats = [
             'Grad Talks', 'Expert Talks / Guest Lectures', 'Soft skills', 
             'Language and communication skills', 'Life skills', 'Professional Societies', 
             'Clubs', 'IIC', 'Stepcone', 'Workshop', 'Hackathon', 'Conference', 
             'Competition', 'Seminar'
         ];
-        foreach ($saf_cats as $cat) {
-            if (!in_array($cat, $global_filter_options['event_types'], true)) {
-                $global_filter_options['event_types'][] = $cat;
-            }
-        }
-        $global_filter_options['event_types'] = array_values(array_unique($global_filter_options['event_types']));
+
+        $global_filter_options = [
+            'modes' => $this->fetchDistinctFilterOptions($conn, 'event_mode', ['Online', 'Offline', 'Hybrid']),
+            'domains' => $this->fetchDistinctFilterOptions($conn, 'topic_domain', [
+                'Career Counselling', 'Awareness of Trends and Technologies', 
+                'Domain Specific / Technical Skill', 'Cultural / Arts', 
+                'Social / Community Service', 'Other'
+            ]),
+            'event_types' => array_values(array_unique(array_merge(
+                $this->fetchDistinctFilterOptions($conn, 'event_type'),
+                $this->fetchDistinctFilterOptions($conn, 'activity_category'),
+                $saf_cats
+            )))
+        ];
         sort($global_filter_options['event_types']);
 
         return [
@@ -358,5 +313,27 @@ class StudentActivityDashboardController extends BaseController
 
         ksort($stats['timeline']);
         return $stats;
+    }
+
+    /**
+     * Helper to fetch distinct non-empty string column values and merge canonical defaults.
+     */
+    private function fetchDistinctFilterOptions(\mysqli $conn, string $column, array $canonicalDefaults = []): array {
+        $options = [];
+        $res = $conn->query("SELECT DISTINCT {$column} FROM meta_student_activity_file WHERE {$column} IS NOT NULL AND {$column} != '' ORDER BY {$column} ASC");
+        if ($res instanceof \mysqli_result) {
+            while ($row = $res->fetch_assoc()) {
+                $options[] = $row[$column];
+            }
+            $res->close();
+        }
+        foreach ($canonicalDefaults as $def) {
+            if (!in_array($def, $options, true)) {
+                $options[] = $def;
+            }
+        }
+        $options = array_values(array_unique($options));
+        sort($options);
+        return $options;
     }
 }

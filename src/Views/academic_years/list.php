@@ -240,10 +240,10 @@ $can_manage = in_array((int)($active_role['role_id'] ?? 0), [ROLE_ADMIN, ROLE_IQ
             <input type="hidden" name="subaction" value="create">
 
             <div style="margin-bottom: 1.2rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
+                <label for="newAcademicYearInput" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
                     Academic Year Label <span style="color: #ef4444;">*</span>
                 </label>
-                <input type="text" name="academic_year" required placeholder="e.g. 2027-28" pattern="\d{4}-\d{2}"
+                <input type="text" id="newAcademicYearInput" name="academic_year" required placeholder="e.g. 2027-28" pattern="\d{4}-\d{2}"
                        style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 600; color: #0f172a;"
                        title="Format must be YYYY-YY (e.g. 2027-28)">
                 <div style="font-size: 0.78rem; color: #64748b; margin-top: 5px;">

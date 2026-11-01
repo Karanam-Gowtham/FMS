@@ -593,7 +593,10 @@ class UserController extends BaseController {
     /**
      * Toggle User Account Status (Active vs Relieved/Inactive)
      */
-    public function toggleStatus(): void {
+    /**
+     * Resolves target user for administrative actions with security & self-action checks.
+     */
+    private function getTargetUserForAdminAction(string $selfActionErrorMessage = ''): ?array {
         require_once __DIR__ . '/../../core/bootstrap.php';
         require_login();
         $this->ensureAdminAccess();
@@ -607,18 +610,35 @@ class UserController extends BaseController {
         if ($user_id <= 0) {
             $_SESSION['error_msg'] = "Invalid user specified.";
             $this->redirectBack();
+            return null;
         }
 
-        if ($user_id === $current_admin_id) {
-            $_SESSION['error_msg'] = "Security check: You cannot deactivate your own active Administrator account.";
+        if (!empty($selfActionErrorMessage) && $user_id === $current_admin_id) {
+            $_SESSION['error_msg'] = $selfActionErrorMessage;
             $this->redirectBack();
+            return null;
         }
 
         $user = $this->getUserBasic($conn, $user_id);
         if (!$user) {
             $_SESSION['error_msg'] = "User not found.";
             $this->redirectBack();
+            return null;
         }
+
+        return $user;
+    }
+
+    /**
+     * Toggle User Account Status (Active vs Relieved/Inactive)
+     */
+    public function toggleStatus(): void {
+        $user = $this->getTargetUserForAdminAction("Security check: You cannot deactivate your own active Administrator account.");
+        if (!$user) {
+            return;
+        }
+        $user_id = (int)$user['user_id'];
+        global $conn;
 
         $new_status = ($user['status'] === 'active') ? 'inactive' : 'active';
         $upd = $conn->prepare("UPDATE users SET status = ? WHERE user_id = ?");
@@ -640,25 +660,12 @@ class UserController extends BaseController {
      * Reset user password to default (Admin@123)
      */
     public function resetPassword(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
-
-        global $conn;
-
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-
-        if ($user_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid user specified.";
-            $this->redirectBack();
-        }
-
-        $user = $this->getUserBasic($conn, $user_id);
+        $user = $this->getTargetUserForAdminAction();
         if (!$user) {
-            $_SESSION['error_msg'] = "User not found.";
-            $this->redirectBack();
+            return;
         }
+        $user_id = (int)$user['user_id'];
+        global $conn;
 
         $default_hash = password_hash('Admin@123', PASSWORD_BCRYPT);
         $upd = $conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
@@ -680,31 +687,12 @@ class UserController extends BaseController {
      * Strictly blocked if the user has any uploaded documents or workflow action history.
      */
     public function delete(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
-
-        global $conn;
-
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-        $current_admin_id = auth_user_id();
-
-        if ($user_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid user specified.";
-            $this->redirectBack();
-        }
-
-        if ($user_id === $current_admin_id) {
-            $_SESSION['error_msg'] = "Security check: You cannot delete your own Administrator account.";
-            $this->redirectBack();
-        }
-
-        $user = $this->getUserBasic($conn, $user_id);
+        $user = $this->getTargetUserForAdminAction("Security check: You cannot delete your own Administrator account.");
         if (!$user) {
-            $_SESSION['error_msg'] = "User not found.";
-            $this->redirectBack();
+            return;
         }
+        $user_id = (int)$user['user_id'];
+        global $conn;
 
         // Check document count
         $doc_cnt_stmt = $conn->prepare("SELECT COUNT(*) AS total FROM documents WHERE uploaded_by = ?");

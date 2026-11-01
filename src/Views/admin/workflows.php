@@ -63,7 +63,7 @@ $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'mappings' ? 'mappings' : 
     <div id="tab-content-pipelines" style="display: <?= $active_tab === 'pipelines' ? 'block' : 'none' ?>;">
         <div style="display: flex; flex-direction: column; gap: 20px;">
             <?php foreach ($workflows as $wf): ?>
-                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px 26px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.boxShadow='0 6px 16px rgba(0,0,0,0.06)';" onmouseout="this.style.boxShadow='0 2px 5px rgba(0,0,0,0.02)';">
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px 26px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s;">
                     
                     <!-- Workflow Card Header -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-bottom: 16px;">
@@ -185,7 +185,8 @@ $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'mappings' ? 'mappings' : 
                     </p>
                 </div>
                 <div>
-                    <input type="text" id="docTypeSearchInput" onkeyup="filterDocTypesTable()" placeholder="Search category..." style="padding: 8px 14px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; outline: none; width: 240px;">
+                    <label for="docTypeSearchInput" class="visually-hidden">Search Document Category</label>
+                    <input type="text" id="docTypeSearchInput" name="docTypeSearchInput" onkeyup="filterDocTypesTable()" placeholder="Search category..." aria-label="Search category" style="padding: 8px 14px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; outline: none; width: 240px;">
                 </div>
             </div>
 
@@ -202,7 +203,7 @@ $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'mappings' ? 'mappings' : 
                     </thead>
                     <tbody>
                         <?php foreach ($doc_types as $dt): ?>
-                            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='white';">
+                            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;">
                                 <td style="padding: 14px 20px; font-weight: 700; color: #64748b;">
                                     #<?= (int)$dt['type_id'] ?>
                                 </td>
@@ -221,7 +222,8 @@ $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'mappings' ? 'mappings' : 
                                     <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=admin/workflows/assign_type" style="display: inline-flex; align-items: center; gap: 8px;">
                                         <input type="hidden" name="_csrf_token" value="<?= csrfToken() ?>">
                                         <input type="hidden" name="type_id" value="<?= (int)$dt['type_id'] ?>">
-                                        <select name="workflow_id" style="padding: 6px 10px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: white; outline: none;">
+                                        <label for="workflow_select_<?= (int)$dt['type_id'] ?>" class="visually-hidden">Assign Workflow for <?= htmlspecialchars($dt['label']) ?></label>
+                                        <select name="workflow_id" id="workflow_select_<?= (int)$dt['type_id'] ?>" aria-label="Assign Workflow for <?= htmlspecialchars($dt['label']) ?>" style="padding: 6px 10px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: white; outline: none;">
                                             <?php foreach ($workflows as $wf_opt): ?>
                                                 <option value="<?= (int)$wf_opt['workflow_id'] ?>" <?= ((int)$wf_opt['workflow_id'] === (int)$dt['workflow_id']) ? 'selected' : '' ?>>
                                                     <?= htmlspecialchars($wf_opt['label']) ?>
@@ -303,18 +305,18 @@ $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'mappings' ? 'mappings' : 
             <input type="hidden" name="workflow_id" id="wfModalId" value="0">
 
             <div style="margin-bottom: 16px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 6px;">Workflow Label *</label>
+                <label for="wfModalLabel" style="display: block; font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 6px;">Workflow Label *</label>
                 <input type="text" name="label" id="wfModalLabel" required placeholder="e.g. Fast-Track Department Review" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none;">
             </div>
 
             <div style="margin-bottom: 16px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 6px;">Unique Identifier Key</label>
+                <label for="wfModalKey" style="display: block; font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 6px;">Unique Identifier Key</label>
                 <input type="text" name="workflow_key" id="wfModalKey" placeholder="e.g. fast_track_review (auto-generated if empty)" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; font-family: monospace;">
                 <div style="font-size: 0.76rem; color: #64748b; margin-top: 4px;">Use lowercase letters, numbers, and underscores only.</div>
             </div>
 
             <div style="margin-bottom: 22px;">
-                <label style="display: block; font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 6px;">Description</label>
+                <label for="wfModalDesc" style="display: block; font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 6px;">Description</label>
                 <textarea name="description" id="wfModalDesc" rows="3" placeholder="Brief description of when this workflow should be used..." style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; resize: vertical;"></textarea>
             </div>
 
