@@ -9,8 +9,8 @@ require_once __DIR__ . '/../config.php';
 
 
 // Start session if it is not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    @session_start();
 }
 
 
@@ -900,7 +900,7 @@ if (isset($extra_head)) {
                     <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=EEE">EEE</a>
                     <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=MECH">MECH</a>
                     <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=CIVIL">CIVIL</a>
-                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=MatheMatics">MatheMatics</a>
+                    <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=Mathematics">Mathematics</a>
                     <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=Physics">Physics</a>
                     <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=Chemistry">Chemistry</a>
                     <a href="<?= $app_url ?>/public/index.php?route=public/department&amp;dept=BSH">BSH</a>

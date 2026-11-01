@@ -10,7 +10,7 @@ if ($current_script === 'reg.php' || strpos($current_script, 'login') !== false 
     return;
 }
 
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) { @session_start(); }
 
 $dir_name = basename(dirname($_SERVER['SCRIPT_NAME']));
 $bc_base_url = (defined('BASE_URL') ? BASE_URL : '/mini/FMS');
@@ -101,8 +101,35 @@ if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
         $breadcrumbs[] = ['label' => 'NBA Dashboard', 'url' => $bc_base_url . '/public/index.php?route=nba/dashboard' . $year_param];
         $criterion_id = $_GET['id'] ?? ($_GET['amp;id'] ?? '1');
         $page_name = 'Criterion ' . htmlspecialchars((string)$criterion_id, ENT_QUOTES, 'UTF-8');
-    } elseif ($route === 'documents/upload' && !empty($_GET['activity']) && is_string($_GET['activity'])) {
-        $page_name = 'Upload: ' . htmlspecialchars($_GET['activity'], ENT_QUOTES, 'UTF-8');
+    } elseif ($route === 'documents/upload') {
+        $upload_act = $_GET['activity'] ?? ($_GET['amp;activity'] ?? '');
+        $upload_type = $_GET['type'] ?? ($_GET['amp;type'] ?? '');
+        if (!empty($upload_act) && is_string($upload_act)) {
+            $page_name = 'Upload: ' . htmlspecialchars($upload_act, ENT_QUOTES, 'UTF-8');
+        } elseif (!empty($upload_type) && is_string($upload_type)) {
+            $type_labels = [
+                'journal' => 'Journal Publication',
+                'conference' => 'Conference Paper',
+                'patent' => 'Patent',
+                'fdp' => 'Faculty Development Program',
+                'fdp_attended' => 'FDP Attended',
+                'fdp_organised' => 'FDP Organised',
+                'conf_organised' => 'Conference Organised',
+                'criteria_file' => 'Criteria File',
+                'dept_file' => 'Department File',
+                'central_file' => 'Central File',
+                'scholarship' => 'Scholarship File',
+                'student_activity_file' => 'Student Activity File',
+                'student_journal' => 'Student Journal Paper',
+                'student_conference' => 'Student Conference Paper',
+                'student_body' => 'Student Professional Body',
+                'exam_qual' => 'Competitive Exam Qualification',
+            ];
+            $display_type = $type_labels[$upload_type] ?? ucwords(str_replace('_', ' ', $upload_type));
+            $page_name = 'Upload: ' . htmlspecialchars($display_type, ENT_QUOTES, 'UTF-8');
+        } else {
+            $page_name = 'Upload Document';
+        }
     } elseif ($route === 'documents/list' && isset($_GET['context']) && is_string($_GET['context']) && $_GET['context'] === 'dept_file') {
         $page_name = 'Department Files';
     } elseif ($route === 'public/department' && !empty($_GET['dept']) && is_string($_GET['dept'])) {

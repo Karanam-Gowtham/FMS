@@ -1,4 +1,4 @@
-﻿    // â€”â€” Dynamic Level Logic â€”â€”
+﻿    // €”€” Dynamic Level Logic €”€”
     let levelData = {};
     let currentLevel = 'dept_' + (window.NBA_CONFIG ? window.NBA_CONFIG.deptId : '');
     
@@ -68,7 +68,7 @@
         // Matrix is rendered inside switchLevel or renderList
     }
 
-    // â€”â€” Curriculum Table Logic â€”â€”
+    // €”€” Curriculum Table Logic €”€”
     function renderCurriculumTable() {
         const tbody = document.getElementById('curriculum-body');
         tbody.innerHTML = '';
@@ -119,7 +119,7 @@
         renderCurriculumTable();
     }
 
-    // â€”â€” Curriculum Components Logic â€”â€”
+    // €”€” Curriculum Components Logic €”€”
     function initDefaultComponents() {
         if (curriculumComponents.length === 0) {
             defaultComponents.forEach(name => {
@@ -214,7 +214,7 @@
         poPsoCourseMapping[id] = value;
     }
 
-    // â€”â€” 1.4.1, 1.4.2 & 1.5 Course Outcomes & Articulation Matrices Logic â€”â€”
+    // €”€” 1.4.1, 1.4.2 & 1.5 Course Outcomes & Articulation Matrices Logic €”€”
     function initDefaultCourseOutcomes() {
         courseOutcomesData = Array.from({length: 16}, () => ({ 
             semesterNo: '', 
@@ -727,7 +727,7 @@
         // Show a brief success flash
         const btn = document.querySelector('button[onclick="autoCalculateMatrix()"]');
         const oldText = btn.innerHTML;
-        btn.innerHTML = 'âœ… Calculated!';
+        btn.innerHTML = 'œ… Calculated!';
         btn.style.background = '#28a745';
         setTimeout(() => {
             btn.innerHTML = oldText;
@@ -765,7 +765,7 @@
         container.innerHTML = html;
     }
 
-    // â€”â€” CSV/Excel UI Logic â€”â€”
+    // €”€” CSV/Excel UI Logic €”€”
     let processedCSVFile = null;
 
     function handleCSVSelect(input) {
@@ -800,7 +800,7 @@
         }
     }
 
-    // â€”â€” Save Logic â€”â€”
+    // €”€” Save Logic €”€”
     function saveCriterionData() {
         saveCurrentLevel(); // Ensure currently focused level is saved to object
         

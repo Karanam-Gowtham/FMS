@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     var activityCatEl = document.getElementById('meta_activity_category');
     var eventTypeEl = document.getElementById('meta_event_type');
     var topicDomainEl = document.getElementById('meta_topic_domain');
@@ -146,7 +146,7 @@
         if (activityCat === 'Grad Talks' || activityCat === 'Expert Talks / Guest Lectures') {
             if (topicDomainGrp) {
                 topicDomainGrp.style.display = 'block';
-                if (topicDomainEl) topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counselling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], 'â€” Select Topic â€”');
+                if (topicDomainEl) topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counselling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '-- Select Topic --');
             }
             
             if (eventTitleGrp) {
@@ -176,7 +176,7 @@
                 subCatGrp.style.display = 'block';
                 var scLbl = subCatGrp.querySelector('label');
                 if (scLbl) scLbl.innerText = 'Specific Skill';
-                if (subCatEl) subCatEl = changeInputType(subCatEl, 'select', ['Yoga', 'Physical fitness', 'Health and hygiene', 'Other'], 'â€” Select Skill â€”');
+                if (subCatEl) subCatEl = changeInputType(subCatEl, 'select', ['Yoga', 'Physical fitness', 'Health and hygiene', 'Other'], '-- Select Skill --');
             }
             
             if (resourcePersonGrp) {
@@ -206,12 +206,12 @@
                 subCatGrp.style.display = 'block';
                 var scLbl = subCatGrp.querySelector('label');
                 if (scLbl) scLbl.innerText = 'Society Name';
-                if (subCatEl) subCatEl = changeInputType(subCatEl, 'select', ['ACM', 'CSI', 'IEEE', 'IEI', 'IETE', 'IICHE', 'ISTE', 'SAE'], 'â€” Select Society â€”');
+                if (subCatEl) subCatEl = changeInputType(subCatEl, 'select', ['ACM', 'CSI', 'IEEE', 'IEI', 'IETE', 'IICHE', 'ISTE', 'SAE'], '-- Select Society --');
             }
 
             if (eventTypeGrp) {
                 eventTypeGrp.style.display = 'block';
-                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Expert Talks / Guest Lectures', 'Grad Talks', 'Workshop', 'Seminar', 'Conference', 'Competition', 'Industrial Visit', 'Training Program', 'Other'], 'â€” Select Event Type â€”');
+                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Expert Talks / Guest Lectures', 'Grad Talks', 'Workshop', 'Seminar', 'Conference', 'Competition', 'Industrial Visit', 'Training Program', 'Other'], '-- Select Event Type --');
             }
             
             if (topicDomainGrp && eventTypeEl) {
@@ -220,7 +220,7 @@
                     topicDomainGrp.style.display = 'none';
                 } else {
                     topicDomainGrp.style.display = 'block';
-                    if (topicDomainEl) topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counselling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], 'â€” Select Topic / Domain â€”');
+                    if (topicDomainEl) topicDomainEl = changeInputType(topicDomainEl, 'select', ['Career Counselling', 'Awareness of Trends and Technologies', 'Domain Specific / Technical Skill', 'Other'], '-- Select Topic / Domain --');
                 }
             }
             
@@ -275,7 +275,7 @@
                 eventTypeGrp.style.display = 'block';
                 var etLbl = eventTypeGrp.querySelector('label');
                 if (etLbl) etLbl.innerText = 'Activity Type';
-                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Awareness Campaign / Drive', 'Competition / Contest', 'Exhibition / Showcase', 'Guest Lecture / Expert Talk', 'Hackathon / Ideathon', 'Workshop / Seminar', 'Other'], 'â€” Select Activity Type â€”');
+                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Awareness Campaign / Drive', 'Competition / Contest', 'Exhibition / Showcase', 'Guest Lecture / Expert Talk', 'Hackathon / Ideathon', 'Workshop / Seminar', 'Other'], '-- Select Activity Type --');
             }
             
             if (topicDomainGrp) {
@@ -310,7 +310,7 @@
         else if (activityCat === 'IIC') {
             if (eventTypeGrp) {
                 eventTypeGrp.style.display = 'block';
-                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Workshop', 'Hackathon', 'Conference', 'Competition', 'Other'], 'â€” Select Event Type â€”');
+                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Workshop', 'Hackathon', 'Conference', 'Competition', 'Other'], '-- Select Event Type --');
             }
             
             if (subCatGrp) {
@@ -339,7 +339,7 @@
                 eventTypeGrp.style.display = 'block';
                 var etLbl = eventTypeGrp.querySelector('label');
                 if (etLbl) etLbl.innerText = 'Event Type';
-                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Workshop', 'Technical Event', 'Paper Presentation', 'Project Expo', 'Hackathon / Coding Contest', 'Competition', 'Guest Lecture / Keynote', 'Other'], 'â€” Select Event Type â€”');
+                if (eventTypeEl) eventTypeEl = changeInputType(eventTypeEl, 'select', ['Workshop', 'Technical Event', 'Paper Presentation', 'Project Expo', 'Hackathon / Coding Contest', 'Competition', 'Guest Lecture / Keynote', 'Other'], '-- Select Event Type --');
             }
             
             if (resourcePersonGrp) {

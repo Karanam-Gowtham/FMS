@@ -47,10 +47,20 @@
 
 <div class="container">
 
-    <div class="breadcrumb">
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/list">Documents</a> &rsaquo; 
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads">My Uploads</a> &rsaquo; 
-        <span><?= htmlspecialchars($document['title'] ?: ($document['type_label'] ?? 'Document'), ENT_QUOTES, 'UTF-8') ?></span>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="breadcrumb" style="margin-bottom: 0;">
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list">Documents</a> &rsaquo; 
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads">My Uploads</a> &rsaquo; 
+            <span><?= htmlspecialchars($document['title'] ?: ($document['type_label'] ?? 'Document'), ENT_QUOTES, 'UTF-8') ?></span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads" style="display: inline-flex; align-items: center; gap: 5px; background: #e2e8f0; color: #334155; text-decoration: none; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s ease;">
+                &larr; Back to My Uploads
+            </a>
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="display: inline-flex; align-items: center; gap: 5px; background: #e2e8f0; color: #334155; text-decoration: none; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s ease;">
+                All Documents
+            </a>
+        </div>
     </div>
 
     <?php 

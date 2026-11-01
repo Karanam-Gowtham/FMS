@@ -214,8 +214,8 @@ include __DIR__ . '/../partials/nba_header.php';
         
         <p style="font-size: 0.85rem; color: #666; margin-top: 15px;">
             <strong>Note:</strong><br>
-            â– C101, C102 are indicative courses in the first year. Similarly, C409 is final year course. First numeric digit indicates year of study and remaining two digits indicate course nos. in the respective year of study.<br>
-            â– Direct attainment of a PO/PSO is determined by taking average across all courses addressing that PO/PSO.
+            &bull; C101, C102 are indicative courses in the first year. Similarly, C409 is final year course. First numeric digit indicates year of study and remaining two digits indicate course nos. in the respective year of study.<br>
+            &bull; Direct attainment of a PO/PSO is determined by taking average across all courses addressing that PO/PSO.
         </p>
 
         <hr style="margin: 2rem 0; border: 0; border-top: 1px solid #e9ecef;">
@@ -240,8 +240,8 @@ include __DIR__ . '/../partials/nba_header.php';
 
         <p style="font-size: 0.85rem; color: #666; margin-top: 15px;">
             <strong>Note:</strong><br>
-            â– Mention the type of survey conducted and the location of its source.<br>
-            â– Indirect attainment level of a PO/PSO is determined based on the student exit surveys, employer surveys, etc.
+            &bull; Mention the type of survey conducted and the location of its source.<br>
+            &bull; Indirect attainment level of a PO/PSO is determined based on the student exit surveys, employer surveys, etc.
         </p>
 
         <hr style="margin: 2rem 0; border: 0; border-top: 1px solid #e9ecef;">

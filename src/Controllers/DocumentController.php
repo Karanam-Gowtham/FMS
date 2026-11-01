@@ -420,8 +420,20 @@ class DocumentController extends BaseController {
         $types = doc_get_types($conn);
         $academic_years = doc_get_academic_years($conn);
 
-        $preselected_type = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
-        $preselected_subtype = (isset($_GET['sub_type']) && is_string($_GET['sub_type'])) ? trim($_GET['sub_type']) : '';
+        $flash = $this->getFlashMessages();
+        $error_msg = $flash['error'] ?? null;
+        $success_msg = $flash['success'] ?? null;
+        $old_input = $_SESSION['_old_input'] ?? [];
+        unset($_SESSION['_old_input']);
+
+        $preselected_type = $this->stringParam('type', '', 'get');
+        if ($preselected_type === '' && !empty($old_input['type_key'])) {
+            $preselected_type = trim((string)$old_input['type_key']);
+        }
+        $preselected_subtype = $this->stringParam('sub_type', '', 'get');
+        if ($preselected_subtype === '' && !empty($old_input['meta']['sub_category'])) {
+            $preselected_subtype = trim((string)$old_input['meta']['sub_category']);
+        }
         
         $doc_type = null;
         $type_key = '';
@@ -435,10 +447,12 @@ class DocumentController extends BaseController {
                     $doc_type = $t;
                     $type_key = $t['type_key'];
                     $page_title = 'Upload: ' . $t['type_label'];
-                    if (isset($_GET['activity']) && is_string($_GET['activity'])) {
-                        $page_title = 'Upload: ' . trim($_GET['activity']);
-                    } elseif (isset($_GET['exam']) && is_string($_GET['exam'])) {
-                        $page_title = 'Upload: ' . trim($_GET['exam']);
+                    $activity = $this->stringParam('activity', '', 'get');
+                    $exam = $this->stringParam('exam', '', 'get');
+                    if ($activity !== '') {
+                        $page_title = 'Upload: ' . $activity;
+                    } elseif ($exam !== '') {
+                        $page_title = 'Upload: ' . $exam;
                     } elseif ($preselected_subtype !== '' && $preselected_subtype !== $t['type_label']) {
                         $page_title .= ' - ' . $preselected_subtype;
                     }
@@ -495,6 +509,12 @@ class DocumentController extends BaseController {
             return;
         }
 
+        $flash = $this->getFlashMessages();
+        $error_msg = $flash['error'] ?? null;
+        $success_msg = $flash['success'] ?? null;
+        $old_input = $_SESSION['_old_input'] ?? [];
+        unset($_SESSION['_old_input']);
+
         $type_key = $document['type_key'];
         $meta_data = doc_get_meta($conn, $doc_id, $type_key) ?? [];
         require_once __DIR__ . '/../../core/file_service.php';
@@ -540,6 +560,10 @@ class DocumentController extends BaseController {
             $this->redirect(BASE_URL . "/public/index.php?route=documents/list");
             return;
         }
+
+        $flash = $this->getFlashMessages();
+        $error_msg = $flash['error'] ?? null;
+        $success_msg = $flash['success'] ?? null;
 
         $type_key = $document['type_key'];
         $page_title = 'View: ' . $document['title'];

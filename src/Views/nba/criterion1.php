@@ -86,7 +86,7 @@ include __DIR__ . '/../partials/nba_header.php';
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <p style="font-size: 0.85rem; color: #6c757d; margin: 0;">Enter correlation levels: Low (1), Medium (2), High (3). If no correlation, use '-'.</p>
                     <button type="button" class="btn-primary" onclick="autoCalculateMatrix()" style="padding: 5px 12px; font-size: 0.85rem; background: #6f42c1; border: none; border-radius: 4px; color: white; cursor: pointer;">
-                        âœ¨ Auto-Calculate Correlation
+                        œ¨ Auto-Calculate Correlation
                     </button>
                 </div>
                 <div id="matrix-container" style="overflow-x: auto;">

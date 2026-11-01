@@ -62,7 +62,7 @@
         data.columns.forEach((col, cIdx) => {
             html += `<th scope="col">
                         ${col}
-                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8(${cIdx})">âœ–</button>` : ''}
+                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8(${cIdx})">œ&bull;</button>` : ''}
                      </th>`;
         });
         html += '<th scope="col">Action</th></tr></thead><tbody>';
@@ -193,7 +193,7 @@
         data.columns.forEach((col, cIdx) => {
             html += `<th scope="col">
                         ${col}
-                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8_2(${cIdx})">âœ–</button>` : ''}
+                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8_2(${cIdx})">œ&bull;</button>` : ''}
                      </th>`;
         });
         html += '<th scope="col">Action</th></tr></thead><tbody>';
@@ -326,7 +326,7 @@
         data.columns.forEach((col, cIdx) => {
             html += `<th scope="col">
                         ${col}
-                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8_3(${cIdx})">âœ–</button>` : ''}
+                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8_3(${cIdx})">œ&bull;</button>` : ''}
                      </th>`;
         });
         html += '<th scope="col">Action</th></tr></thead><tbody>';
@@ -495,7 +495,7 @@
         data.columns.forEach((col, cIdx) => {
             html += `<th scope="col">
                         ${col}
-                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8(${cIdx})">âœ–</button>` : ''}
+                        ${cIdx >= 11 ? `<br><button class="btn-remove" style="padding: 2px 5px; font-size: 0.7rem;" onclick="removeColumn3_8(${cIdx})">œ&bull;</button>` : ''}
                      </th>`;
         });
         html += '<th scope="col">Action</th></tr></thead><tbody>';
@@ -614,7 +614,7 @@
                 pdfHtml = `
                     <div style="font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; margin-top: 5px;">
                         <a href="/" target="_blank" style="color: #28a745; text-decoration: none; overflow: hidden; text-overflow: ellipsis; max-width: 100px; white-space: nowrap;">View</a>
-                        <button type="button" onclick="removeRowPDF3_6(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer; padding: 0;">âœ–</button>
+                        <button type="button" onclick="removeRowPDF3_6(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer; padding: 0;">œ&bull;</button>
                     </div>
                 `;
             } else {
