@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use mysqli_result;
 use Throwable;
+use App\Core\Request;
 
 /**
  * Controller for Managing Institutional Academic Years
@@ -21,8 +22,8 @@ class AcademicYearController extends BaseController {
         $is_admin = ($role_id === ROLE_ADMIN);
 
         // Handle POST actions if submitted directly to academic_years/list
-        if ($this->isPost()) {
-            $subaction = $this->stringParam('subaction', 'create', 'post');
+        if (Request::isPost()) {
+            $subaction = Request::getEnum('subaction', ['create', 'set_current', 'delete'], 'create');
             if ($subaction === 'set_current') {
                 $this->setCurrent();
                 return;
@@ -36,8 +37,8 @@ class AcademicYearController extends BaseController {
         }
 
         $flash = $this->getFlashMessages();
-        $error_msg   = $flash['error']   ?? ($this->stringParam('err', '', 'get'));
-        $success_msg = $flash['success'] ?? ($this->stringParam('msg', '', 'get'));
+        $error_msg   = $flash['error']   ?? Request::getString('err');
+        $success_msg = $flash['success'] ?? Request::getString('msg');
 
         // Fetch academic years with mapped document counts
         $sql = "
@@ -80,7 +81,7 @@ class AcademicYearController extends BaseController {
         $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
 
         $this->validateCsrf();
-        $new_year = $this->stringParam('academic_year', '', 'post');
+        $new_year = Request::getString('academic_year');
 
         if (empty($new_year)) {
             $this->flashError("Academic Year cannot be empty.");
@@ -145,7 +146,7 @@ class AcademicYearController extends BaseController {
     private function getTargetAcademicYear(): ?array {
         $this->requireRole([ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR, ROLE_HOD]);
         $this->validateCsrf();
-        $year_id = $this->intParam('year_id', 0, 'post');
+        $year_id = Request::getInt('year_id', 0);
 
         if ($year_id <= 0) {
             $this->flashError("Invalid Academic Year selection.");

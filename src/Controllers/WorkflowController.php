@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use Exception;
+use App\Core\Request;
 
 /**
  * WorkflowController
@@ -97,18 +98,20 @@ class WorkflowController extends BaseController {
     public function assignType(): void {
         $this->requireAdmin();
 
-        if (!$this->isPost()) {
+        if (!Request::isPost()) {
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         $this->validateCsrf();
 
-        $type_id = $this->intParam('type_id', 0, 'post');
-        $workflow_id = $this->intParam('workflow_id', 0, 'post');
+        $type_id = Request::getInt('type_id', 0);
+        $workflow_id = Request::getInt('workflow_id', 0);
 
         if ($type_id <= 0 || $workflow_id <= 0) {
             $this->flashError("Invalid document type or workflow selection.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Verify workflow exists
@@ -122,6 +125,7 @@ class WorkflowController extends BaseController {
         if (!$wf) {
             $this->flashError("Target workflow not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Get doc type info
@@ -135,6 +139,7 @@ class WorkflowController extends BaseController {
         if (!$dt) {
             $this->flashError("Document type not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Update document_types
@@ -163,20 +168,22 @@ class WorkflowController extends BaseController {
     public function saveWorkflow(): void {
         $this->requireAdmin();
 
-        if (!$this->isPost()) {
+        if (!Request::isPost()) {
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         $this->validateCsrf();
 
-        $workflow_id = $this->intParam('workflow_id', 0, 'post');
-        $label = $this->stringParam('label', '', 'post');
-        $workflow_key = $this->stringParam('workflow_key', '', 'post');
-        $description = $this->stringParam('description', '', 'post');
+        $workflow_id = Request::getInt('workflow_id', 0);
+        $label = Request::getString('label');
+        $workflow_key = Request::getString('workflow_key');
+        $description = Request::getString('description');
 
         if (empty($label)) {
             $this->flashError("Workflow title is required.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Sanitize key
@@ -195,6 +202,7 @@ class WorkflowController extends BaseController {
                 $check_stmt->close();
                 $this->flashError("A workflow with key '{$workflow_key}' already exists.");
                 $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+                return;
             }
             $check_stmt->close();
 
@@ -222,6 +230,7 @@ class WorkflowController extends BaseController {
                 $check_stmt->close();
                 $this->flashError("A workflow with key '{$workflow_key}' already exists.");
                 $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+                return;
             }
             $check_stmt->close();
 
@@ -252,16 +261,18 @@ class WorkflowController extends BaseController {
     public function saveSteps(): void {
         $this->requireAdmin();
 
-        if (!$this->isPost()) {
+        if (!Request::isPost()) {
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         $this->validateCsrf();
 
-        $workflow_id = $this->intParam('workflow_id', 0, 'post');
+        $workflow_id = Request::getInt('workflow_id', 0);
         if ($workflow_id <= 0) {
             $this->flashError("Invalid workflow ID.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Get workflow
@@ -274,11 +285,12 @@ class WorkflowController extends BaseController {
         if (!$wf_row) {
             $this->flashError("Workflow not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
-        $step_labels = (array)($this->postParam('step_labels', []));
-        $role_ids    = (array)($this->postParam('role_ids', []));
-        $scopes      = (array)($this->postParam('scopes', []));
+        $step_labels = Request::getStringList('step_labels');
+        $role_ids    = Request::getIntList('role_ids');
+        $scopes      = Request::getStringList('scopes');
 
         // Fetch existing steps for this workflow
         $old_steps = [];
@@ -307,17 +319,19 @@ class WorkflowController extends BaseController {
                 if (($doc_res['pending_cnt'] ?? 0) > 0) {
                     $this->flashError("Cannot remove step '{$old_steps[$k]['step_label']}' because {$doc_res['pending_cnt']} pending document(s) are currently awaiting review at this step. Please process those documents before altering the pipeline.");
                     $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+                    return;
                 }
             }
         }
 
         // Validate that each step has a label and role
         for ($i = 0; $i < $new_count; $i++) {
-            $lbl = trim((string)($step_labels[$i] ?? ''));
-            $rid = (int)($role_ids[$i] ?? 0);
+            $lbl = trim($step_labels[$i] ?? '');
+            $rid = $role_ids[$i] ?? 0;
             if (empty($lbl) || $rid <= 0) {
                 $this->flashError("Each step must have a title and a designated reviewing role.");
                 $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+                return;
             }
         }
 
@@ -455,16 +469,18 @@ class WorkflowController extends BaseController {
     public function delete(): void {
         $this->requireAdmin();
 
-        if (!$this->isPost()) {
+        if (!Request::isPost()) {
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         $this->validateCsrf();
 
-        $workflow_id = $this->intParam('workflow_id', 0, 'post');
+        $workflow_id = Request::getInt('workflow_id', 0);
         if ($workflow_id <= 0) {
             $this->flashError("Invalid workflow ID.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Get workflow
@@ -477,12 +493,14 @@ class WorkflowController extends BaseController {
         if (!$wf) {
             $this->flashError("Workflow not found.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // System core workflows protection
         if (in_array($wf['workflow_key'], ['department_standard', 'auto_accept'], true)) {
             $this->flashError("System core workflow '{$wf['label']}' cannot be deleted.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Check if any document type is assigned to this workflow
@@ -495,6 +513,7 @@ class WorkflowController extends BaseController {
         if (($dt_row['cnt'] ?? 0) > 0) {
             $this->flashError("Cannot delete workflow '{$wf['label']}' because {$dt_row['cnt']} document category(s) are currently assigned to it. Please reassign them first.");
             $this->redirect(BASE_URL . "/public/index.php?route=admin/workflows");
+            return;
         }
 
         // Start transaction

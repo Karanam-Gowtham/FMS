@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use mysqli_result;
+use App\Core\Request;
 
 /**
  * StudentController
@@ -80,8 +81,8 @@ class StudentController extends BaseController {
         }
 
         $flash = $this->getFlashMessages();
-        $success_msg = $flash['success'] ?? ($this->stringParam('msg', '', 'get'));
-        $error_msg   = $flash['error']   ?? ($this->stringParam('err', '', 'get'));
+        $success_msg = $flash['success'] ?? Request::getString('msg');
+        $error_msg   = $flash['error']   ?? Request::getString('err');
 
         $this->renderView('student/dashboard', get_defined_vars());
     }
