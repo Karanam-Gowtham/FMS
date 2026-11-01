@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 namespace App\Controllers;
+ 
+use App\Core\Request;
 
 class StudentActivityDashboardController extends BaseController
 {
@@ -105,48 +107,21 @@ class StudentActivityDashboardController extends BaseController
     {
         global $conn;
 
-        $year_filter = isset($params['year_id']) && is_string($params['year_id']) ? trim($params['year_id']) : 'all';
+        $year_filter = Request::getString($params, 'year_id', 'all');
         if ($year_filter !== 'all' && (int)$year_filter <= 0) {
             $year_filter = 'all';
         }
 
-        $dept_filter = isset($params['dept_id']) && is_string($params['dept_id']) ? trim($params['dept_id']) : 'all';
+        $dept_filter = Request::getString($params, 'dept_id', 'all');
         if ($dept_filter !== 'all' && (int)$dept_filter <= 0) {
             $dept_filter = 'all';
         }
 
-        $scope_filter = isset($params['scope']) && is_string($params['scope']) ? trim($params['scope']) : 'all';
-        if (!in_array($scope_filter, ['all', 'department', 'central', 'external'], true)) {
-            $scope_filter = 'all';
-        }
+        $scope_filter = Request::getEnum($params, 'scope', ['all', 'department', 'central', 'external'], 'all');
 
-        // Support single or array inputs for modes, domains, types
-        $filter_modes = [];
-        $raw_modes = $params['global_modes'] ?? ($params['mode'] ?? []);
-        $raw_modes = is_array($raw_modes) ? $raw_modes : [$raw_modes];
-        foreach ($raw_modes as $val) {
-            if (is_string($val) && trim($val) !== '' && trim($val) !== 'all') {
-                $filter_modes[] = trim($val);
-            }
-        }
-
-        $filter_domains = [];
-        $raw_domains = $params['global_domains'] ?? ($params['domain'] ?? []);
-        $raw_domains = is_array($raw_domains) ? $raw_domains : [$raw_domains];
-        foreach ($raw_domains as $val) {
-            if (is_string($val) && trim($val) !== '' && trim($val) !== 'all') {
-                $filter_domains[] = trim($val);
-            }
-        }
-
-        $filter_types = [];
-        $raw_types = $params['global_event_types'] ?? ($params['event_type'] ?? []);
-        $raw_types = is_array($raw_types) ? $raw_types : [$raw_types];
-        foreach ($raw_types as $val) {
-            if (is_string($val) && trim($val) !== '' && trim($val) !== 'all') {
-                $filter_types[] = trim($val);
-            }
-        }
+        $filter_modes = Request::getStringList($params, ['global_modes', 'mode']);
+        $filter_domains = Request::getStringList($params, ['global_domains', 'domain']);
+        $filter_types = Request::getStringList($params, ['global_event_types', 'event_type']);
 
         $where = "dt.type_code = 'student_activity_file' AND d.status = 'accepted'";
         if ($year_filter !== 'all') {

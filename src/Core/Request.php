@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Core;
+
+/**
+ * HTTP Request & Parameter Utility
+ * 
+ * Provides type-safe parameter extraction, validation, and normalization
+ * across query strings, POST bodies, and structured parameter arrays.
+ */
+class Request {
+
+    /**
+     * Extracts an integer parameter with default fallback.
+     */
+    public static function getInt(array $source, string $key, ?int $default = null): ?int {
+        if (!isset($source[$key]) || !is_numeric($source[$key])) {
+            return $default;
+        }
+        return (int)$source[$key];
+    }
+
+    /**
+     * Extracts a trimmed string parameter with default fallback.
+     */
+    public static function getString(array $source, string $key, string $default = ''): string {
+        if (!isset($source[$key]) || !is_string($source[$key])) {
+            return $default;
+        }
+        $val = trim($source[$key]);
+        return $val !== '' ? $val : $default;
+    }
+
+    /**
+     * Extracts a string parameter validated against an allowed whitelist.
+     */
+    public static function getEnum(array $source, string $key, array $allowed, string $default): string {
+        $val = self::getString($source, $key, $default);
+        return in_array($val, $allowed, true) ? $val : $default;
+    }
+
+    /**
+     * Extracts a list of non-empty strings from an array or single parameter,
+     * supporting multiple fallback keys and ignoring placeholder values like 'all'.
+     *
+     * @param array $source
+     * @param string|array $keys Single key or list of keys to check in priority order
+     * @param array $ignored Values to exclude (defaults to ['all', ''])
+     * @return array<string>
+     */
+    public static function getStringList(array $source, $keys, array $ignored = ['all', '']): array {
+        $keys = is_array($keys) ? $keys : [$keys];
+        $raw = null;
+        foreach ($keys as $k) {
+            if (isset($source[$k])) {
+                $raw = $source[$k];
+                break;
+            }
+        }
+
+        if ($raw === null) {
+            return [];
+        }
+
+        $items = is_array($raw) ? $raw : [$raw];
+        $result = [];
+        foreach ($items as $item) {
+            if (is_string($item)) {
+                $trimmed = trim($item);
+                if ($trimmed !== '' && !in_array($trimmed, $ignored, true)) {
+                    $result[] = $trimmed;
+                }
+            }
+        }
+        return array_values(array_unique($result));
+    }
+
+    /**
+     * Checks if current HTTP request method is POST.
+     */
+    public static function isPost(): bool {
+        return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+    }
+
+    /**
+     * Sends a JSON response with status code and terminates execution.
+     */
+    public static function json(array $data, int $statusCode = 200): void {
+        http_response_code($statusCode);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($data);
+        exit;
+    }
+}
