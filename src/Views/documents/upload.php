@@ -47,10 +47,10 @@
 <div class="upload-container">
     <h1 id="page_main_heading"><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></h1>
 
-    <?php if ($success_msg): ?>
+    <?php if (!empty($success_msg)): ?>
         <div class="alert alert-success"><?= htmlspecialchars($success_msg) ?></div>
     <?php endif; ?>
-    <?php if ($error_msg): ?>
+    <?php if (!empty($error_msg)): ?>
         <div class="alert alert-danger"><?= htmlspecialchars($error_msg) ?></div>
     <?php endif; ?>
 

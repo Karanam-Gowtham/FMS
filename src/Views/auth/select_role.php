@@ -140,7 +140,7 @@
         <h1>Select Your Role</h1>
         <p class="subtitle">Welcome, <?= htmlspecialchars($user['full_name']) ?>. You have multiple roles.</p>
 
-        <?php if ($error): ?>
+        <?php if (!empty($error)): ?>
             <div class="error-msg"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
