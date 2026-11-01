@@ -12,7 +12,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: linear-gradient(rgba(244, 247, 246, 0.9), rgba(226, 232, 240, 0.9)), url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            background: radial-gradient(circle at 10% 20%, rgba(14, 69, 79, 0.08) 0%, transparent 40%), linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;

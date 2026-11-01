@@ -3,13 +3,13 @@ include_once HEADER;
 ?>
 <link rel="stylesheet" href="<?= CSS_PATH ?>/portal.css">
 <link rel="stylesheet" href="<?= CSS_PATH ?>/dashboard.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous" defer></script>
 <style>
     :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
     * { box-sizing: border-box; }
     
     .dept-hero {
-        background: linear-gradient(rgba(14, 69, 79, 0.9), rgba(8, 40, 46, 0.9)), url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+        background: radial-gradient(circle at 85% 15%, rgba(23, 162, 184, 0.25) 0%, transparent 50%), linear-gradient(135deg, #0b353d 0%, #08282e 100%);
         padding: 60px 40px;
         color: white;
         display: flex;

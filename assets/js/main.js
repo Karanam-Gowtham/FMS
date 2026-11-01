@@ -201,25 +201,28 @@ function showToast(message, type = 'info') {
         }
     }, true);
 
-    // 5. Observe DOM for dynamically created rows / modals
-    if (window.MutationObserver && document.documentElement) {
-        const observer = new MutationObserver(function(mutations) {
-            for (let i = 0; i < mutations.length; i++) {
-                const added = mutations[i].addedNodes;
-                for (let j = 0; j < added.length; j++) {
-                    const node = added[j];
-                    if (node && node.nodeType === 1) {
-                        if (isNumberInput(node)) {
-                            enforceNonNegative(node);
-                        }
-                        if (node.querySelectorAll) {
-                            node.querySelectorAll('input[type="number"], input.calc-box, input.t4a-input, input.t4b-input, input.t4c-input, input[min]').forEach(enforceNonNegative);
-                        }
-                    }
-                }
+    // 5. Observe DOM for dynamically created rows / modals after page load (debounced)
+    if (window.MutationObserver) {
+        let scheduled = false;
+        const observer = new MutationObserver(function() {
+            if (!scheduled) {
+                scheduled = true;
+                requestAnimationFrame(function() {
+                    scanInputs();
+                    scheduled = false;
+                });
             }
         });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+        const startObserving = function() {
+            if (document.body) {
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startObserving);
+        } else {
+            startObserving();
+        }
     }
 })(window, document);
 

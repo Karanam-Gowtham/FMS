@@ -13,8 +13,12 @@
         <div style="width: 130px; height: 130px; border-radius: 50%; background: white; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
             <?php if (!empty($profile_photo)): ?>
                 <img src="<?= BASE_URL . '/' . htmlspecialchars($profile_photo) ?>" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
-            <?php else: ?>
-                <img src="https://ui-avatars.com/api/?name=<?= urlencode($auth['full_name'] ?? 'Faculty') ?>&amp;background=random&amp;size=120" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Profile Picture">
+            <?php else: 
+                $faculty_initial = strtoupper(substr(trim((string)($auth['full_name'] ?? 'F')), 0, 1));
+            ?>
+                <div style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                    <?= htmlspecialchars($faculty_initial) ?>
+                </div>
             <?php endif; ?>
         </div>
         

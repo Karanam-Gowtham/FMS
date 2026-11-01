@@ -254,6 +254,9 @@ abstract class BaseController {
             $data['conn'] = $this->conn ?? $conn;
         }
         extract($data, EXTR_SKIP);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
         $file = __DIR__ . '/../Views/' . ltrim($viewPath, '/') . '.php';
         if (file_exists($file)) {
             include $file;
