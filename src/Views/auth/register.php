@@ -150,7 +150,7 @@
         <p class="subtitle">Create your Student or Faculty account</p>
 
         <div class="role-note">
-            ℹ️ Please select your role. Students must use their JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in). Faculty fields will hide if Student is selected.
+            ℹ️ Please select your role. Students must use their JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in or 21341A0501@gmritdu.edu.in). Faculty fields will hide if Student is selected.
         </div>
 
         <?php if (!empty($error)): ?>
@@ -181,7 +181,7 @@
                 </div>
                 <div class="form-group">
                     <label for="email">Email Address *</label>
-                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="you@gmrit.edu.in" required>
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="you@gmrit.edu.in or you@gmritdu.edu.in" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password *</label>

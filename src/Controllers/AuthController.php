@@ -214,8 +214,8 @@ class AuthController {
                 $error = 'Name, email, and password are required.';
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error = 'Please enter a valid email address.';
-            } elseif (!preg_match('/@gmrit\.edu\.in$/i', $email)) {
-                $error = 'Registration is restricted to @gmrit.edu.in email addresses.';
+            } elseif (!preg_match('/@(gmrit|gmritdu)\.edu\.in$/i', $email)) {
+                $error = 'Registration is restricted to @gmrit.edu.in or @gmritdu.edu.in email addresses.';
             } elseif (strlen($password) < 6) {
                 $error = 'Password must be at least 6 characters.';
             } elseif ($password !== $confirm) {
@@ -241,9 +241,9 @@ class AuthController {
 
                 // Strict security check for Student Role
                 if ($role_id === ROLE_STUDENT) {
-                    $is_student_email = preg_match('/^[0-9]{2}[0-9A-Za-z]{2}[0-9A-Za-z][A-Za-z0-9]{5}@gmrit\.edu\.in$/i', $email);
+                    $is_student_email = preg_match('/^[0-9]{2}[0-9A-Za-z]{2}[0-9A-Za-z][A-Za-z0-9]{5}@(gmrit|gmritdu)\.edu\.in$/i', $email);
                     if (!$is_student_email) {
-                        $error = 'Student registration requires a valid JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in).';
+                        $error = 'Student registration requires a valid JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in or 21341A0501@gmritdu.edu.in).';
                     }
                 }
 

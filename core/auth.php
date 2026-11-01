@@ -28,21 +28,22 @@ require_once __DIR__ . '/../config.php';
  */
 function auth_authenticate(mysqli $conn, string $identifier, string $password): array|false
 {
-    // Normalise: if no @ symbol, append default domain
-    $email = (strpos($identifier, '@') !== false) ? $identifier : ($identifier . '@gmrit.edu.in');
+    // Normalise: if no @ symbol, allow matching either institutional domain
+    $email1 = (strpos($identifier, '@') !== false) ? $identifier : ($identifier . '@gmrit.edu.in');
+    $email2 = (strpos($identifier, '@') !== false) ? $identifier : ($identifier . '@gmritdu.edu.in');
 
-    // Query users table by email, full_name, or personnel number (per_no)
+    // Query users table by email (both domains if typed as handle), full_name, or personnel number (per_no)
     $stmt = $conn->prepare("
         SELECT u.user_id, u.full_name, u.email, u.password, u.status
         FROM users u
         LEFT JOIN user_profiles up ON u.user_id = up.user_id
-        WHERE (u.email = ? OR u.full_name = ? OR up.per_no = ?) AND u.status = 'active'
+        WHERE (u.email = ? OR u.email = ? OR u.full_name = ? OR up.per_no = ?) AND u.status = 'active'
         LIMIT 1
     ");
     if (!$stmt) {
         return false;
     }
-    $stmt->bind_param("sss", $email, $identifier, $identifier);
+    $stmt->bind_param("ssss", $email1, $email2, $identifier, $identifier);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();

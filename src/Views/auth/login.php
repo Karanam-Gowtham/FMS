@@ -141,7 +141,7 @@
 
             <div class="form-group">
                 <label for="identifier">User ID or Email</label>
-                <input type="text" id="identifier" name="identifier" placeholder="e.g. cse-hod or user@gmrit.edu.in"
+                <input type="text" id="identifier" name="identifier" placeholder="e.g. cse-hod, user@gmrit.edu.in, or user@gmritdu.edu.in"
                     value="<?= htmlspecialchars($_POST['identifier'] ?? '') ?>" required autocomplete="username">
             </div>
 

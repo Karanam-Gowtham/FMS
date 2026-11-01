@@ -27,7 +27,7 @@ All pre-seeded institutional accounts use the unified default password:
 👉 **`Admin@123`**
 
 > 💡 **Mobile Quick Login Tip:**  
-> On mobile and desktop, you don't need to type the full `@gmrit.edu.in`. Simply typing the handle (e.g. `admin`, `hod.ece`, `faculty.civil`, `coord.aids`) in the email field will log you in directly!
+> On mobile and desktop, you don't need to type the full `@gmrit.edu.in` or `@gmritdu.edu.in`. Simply typing the handle (e.g. `admin`, `hod.ece`, `faculty.civil`, `coord.aids`) in the email field will log you in directly!
 
 ---
 
