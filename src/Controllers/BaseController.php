@@ -31,7 +31,7 @@ abstract class BaseController {
         global $conn;
         $this->conn = $conn;
 
-        $this->auth = auth_context();
+        $this->auth = auth_context() ?? [];
         $this->activeRole = auth_active_role();
         $this->activeRoleId = $this->activeRole ? (int)($this->activeRole['role_id'] ?? 0) : 0;
         $this->activeDeptId = $this->activeRole ? (int)($this->activeRole['dept_id'] ?? 0) : 0;
@@ -249,12 +249,19 @@ abstract class BaseController {
      * @param array $data Variables to pass to the view
      */
     protected function renderView(string $viewPath, array $data = []): void {
+        global $conn;
+        if (!isset($data['conn'])) {
+            $data['conn'] = $this->conn ?? $conn;
+        }
         extract($data, EXTR_SKIP);
         $file = __DIR__ . '/../Views/' . ltrim($viewPath, '/') . '.php';
         if (file_exists($file)) {
             include $file;
         } else {
             include __DIR__ . '/../../public/404.php';
+        }
+        if (php_sapi_name() === 'cli') {
+            return;
         }
         exit;
     }

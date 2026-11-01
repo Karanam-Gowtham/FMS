@@ -53,7 +53,41 @@ class DashboardController extends BaseController {
         $role_icon = $active_role ? ($role_icons[$active_role_id] ?? '👤') : '👤';
         $role_landing_url = $active_role ? get_role_landing_url($active_role) : null;
 
-        // Fetch recent uploads for the user
+        // Admin Dashboard Telemetry
+        $admin_metrics = [];
+        $recent_audits = [];
+
+        if ($active_role_id === ROLE_ADMIN) {
+            $user_count_res  = $this->conn->query("SELECT COUNT(*) as c FROM users WHERE status = 'active'");
+            $dept_count_res  = $this->conn->query("SELECT COUNT(*) as c FROM departments");
+            $acad_dept_res   = $this->conn->query("SELECT COUNT(*) as c FROM departments WHERE is_academic = 1");
+            $year_res        = $this->conn->query("SELECT year_label FROM academic_years WHERE is_current = 1 LIMIT 1");
+            $doc_count_res   = $this->conn->query("SELECT COUNT(*) as c FROM documents");
+            $audit_count_res = $this->conn->query("SELECT COUNT(*) as c FROM system_audit_logs");
+
+            $admin_metrics = [
+                'active_users'   => $user_count_res ? (int)$user_count_res->fetch_assoc()['c'] : 0,
+                'total_depts'    => $dept_count_res ? (int)$dept_count_res->fetch_assoc()['c'] : 0,
+                'academic_depts' => $acad_dept_res ? (int)$acad_dept_res->fetch_assoc()['c'] : 0,
+                'active_year'    => ($year_res && $yrow = $year_res->fetch_assoc()) ? $yrow['year_label'] : 'Not Set',
+                'total_documents'=> $doc_count_res ? (int)$doc_count_res->fetch_assoc()['c'] : 0,
+                'audit_events'   => $audit_count_res ? (int)$audit_count_res->fetch_assoc()['c'] : 0,
+            ];
+
+            $audit_res = $this->conn->query("
+                SELECT log_id, action, actor_name, actor_email, target_dept, target_entity, details, stream, created_at 
+                FROM system_audit_logs 
+                ORDER BY created_at DESC 
+                LIMIT 6
+            ");
+            if ($audit_res) {
+                while ($row = $audit_res->fetch_assoc()) {
+                    $recent_audits[] = $row;
+                }
+            }
+        }
+
+        // Fetch recent uploads and personal charts for non-admin users
         $recent_uploads = [];
         $chart_categories = [];
         $chart_timeline = [];
@@ -62,7 +96,7 @@ class DashboardController extends BaseController {
         $event_date_coalesce = doc_meta_event_date_coalesce_sql('d');
         $meta_joins = doc_meta_joins_sql('d');
 
-        if ($active_role) {
+        if ($active_role && $active_role_id !== ROLE_ADMIN) {
             $stmt = $this->conn->prepare("
                 SELECT d.doc_id, d.type_id, d.uploaded_by, d.dept_id, d.mentor_id, d.title, d.status, d.current_step, d.created_at,
                        dt.label as type_label, dep.dept_name, ws.step_label,
@@ -120,9 +154,9 @@ class DashboardController extends BaseController {
             $pending_approvals = $pending_res['rows'];
         }
 
-        // Reviewer Analytics (Department / College level)
-        if (in_array($active_role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
-            $is_college_wide = in_array($active_role_id, [ROLE_RND_DEAN, ROLE_ADMIN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
+        // Reviewer Analytics (Department / College level) for non-admin reviewers
+        if ($active_role_id !== ROLE_ADMIN && in_array($active_role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true)) {
+            $is_college_wide = in_array($active_role_id, [ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
             $dept_query = "
                 SELECT dt.label as type_label, d.status, d.created_at,
                        {$event_date_coalesce} as event_date
