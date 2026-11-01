@@ -214,18 +214,7 @@
         </script>
 
         <!-- Pagination -->
-        <?php if ($total_pages > 1): ?>
-        <div class="pagination">
-            <?php 
-            $q = $_GET;
-            unset($q['page']);
-            ?>
-            <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                <a href="?<?= htmlspecialchars(http_build_query(array_merge($q, ['page' => $p])), ENT_QUOTES, 'UTF-8') ?>"
-                   class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
-            <?php endfor; ?>
-        </div>
-        <?php endif; ?>
+        <?php include __DIR__ . '/../partials/pagination.php'; ?>
     <?php endif; ?>
     </main>
 </div>

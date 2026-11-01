@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Core\Request;
+
 class DocumentActionController extends BaseController {
 
     public function processUpload(): void {
@@ -16,17 +18,10 @@ class DocumentActionController extends BaseController {
             
         // Fallback for title if it's missing but meta title fields exist
         if ($post_title === '') {
-            $meta = $_POST['meta'] ?? [];
-            if (!empty($meta['event_name']) && is_string($meta['event_name'])) {
-                $post_title = trim($meta['event_name']);
-            } elseif (!empty($meta['event_title']) && is_string($meta['event_title'])) {
-                $post_title = trim($meta['event_title']);
-            } elseif (!empty($meta['paper_title']) && is_string($meta['paper_title'])) {
-                $post_title = trim($meta['paper_title']);
-            } elseif (!empty($meta['patent_title']) && is_string($meta['patent_title'])) {
-                $post_title = trim($meta['patent_title']);
-            } elseif (!empty($meta['exam']) && is_string($meta['exam'])) {
-                $post_title = trim($meta['exam']);
+            $meta = is_array($_POST['meta'] ?? null) ? $_POST['meta'] : [];
+            $titles = Request::getStringList($meta, ['event_name', 'event_title', 'paper_title', 'patent_title', 'exam']);
+            if (!empty($titles)) {
+                $post_title = $titles[0];
             } elseif ($post_type_key === 'student_activity_file' && (($meta['activity_category'] ?? '') === 'Stepcone')) {
                 $post_title = 'Stepcone Event';
             } else {

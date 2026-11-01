@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Core\Request;
+
 /**
  * User Management Controller (Admin Only)
  * 
@@ -19,10 +21,10 @@ class UserController extends BaseController {
 
         global $conn;
 
-        $search = isset($_GET['search']) && is_string($_GET['search']) ? trim($_GET['search']) : '';
-        $filter_dept_id = isset($_GET['dept_id']) && is_numeric($_GET['dept_id']) ? (int)$_GET['dept_id'] : 0;
-        $filter_role_id = isset($_GET['role_id']) && is_numeric($_GET['role_id']) ? (int)$_GET['role_id'] : 0;
-        $filter_status = isset($_GET['status']) && in_array($_GET['status'], ['active', 'inactive'], true) ? $_GET['status'] : '';
+        $search = Request::getString('search');
+        $filter_dept_id = Request::getInt('dept_id');
+        $filter_role_id = Request::getInt('role_id');
+        $filter_status = Request::getEnum('status', ['active', 'inactive'], '');
 
         // Fetch lookups
         $departments = [];
@@ -173,19 +175,18 @@ class UserController extends BaseController {
      * Strict Institutional Rule: Only 1 HOD active per department at any time.
      */
     public function setHod(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
+        $this->requireAdmin();
+        $this->validateCsrf();
 
-        global $conn;
+        $conn = $this->conn;
 
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-        $dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : 0;
+        $user_id = Request::getInt('user_id');
+        $dept_id = Request::getInt('dept_id');
 
         if ($user_id <= 0 || $dept_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid faculty or department selection.";
+            $this->flashError("Invalid faculty or department selection.");
             $this->redirectBack();
+            return;
         }
 
         // Fetch user & department details
@@ -193,8 +194,9 @@ class UserController extends BaseController {
         $dept = $this->getDeptBasic($conn, $dept_id);
 
         if (!$user || !$dept) {
-            $_SESSION['error_msg'] = "Faculty member or department does not exist.";
+            $this->flashError("Faculty member or department does not exist.");
             $this->redirectBack();
+            return;
         }
 
         // 1. Identify previous HOD for this department (if any)
@@ -211,8 +213,9 @@ class UserController extends BaseController {
 
         // If user is already the HOD, nothing to change
         if ($prev_hod_id === $user_id) {
-            $_SESSION['success_msg'] = "{$user['full_name']} is already the active HOD of {$dept['dept_name']}.";
+            $this->flashSuccess("{$user['full_name']} is already the active HOD of {$dept['dept_name']}.");
             $this->redirectBack();
+            return;
         }
 
         // Mutual Exclusivity: Institutional Leaders cannot hold HOD simultaneously
@@ -261,9 +264,9 @@ class UserController extends BaseController {
 
         $extra_note = !empty($relieved_inst_msgs) ? " (Stepped down from: " . implode(', ', $relieved_inst_msgs) . ")." : "";
         if (!empty($prev_hod_name)) {
-            $_SESSION['success_msg'] = "HOD role for {$dept['dept_name']} successfully transferred from {$prev_hod_name} to {$user['full_name']}{$extra_note}.";
+            $this->flashSuccess("HOD role for {$dept['dept_name']} successfully transferred from {$prev_hod_name} to {$user['full_name']}{$extra_note}.");
         } else {
-            $_SESSION['success_msg'] = "{$user['full_name']} is now appointed as HOD of {$dept['dept_name']}{$extra_note}.";
+            $this->flashSuccess("{$user['full_name']} is now appointed as HOD of {$dept['dept_name']}{$extra_note}.");
         }
 
         if (function_exists('system_audit_log')) {
@@ -278,28 +281,28 @@ class UserController extends BaseController {
      * Appoint or Revoke Department Coordinator role
      */
     public function toggleCoordinator(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
+        $this->requireAdmin();
+        $this->validateCsrf();
 
-        global $conn;
+        $conn = $this->conn;
 
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-        $dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : 0;
-        $action = isset($_POST['action']) ? trim($_POST['action']) : '';
+        $user_id = Request::getInt('user_id');
+        $dept_id = Request::getInt('dept_id');
+        $action = Request::getString('action');
 
         if ($user_id <= 0 || $dept_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid request parameters.";
+            $this->flashError("Invalid request parameters.");
             $this->redirectBack();
+            return;
         }
 
         $user = $this->getUserBasic($conn, $user_id);
         $dept = $this->getDeptBasic($conn, $dept_id);
 
         if (!$user || !$dept) {
-            $_SESSION['error_msg'] = "User or Department not found.";
+            $this->flashError("User or Department not found.");
             $this->redirectBack();
+            return;
         }
 
         $coord_role = ROLE_DEPT_COORDINATOR;
@@ -309,11 +312,11 @@ class UserController extends BaseController {
             $del->bind_param("iii", $user_id, $coord_role, $dept_id);
             $del->execute();
             $del->close();
-            $_SESSION['success_msg'] = "Revoked Coordinator role from {$user['full_name']} for {$dept['dept_name']}.";
+            $this->flashSuccess("Revoked Coordinator role from {$user['full_name']} for {$dept['dept_name']}.");
         } else {
             $this->ensureRoleExists($conn, $user_id, $coord_role, $dept_id);
             $this->ensureRoleExists($conn, $user_id, ROLE_FACULTY, $dept_id);
-            $_SESSION['success_msg'] = "{$user['full_name']} appointed as Department Coordinator for {$dept['dept_name']}.";
+            $this->flashSuccess("{$user['full_name']} appointed as Department Coordinator for {$dept['dept_name']}.");
         }
 
         if (function_exists('system_audit_log')) {
@@ -331,16 +334,14 @@ class UserController extends BaseController {
      * Mutual Exclusivity: Institutional Leaders cannot hold HOD simultaneously.
      */
     public function setInstitutionalRole(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
+        $this->requireAdmin();
+        $this->validateCsrf();
 
-        global $conn;
+        $conn = $this->conn;
 
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-        $role_id = isset($_POST['role_id']) ? (int)$_POST['role_id'] : 0;
-        $action = isset($_POST['action']) ? trim($_POST['action']) : 'appoint';
+        $user_id = Request::getInt('user_id');
+        $role_id = Request::getInt('role_id');
+        $action = Request::getString('action', 'appoint');
 
         $valid_roles = [
             ROLE_IQAC => 'IQAC Coordinator',
@@ -349,16 +350,18 @@ class UserController extends BaseController {
         ];
 
         if ($user_id <= 0 || !isset($valid_roles[$role_id])) {
-            $_SESSION['error_msg'] = "Invalid institutional role request.";
+            $this->flashError("Invalid institutional role request.");
             $this->redirectBack();
+            return;
         }
 
         $role_name = $valid_roles[$role_id];
         $user = $this->getUserBasic($conn, $user_id);
 
         if (!$user) {
-            $_SESSION['error_msg'] = "Faculty member not found.";
+            $this->flashError("Faculty member not found.");
             $this->redirectBack();
+            return;
         }
 
         if ($action === 'revoke') {
@@ -367,11 +370,12 @@ class UserController extends BaseController {
             $del->execute();
             $del->close();
 
-            $_SESSION['success_msg'] = "Relieved {$user['full_name']} from {$role_name} role.";
+            $this->flashSuccess("Relieved {$user['full_name']} from {$role_name} role.");
             if (function_exists('system_audit_log')) {
                 system_audit_log($conn, 'INSTITUTIONAL_RELIEVE', "Relieved {$user['full_name']} ({$user['email']}) from {$role_name}.", 'user', $user_id);
             }
             $this->redirectBack();
+            return;
         }
 
         // Action: APPOINT
@@ -443,7 +447,7 @@ class UserController extends BaseController {
 
         $trans_msg = !empty($prev_holder_names) ? " (transferred from " . implode(', ', $prev_holder_names) . ")" : "";
         $hod_note = !empty($relieved_hod_depts) ? " Stepped down from HOD of " . implode(', ', $relieved_hod_depts) . "." : "";
-        $_SESSION['success_msg'] = "{$user['full_name']} appointed as {$role_name}{$trans_msg}.{$hod_note}";
+        $this->flashSuccess("{$user['full_name']} appointed as {$role_name}{$trans_msg}.{$hod_note}");
 
         if (function_exists('system_audit_log')) {
             $prev_str = !empty($prev_holder_names) ? "from " . implode(', ', $prev_holder_names) . " " : "";
@@ -458,27 +462,27 @@ class UserController extends BaseController {
      * Strict Rule: Faculty member belongs to strictly one parent department.
      */
     public function transferDepartment(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
+        $this->requireAdmin();
+        $this->validateCsrf();
 
-        global $conn;
+        $conn = $this->conn;
 
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-        $new_dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : 0;
+        $user_id = Request::getInt('user_id');
+        $new_dept_id = Request::getInt('dept_id');
 
         if ($user_id <= 0 || $new_dept_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid user or target department.";
+            $this->flashError("Invalid user or target department.");
             $this->redirectBack();
+            return;
         }
 
         $user = $this->getUserBasic($conn, $user_id);
         $new_dept = $this->getDeptBasic($conn, $new_dept_id);
 
         if (!$user || !$new_dept) {
-            $_SESSION['error_msg'] = "User or target department not found.";
+            $this->flashError("User or target department not found.");
             $this->redirectBack();
+            return;
         }
 
         // Identify current department
@@ -495,8 +499,9 @@ class UserController extends BaseController {
         $old_dept_stmt->close();
 
         if ($old_dept && (int)$old_dept['dept_id'] === $new_dept_id) {
-            $_SESSION['success_msg'] = "{$user['full_name']} is already assigned to {$new_dept['dept_name']}.";
+            $this->flashSuccess("{$user['full_name']} is already assigned to {$new_dept['dept_name']}.");
             $this->redirectBack();
+            return;
         }
 
         $old_name = $old_dept ? $old_dept['dept_name'] : 'Unassigned';
@@ -519,7 +524,7 @@ class UserController extends BaseController {
         // 3. Ensure single Faculty role in new department
         $this->ensureRoleExists($conn, $user_id, ROLE_FACULTY, $new_dept_id);
 
-        $_SESSION['success_msg'] = "{$user['full_name']} successfully transferred from {$old_name} to {$new_dept['dept_name']}.";
+        $this->flashSuccess("{$user['full_name']} successfully transferred from {$old_name} to {$new_dept['dept_name']}.");
 
         if (function_exists('system_audit_log')) {
             system_audit_log($conn, 'DEPARTMENT_TRANSFER', "Transferred faculty member {$user['full_name']} from {$old_name} to {$new_dept['dept_name']}.", 'user', $user_id);
@@ -532,36 +537,39 @@ class UserController extends BaseController {
      * Revoke a specific leadership or institutional role
      */
     public function revokeRole(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
+        $this->requireAdmin();
+        $this->validateCsrf();
 
-        global $conn;
+        $conn = $this->conn;
 
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-        $role_id = isset($_POST['role_id']) ? (int)$_POST['role_id'] : 0;
-        $dept_id = isset($_POST['dept_id']) && is_numeric($_POST['dept_id']) && (int)$_POST['dept_id'] > 0 ? (int)$_POST['dept_id'] : null;
+        $user_id = Request::getInt('user_id');
+        $role_id = Request::getInt('role_id');
+        $raw_dept = Request::getInt('dept_id');
+        $dept_id = $raw_dept > 0 ? $raw_dept : null;
 
         if ($user_id <= 0 || $role_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid parameters to revoke role.";
+            $this->flashError("Invalid parameters to revoke role.");
             $this->redirectBack();
+            return;
         }
 
         if ($role_id === ROLE_FACULTY) {
-            $_SESSION['error_msg'] = "Every faculty member must maintain base Faculty status. Use Department Transfer or Inactive Status instead of removing base faculty status.";
+            $this->flashError("Every faculty member must maintain base Faculty status. Use Department Transfer or Inactive Status instead of removing base faculty status.");
             $this->redirectBack();
+            return;
         }
 
         if ($role_id === ROLE_ADMIN) {
-            $_SESSION['error_msg'] = "Administrator roles cannot be revoked via this interface.";
+            $this->flashError("Administrator roles cannot be revoked via this interface.");
             $this->redirectBack();
+            return;
         }
 
         $user = $this->getUserBasic($conn, $user_id);
         if (!$user) {
-            $_SESSION['error_msg'] = "User not found.";
+            $this->flashError("User not found.");
             $this->redirectBack();
+            return;
         }
 
         if ($dept_id === null) {
@@ -581,7 +589,7 @@ class UserController extends BaseController {
         $r_name = $r_stmt->get_result()->fetch_assoc()['role_name'] ?? "Role #{$role_id}";
         $r_stmt->close();
 
-        $_SESSION['success_msg'] = "Revoked {$r_name} role from {$user['full_name']}.";
+        $this->flashSuccess("Revoked {$r_name} role from {$user['full_name']}.");
 
         if (function_exists('system_audit_log')) {
             system_audit_log($conn, 'ROLE_REVOKE', "Revoked {$r_name} role from {$user['full_name']} ({$user['email']}).", 'user', $user_id);
@@ -591,37 +599,32 @@ class UserController extends BaseController {
     }
 
     /**
-     * Toggle User Account Status (Active vs Relieved/Inactive)
-     */
-    /**
      * Resolves target user for administrative actions with security & self-action checks.
      */
     private function getTargetUserForAdminAction(string $selfActionErrorMessage = ''): ?array {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
+        $this->requireAdmin();
+        $this->validateCsrf();
 
-        global $conn;
+        $conn = $this->conn;
 
-        $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
-        $current_admin_id = auth_user_id();
+        $user_id = Request::getInt('user_id');
+        $current_admin_id = $this->userId;
 
         if ($user_id <= 0) {
-            $_SESSION['error_msg'] = "Invalid user specified.";
+            $this->flashError("Invalid user specified.");
             $this->redirectBack();
             return null;
         }
 
         if (!empty($selfActionErrorMessage) && $user_id === $current_admin_id) {
-            $_SESSION['error_msg'] = $selfActionErrorMessage;
+            $this->flashError($selfActionErrorMessage);
             $this->redirectBack();
             return null;
         }
 
         $user = $this->getUserBasic($conn, $user_id);
         if (!$user) {
-            $_SESSION['error_msg'] = "User not found.";
+            $this->flashError("User not found.");
             $this->redirectBack();
             return null;
         }
@@ -638,7 +641,7 @@ class UserController extends BaseController {
             return;
         }
         $user_id = (int)$user['user_id'];
-        global $conn;
+        $conn = $this->conn;
 
         $new_status = ($user['status'] === 'active') ? 'inactive' : 'active';
         $upd = $conn->prepare("UPDATE users SET status = ? WHERE user_id = ?");
@@ -647,7 +650,7 @@ class UserController extends BaseController {
         $upd->close();
 
         $status_label = ($new_status === 'active') ? 'Active (login enabled)' : 'Relieved / Inactive (login locked, documents preserved)';
-        $_SESSION['success_msg'] = "Account status for {$user['full_name']} changed to: {$status_label}.";
+        $this->flashSuccess("Account status for {$user['full_name']} changed to: {$status_label}.");
 
         if (function_exists('system_audit_log')) {
             system_audit_log($conn, 'USER_STATUS_CHANGE', "Changed account status for {$user['full_name']} ({$user['email']}) to {$new_status}.", 'user', $user_id);
@@ -665,7 +668,7 @@ class UserController extends BaseController {
             return;
         }
         $user_id = (int)$user['user_id'];
-        global $conn;
+        $conn = $this->conn;
 
         $default_hash = password_hash('Admin@123', PASSWORD_BCRYPT);
         $upd = $conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
@@ -673,7 +676,7 @@ class UserController extends BaseController {
         $upd->execute();
         $upd->close();
 
-        $_SESSION['success_msg'] = "Password for {$user['full_name']} ({$user['email']}) has been reset to: Admin@123";
+        $this->flashSuccess("Password for {$user['full_name']} ({$user['email']}) has been reset to: Admin@123");
 
         if (function_exists('system_audit_log')) {
             system_audit_log($conn, 'PASSWORD_RESET', "Reset password for {$user['full_name']} ({$user['email']}) to default.", 'user', $user_id);
@@ -692,7 +695,7 @@ class UserController extends BaseController {
             return;
         }
         $user_id = (int)$user['user_id'];
-        global $conn;
+        $conn = $this->conn;
 
         // Check document count
         $doc_cnt_stmt = $conn->prepare("SELECT COUNT(*) AS total FROM documents WHERE uploaded_by = ?");
@@ -709,8 +712,9 @@ class UserController extends BaseController {
         $act_cnt_stmt->close();
 
         if ($doc_cnt > 0 || $act_cnt > 0) {
-            $_SESSION['error_msg'] = "Integrity Protection: Cannot delete {$user['full_name']} because they have {$doc_cnt} uploaded document(s) and {$act_cnt} audit record(s). To revoke login access while protecting college records, please mark them as 'Relieved / Inactive' instead.";
+            $this->flashError("Integrity Protection: Cannot delete {$user['full_name']} because they have {$doc_cnt} uploaded document(s) and {$act_cnt} audit record(s). To revoke login access while protecting college records, please mark them as 'Relieved / Inactive' instead.");
             $this->redirectBack();
+            return;
         }
 
         // Clean up user_roles and user_profiles first, then users
@@ -729,7 +733,7 @@ class UserController extends BaseController {
         $del_user->execute();
         $del_user->close();
 
-        $_SESSION['success_msg'] = "Test account for {$user['full_name']} ({$user['email']}) was permanently deleted.";
+        $this->flashSuccess("Test account for {$user['full_name']} ({$user['email']}) was permanently deleted.");
 
         if (function_exists('system_audit_log')) {
             system_audit_log($conn, 'USER_DELETE', "Permanently deleted test user {$user['full_name']} ({$user['email']}).", 'user', $user_id);
@@ -742,26 +746,26 @@ class UserController extends BaseController {
      * Fast Direct User Registration by Admin
      */
     public function create(): void {
-        require_once __DIR__ . '/../../core/bootstrap.php';
-        require_login();
-        $this->ensureAdminAccess();
-        csrfValidate();
+        $this->requireAdmin();
+        $this->validateCsrf();
 
-        global $conn;
+        $conn = $this->conn;
 
-        $full_name = isset($_POST['full_name']) ? trim($_POST['full_name']) : '';
-        $email = isset($_POST['email']) ? trim($_POST['email']) : '';
-        $dept_id = isset($_POST['dept_id']) ? (int)$_POST['dept_id'] : 0;
-        $role_key = isset($_POST['initial_role']) ? trim($_POST['initial_role']) : 'faculty';
+        $full_name = Request::getString('full_name');
+        $email = Request::getString('email');
+        $dept_id = Request::getInt('dept_id');
+        $role_key = Request::getString('initial_role', 'faculty');
 
         if (empty($full_name) || empty($email) || $dept_id <= 0) {
-            $_SESSION['error_msg'] = "Full Name, Email, and Department are all required.";
+            $this->flashError("Full Name, Email, and Department are all required.");
             $this->redirectBack();
+            return;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error_msg'] = "Invalid email format.";
+            $this->flashError("Invalid email format.");
             $this->redirectBack();
+            return;
         }
 
         // Check duplicate email
@@ -772,8 +776,9 @@ class UserController extends BaseController {
         $chk->close();
 
         if ($exists) {
-            $_SESSION['error_msg'] = "A user account with email '{$email}' already exists.";
+            $this->flashError("A user account with email '{$email}' already exists.");
             $this->redirectBack();
+            return;
         }
 
         $password_hash = password_hash('Admin@123', PASSWORD_BCRYPT);
@@ -784,7 +789,7 @@ class UserController extends BaseController {
         $ins->close();
 
         if ($new_user_id <= 0) {
-            $_SESSION['error_msg'] = "Database error creating user account.";
+            $this->flashError("Database error creating user account.");
             $this->redirectBack();
         }
 
@@ -838,17 +843,13 @@ class UserController extends BaseController {
             $this->ensureRoleExists($conn, $new_user_id, $target_inst_role, null);
         }
 
-        $_SESSION['success_msg'] = "Faculty account for {$full_name} created successfully with default password Admin@123.";
+        $this->flashSuccess("Faculty account for {$full_name} created successfully with default password Admin@123.");
 
         if (function_exists('system_audit_log')) {
             system_audit_log($conn, 'USER_CREATE', "Created faculty account for {$full_name} ({$email}) in department #{$dept_id} with initial role {$role_key}.", 'user', $new_user_id);
         }
 
         $this->redirectBack();
-    }
-
-    private function ensureAdminAccess(): void {
-        $this->requireAdmin();
     }
 
     private function getUserBasic(\mysqli $conn, int $user_id): ?array {

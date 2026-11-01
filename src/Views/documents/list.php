@@ -774,18 +774,10 @@
                     <a href="<?= $pp_url ?>" style="padding: 2px 7px; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 0.82rem; <?= ($curr_pp === $opt) ? 'background: #003366; color: white;' : 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;' ?>"><?= ucfirst($opt) ?></a>
                 <?php endforeach; ?>
             </div>
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination" style="margin: 0;">
-                <?php 
-                $q = $_GET;
-                unset($q['page']);
-                ?>
-                <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                    <a href="?<?= htmlspecialchars(http_build_query(array_merge($q, ['page' => $p])), ENT_QUOTES, 'UTF-8') ?>"
-                       class="<?= $p === $page_num ? 'active' : '' ?>"><?= $p ?></a>
-                <?php endfor; ?>
-            </div>
-            <?php endif; ?>
+            <?php 
+            $extra_style = 'margin: 0;';
+            include __DIR__ . '/../partials/pagination.php'; 
+            ?>
         </div>
     <?php endif; ?>
     </main>
