@@ -6,8 +6,11 @@
 -- Description:
 --   This script creates a 100% clean, production-ready 'gmrdufms' database.
 --   All test documents, dummy uploads, and trial submissions have been removed.
+--   Includes full schema up to Migration 013 (all 74 tables, system_audit_logs,
+--   schema_migrations tracking table, is_academic flags, and active academic year).
 --   Core system lookups, departments, roles, workflows, academic years,
---   NAAC form schemas, and default institutional role accounts are seeded.
+--   NAAC form schemas, and 42 institutional accounts (all departments) are seeded.
+--   Password for all default seeded accounts is: Admin@123
 --
 -- Target Database: gmrdufms (MySQL 8.0+ / MariaDB 10.4+)
 -- Encoding: utf8mb4 / utf8mb4_unicode_ci
@@ -115,6 +118,8 @@ DROP TABLE IF EXISTS `academic_years`;
 CREATE TABLE `academic_years` (
   `year_id` int(11) NOT NULL AUTO_INCREMENT,
   `year_label` varchar(20) NOT NULL,
+  `is_current` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`year_id`),
   UNIQUE KEY `year_label` (`year_label`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -292,6 +297,7 @@ CREATE TABLE `departments` (
   `dept_id` int(11) NOT NULL AUTO_INCREMENT,
   `dept_name` varchar(100) NOT NULL,
   `is_academic` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`dept_id`),
   UNIQUE KEY `dept_name` (`dept_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1544,6 +1550,45 @@ CREATE TABLE `s_journal_tab` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `schema_migrations`
+--
+
+DROP TABLE IF EXISTS `schema_migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `schema_migrations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) NOT NULL,
+  `applied_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `migration` (`migration`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `system_audit_logs`
+--
+
+DROP TABLE IF EXISTS `system_audit_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_audit_logs` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `action` varchar(60) NOT NULL,
+  `actor_id` int(11) NOT NULL,
+  `target_type` varchar(50) NOT NULL DEFAULT 'system',
+  `target_id` int(11) DEFAULT NULL,
+  `details` text DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`log_id`),
+  KEY `idx_actor` (`actor_id`),
+  KEY `idx_action` (`action`),
+  KEY `idx_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `user_profiles`
 --
 
@@ -1744,7 +1789,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `departments` WRITE;
 /*!40000 ALTER TABLE `departments` DISABLE KEYS */;
-INSERT INTO `departments` VALUES (1,'CSE',1),(2,'AIDS',1),(3,'AIML',1),(4,'ECE',1),(5,'EEE',1),(6,'MECH',1),(7,'CIVIL',1),(8,'IT',1),(9,'BSH',1),(10,'CSE-CS',1),(11,'PE',0),(12,'PG',0),(14,'Mathematics',1),(15,'Physics',1),(16,'Chemistry',1),(17,'IQAC',0),(18,'R&D',0),(19,'Exam_Section',0),(20,'NAAC',0),(21,'NBA',0),(22,'NCC',0),(23,'Sports',0),(24,'Clubs',0),(25,'NSS',0),(26,'Women_Empowerment',0),(27,'IIC',0),(28,'PASH',0),(29,'Antiragging',0),(30,'SAC',0),(31,'Complete University',1);
+INSERT INTO `departments` (`dept_id`, `dept_name`, `is_academic`) VALUES (1,'CSE',1),(2,'AIDS',1),(3,'AIML',1),(4,'ECE',1),(5,'EEE',1),(6,'MECH',1),(7,'CIVIL',1),(8,'IT',1),(9,'BSH',1),(10,'CSE-CS',1),(11,'PE',0),(12,'PG',0),(14,'Mathematics',1),(15,'Physics',1),(16,'Chemistry',1),(17,'IQAC',0),(18,'R&D',0),(19,'Exam_Section',0),(20,'NAAC',0),(21,'NBA',0),(22,'NCC',0),(23,'Sports',0),(24,'Clubs',0),(25,'NSS',0),(26,'Women_Empowerment',0),(27,'IIC',0),(28,'PASH',0),(29,'Antiragging',0),(30,'SAC',0),(31,'Complete University',1);
 /*!40000 ALTER TABLE `departments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1804,8 +1849,31 @@ UNLOCK TABLES;
 
 LOCK TABLES `academic_years` WRITE;
 /*!40000 ALTER TABLE `academic_years` DISABLE KEYS */;
-INSERT INTO `academic_years` VALUES (2,'2023-24'),(1,'2024-25'),(3,'2025-26'),(5,'2026-27');
+INSERT INTO `academic_years` (`year_id`, `year_label`, `is_current`) VALUES (1,'2024-25',0),(2,'2023-24',0),(3,'2025-26',1),(5,'2026-27',0);
 /*!40000 ALTER TABLE `academic_years` ENABLE KEYS */;
+UNLOCK TABLES;
+--
+-- Dumping data for table `schema_migrations`
+--
+
+LOCK TABLES `schema_migrations` WRITE;
+/*!40000 ALTER TABLE `schema_migrations` DISABLE KEYS */;
+INSERT INTO `schema_migrations` (`id`, `migration`) VALUES
+(1,'001_create_target_schema.sql'),
+(2,'002_intra_college.sql'),
+(3,'002_workflow_state_machine.sql'),
+(4,'003_create_gmrdufms.sql'),
+(5,'004_create_user_profiles.sql'),
+(6,'005_create_nba_tables.sql'),
+(7,'006_create_naac_tables.sql'),
+(8,'007_alter_document_actions_action_column.sql'),
+(9,'008_add_document_status_indexes.sql'),
+(10,'009_add_complete_university.sql'),
+(11,'010_update_departments_is_academic.sql'),
+(12,'011_seed_all_department_accounts.sql'),
+(13,'012_create_system_audit_logs.sql'),
+(14,'013_academic_years_departments_mgmt.sql');
+/*!40000 ALTER TABLE `schema_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
