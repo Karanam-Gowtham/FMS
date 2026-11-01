@@ -111,7 +111,7 @@ if ($route === 'dashboard') {
 } elseif ($route === 'admin/departments/delete') {
     $controller = new \App\Controllers\DepartmentController();
     $controller->delete();
-} elseif ($route === 'admin/users' || $route === 'users/list') {
+} elseif ($route === 'admin/users') {
     $controller = new \App\Controllers\UserController();
     $controller->index();
 } elseif ($route === 'admin/users/set_hod') {
