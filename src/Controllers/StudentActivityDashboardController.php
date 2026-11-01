@@ -77,15 +77,15 @@ class StudentActivityDashboardController extends BaseController
         ];
 
         $global_filter_options = [
-            'modes' => $this->fetchDistinctFilterOptions($conn, 'event_mode', ['Online', 'Offline', 'Hybrid']),
-            'domains' => $this->fetchDistinctFilterOptions($conn, 'topic_domain', [
+            'modes' => self::fetchDistinctFilterOptions($conn, 'event_mode', ['Online', 'Offline', 'Hybrid']),
+            'domains' => self::fetchDistinctFilterOptions($conn, 'topic_domain', [
                 'Career Counselling', 'Awareness of Trends and Technologies', 
                 'Domain Specific / Technical Skill', 'Cultural / Arts', 
                 'Social / Community Service', 'Other'
             ]),
             'event_types' => array_values(array_unique(array_merge(
-                $this->fetchDistinctFilterOptions($conn, 'event_type'),
-                $this->fetchDistinctFilterOptions($conn, 'activity_category'),
+                self::fetchDistinctFilterOptions($conn, 'event_type'),
+                self::fetchDistinctFilterOptions($conn, 'activity_category'),
                 $saf_cats
             )))
         ];
@@ -318,7 +318,7 @@ class StudentActivityDashboardController extends BaseController
     /**
      * Helper to fetch distinct non-empty string column values and merge canonical defaults.
      */
-    private function fetchDistinctFilterOptions(\mysqli $conn, string $column, array $canonicalDefaults = []): array {
+    private static function fetchDistinctFilterOptions(\mysqli $conn, string $column, array $canonicalDefaults = []): array {
         $options = [];
         $res = $conn->query("SELECT DISTINCT {$column} FROM meta_student_activity_file WHERE {$column} IS NOT NULL AND {$column} != '' ORDER BY {$column} ASC");
         if ($res instanceof \mysqli_result) {
