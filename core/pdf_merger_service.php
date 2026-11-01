@@ -4,8 +4,14 @@
  * Uses FPDF and FPDI to merge multiple PDFs and Images into a single file.
  */
 
-require_once __DIR__ . '/../libs/fpdf.php';
-require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+if (!class_exists('FPDF') || !class_exists('setasign\Fpdi\Fpdi')) {
+    if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+        require_once __DIR__ . '/../vendor/autoload.php';
+    } elseif (file_exists(__DIR__ . '/../libs/fpdf.php')) {
+        require_once __DIR__ . '/../libs/fpdf.php';
+        require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+    }
+}
 require_once __DIR__ . '/pdf_normalizer.php';
 
 use setasign\Fpdi\Fpdi;

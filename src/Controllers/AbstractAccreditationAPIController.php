@@ -286,16 +286,19 @@ abstract class AbstractAccreditationAPIController {
             $crit_title = ($module === 'naac') ? ($naac_titles[$crit_id] ?? "Criterion {$crit_id}") : ($nba_titles[$crit_id] ?? "Criterion {$crit_id}");
 
             // Load Libraries (FPDF & FPDI)
-            require_once __DIR__ . '/../../libs/fpdf.php';
-            require_once __DIR__ . '/../../core/pdf_normalizer.php';
-            $use_fpdi = false;
-            $fpdi_autoload = __DIR__ . '/../../libs/fpdi/FPDI-2.6.0/src/autoload.php';
-            if (file_exists($fpdi_autoload)) {
-                require_once $fpdi_autoload;
-                if (class_exists('\setasign\Fpdi\Fpdi')) {
-                    $use_fpdi = true;
+            if (!class_exists('FPDF') || !class_exists('\setasign\Fpdi\Fpdi')) {
+                if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
+                    require_once __DIR__ . '/../../vendor/autoload.php';
+                } elseif (file_exists(__DIR__ . '/../../libs/fpdf.php')) {
+                    require_once __DIR__ . '/../../libs/fpdf.php';
+                    $fpdi_autoload = __DIR__ . '/../../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+                    if (file_exists($fpdi_autoload)) {
+                        require_once $fpdi_autoload;
+                    }
                 }
             }
+            require_once __DIR__ . '/../../core/pdf_normalizer.php';
+            $use_fpdi = class_exists('\setasign\Fpdi\Fpdi');
             $temp_cleanup_normalizer = [];
 
             $pdf = $use_fpdi ? new \setasign\Fpdi\Fpdi('P', 'mm', 'A4') : new \FPDF('P', 'mm', 'A4');

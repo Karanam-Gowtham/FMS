@@ -18,6 +18,9 @@
 *.swo
 *~
 
+# Composer Dependencies
+/vendor/
+
 # Operating System Files
 .DS_Store
 Thumbs.db

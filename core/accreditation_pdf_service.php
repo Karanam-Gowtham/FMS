@@ -6,12 +6,26 @@
  * clickable DVV internal links, normalized PDF/image merging, and stamped page numbers with opaque background badges.
  */
 
-require_once __DIR__ . '/../libs/fpdf.php';
-require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+if (!class_exists('FPDF') || !class_exists('setasign\Fpdi\Fpdi')) {
+    if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+        require_once __DIR__ . '/../vendor/autoload.php';
+    } elseif (file_exists(__DIR__ . '/../libs/fpdf.php')) {
+        require_once __DIR__ . '/../libs/fpdf.php';
+        require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+    }
+}
 require_once __DIR__ . '/pdf_merger_service.php';
 require_once __DIR__ . '/pdf_normalizer.php';
 
 use setasign\Fpdi\Fpdi;
+
+if (!defined('FPDF_FONTPATH')) {
+    $defaultFontDir = __DIR__ . '/../assets/fonts/';
+    if (!is_dir($defaultFontDir)) {
+        $defaultFontDir = __DIR__ . '/../libs/font/';
+    }
+    define('FPDF_FONTPATH', $defaultFontDir);
+}
 
 class AccreditationFpdi extends Fpdi {
     public $headerConfig = [];
@@ -20,7 +34,11 @@ class AccreditationFpdi extends Fpdi {
     public $isIndexPage = false;
 
     public function setupFonts(): void {
-        $fontDir = __DIR__ . '/../libs/font/';
+        $fontDir = defined('FPDF_FONTPATH') ? FPDF_FONTPATH : (__DIR__ . '/../assets/fonts/');
+        if (!is_dir($fontDir)) {
+            $fontDir = __DIR__ . '/../libs/font/';
+        }
+        $this->fontpath = rtrim($fontDir, '/\\') . '/';
         if (file_exists($fontDir . 'cambria.php')) {
             $this->AddFont('Cambria', '', 'cambria.php');
             if (file_exists($fontDir . 'cambriab.php')) {

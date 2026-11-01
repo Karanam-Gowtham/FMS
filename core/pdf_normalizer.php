@@ -8,8 +8,14 @@
  * Python, Ghostscript, or external command-line dependencies.
  */
 
-require_once __DIR__ . '/../libs/fpdf.php';
-require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+if (!class_exists('FPDF') || !class_exists('setasign\Fpdi\Fpdi')) {
+    if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+        require_once __DIR__ . '/../vendor/autoload.php';
+    } elseif (file_exists(__DIR__ . '/../libs/fpdf.php')) {
+        require_once __DIR__ . '/../libs/fpdf.php';
+        require_once __DIR__ . '/../libs/fpdi/FPDI-2.6.0/src/autoload.php';
+    }
+}
 
 use setasign\Fpdi\Fpdi;
 
