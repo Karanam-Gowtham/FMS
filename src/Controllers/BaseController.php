@@ -217,9 +217,38 @@ abstract class BaseController {
         if (empty($target) && !empty($_SERVER['HTTP_REFERER'])) {
             $referer = $_SERVER['HTTP_REFERER'];
             $host = $_SERVER['HTTP_HOST'] ?? '';
+            $currentUri = $_SERVER['REQUEST_URI'] ?? '';
             $parsed = parse_url($referer);
             $query = $parsed['query'] ?? '';
-            if (!str_contains($query, 'route=documents/download')) {
+            $path = $parsed['path'] ?? '';
+
+            // Prevent redirecting back to the current URI (self-loop)
+            $isSameUri = !empty($currentUri) && ($referer === $currentUri || ($path . ($query ? '?' . $query : '')) === $currentUri);
+
+            // Action endpoints that expect POST must not be redirected back to with GET
+            $isActionRoute = false;
+            $actionKeywords = [
+                'route=documents/download',
+                'route=documents/approve',
+                'route=documents/delete',
+                'route=documents/bulk_action',
+                'route=documents/process_',
+                'route=admin/users/',
+                'route=admin/departments/save',
+                'route=admin/departments/delete',
+                'route=admin/departments/toggle',
+                'route=admin/academic_years/',
+                'route=admin/workflows/',
+                'route=auth/logout',
+            ];
+            foreach ($actionKeywords as $kw) {
+                if (str_contains($query, $kw)) {
+                    $isActionRoute = true;
+                    break;
+                }
+            }
+
+            if (!$isSameUri && !$isActionRoute) {
                 if (!empty($parsed['host']) && $parsed['host'] === $host) {
                     $target = $referer;
                 } elseif (empty($parsed['host']) && str_starts_with($referer, '/')) {
@@ -228,7 +257,13 @@ abstract class BaseController {
             }
         }
         if (empty($target)) {
-            $target = BASE_URL . '/public/index.php?route=documents/list';
+            if ($this->hasRole(ROLE_STUDENT)) {
+                $target = BASE_URL . '/public/index.php?route=student/dashboard';
+            } elseif ($this->hasRole([ROLE_CENTRAL_COORDINATOR, ROLE_IQAC])) {
+                $target = BASE_URL . '/public/index.php?route=nba/dashboard';
+            } else {
+                $target = BASE_URL . '/public/index.php?route=dashboard';
+            }
         }
         $this->redirect($target);
     }

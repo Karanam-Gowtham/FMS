@@ -10,10 +10,17 @@ class AuthController {
             $active = auth_active_role();
             if ($active) {
                 header("Location: " . get_role_landing_url($active));
-            } else {
-                header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
+                exit();
             }
-            exit();
+            $user = auth_context();
+            $roles = $user['roles'] ?? [];
+            if (!empty($roles)) {
+                header("Location: " . BASE_URL . "/public/index.php?route=auth/select_role");
+                exit();
+            }
+            // User is logged in but has no roles assigned at all: cleanly logout to prevent loop
+            auth_logout();
+            $error = 'Your account has no assigned roles. Please contact an administrator.';
         }
 
         $error = '';
@@ -66,10 +73,19 @@ class AuthController {
                     $active = auth_active_role();
                     if ($active) {
                         header("Location: " . get_role_landing_url($active));
+                        exit();
+                    } elseif (!empty($distinct)) {
+                        global $conn;
+                        auth_create_session($user, $distinct[0]);
+                        auth_update_last_login($conn, $user['user_id']);
+                        header("Location: " . get_role_landing_url($distinct[0]));
+                        exit();
                     } else {
+                        // Cleanly logout to prevent bouncing back to login
+                        auth_logout();
                         header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
+                        exit();
                     }
-                    exit();
                 }
             }
         } elseif (isset($_SESSION['_pending_auth'])) {
@@ -82,7 +98,6 @@ class AuthController {
         $roles = $user['roles'] ?? [];
         $display_roles = get_distinct_role_assignments($roles);
 
-        // If user only has a single distinct role, bypass role selection screen completely
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' && count($display_roles) <= 1) {
             if (!empty($display_roles)) {
                 global $conn;
@@ -92,6 +107,8 @@ class AuthController {
                 header("Location: " . get_role_landing_url($display_roles[0]));
                 exit();
             } else {
+                auth_logout();
+                unset($_SESSION['_pending_auth']);
                 header("Location: " . BASE_URL . "/public/index.php?route=auth/login");
                 exit();
             }

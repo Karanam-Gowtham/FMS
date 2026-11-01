@@ -24,9 +24,9 @@ class ProfileController extends BaseController {
                     if ($in_dept) {
                         $target_user_id = $req_id;
                     } else {
-                        $_SESSION['error_msg'] = "Access denied. You can only view profiles within your department.";
-                        header("Location: " . BASE_URL . "/public/index.php?route=profile/view");
-                        exit();
+                        $this->flashError("Access denied. You can only view profiles within your department.");
+                        $this->redirect(BASE_URL . "/public/index.php?route=profile/view");
+                        return;
                     }
                 }
             } else {
@@ -44,9 +44,9 @@ class ProfileController extends BaseController {
         }
 
         if (!$profile) {
-            $_SESSION['error_msg'] = "The requested user profile was not found.";
-            header("Location: " . BASE_URL . "/public/index.php?route=dashboard");
-            exit();
+            $this->flashError("The requested user profile was not found.");
+            $this->redirect(BASE_URL . "/public/index.php?route=dashboard");
+            return;
         }
 
         $is_own_profile = ($target_user_id === (int)$auth['user_id']);
