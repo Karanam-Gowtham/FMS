@@ -1,0 +1,856 @@
+﻿    // â€”â€” Dynamic Level Logic â€”â€”
+    let levelData = {};
+    let currentLevel = 'dept_' + (window.NBA_CONFIG ? window.NBA_CONFIG.deptId : '');
+    
+    // Core matrix data (tied to the selected Department)
+    let missions = []; // Active department's missions (Dept level)
+    let univMissions = [];
+    let schoolMissions = [];
+    let peos = [];     // Active department's PEOs
+    let pos = [];      // Active department's POs
+    let psos = [];     // Active department's PSOs
+    let matrixData = {}; 
+    let poPsoCourseMapping = {}; // Format: { 'PO1': 'C101, C102', 'PSO1': 'C203' }
+    
+    let courseOutcomesData = []; // Array of 16 tables
+
+    let curriculumCourses = []; // [{code: '', title: '', l: 0, t: 0, p: 0, sl: 0}]
+    let curriculumComponents = []; // [{name: '', percent: '', hours: '', credits: ''}]
+    const defaultComponents = [
+        "Basic Sciences", "Basic Engineering", "Humanities and Social Sciences",
+        "Program Core", "Program Electives", "Open Electives", "Project(s)", "Internships/Seminars"
+    ];
+
+    const schoolMapping = {
+        'AIDS': 'School of Advanced Computing',
+        'AIML': 'School of Advanced Computing',
+        'CSE': 'School of Advanced Computing',
+        'CSE-CS': 'School of Advanced Computing',
+        'IT': 'School of Advanced Computing',
+        'CIVIL': 'School of Applied Engineering',
+        'ECE': 'School of Applied Engineering',
+        'EEE': 'School of Applied Engineering',
+        'MECH': 'School of Applied Engineering',
+        'BSH': 'School of Physical Sciences',
+        'Chemistry': 'School of Physical Sciences',
+        'MatheMatics': 'School of Physical Sciences',
+        'Mathematics': 'School of Physical Sciences',
+        'Physics': 'School of Physical Sciences'
+    };
+
+    function getSchoolKey(deptName) {
+        const schoolName = schoolMapping[deptName] || 'School';
+        return 'school_' + schoolName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    }
+
+    const initialData = window.NBA_CONFIG ? (window.NBA_CONFIG.initialData || {}) : {};
+
+    function initData() {
+        levelData = initialData.levelData || {};
+        
+        // Ensure defaults exist for Univ
+        if (!levelData['univ']) levelData['univ'] = { vision: '', missions: [{id: 'M1', text: ''}] };
+
+        // Initialize active department's data specifically for the matrix
+        const defaultDept = 'dept_' + (window.NBA_CONFIG ? window.NBA_CONFIG.deptId : '');
+        if (!levelData[defaultDept]) {
+            levelData[defaultDept] = { vision: '', missions: [{id: 'M1', text: ''}], curriculum: [], components: [], pos: [{id: 'PO1', text: ''}], psos: [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}], poPsoCourseMapping: {} };
+        }
+
+        peos = initialData.peos || [{id: 'PEO1', text: ''}];
+        pos = initialData.pos || [{id: 'PO1', text: ''}];
+        psos = initialData.psos || [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}];
+        matrixData = initialData.matrix || {};
+
+        switchLevel(); // Load UI for current dropdown selection
+        
+        renderList('peo-list', peos, 'PEO', 'PEO', 'PEO');
+        // Matrix is rendered inside switchLevel or renderList
+    }
+
+    // â€”â€” Curriculum Table Logic â€”â€”
+    function renderCurriculumTable() {
+        const tbody = document.getElementById('curriculum-body');
+        tbody.innerHTML = '';
+        
+        curriculumCourses.forEach((c, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.code}" onchange="updateCurriculum(${index}, 'code', this.value)"></td>
+                <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.title}" onchange="updateCurriculum(${index}, 'title', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.l || ''}" onchange="updateCurriculum(${index}, 'l', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.t || ''}" onchange="updateCurriculum(${index}, 't', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.p || ''}" onchange="updateCurriculum(${index}, 'p', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.sl || ''}" onchange="updateCurriculum(${index}, 'sl', this.value)"></td>
+                <td style="text-align:center; font-weight:bold; background:#f8f9fa;">${c.totalHours || 0}</td>
+                <td style="text-align:center; font-weight:bold; background:#f8f9fa;">${c.credits || 0}</td>
+                <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeCurriculumCourse(${index})" style="padding:2px 6px;">&times;</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function addCurriculumCourse() {
+        curriculumCourses.push({ code: '', title: '', l: '', t: '', p: '', sl: '', totalHours: 0, credits: 0 });
+        renderCurriculumTable();
+    }
+
+    function removeCurriculumCourse(index) {
+        curriculumCourses.splice(index, 1);
+        renderCurriculumTable();
+    }
+
+    function updateCurriculum(index, field, value) {
+        curriculumCourses[index][field] = value;
+        
+        // Auto-calculate if L, T, P, SL changed
+        if (['l', 't', 'p', 'sl'].includes(field)) {
+            const l = parseInt(curriculumCourses[index].l) || 0;
+            const t = parseInt(curriculumCourses[index].t) || 0;
+            const p = parseInt(curriculumCourses[index].p) || 0;
+            const sl = parseInt(curriculumCourses[index].sl) || 0;
+            
+            const totalHours = l + t + p + sl;
+            curriculumCourses[index].totalHours = totalHours;
+            // 30 hours = 1 credit. We can use a decimal or integer
+            curriculumCourses[index].credits = (totalHours / 30).toFixed(1);
+        }
+        
+        renderCurriculumTable();
+    }
+
+    // â€”â€” Curriculum Components Logic â€”â€”
+    function initDefaultComponents() {
+        if (curriculumComponents.length === 0) {
+            defaultComponents.forEach(name => {
+                curriculumComponents.push({ name: name, percent: '', hours: '', credits: '' });
+            });
+        }
+    }
+
+    function renderCurriculumComponents() {
+        const tbody = document.getElementById('components-body');
+        tbody.innerHTML = '';
+        
+        let totalHours = 0;
+        let totalCredits = 0;
+
+        // First pass: sum totals for percentage calculation
+        curriculumComponents.forEach(c => {
+            totalHours += parseFloat(c.hours) || 0;
+            totalCredits += parseFloat(c.credits) || 0;
+        });
+
+        curriculumComponents.forEach((c, index) => {
+            // Auto calculate percentage if total credits exist
+            let pct = '';
+            if (totalCredits > 0) {
+                const creds = parseFloat(c.credits) || 0;
+                pct = ((creds / totalCredits) * 100).toFixed(1) + '%';
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.name}" onchange="updateComponent(${index}, 'name', this.value)"></td>
+                <td style="text-align:center; background:#f8f9fa;">${pct}</td>
+                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.hours || ''}" onchange="updateComponent(${index}, 'hours', this.value)"></td>
+                <td><input aria-label="Number Input" type="number" min="0" step="0.1" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.credits || ''}" onchange="updateComponent(${index}, 'credits', this.value)"></td>
+                <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeComponent(${index})" style="padding:2px 6px;">&times;</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('comp-total-hours').innerText = totalHours;
+        document.getElementById('comp-total-credits').innerText = totalCredits;
+        document.getElementById('comp-total-percent').innerText = totalCredits > 0 ? '100%' : '0%';
+    }
+
+    function addCurriculumComponent() {
+        curriculumComponents.push({ name: '', percent: '', hours: '', credits: '' });
+        renderCurriculumComponents();
+    }
+
+    function removeComponent(index) {
+        curriculumComponents.splice(index, 1);
+        renderCurriculumComponents();
+    }
+
+    function updateComponent(index, field, value) {
+        curriculumComponents[index][field] = value;
+        renderCurriculumComponents();
+    }
+
+    function renderPoPsoCourseMapping() {
+        const tbody = document.getElementById('po-pso-course-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        // Render 11 standard POs
+        for (let i = 1; i <= 11; i++) {
+            const id = 'PO' + i;
+            const val = poPsoCourseMapping[id] || '';
+            tbody.innerHTML += `
+                <tr>
+                    <th scope="col" style="background: #f8f9fa;">${id}</th>
+                    <td><input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ccc; padding: 4px;" value="${val}" onchange="updatePoPsoCourseMapping('${id}', this.value)" placeholder="e.g. C101, C102..."></td>
+                </tr>
+            `;
+        }
+        
+        // Render dynamic PSOs
+        psos.forEach(pso => {
+            const id = pso.id;
+            const val = poPsoCourseMapping[id] || '';
+            tbody.innerHTML += `
+                <tr>
+                    <th scope="col" style="background: #e9ecef;">${id}</th>
+                    <td><input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ccc; padding: 4px;" value="${val}" onchange="updatePoPsoCourseMapping('${id}', this.value)" placeholder="e.g. C101, C102..."></td>
+                </tr>
+            `;
+        });
+    }
+
+    function updatePoPsoCourseMapping(id, value) {
+        poPsoCourseMapping[id] = value;
+    }
+
+    // â€”â€” 1.4.1, 1.4.2 & 1.5 Course Outcomes & Articulation Matrices Logic â€”â€”
+    function initDefaultCourseOutcomes() {
+        courseOutcomesData = Array.from({length: 16}, () => ({ 
+            semesterNo: '', 
+            courseTitle: '', 
+            courseCode: '', 
+            cos: ['', '', '', '', '', ''],
+            coMapping: Array.from({length: 6}, () => ({})),
+            programMapping: {}
+        }));
+    }
+
+    function renderCourseOutcomes() {
+        const container = document.getElementById('co-tables-container');
+        if (!container) return;
+        
+        let html = '';
+        courseOutcomesData.forEach((course, index) => {
+            html += `
+                <div style="margin-bottom: 30px; border: 1px solid #e9ecef; padding: 15px; border-radius: 8px; background: #fff;">
+                    <h5 style="margin-top: 0; color: #333;">Table No. 1.4.1.${index + 1}: Course outcomes.</h5>
+                    <table class="matrix-table" style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+                        <tbody>
+                            <tr>
+                                <th scope="col" style="width: 20%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Semester No:</th>
+                                <td colspan="3" style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.semesterNo.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'semesterNo', this.value)"></td>
+                            </tr>
+                            <tr>
+                                <th scope="col" style="width: 20%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Course Title:</th>
+                                <td style="width: 40%; border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseTitle.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseTitle', this.value)"></td>
+                                <th scope="col" style="width: 15%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Course Code:</th>
+                                <td style="width: 25%; border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseCode.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseCode', this.value)"></td>
+                            </tr>
+                            <tr>
+                                <th scope="col" colspan="2" style="background: #fff3cd; border: 1px solid #000; text-align: center; padding: 8px;">Course Outcome No.</th>
+                                <th scope="col" colspan="2" style="background: #fff3cd; border: 1px solid #000; text-align: center; padding: 8px;">Course Outcome Statement</th>
+                            </tr>
+            `;
+            
+            for (let i = 0; i < 6; i++) {
+                let coText = course.cos[i] || '';
+                html += `
+                            <tr>
+                                <th scope="col" colspan="2" style="text-align: center; border: 1px solid #000; padding: 8px; background: #fff;">CO${i+1}</th>
+                                <td colspan="2" style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${coText.replace(/"/g, '&quot;')}" onchange="updateCOStatement(${index}, ${i}, this.value)"></td>
+                            </tr>
+                `;
+            }
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateCOData(tableIndex, field, value) {
+        courseOutcomesData[tableIndex][field] = value;
+        if (field === 'courseTitle' || field === 'courseCode') {
+            renderCourseMatrices(); // update matrix headers
+            renderProgramArticulation(); // update 1.5 matrix
+        }
+    }
+
+    function updateCOStatement(tableIndex, coIndex, value) {
+        courseOutcomesData[tableIndex].cos[coIndex] = value;
+    }
+
+    function renderCourseMatrices() {
+        const container = document.getElementById('co-matrix-tables-container');
+        if (!container) return;
+        
+        let html = '';
+        courseOutcomesData.forEach((course, index) => {
+            if (!course.coMapping) course.coMapping = Array.from({length: 6}, () => ({}));
+            
+            let activePSOs = psos;
+            
+            html += `
+                <div style="margin-bottom: 30px; border: 1px solid #e9ecef; padding: 15px; border-radius: 8px; background: #fff;">
+                    <h5 style="margin-top: 0; color: #333;">Table No. 1.4.2.${index + 1}: Course articulation matrix.</h5>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; padding: 0 10px;">
+                        <span>Course Name: ${course.courseTitle || ''}</span>
+                        <span>Course Code: ${course.courseCode || ''}</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="matrix-table" style="width: 100%; font-size: 0.8rem; border-collapse: collapse; text-align: center;">
+                            <thead>
+                                <tr>
+                                    <th scope="col" rowspan="2" style="background: #fff3cd; border: 1px solid #000; padding: 8px; width: 120px;">Course Outcomes<br>(COs) code<br>&<br>Statement</th>
+                                    <th scope="col" colspan="11" style="background: #fff3cd; border: 1px solid #000; padding: 8px;">Program Outcomes (POs)</th>
+                                    ${activePSOs.length > 0 ? `<th scope="col" colspan="${activePSOs.length}" style="background: #fff3cd; border: 1px solid #000; padding: 8px;">Program Specific Outcomes (PSOs)</th>` : ''}
+                                </tr>
+                                <tr>
+            `;
+            
+            for (let i = 1; i <= 11; i++) {
+                html += `<th scope="col" style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PO-${i}</th>`;
+            }
+            activePSOs.forEach((pso, psoIdx) => {
+                html += `<th scope="col" style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PSO-${psoIdx+1}</th>`;
+            });
+            
+            html += `
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            for (let i = 0; i < 6; i++) {
+                html += `
+                                <tr>
+                                    <th scope="col" style="background: #f8f9fa; border: 1px solid #000; padding: 4px;">CO-${i+1}</th>
+                `;
+                for (let j = 1; j <= 11; j++) {
+                    let val = course.coMapping[i][`PO${j}`] || '';
+                    html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, 'PO${j}', this.value)"></td>`;
+                }
+                activePSOs.forEach((pso, psoIdx) => {
+                    let psoKey = `PSO${psoIdx+1}`;
+                    let val = course.coMapping[i][psoKey] || '';
+                    html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, '${psoKey}', this.value)"></td>`;
+                });
+                html += `</tr>`;
+            }
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateCoMapping(tableIndex, coIndex, key, value) {
+        if (!courseOutcomesData[tableIndex].coMapping) {
+            courseOutcomesData[tableIndex].coMapping = Array.from({length: 6}, () => ({}));
+        }
+        courseOutcomesData[tableIndex].coMapping[coIndex][key] = value;
+    }
+
+    function renderProgramArticulation() {
+        const container = document.getElementById('program-articulation-container');
+        if (!container) return;
+        
+        let activePSOs = psos;
+        
+        let html = `
+            <table class="matrix-table" style="width: 100%; font-size: 0.8rem; border-collapse: collapse; text-align: center;">
+                <thead>
+                    <tr>
+                        <th scope="col" style="background: #fff3cd; border: 1px solid #000; padding: 8px;">Course<br>Code</th>
+                        <th scope="col" style="background: #fff3cd; border: 1px solid #000; padding: 8px; min-width: 150px;">Course<br>Name</th>
+        `;
+        
+        for (let i = 1; i <= 11; i++) {
+            html += `<th scope="col" style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PO${i}</th>`;
+        }
+        activePSOs.forEach((pso, psoIdx) => {
+            html += `<th scope="col" style="background: #fff3cd; border: 1px solid #000; padding: 4px;">PSO${psoIdx+1}</th>`;
+        });
+        
+        html += `
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        courseOutcomesData.forEach((course, index) => {
+            if (!course.programMapping) course.programMapping = {};
+            
+            html += `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 4px; background: #f8f9fa;">${course.courseCode || ''}</td>
+                        <td style="border: 1px solid #000; padding: 4px; background: #f8f9fa; text-align: left;">${course.courseTitle || ''}</td>
+            `;
+            
+            for (let j = 1; j <= 11; j++) {
+                let val = course.programMapping[`PO${j}`] || '';
+                html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, 'PO${j}', this.value)"></td>`;
+            }
+            activePSOs.forEach((pso, psoIdx) => {
+                let psoKey = `PSO${psoIdx+1}`;
+                let val = course.programMapping[psoKey] || '';
+                html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, '${psoKey}', this.value)"></td>`;
+            });
+            
+            html += `</tr>`;
+        });
+        
+        html += `
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 15px; text-align: left;">
+                <button type="button" class="btn-add" style="background: #17a2b8;" onclick="autoCalculateProgramMatrix()">Auto-Calculate from 1.4.2</button>
+                <span style="font-size: 0.8rem; color: #666; margin-left: 10px;">(Calculates the average mapping across COs for each course)</span>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    function updateProgramMapping(tableIndex, key, value) {
+        if (!courseOutcomesData[tableIndex].programMapping) {
+            courseOutcomesData[tableIndex].programMapping = {};
+        }
+        courseOutcomesData[tableIndex].programMapping[key] = value;
+    }
+
+    function autoCalculateProgramMatrix() {
+        let activePSOs = psos;
+        
+        courseOutcomesData.forEach((course) => {
+            if (!course.programMapping) course.programMapping = {};
+            if (!course.coMapping) return;
+            
+            // Calculate PO averages
+            for (let j = 1; j <= 11; j++) {
+                let key = `PO${j}`;
+                let sum = 0, count = 0;
+                for (let i = 0; i < 6; i++) {
+                    let val = parseFloat(course.coMapping[i][key]);
+                    if (!isNaN(val) && val > 0) {
+                        sum += val;
+                        count++;
+                    }
+                }
+                course.programMapping[key] = count > 0 ? (sum / count).toFixed(2).replace(/\.00$/, '') : '';
+            }
+            
+            // Calculate PSO averages
+            activePSOs.forEach((pso, psoIdx) => {
+                let key = `PSO${psoIdx+1}`;
+                let sum = 0, count = 0;
+                for (let i = 0; i < 6; i++) {
+                    let val = parseFloat(course.coMapping[i][key]);
+                    if (!isNaN(val) && val > 0) {
+                        sum += val;
+                        count++;
+                    }
+                }
+                course.programMapping[key] = count > 0 ? (sum / count).toFixed(2).replace(/\.00$/, '') : '';
+            });
+        });
+        
+        renderProgramArticulation();
+    }
+
+    function changeDepartment() {
+        const select = document.getElementById('level-select');
+        const newDeptId = select.value.replace('dept_', '');
+        if (newDeptId != (window.NBA_CONFIG ? window.NBA_CONFIG.deptId : '')) {
+            window.location.href = '?route=nba/criterion&id=1&year=' + encodeURIComponent(window.NBA_CONFIG ? window.NBA_CONFIG.year : '') + '&dept_id=' + encodeURIComponent(newDeptId);
+        }
+    }
+
+    function switchLevel() {
+        const select = document.getElementById('level-select');
+        const rawVal = select ? select.value : (window.NBA_CONFIG ? window.NBA_CONFIG.deptId : '');
+        currentLevel = rawVal.startsWith('dept_') ? rawVal : ('dept_' + rawVal);
+        const text = (select && select.selectedIndex >= 0) ? select.options[select.selectedIndex].text : '';
+        const deptName = text.replace('Department: ', '').trim();
+        
+        document.getElementById('dept-vm-title').innerText = text;
+        
+        // Ensure data object exists for this dept level
+        if (!levelData[currentLevel]) {
+            levelData[currentLevel] = { vision: '', missions: [{id: 'M1', text: ''}], curriculum: [], components: [], pos: [{id: 'PO1', text: ''}], psos: [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}], poPsoCourseMapping: {} };
+        }
+
+        // Populate Univ Level
+        document.getElementById('univ-vision-text').value = levelData['univ'].vision || '';
+        univMissions = levelData['univ'].missions || [{id: 'M1', text: ''}];
+        renderList('univ-mission-list', univMissions, 'Univ Mission', 'M', 'UnivMission');
+
+        // Populate School Level
+        const schoolName = schoolMapping[deptName] || 'School';
+        const schoolKey = getSchoolKey(deptName);
+        document.getElementById('school-vm-title').innerText = schoolName;
+        
+        if (!levelData[schoolKey]) {
+            levelData[schoolKey] = { vision: '', missions: [{id: 'M1', text: ''}] };
+        }
+        
+        document.getElementById('school-vision-text').value = levelData[schoolKey].vision || '';
+        schoolMissions = levelData[schoolKey].missions || [{id: 'M1', text: ''}];
+        renderList('school-mission-list', schoolMissions, 'School Mission', 'M', 'SchoolMission');
+
+        // Populate Dept Level
+        document.getElementById('dept-vision-text').value = levelData[currentLevel].vision || '';
+        missions = levelData[currentLevel].missions || [{id: 'M1', text: ''}];
+        renderList('dept-mission-list', missions, 'Dept Mission', 'M', 'DeptMission');
+
+        // Toggle PEO, Matrix, Curriculum, and CO containers only for departments
+        if (currentLevel.startsWith('dept_')) {
+            document.getElementById('peo-matrix-container').style.display = 'block';
+            document.getElementById('section-1-2').style.display = 'block';
+            document.getElementById('section-1-3').style.display = 'block';
+            document.getElementById('section-1-4').style.display = 'block';
+            
+            // Populate Curriculum Courses
+            curriculumCourses = levelData[currentLevel].curriculum || [];
+            renderCurriculumTable();
+            
+            // Populate Curriculum Components
+            curriculumComponents = levelData[currentLevel].components || [];
+            if (curriculumComponents.length === 0) initDefaultComponents();
+            renderCurriculumComponents();
+
+            // Populate POs
+            pos = levelData[currentLevel].pos || [{id: 'PO1', text: ''}];
+            renderList('po-list', pos, 'PO', 'PO', 'PO');
+            
+            // Populate PSOs
+            psos = levelData[currentLevel].psos || [{id: 'PSO1', text: ''}, {id: 'PSO2', text: ''}];
+            if(psos.length === 1 && psos[0].id === 'PSO1' && !levelData[currentLevel].psos_initialized) {
+                // If they have 1 PSO and it's the old default, force add PSO2 once.
+                psos.push({id: 'PSO2', text: ''});
+                levelData[currentLevel].psos_initialized = true;
+            }
+            renderList('pso-list', psos, 'PSO', 'PSO', 'PSO');
+            
+            // Populate PO/PSO Mapping
+            poPsoCourseMapping = levelData[currentLevel].poPsoCourseMapping || {};
+            renderPoPsoCourseMapping();
+            
+            // Populate Course Outcomes (16 tables) and Matrices
+            courseOutcomesData = levelData[currentLevel].courseOutcomes || [];
+            if (courseOutcomesData.length === 0) initDefaultCourseOutcomes();
+            renderCourseOutcomes();
+            renderCourseMatrices();
+            renderProgramArticulation();
+            
+            renderMatrix();
+        } else {
+            document.getElementById('peo-matrix-container').style.display = 'none';
+            document.getElementById('section-1-2').style.display = 'none';
+            document.getElementById('section-1-3').style.display = 'none';
+            document.getElementById('section-1-4').style.display = 'none';
+        }
+    }
+
+    function saveCurrentLevel() {
+        if (!levelData[currentLevel]) {
+            levelData[currentLevel] = { vision: '', missions: [], curriculum: [], components: [], pos: [], psos: [], poPsoCourseMapping: {} };
+        }
+        
+        const select = document.getElementById('level-select');
+        const text = select.options[select.selectedIndex].text;
+        const deptName = text.replace('Department: ', '').trim();
+        const schoolKey = getSchoolKey(deptName);
+        
+        levelData['univ'].vision = document.getElementById('univ-vision-text').value;
+        if (!levelData[schoolKey]) {
+            levelData[schoolKey] = { vision: '', missions: [] };
+        }
+        levelData[schoolKey].vision = document.getElementById('school-vision-text').value;
+        levelData[currentLevel].vision = document.getElementById('dept-vision-text').value;
+        
+        if (currentLevel.startsWith('dept_')) {
+            levelData[currentLevel].curriculum = curriculumCourses;
+            levelData[currentLevel].components = curriculumComponents;
+            levelData[currentLevel].pos = pos;
+            levelData[currentLevel].psos = psos;
+            levelData[currentLevel].poPsoCourseMapping = poPsoCourseMapping;
+            levelData[currentLevel].courseOutcomes = courseOutcomesData;
+        }
+    }
+
+    function renderList(containerId, dataArray, placeholderLabel, prefix, type) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        dataArray.forEach((item, index) => {
+            item.id = `${prefix}${index + 1}`;
+            const div = document.createElement('div');
+            div.className = 'dynamic-list-item';
+            div.innerHTML = `
+                <div style="width: 60px; display: flex; align-items: center; font-weight: 600; color: #4a90d9;">${item.id}</div>
+                <input aria-label="Text Input" type="text" placeholder="Enter ${placeholderLabel} details..." value="${item.text.replace(/"/g, '&quot;')}" onchange="updateText(this, '${type}', ${index})">
+                <button type="button" class="btn-remove" onclick="removeItem('${type}', ${index})">&times;</button>
+            `;
+            container.appendChild(div);
+        });
+        if (type === 'DeptMission') renderMatrix();
+        if (type === 'PSO') renderPoPsoCourseMapping();
+    }
+
+    function addDynamicItem(containerId, type) {
+        if (type === 'UnivMission') {
+            univMissions.push({ id: '', text: '' });
+            renderList('univ-mission-list', univMissions, 'Univ Mission', 'M', 'UnivMission');
+        } else if (type === 'SchoolMission') {
+            schoolMissions.push({ id: '', text: '' });
+            renderList('school-mission-list', schoolMissions, 'School Mission', 'M', 'SchoolMission');
+        } else if (type === 'DeptMission') {
+            missions.push({ id: '', text: '' });
+            renderList('dept-mission-list', missions, 'Dept Mission', 'M', 'DeptMission');
+        } else if (type === 'PEO') {
+            peos.push({ id: '', text: '' });
+            renderList('peo-list', peos, 'PEO', 'PEO', 'PEO');
+        } else if (type === 'PO') {
+            if (pos.length >= 11) {
+                alert("Exactly 11 standard Program Outcomes (POs) are allowed.");
+                return;
+            }
+            pos.push({ id: '', text: '' });
+            renderList('po-list', pos, 'PO', 'PO', 'PO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
+        } else if (type === 'PSO') {
+            if (psos.length >= 3) {
+                alert("You can only specify up to 3 PSOs.");
+                return;
+            }
+            psos.push({ id: 'PSO' + (psos.length + 1), text: '' });
+            renderList('pso-list', psos, 'PSO', 'PSO', 'PSO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
+        }
+    }
+
+    function removeItem(type, index) {
+        if (type === 'UnivMission') {
+            univMissions.splice(index, 1);
+            renderList('univ-mission-list', univMissions, 'Univ Mission', 'M', 'UnivMission');
+        } else if (type === 'SchoolMission') {
+            schoolMissions.splice(index, 1);
+            renderList('school-mission-list', schoolMissions, 'School Mission', 'M', 'SchoolMission');
+        } else if (type === 'DeptMission') {
+            missions.splice(index, 1);
+            renderList('dept-mission-list', missions, 'Dept Mission', 'M', 'DeptMission');
+        } else if (type === 'PEO') {
+            peos.splice(index, 1);
+            renderList('peo-list', peos, 'PEO', 'PEO', 'PEO');
+        } else if (type === 'PO') {
+            pos.splice(index, 1);
+            renderList('po-list', pos, 'PO', 'PO', 'PO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
+        } else if (type === 'PSO') {
+            psos.splice(index, 1);
+            // Re-index remaining PSOs
+            psos.forEach((p, i) => p.id = 'PSO' + (i + 1));
+            renderList('pso-list', psos, 'PSO', 'PSO', 'PSO');
+            renderPoPsoCourseMapping();
+            renderCourseMatrices();
+            renderProgramArticulation();
+        }
+    }
+
+    function updateText(input, type, index) {
+        if (type === 'UnivMission') univMissions[index].text = input.value;
+        else if (type === 'SchoolMission') schoolMissions[index].text = input.value;
+        else if (type === 'DeptMission') missions[index].text = input.value;
+        else if (type === 'PEO') peos[index].text = input.value;
+        else if (type === 'PO') pos[index].text = input.value;
+        else if (type === 'PSO') psos[index].text = input.value;
+    }
+
+    function updateMatrixVal(input, rowId, colId) {
+        matrixData[`${rowId}_${colId}`] = input.value;
+    }
+
+    function autoCalculateMatrix() {
+        if (missions.length === 0 || peos.length === 0) return;
+        
+        // Basic NLP: Ignore common stop words
+        const stopWords = new Set(["a","an","and","are","as","at","be","but","by","for","if","in","into","is","it","no","not","of","on","or","such","that","the","their","then","there","these","they","this","to","was","will","with","can","have","has","from","which"]);
+
+        const getTokens = (str) => {
+            if (!str) return [];
+            const cleanStr = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g," ").toLowerCase();
+            const words = cleanStr.split(/\s+/);
+            return words.filter(w => w.length > 3 && !stopWords.has(w));
+        };
+
+        peos.forEach(peo => {
+            const peoTokens = getTokens(peo.text);
+            
+            missions.forEach(m => {
+                const mTokens = getTokens(m.text);
+                
+                // Find keyword matches (allowing for partial matches like "develop" / "development")
+                let matchCount = 0;
+                peoTokens.forEach(pt => {
+                    if (mTokens.some(mt => mt.includes(pt) || pt.includes(mt))) {
+                        matchCount++;
+                    }
+                });
+
+                // Heuristic mapping: 3 matches = High, 2 = Medium, 1 = Low
+                let val = '-';
+                if (matchCount >= 3) val = '3';
+                else if (matchCount === 2) val = '2';
+                else if (matchCount === 1) val = '1';
+
+                matrixData[`${peo.id}_${m.id}`] = val;
+            });
+        });
+
+        renderMatrix();
+        
+        // Show a brief success flash
+        const btn = document.querySelector('button[onclick="autoCalculateMatrix()"]');
+        const oldText = btn.innerHTML;
+        btn.innerHTML = 'âœ… Calculated!';
+        btn.style.background = '#28a745';
+        setTimeout(() => {
+            btn.innerHTML = oldText;
+            btn.style.background = '#6f42c1';
+        }, 2000);
+    }
+
+    function renderMatrix() {
+        const container = document.getElementById('matrix-container');
+        if (missions.length === 0 || peos.length === 0) {
+            container.innerHTML = '<p style="color: #dc3545;">Please add at least one Mission and one PEO to generate the matrix.</p>';
+            return;
+        }
+
+        let html = '<table class="matrix-table"><thead><tr><th scope="col"></th>';
+        
+        // Header row (Missions)
+        missions.forEach(m => {
+            html += `<th scope="col">${m.id}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+
+        // Body rows (PEOs)
+        peos.forEach(peo => {
+            html += `<tr><th scope="col" style="background:#f8f9fa;">${peo.id}</th>`;
+            missions.forEach(m => {
+                const key = `${peo.id}_${m.id}`;
+                const val = matrixData[key] || '';
+                html += `<td><input aria-label="Text Input" type="text" class="matrix-input" value="${val}" onchange="updateMatrixVal(this, '${peo.id}', '${m.id}')" maxlength="1"></td>`;
+            });
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    // â€”â€” CSV/Excel UI Logic â€”â€”
+    let processedCSVFile = null;
+
+    function handleCSVSelect(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            document.getElementById('csvFileName').innerText = 'Selected File: ' + file.name + ' (Processing...)';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Convert sheet back to raw CSV string!
+                    const csvString = XLSX.utils.sheet_to_csv(worksheet);
+                    
+                    // Store as a blob ready to upload
+                    const blob = new Blob([csvString], { type: 'text/csv' });
+                    processedCSVFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".csv", { type: 'text/csv' });
+                    
+                    document.getElementById('csvFileName').innerText = 'Selected File: ' + file.name + ' (Ready to save)';
+                } catch (err) {
+                    console.error(err);
+                    alert("Error parsing Excel/CSV file. Please ensure it's a valid format.");
+                    document.getElementById('csvFileName').innerText = '';
+                    processedCSVFile = null;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    }
+
+    // â€”â€” Save Logic â€”â€”
+    function saveCriterionData() {
+        saveCurrentLevel(); // Ensure currently focused level is saved to object
+        
+        const payload = {
+            levelData: levelData,
+            peos: peos,
+            matrix: matrixData
+        };
+
+    async function saveCriterionData() {
+        saveCurrentLevel();
+        const payload = {
+            levelData: levelData,
+            peos: peos,
+            matrix: matrixData
+        };
+
+        const activeDeptId = (document.getElementById('level-select')?.value || (window.NBA_CONFIG ? window.NBA_CONFIG.deptId : '')).replace('dept_', '');
+        const formData = new FormData();
+        formData.append('dept_id', activeDeptId);
+        formData.append('year', window.NBA_CONFIG ? window.NBA_CONFIG.year : '');
+        formData.append('json_data', JSON.stringify(payload));
+        formData.append('_csrf_token', window.FMS_CSRF_TOKEN || (window.NBA_CONFIG ? window.NBA_CONFIG.csrfToken : ''));
+        formData.append('csrf_token', window.FMS_CSRF_TOKEN || (window.NBA_CONFIG ? window.NBA_CONFIG.csrfToken : ''));
+
+        const file113 = document.querySelector('input[name="file_1_1_3"]')?.files[0];
+        const file114 = document.querySelector('input[name="file_1_1_4"]')?.files[0];
+        if (file113) formData.append('file_1_1_3', file113);
+        if (file114) formData.append('file_1_1_4', file114);
+        
+        const csvFile = processedCSVFile || document.getElementById('csvInput')?.files[0];
+        if (csvFile) formData.append('csv_file', csvFile);
+
+        try {
+            const baseUrl = window.NBA_CONFIG ? window.NBA_CONFIG.baseUrl : ''; const res = await fetch(baseUrl + '/public/index.php?route=api/nba/save&id=1', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success || data.status === 'success') {
+                showToast('Data saved successfully!');
+            } else {
+                alert('Error: ' + (data.error || data.message || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('A network error occurred while saving.');
+        }
+    }
+
+    // Boot
+    document.addEventListener('DOMContentLoaded', initData);
+</script>
+</body>
+</html>
+

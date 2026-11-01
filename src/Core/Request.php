@@ -115,6 +115,52 @@ class Request {
     }
 
     /**
+     * Extracts a list of positive integers from an array, comma-separated string, or parameter.
+     *
+     * @param array|string $sourceOrKeys
+     * @param string|array|null $keys
+     * @return array<int>
+     */
+    public static function getIntList(array|string $sourceOrKeys, $keys = null): array {
+        if (is_array($sourceOrKeys) && $keys !== null) {
+            $source = $sourceOrKeys;
+            $targetKeys = is_array($keys) ? $keys : [$keys];
+        } else {
+            $source = array_merge($_REQUEST, $_GET, $_POST);
+            $targetKeys = is_array($sourceOrKeys) ? $sourceOrKeys : [$sourceOrKeys];
+        }
+
+        $raw = null;
+        foreach ($targetKeys as $k) {
+            if (isset($source[$k])) {
+                $raw = $source[$k];
+                break;
+            }
+        }
+
+        if ($raw === null) {
+            return [];
+        }
+
+        if (is_string($raw) && str_contains($raw, ',')) {
+            $items = explode(',', $raw);
+        } else {
+            $items = is_array($raw) ? $raw : [$raw];
+        }
+
+        $result = [];
+        foreach ($items as $item) {
+            if (is_numeric($item)) {
+                $val = (int)$item;
+                if ($val > 0) {
+                    $result[] = $val;
+                }
+            }
+        }
+        return array_values(array_unique($result));
+    }
+
+    /**
      * Checks if current HTTP request method is POST.
      */
     public static function isPost(): bool {

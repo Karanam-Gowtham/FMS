@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Core\Request;
+
 class DocumentController extends BaseController {
     
     public function index() {
@@ -82,14 +84,14 @@ class DocumentController extends BaseController {
                 break;
         }
 
-        $filter_type   = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
-        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? array_values(array_filter($_GET['type_keys'], 'is_string')) : [];
-        $filter_subtype= (isset($_GET['sub_type']) && is_string($_GET['sub_type'])) ? trim($_GET['sub_type']) : '';
-        $filter_sub_types = isset($_GET['sub_types']) && is_array($_GET['sub_types']) ? array_values(array_filter($_GET['sub_types'], 'is_string')) : [];
-        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? array_values(array_filter($_GET['sub_file_types'], 'is_string')) : [];
-        $filter_global_modes = isset($_GET['global_modes']) && is_array($_GET['global_modes']) ? array_values(array_filter($_GET['global_modes'], 'is_string')) : [];
-        $filter_global_domains = isset($_GET['global_domains']) && is_array($_GET['global_domains']) ? array_values(array_filter($_GET['global_domains'], 'is_string')) : [];
-        $filter_global_event_types = isset($_GET['global_event_types']) && is_array($_GET['global_event_types']) ? array_values(array_filter($_GET['global_event_types'], 'is_string')) : [];
+        $filter_type   = Request::getString('type');
+        $filter_type_keys = Request::getStringList('type_keys');
+        $filter_subtype= Request::getString('sub_type');
+        $filter_sub_types = Request::getStringList('sub_types');
+        $filter_sub_file_types = Request::getStringList('sub_file_types');
+        $filter_global_modes = Request::getStringList('global_modes');
+        $filter_global_domains = Request::getStringList('global_domains');
+        $filter_global_event_types = Request::getStringList('global_event_types');
         
         if ($filter_subtype !== '') {
             $scope_label = $filter_subtype . ' - ' . $scope_label;
@@ -97,15 +99,15 @@ class DocumentController extends BaseController {
             $scope_label = 'Multiple Subtypes - ' . $scope_label;
         }
 
-        $filter_status = (isset($_GET['status']) && is_string($_GET['status'])) ? trim($_GET['status']) : '';
-        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? array_values(array_filter($_GET['statuses'], 'is_string')) : [];
-        $filter_year   = isset($_GET['year'])   ? (int)$_GET['year']   : 0;
-        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_values(array_filter(array_map('intval', $_GET['year_ids']), fn($y) => $y > 0)) : [];
-        $filter_search = (isset($_GET['search']) && is_string($_GET['search'])) ? trim($_GET['search']) : '';
-        $filter_dept   = isset($_GET['dept_id']) ? (int)$_GET['dept_id'] : 0;
-        $filter_dept_ids = isset($_GET['dept_ids']) && is_array($_GET['dept_ids']) ? array_values(array_filter(array_map('intval', $_GET['dept_ids']), fn($d) => $d > 0)) : [];
-        $page_num      = max(1, (int)($_GET['page'] ?? 1));
-        $per_page_param = (isset($_GET['per_page']) && is_string($_GET['per_page'])) ? trim($_GET['per_page']) : '25';
+        $filter_status = Request::getString('status');
+        $filter_statuses = Request::getStringList('statuses');
+        $filter_year   = Request::getInt('year', 0);
+        $filter_year_ids = Request::getIntList('year_ids');
+        $filter_search = Request::getString('search');
+        $filter_dept   = Request::getInt('dept_id', 0);
+        $filter_dept_ids = Request::getIntList('dept_ids');
+        $page_num      = max(1, Request::getInt('page', 1));
+        $per_page_param = Request::getString('per_page', '25');
         if ($per_page_param === 'all') {
             $per_page = 10000;
         } else {
@@ -362,15 +364,15 @@ class DocumentController extends BaseController {
         $user_id = $this->userId;
         $conn = $this->conn;
 
-        $filter_type   = (isset($_GET['type']) && is_string($_GET['type'])) ? trim($_GET['type']) : '';
-        $filter_type_keys = isset($_GET['type_keys']) && is_array($_GET['type_keys']) ? array_values(array_filter($_GET['type_keys'], 'is_string')) : [];
-        $filter_status = (isset($_GET['status']) && is_string($_GET['status'])) ? trim($_GET['status']) : '';
-        $filter_statuses = isset($_GET['statuses']) && is_array($_GET['statuses']) ? array_values(array_filter($_GET['statuses'], 'is_string')) : [];
-        $filter_year   = isset($_GET['year'])   ? (int)$_GET['year']   : 0;
-        $filter_year_ids = isset($_GET['year_ids']) && is_array($_GET['year_ids']) ? array_values(array_filter(array_map('intval', $_GET['year_ids']), fn($y) => $y > 0)) : [];
-        $filter_sub_file_types = isset($_GET['sub_file_types']) && is_array($_GET['sub_file_types']) ? array_values(array_filter($_GET['sub_file_types'], 'is_string')) : [];
+        $filter_type   = Request::getString('type');
+        $filter_type_keys = Request::getStringList('type_keys');
+        $filter_status = Request::getString('status');
+        $filter_statuses = Request::getStringList('statuses');
+        $filter_year   = Request::getInt('year', 0);
+        $filter_year_ids = Request::getIntList('year_ids');
+        $filter_sub_file_types = Request::getStringList('sub_file_types');
 
-        $page_num = max(1, (int)($_GET['page'] ?? 1));
+        $page_num = max(1, Request::getInt('page', 1));
         $per_page = 20;
         $offset = ($page_num - 1) * $per_page;
 
@@ -565,10 +567,7 @@ class DocumentController extends BaseController {
         $conn = $this->conn;
         require_once __DIR__ . '/../../core/accreditation_pdf_service.php';
 
-        $doc_ids = $_POST['doc_ids'] ?? [];
-        if (empty($doc_ids) && isset($_GET['doc_ids'])) {
-            $doc_ids = is_array($_GET['doc_ids']) ? $_GET['doc_ids'] : (is_string($_GET['doc_ids']) ? explode(',', $_GET['doc_ids']) : []);
-        }
+        $doc_ids = Request::getIntList('doc_ids');
 
         if (empty($doc_ids)) {
             $this->json(['success' => false, 'error' => 'No documents selected.']);
