@@ -547,7 +547,8 @@ class WorkflowController extends BaseController {
 
                 // Delete transitions
                 $del_tr = $this->conn->prepare("DELETE FROM workflow_transitions WHERE step_id IN ($placeholders) OR to_step_id IN ($placeholders)");
-                $del_tr->bind_param($types . $types, ...array_merge($step_ids, $step_ids));
+                $merged_step_ids = array_merge($step_ids, $step_ids);
+                $del_tr->bind_param($types . $types, ...$merged_step_ids);
                 $del_tr->execute();
                 $del_tr->close();
 
