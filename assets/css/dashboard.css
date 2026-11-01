@@ -343,3 +343,150 @@ body.dashboard-page, body.public-page {
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* Navigation Breadcrumb */
+.navbar-breadcrumb {
+    background-color: white;
+    font-size: larger;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.nav-container-breadcrumb {
+    margin-left: 100px;
+    max-width: 80rem;
+    padding: 1rem 1rem;
+}
+
+.nav-items-breadcrumb {
+    display: flex;
+    align-items: center;
+    height: 2rem;
+}
+
+.home-icon {
+    color: rgb(30, 58, 138);
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+.home-icon:hover {
+    color: rgb(29, 78, 216);
+}
+
+.main-a {
+    color: rgb(138, 30, 113);
+    font-weight: 500;
+    text-decoration: none;
+}
+.main-a:hover {
+    color: rgb(182, 64, 211);
+}
+
+/* Main content */
+.main-content {
+    padding: 2rem 1rem;
+    max-width: 80rem;
+    margin: 0px auto 100px auto;
+}
+
+.container12 {
+    margin: 0px 100px;
+}
+
+.header-title {
+    margin-bottom: 1.5rem;
+}
+
+.header-title h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: rgb(17, 24, 39);
+}
+
+.my-achievements-btn {
+    display: inline-block;
+    background-color: #2563eb;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 30px;
+    transition: background-color 0.2s;
+}
+.my-achievements-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Feedback Grid */
+.feedback-grid {
+    margin-bottom: 50px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .feedback-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.feedback-card {
+    text-decoration: none;
+    display: block;
+    transition: transform 0.2s;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.feedback-card:hover {
+    transform: scale(1.05);
+}
+
+.card-content {
+    background: linear-gradient(to right, rgb(30, 64, 175), rgb(37, 99, 235));
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card-content h3 {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.switch-role-btn {
+    background: #f1f5f9;
+    color: #334155;
+    padding: 10px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+}
+.switch-role-btn:hover {
+    background: #e2e8f0;
+}
+
+.debug-section {
+    margin-top: 50px;
+    background: #1e293b;
+    color: #a5b4fc;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
