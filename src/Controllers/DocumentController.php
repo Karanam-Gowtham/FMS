@@ -475,7 +475,7 @@ class DocumentController extends BaseController {
         $active_role_id = $this->activeRoleId;
         $conn = $this->conn;
 
-        $doc_id = $this->intParam('id', 0, 'GET');
+        $doc_id = $this->intParam('id', 0, 'get');
         if (!$doc_id) {
             $this->flashError("Invalid document ID.");
             $this->redirect(BASE_URL . "/public/index.php?route=documents/my_uploads");
@@ -519,7 +519,7 @@ class DocumentController extends BaseController {
     public function view() {
         $this->requireLogin();
         $auth = $this->auth;
-        $doc_id = $this->intParam('id', 0, 'GET');
+        $doc_id = $this->intParam('id', 0, 'get');
         $conn = $this->conn;
 
         if ($doc_id <= 0) {

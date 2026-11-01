@@ -165,7 +165,7 @@ abstract class BaseController {
      * Request Parameter Extractors
      */
     protected function getParam(string $key, mixed $default = null): mixed {
-        return $_GET[$key] ?? $default;
+        return $_GET[$key] ?? ($_GET['amp;' . $key] ?? $default);
     }
 
     protected function postParam(string $key, mixed $default = null): mixed {
@@ -173,22 +173,24 @@ abstract class BaseController {
     }
 
     protected function intParam(string $key, int $default = 0, string $source = 'request'): int {
-        $val = match ($source) {
-            'get'     => $_GET[$key] ?? null,
-            'post'    => $_POST[$key] ?? null,
-            'request' => $_REQUEST[$key] ?? null,
-            default   => null
+        $sourceKey = strtolower(trim($source));
+        $arr = match ($sourceKey) {
+            'get'     => $_GET,
+            'post'    => $_POST,
+            default   => $_REQUEST,
         };
+        $val = $arr[$key] ?? ($arr['amp;' . $key] ?? null);
         return ($val !== null && is_numeric($val)) ? (int)$val : $default;
     }
 
     protected function stringParam(string $key, string $default = '', string $source = 'request'): string {
-        $val = match ($source) {
-            'get'     => $_GET[$key] ?? null,
-            'post'    => $_POST[$key] ?? null,
-            'request' => $_REQUEST[$key] ?? null,
-            default   => null
+        $sourceKey = strtolower(trim($source));
+        $arr = match ($sourceKey) {
+            'get'     => $_GET,
+            'post'    => $_POST,
+            default   => $_REQUEST,
         };
+        $val = $arr[$key] ?? ($arr['amp;' . $key] ?? null);
         return ($val !== null && is_string($val)) ? trim($val) : $default;
     }
 

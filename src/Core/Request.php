@@ -29,10 +29,11 @@ class Request {
         $key = is_array($sourceOrKey) ? (string)$keyOrDefault : (string)$sourceOrKey;
         $def = is_array($sourceOrKey) ? $default : (is_int($keyOrDefault) ? $keyOrDefault : (is_null($keyOrDefault) ? null : $default));
 
-        if (!isset($source[$key]) || !is_numeric($source[$key])) {
+        $val = $source[$key] ?? ($source['amp;' . $key] ?? null);
+        if ($val === null || !is_numeric($val)) {
             return $def;
         }
-        return (int)$source[$key];
+        return (int)$val;
     }
 
     /**
@@ -44,10 +45,11 @@ class Request {
         $key = is_array($sourceOrKey) ? $keyOrDefault : (string)$sourceOrKey;
         $def = is_array($sourceOrKey) ? $default : $keyOrDefault;
 
-        if (!isset($source[$key]) || !is_string($source[$key])) {
+        $val = $source[$key] ?? ($source['amp;' . $key] ?? null);
+        if ($val === null || !is_string($val)) {
             return $def;
         }
-        $val = trim($source[$key]);
+        $val = trim($val);
         return $val !== '' ? $val : $def;
     }
 
@@ -94,6 +96,9 @@ class Request {
             if (isset($source[$k])) {
                 $raw = $source[$k];
                 break;
+            } elseif (isset($source['amp;' . $k])) {
+                $raw = $source['amp;' . $k];
+                break;
             }
         }
 
@@ -134,6 +139,9 @@ class Request {
         foreach ($targetKeys as $k) {
             if (isset($source[$k])) {
                 $raw = $source[$k];
+                break;
+            } elseif (isset($source['amp;' . $k])) {
+                $raw = $source['amp;' . $k];
                 break;
             }
         }
