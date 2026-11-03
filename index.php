@@ -54,6 +54,7 @@ $sa_initial_stats = \App\Controllers\StudentActivityDashboardController::calcula
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GMR Institute of Technology - Research Analytics</title>
+    <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">

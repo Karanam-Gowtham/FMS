@@ -16,12 +16,12 @@
 
             <div style="margin-bottom: 16px;">
                 <label for="addUserFullName" style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Full Name *</label>
-                <input type="text" id="addUserFullName" name="full_name" required placeholder="e.g. Dr. K. Satyanarayana" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
+                <input type="text" id="addUserFullName" name="full_name" required placeholder="e.g. Dr. K. Satyanarayana" autocomplete="name" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 16px;">
                 <label for="addUserEmail" style="display: block; font-weight: 600; font-size: 0.88rem; color: #334155; margin-bottom: 6px;">Institutional Email *</label>
-                <input type="email" id="addUserEmail" name="email" required placeholder="e.g. satyanarayana.k@gmrit.edu.in" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
+                <input type="email" id="addUserEmail" name="email" required placeholder="e.g. satyanarayana.k@gmrit.edu.in" autocomplete="email" style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 16px;">

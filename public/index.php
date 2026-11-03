@@ -180,7 +180,7 @@ if ($route === 'dashboard') {
 } elseif ($route === 'student/dashboard') {
     $controller = new \App\Controllers\StudentController();
     $controller->dashboard();
-} elseif ($route === 'reports/download') {
+} elseif ($route === 'reports/download' || $route === 'report/download') {
     $controller = new \App\Controllers\ReportDownloadController();
     $controller->download();
 } else {

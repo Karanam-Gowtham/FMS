@@ -160,7 +160,7 @@
         <?php if (!empty($success)): ?>
             <div class="success-msg">
                 <?= htmlspecialchars($success) ?><br><br>
-                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login" style="color: #6ee7b7; text-decoration: underline; font-weight: bold;">Click here to login</a>
+                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login" style="color: #065f46; text-decoration: underline; font-weight: bold;">Click here to login</a>
             </div>
         <?php else: ?>
 
@@ -178,19 +178,19 @@
                 </div>
                 <div class="form-group">
                     <label for="full_name">Full Name *</label>
-                    <input type="text" id="full_name" name="full_name" value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required>
+                    <input type="text" id="full_name" name="full_name" value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label for="email">Email Address *</label>
-                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="you@gmrit.edu.in or you@gmritdu.edu.in" required>
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="you@gmrit.edu.in or you@gmritdu.edu.in" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" minlength="6" required>
+                    <input type="password" id="password" name="password" minlength="6" required autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password *</label>
-                    <input type="password" id="confirm_password" name="confirm_password" minlength="6" required>
+                    <input type="password" id="confirm_password" name="confirm_password" minlength="6" required autocomplete="new-password">
                 </div>
                 <div class="form-group full-width">
                     <label for="dept_id">Department *</label>
@@ -357,12 +357,12 @@
                 }
             });
             input.addEventListener('input', function() {
-                if (parseFloat(this.value) < 0) {
+                if (Number.parseFloat(this.value) < 0) {
                     this.value = '0';
                 }
             });
             input.addEventListener('change', function() {
-                if (parseFloat(this.value) < 0) {
+                if (Number.parseFloat(this.value) < 0) {
                     this.value = '0';
                 }
             });

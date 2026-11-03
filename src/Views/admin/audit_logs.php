@@ -19,7 +19,7 @@ $is_admin = ((int)($active_role['role_id'] ?? 0) === ROLE_ADMIN);
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1.25rem;">
+<main class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1.25rem;">
 
     <!-- Breadcrumb & Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
@@ -352,8 +352,6 @@ $is_admin = ((int)($active_role['role_id'] ?? 0) === ROLE_ADMIN);
         <?php endif; ?>
 
     </div>
-
-</div>
 
 </main>
 </body>

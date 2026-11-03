@@ -18,7 +18,7 @@ $page_title = "User Management | GMRIT FMS";
 <body>
 <?php require_once __DIR__ . '/../../../includes/header.php'; ?>
 
-<div class="fms-container">
+<main class="fms-container">
     
     <!-- Top Header Banner -->
     <div class="fms-header-banner">
@@ -50,7 +50,7 @@ $page_title = "User Management | GMRIT FMS";
             <div style="flex: 2; min-width: 220px; position: relative;">
                 <label for="adminUserSearch" class="visually-hidden">Search users</label>
                 <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
-                <input type="text" id="adminUserSearch" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search by name, email, or personnel ID..." aria-label="Search by name, email, or personnel ID" style="width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; transition: border 0.2s;">
+                <input type="text" id="adminUserSearch" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search by name, email, or personnel ID..." aria-label="Search by name, email, or personnel ID" autocomplete="off" style="width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; transition: border 0.2s;">
             </div>
 
             <!-- Department filter -->
@@ -281,7 +281,7 @@ $page_title = "User Management | GMRIT FMS";
             </table>
         </div>
     </div>
-</div>
+</main>
 
 <!-- ==============================================================
      MODAL 1: ADD NEW FACULTY
@@ -304,7 +304,5 @@ window.USER_ROLES_CONFIG = {
 };
 </script>
 <script src="<?= BASE_URL ?>/assets/js/admin_users.js"></script>
-
-</main>
 </body>
 </html>

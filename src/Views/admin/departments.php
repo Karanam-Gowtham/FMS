@@ -20,7 +20,7 @@ $can_manage = in_array((int)($active_role['role_id'] ?? 0), [ROLE_ADMIN, ROLE_IQ
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1.25rem;">
+<main class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1.25rem;">
 
     <!-- Breadcrumb & Header Title -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
@@ -318,7 +318,7 @@ $can_manage = in_array((int)($active_role['role_id'] ?? 0), [ROLE_ADMIN, ROLE_IQ
 
     </div>
 
-</div>
+</main>
 
 <!-- Modal 1: Add/Edit Department -->
 <div id="deptModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1050; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
@@ -453,7 +453,5 @@ window.addEventListener('click', function(e) {
     if (e.target === m2) closeDeleteDeptModal();
 });
 </script>
-
-</main>
 </body>
 </html>
