@@ -306,14 +306,32 @@
     <?php else: ?>
         <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/bulk_action" id="bulkActionForm">
             <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">
-            <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                <span style="font-size: 0.85rem; color: #555; font-weight: 600;">Bulk Actions:</span>
-                <span id="selectedCountBadge" style="font-size: 0.8rem; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 600; margin-right: 4px;">0 selected</span>
-                <button type="submit" name="action_type" value="zip" class="btn-sm" style="background: #6c757d; color: white;">Download as ZIP</button>
-                <button type="submit" name="action_type" value="merge_pdf" class="btn-sm btn-primary">Merge to Single PDF</button>
-                <button type="button" id="btnOpenAccreditationModal" class="btn-sm" style="background: #003366; color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                    <i class="fas fa-file-pdf"></i> Generate NAAC Accreditation PDF
-                </button>
+            <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 0.85rem; color: #555; font-weight: 600;">Bulk Actions:</span>
+                    <span id="selectedCountBadge" style="font-size: 0.8rem; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 600; margin-right: 4px;">0 selected</span>
+                    <button type="submit" name="action_type" value="zip" class="btn-sm" style="background: #6c757d; color: white;">Download as ZIP</button>
+                    <button type="submit" name="action_type" value="merge_pdf" class="btn-sm btn-primary">Merge to Single PDF</button>
+                    <button type="button" id="btnOpenAccreditationModal" class="btn-sm" style="background: #003366; color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-file-pdf"></i> Generate NAAC Accreditation PDF
+                    </button>
+                </div>
+                <div style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 5px 12px; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                    <span>Showing <strong><?= count($documents) ?></strong> of <strong><?= (int)$total ?></strong></span>
+                    <span style="color: #cbd5e1;">|</span>
+                    <span style="font-weight: 500;">Per page:</span>
+                    <?php 
+                    $curr_pp = (isset($_GET['per_page']) && is_string($_GET['per_page'])) ? $_GET['per_page'] : '25';
+                    $pp_options = ['25', '50', '100', 'all'];
+                    foreach ($pp_options as $opt):
+                        $q_pp = $_GET;
+                        $q_pp['per_page'] = $opt;
+                        $q_pp['page'] = 1;
+                        $pp_url = "?" . htmlspecialchars(http_build_query($q_pp), ENT_QUOTES, 'UTF-8');
+                    ?>
+                        <a href="<?= $pp_url ?>" style="padding: 2px 8px; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 0.82rem; <?= ($curr_pp === $opt) ? 'background: #003366; color: white;' : 'background: #ffffff; color: #475569; border: 1px solid #cbd5e1;' ?>"><?= ucfirst($opt) ?></a>
+                    <?php endforeach; ?>
+                </div>
             </div>
         <table>
             <thead>
@@ -943,14 +961,13 @@
             }
         </script>
 
+        <?php if ($total_pages > 1 || count($documents) > 15): ?>
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 1.5rem; padding: 12px 0; border-top: 1px solid #e2e8f0;">
             <div style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;">
                 <span>Showing <strong><?= count($documents) ?></strong> of <strong><?= $total ?></strong> documents</span>
                 <span style="color: #cbd5e1;">|</span>
                 <span>Per page:</span>
                 <?php 
-                $curr_pp = (isset($_GET['per_page']) && is_string($_GET['per_page'])) ? $_GET['per_page'] : '25';
-                $pp_options = ['25', '50', '100', 'all'];
                 foreach ($pp_options as $opt):
                     $q_pp = $_GET;
                     $q_pp['per_page'] = $opt;
@@ -965,6 +982,7 @@
             include __DIR__ . '/../partials/pagination.php'; 
             ?>
         </div>
+        <?php endif; ?>
     <?php endif; ?>
     </main>
 </div>
