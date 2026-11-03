@@ -553,16 +553,6 @@
                     </div>
                 </form>
             </div>
-
-                    <!-- Sticky Modal Footer -->
-                    <div style="border-top: 1px solid #e2e8f0; padding: 1rem 1.5rem; background: #ffffff; display: flex; justify-content: flex-end; gap: 0.8rem; flex-shrink: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.04);">
-                        <button type="button" id="btnCancelAccreditationModal" style="padding: 0.6rem 1.2rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; color: #475569; font-weight: 600; cursor: pointer;">Cancel</button>
-                        <button type="submit" style="padding: 0.6rem 1.6rem; border: none; border-radius: 6px; background: #003366; color: #ffffff; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0,51,102,0.3);">
-                            <i class="fas fa-file-pdf"></i> Generate & Download Official PDF
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
 
         <script>
