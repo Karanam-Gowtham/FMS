@@ -217,9 +217,16 @@ class AccreditationPdfService {
             'sno' => ['S.No', 'C', 12, true],
             'event_name' => ["Name of the Capacity\nDevelopment and Skill\nEnhancement programme", 'J', 58, false],
             'year' => ["Year of\nimplementation", 'C', 33.5, false],
-            'event_date' => ["Date of\nevent", 'C', 24, false],
             'student_count' => ["Number of\nstudents\nenrolled", 'C', 23.5, false],
             'agency' => ["Name of the\nagencies/consultants\ninvolved with contact\ndetails, if any", 'J', 44, false],
+            'event_date' => ["Date of\nevent", 'C', 24, false],
+            'date_to' => ["End Date", 'C', 22, false],
+            'event_mode' => ["Mode\n(Online/Offline)", 'C', 22, false],
+            'location' => ["Venue /\nLocation", 'L', 28, false],
+            'target_audience' => ["Target\nAudience", 'L', 30, false],
+            'activity_category' => ["Activity\nCategory", 'L', 32, false],
+            'topic_domain' => ["Domain /\nFocus Area", 'L', 34, false],
+            'department' => ["Department", 'C', 22, false],
             'page_no' => ["Page No.", 'C', 19, true]
         ];
 
@@ -356,6 +363,17 @@ class AccreditationPdfService {
             } elseif (stripos($contextText, 'FDP') !== false || stripos($contextText, '6.3.3') !== false || stripos($contextText, 'Professional Development') !== false) {
                 $colsToRender['event_name']['label'] = "Title of the Professional Development /\nAdministrative Training Program";
             }
+        }
+
+        // Apply user-customized column headers if provided
+        $customHeaders = $headings['column_headers'] ?? [];
+        if (is_array($customHeaders)) {
+            foreach ($colsToRender as $k => &$col) {
+                if (isset($customHeaders[$k]) && is_string($customHeaders[$k]) && trim($customHeaders[$k]) !== '') {
+                    $col['label'] = trim($customHeaders[$k]);
+                }
+            }
+            unset($col);
         }
         $totalWeight = max(1.0, (float)$totalWeight);
 
@@ -705,6 +723,28 @@ class AccreditationPdfService {
                     break;
                 case 'agency':
                     $cellValues[$k] = (string)($doc['agency'] ?? ($doc['resource_person'] ?? 'Internal Faculty / Department'));
+                    break;
+                case 'date_to':
+                    $dTo = $doc['date_to'] ?? '';
+                    $cellValues[$k] = (!empty($dTo) && $dTo !== '0000-00-00') ? date('d-m-Y', strtotime($dTo)) : '—';
+                    break;
+                case 'event_mode':
+                    $cellValues[$k] = !empty($doc['event_mode']) ? (string)$doc['event_mode'] : '—';
+                    break;
+                case 'location':
+                    $cellValues[$k] = !empty($doc['location']) ? (string)$doc['location'] : '—';
+                    break;
+                case 'target_audience':
+                    $cellValues[$k] = !empty($doc['target_audience']) ? (string)$doc['target_audience'] : '—';
+                    break;
+                case 'activity_category':
+                    $cellValues[$k] = !empty($doc['activity_category']) ? (string)$doc['activity_category'] : '—';
+                    break;
+                case 'topic_domain':
+                    $cellValues[$k] = !empty($doc['topic_domain']) ? (string)$doc['topic_domain'] : '—';
+                    break;
+                case 'department':
+                    $cellValues[$k] = !empty($doc['department']) ? (string)$doc['department'] : '—';
                     break;
                 case 'page_no':
                     $cellValues[$k] = (string)($doc['page_range'] ?? ($doc['start_page'] ?? '1'));

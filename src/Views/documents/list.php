@@ -396,7 +396,7 @@
 
         <!-- Accreditation Report Configuration Modal -->
         <div id="accreditationModal" style="display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px 10px; box-sizing: border-box;">
-            <div style="background: #ffffff; width: 100%; max-width: 950px; max-height: calc(100vh - 40px); margin: auto; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; animation: modalSlideIn 0.25s ease-out;">
+            <div style="background: #ffffff; width: 100%; max-width: 1100px; max-height: calc(100vh - 40px); margin: auto; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; animation: modalSlideIn 0.25s ease-out;">
                 
                 <!-- Modal Header -->
                 <div style="background: #003366; color: #ffffff; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
@@ -456,63 +456,103 @@
                     </div>
 
                     <!-- STEP 2: Table Column Selection -->
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem;">
-                        <strong style="font-weight: 700; color: #1e293b; font-size: 0.95rem; display: block; margin-bottom: 0.6rem;">
-                            <i class="fas fa-columns text-primary me-1"></i> 2. Table Columns to Include in Generated PDF
-                        </strong>
-                        <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;" id="columnCheckboxesContainer">
-                            <input type="hidden" name="columns[]" value="sno">
-                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: default;">
-                                <input type="checkbox" checked disabled> <strong>S.No</strong>
-                            </label>
-                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
-                                <input type="checkbox" name="columns[]" value="event_name" checked> Name of Programme
-                            </label>
-                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
-                                <input type="checkbox" name="columns[]" value="year" checked> Year of implementation
-                            </label>
-                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
-                                <input type="checkbox" name="columns[]" value="student_count" checked> Number of students enrolled
-                            </label>
-                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
-                                <input type="checkbox" name="columns[]" value="agency" checked> Agencies / Consultants & Contact
-                            </label>
-                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
-                                <input type="checkbox" name="columns[]" value="event_date"> Date of event
-                            </label>
-                            <input type="hidden" name="columns[]" value="page_no">
-                            <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: default;">
-                                <input type="checkbox" checked disabled> <strong>Page No. (Auto)</strong>
-                            </label>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.1rem; margin-bottom: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 8px;">
+                            <strong style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
+                                <i class="fas fa-columns text-primary me-1"></i> 2. Table Columns to Include in Generated PDF
+                            </strong>
+                            <small style="color: #64748b; font-size: 0.8rem;">Select columns to include. Customize headers directly in the table below (Option A).</small>
+                        </div>
+                        
+                        <!-- Standard Columns (Pre-selected) -->
+                        <div style="margin-bottom: 0.7rem;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em;">Standard Columns:</span>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.35rem;" id="standardColumnsContainer">
+                                <input type="hidden" name="columns[]" value="sno">
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: default;">
+                                    <input type="checkbox" checked disabled> <strong>S.No</strong>
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="event_name" checked> Name of Programme
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="year" checked> Year of implementation
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="student_count" checked> Number of students enrolled
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="agency" checked> Agencies / Consultants & Contact
+                                </label>
+                                <input type="hidden" name="columns[]" value="page_no">
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: default;">
+                                    <input type="checkbox" checked disabled> <strong>Page No. (Auto)</strong>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Extra / Optional Columns -->
+                        <div style="padding-top: 0.65rem; border-top: 1px dashed #cbd5e1;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em;">Additional Available Columns:</span>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.35rem;" id="optionalColumnsContainer">
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="event_date"> Date of event
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="date_to"> End Date
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="event_mode"> Mode (Online/Offline)
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="location"> Venue / Location
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="target_audience"> Target Audience
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="activity_category"> Activity Category
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="topic_domain"> Domain / Focus Area
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: #334155; cursor: pointer;">
+                                    <input type="checkbox" name="columns[]" class="col-toggle-cb" value="department"> Department
+                                </label>
+                            </div>
                         </div>
                     </div>
 
                     <!-- STEP 3: Data Verification & Inline Edit Table -->
                     <div style="margin-bottom: 1.2rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 8px;">
                             <strong style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
                                 <i class="fas fa-table text-primary me-1"></i> 3. Data Retrieved from Database (<span id="previewRecordCount">0</span> Activities)
                             </strong>
-                            <small style="color: #64748b; font-size: 0.8rem;">You may fine-tune credentials or contact details before generating.</small>
+                            <small style="color: #64748b; font-size: 0.8rem;"><i class="fas fa-pen text-primary me-1"></i>Edit headers or row details directly in the table below before generating.</small>
                         </div>
 
-                        <div style="max-height: 280px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <div style="max-height: 320px; overflow-y: auto; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
                             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;" id="modalPreviewTable">
-                                <thead style="background: #f1f5f9; position: sticky; top: 0; z-index: 10;">
-                                    <tr>
-                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 40px; text-align: center;">#</th>
-                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Programme / Activity Name</th>
-                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 100px;">AY</th>
-                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 80px;">Students</th>
-                                        <th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1;">Agencies / Consultants & Contact Details</th>
-                                    </tr>
+                                <thead style="background: #f1f5f9; position: sticky; top: 0; z-index: 10;" id="modalPreviewThead">
+                                    <!-- Dynamic header columns -->
                                 </thead>
                                 <tbody id="modalPreviewTbody">
-                                    <!-- Populated via AJAX -->
+                                    <!-- Dynamic rows -->
                                 </tbody>
                             </table>
                         </div>
                     </div><!-- /scrollable body -->
+
+                    <!-- Sticky Modal Footer -->
+                    <div style="border-top: 1px solid #e2e8f0; padding: 1rem 1.5rem; background: #ffffff; display: flex; justify-content: flex-end; gap: 0.8rem; flex-shrink: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.04);">
+                        <button type="button" id="btnCancelAccreditationModal" style="padding: 0.6rem 1.2rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; color: #475569; font-weight: 600; cursor: pointer;">Cancel</button>
+                        <button type="submit" style="padding: 0.6rem 1.6rem; border: none; border-radius: 6px; background: #003366; color: #ffffff; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0,51,102,0.3);">
+                            <i class="fas fa-file-pdf"></i> Generate & Download Official PDF
+                        </button>
+                    </div>
+                </form>
+            </div>
 
                     <!-- Sticky Modal Footer -->
                     <div style="border-top: 1px solid #e2e8f0; padding: 1rem 1.5rem; background: #ffffff; display: flex; justify-content: flex-end; gap: 0.8rem; flex-shrink: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.04);">
@@ -571,6 +611,151 @@
 
             // Accreditation Modal Handling
             let loadedPresets = {};
+            let loadedDocuments = [];
+            let customHeaderTitles = {};
+
+            const columnDefinitions = {
+                'sno': { label: 'S.No', align: 'center', width: '45px', fixed: true },
+                'event_name': { label: 'Name of Programme', align: 'left', minWidth: '180px' },
+                'year': { label: 'Year of implementation', align: 'center', width: '95px' },
+                'student_count': { label: 'Number of students enrolled', align: 'center', width: '90px' },
+                'agency': { label: 'Agencies / Consultants & Contact', align: 'left', minWidth: '170px' },
+                'event_date': { label: 'Date of event', align: 'center', width: '130px' },
+                'date_to': { label: 'End Date', align: 'center', width: '130px' },
+                'event_mode': { label: 'Mode (Online/Offline)', align: 'center', width: '120px' },
+                'location': { label: 'Venue / Location', align: 'left', minWidth: '130px' },
+                'target_audience': { label: 'Target Audience', align: 'left', minWidth: '130px' },
+                'activity_category': { label: 'Activity Category', align: 'left', minWidth: '140px' },
+                'topic_domain': { label: 'Domain / Focus Area', align: 'left', minWidth: '140px' },
+                'department': { label: 'Department', align: 'center', width: '100px' },
+                'page_no': { label: 'Page No. (Auto)', align: 'center', width: '90px', fixed: true }
+            };
+
+            function syncTableDataToLoadedDocs() {
+                const tbody = document.getElementById('modalPreviewTbody');
+                if (!tbody) return;
+                const rows = tbody.querySelectorAll('tr');
+                rows.forEach((tr, idx) => {
+                    if (!loadedDocuments[idx]) return;
+                    const inputs = tr.querySelectorAll('input, textarea, select');
+                    inputs.forEach(input => {
+                        const m = input.name ? input.name.match(/doc_data\[\d+\]\[([^\]]+)\]/) : null;
+                        if (m && m[1]) {
+                            loadedDocuments[idx][m[1]] = input.value;
+                        }
+                    });
+                });
+            }
+
+            function getActiveColumnKeys() {
+                const cols = ['sno'];
+                document.querySelectorAll('.col-toggle-cb:checked').forEach(cb => {
+                    if (!cols.includes(cb.value)) cols.push(cb.value);
+                });
+                cols.push('page_no');
+                return cols;
+            }
+
+            function renderPreviewTable() {
+                const activeCols = getActiveColumnKeys();
+                const thead = document.getElementById('modalPreviewThead');
+                const tbody = document.getElementById('modalPreviewTbody');
+                if (!thead || !tbody) return;
+
+                // 1. Render Table Header (Option A: In-Table Editable Headers)
+                let thHtml = '<tr>';
+                activeCols.forEach(colKey => {
+                    const def = columnDefinitions[colKey] || { label: colKey, width: 'auto' };
+                    if (colKey === 'sno') {
+                        thHtml += `<th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 45px; text-align: center; background: #e2e8f0; color: #475569; font-weight: 700;">#</th>`;
+                    } else if (colKey === 'page_no') {
+                        thHtml += `<th scope="col" style="padding: 8px; border-bottom: 2px solid #cbd5e1; width: 95px; text-align: center; background: #e2e8f0; color: #475569; font-weight: 700;">Page (Auto)</th>`;
+                    } else {
+                        const curTitle = customHeaderTitles[colKey] !== undefined ? customHeaderTitles[colKey] : def.label;
+                        thHtml += `
+                            <th scope="col" style="padding: 6px 8px; border-bottom: 2px solid #cbd5e1; ${def.width ? 'width:' + def.width + ';' : ''} ${def.minWidth ? 'min-width:' + def.minWidth + ';' : ''}">
+                                <div style="display: flex; align-items: center; gap: 4px; background: #ffffff; padding: 2px 4px; border: 1px solid #cbd5e1; border-radius: 4px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);">
+                                    <input type="text" name="column_headers[${colKey}]" value="${escapeHtml(curTitle)}" 
+                                        data-col="${colKey}" class="th-header-input" title="Click to customize this header for the PDF report"
+                                        style="width: 100%; border: none; outline: none; font-weight: 700; font-size: 0.8rem; color: #0f172a; background: transparent; padding: 2px;"
+                                        oninput="customHeaderTitles['${colKey}'] = this.value">
+                                    <i class="fas fa-pen" style="font-size: 0.65rem; color: #94a3b8; flex-shrink: 0;" title="Editable Header"></i>
+                                </div>
+                            </th>
+                        `;
+                    }
+                });
+                thHtml += '</tr>';
+                thead.innerHTML = thHtml;
+
+                // 2. Render Table Rows
+                tbody.innerHTML = '';
+                loadedDocuments.forEach((doc, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #e2e8f0';
+                    let rowHtml = '';
+
+                    activeCols.forEach(colKey => {
+                        switch (colKey) {
+                            case 'sno':
+                                rowHtml += `<td style="padding: 8px; text-align: center; font-weight: 600; color: #64748b;">${idx + 1}</td>`;
+                                break;
+                            case 'page_no':
+                                rowHtml += `<td style="padding: 8px; text-align: center; color: #0284c7; font-weight: 600; font-size: 0.8rem;"><i class="fas fa-link me-1"></i>Auto</td>`;
+                                break;
+                            case 'event_name':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][event_name]" value="${escapeHtml(doc.event_name || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;" required></td>`;
+                                break;
+                            case 'year':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][year]" value="${escapeHtml(doc.year || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;"></td>`;
+                                break;
+                            case 'student_count':
+                                rowHtml += `<td style="padding: 6px;"><input type="number" min="0" name="doc_data[${doc.doc_id}][student_count]" value="${doc.student_count || 0}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;"></td>`;
+                                break;
+                            case 'agency':
+                                rowHtml += `<td style="padding: 6px;"><textarea name="doc_data[${doc.doc_id}][agency]" rows="1" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; resize: vertical;" placeholder="Agencies / Consultants / Resource Person...">${escapeHtml(doc.agency || '')}</textarea></td>`;
+                                break;
+                            case 'event_date':
+                                rowHtml += `<td style="padding: 6px;"><input type="date" name="doc_data[${doc.doc_id}][event_date]" value="${escapeHtml(doc.event_date || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;"></td>`;
+                                break;
+                            case 'date_to':
+                                rowHtml += `<td style="padding: 6px;"><input type="date" name="doc_data[${doc.doc_id}][date_to]" value="${escapeHtml(doc.date_to || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;"></td>`;
+                                break;
+                            case 'event_mode':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][event_mode]" value="${escapeHtml(doc.event_mode || '')}" placeholder="Online/Offline" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;"></td>`;
+                                break;
+                            case 'location':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][location]" value="${escapeHtml(doc.location || '')}" placeholder="Venue / Room" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;"></td>`;
+                                break;
+                            case 'target_audience':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][target_audience]" value="${escapeHtml(doc.target_audience || '')}" placeholder="Target Audience" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;"></td>`;
+                                break;
+                            case 'activity_category':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][activity_category]" value="${escapeHtml(doc.activity_category || '')}" placeholder="Category" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;"></td>`;
+                                break;
+                            case 'topic_domain':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][topic_domain]" value="${escapeHtml(doc.topic_domain || '')}" placeholder="Domain" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;"></td>`;
+                                break;
+                            case 'department':
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][department]" value="${escapeHtml(doc.department || '')}" placeholder="Dept" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;"></td>`;
+                                break;
+                            default:
+                                rowHtml += `<td style="padding: 6px;"><input type="text" name="doc_data[${doc.doc_id}][${colKey}]" value="${escapeHtml(doc[colKey] || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;"></td>`;
+                        }
+                    });
+
+                    // Embed hidden inputs for unselected columns so user inputs are never lost
+                    Object.keys(columnDefinitions).forEach(k => {
+                        if (!activeCols.includes(k) && k !== 'sno' && k !== 'page_no') {
+                            const val = doc[k] !== undefined && doc[k] !== null ? doc[k] : '';
+                            rowHtml += `<input type="hidden" name="doc_data[${doc.doc_id}][${k}]" value="${escapeHtml(val)}">`;
+                        }
+                    });
+
+                    tr.innerHTML = rowHtml;
+                    tbody.appendChild(tr);
+                });
+            }
 
             function showListToast(message, type = 'info') {
                 let toast = document.getElementById('listToastNotification');
@@ -648,8 +833,20 @@
                         hiddenContainer.appendChild(input);
                     });
 
-                    // Populate Presets
+                    // Store documents and populate presets
+                    loadedDocuments = json.documents || [];
                     loadedPresets = json.presets || {};
+                    document.getElementById('previewRecordCount').textContent = loadedDocuments.length;
+
+                    // Initialize column headers from server definitions if not customized yet
+                    if (json.columns) {
+                        for (const [k, cDef] of Object.entries(json.columns)) {
+                            if (!customHeaderTitles[k] && cDef.label) {
+                                customHeaderTitles[k] = cDef.label.replace(/\n/g, ' ');
+                            }
+                        }
+                    }
+
                     const presetSelect = document.getElementById('accreditationPresetSelect');
                     presetSelect.innerHTML = '<option value="">— Select Standard Metric Preset —</option>';
                     for (const [key, p] of Object.entries(loadedPresets)) {
@@ -667,34 +864,9 @@
                         const firstKey = Object.keys(loadedPresets)[0];
                         presetSelect.value = firstKey;
                         applyPreset(firstKey);
+                    } else {
+                        renderPreviewTable();
                     }
-
-                    // Render Preview Rows
-                    document.getElementById('previewRecordCount').textContent = json.documents.length;
-                    const tbody = document.getElementById('modalPreviewTbody');
-                    tbody.innerHTML = '';
-
-                    json.documents.forEach((doc, idx) => {
-                        const tr = document.createElement('tr');
-                        tr.style.borderBottom = '1px solid #e2e8f0';
-                        tr.innerHTML = `
-                            <td style="padding: 8px; text-align: center; font-weight: 600; color: #64748b;">${idx + 1}</td>
-                            <td style="padding: 6px;">
-                                <input type="text" name="doc_data[${doc.doc_id}][event_name]" value="${escapeHtml(doc.event_name)}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;" required>
-                            </td>
-                            <td style="padding: 6px;">
-                                <input type="text" name="doc_data[${doc.doc_id}][year]" value="${escapeHtml(doc.year || '')}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;">
-                            </td>
-                            <td style="padding: 6px;">
-                                <input type="number" min="0" name="doc_data[${doc.doc_id}][student_count]" value="${doc.student_count || 0}" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; text-align: center;">
-                            </td>
-                            <td style="padding: 6px;">
-                                <textarea name="doc_data[${doc.doc_id}][agency]" rows="1" style="width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; resize: vertical;" placeholder="e.g. Er. T. Harrish, Proprietor of Aki Groups...">${escapeHtml(doc.agency || '')}</textarea>
-                                <input type="hidden" name="doc_data[${doc.doc_id}][event_date]" value="${escapeHtml(doc.event_date || '')}">
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
 
                     // Open Modal
                     document.getElementById('accreditationModal').style.display = 'flex';
@@ -709,6 +881,14 @@
                 });
             }
 
+            // Bind checkbox toggle listeners so table updates live
+            document.querySelectorAll('.col-toggle-cb').forEach(cb => {
+                cb.addEventListener('change', function() {
+                    syncTableDataToLoadedDocs();
+                    renderPreviewTable();
+                });
+            });
+
             function applyPreset(key) {
                 if (loadedPresets[key]) {
                     const p = loadedPresets[key];
@@ -720,6 +900,21 @@
                     if (mEl) mEl.value = p.metric || '';
                     const sEl = document.getElementById('inputSubHeading');
                     if (sEl) sEl.value = p.sub_heading || '';
+
+                    // Recommend contextual header for event_name based on standard NAAC criteria
+                    const contextText = ((p.metric || '') + ' ' + (p.sub_heading || '')).toLowerCase();
+                    if (contextText.includes('career') || contextText.includes('competitive') || contextText.includes('5.1.4')) {
+                        customHeaderTitles['event_name'] = 'Name of the Activity / Programme for Guidance & Career Counselling';
+                    } else if (contextText.includes('sports') || contextText.includes('cultural') || contextText.includes('5.3.3')) {
+                        customHeaderTitles['event_name'] = 'Name of the Sports / Cultural event organised';
+                    } else if (contextText.includes('research') || contextText.includes('3.2.2') || contextText.includes('workshop')) {
+                        customHeaderTitles['event_name'] = 'Name of the Workshop / Seminar on Research Methodology / IPR';
+                    } else if (contextText.includes('fdp') || contextText.includes('6.3.3') || contextText.includes('professional development')) {
+                        customHeaderTitles['event_name'] = 'Title of the Professional Development / Training Program';
+                    } else {
+                        customHeaderTitles['event_name'] = 'Name of the Capacity Development and Skill Enhancement programme';
+                    }
+                    renderPreviewTable();
                 }
             }
 

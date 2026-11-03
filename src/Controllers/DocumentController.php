@@ -612,12 +612,15 @@ class DocumentController extends BaseController {
                 continue;
             }
 
-            // Fetch extra student activity metadata if exists
+            // Fetch extra student activity and department metadata if exists
             $stmt = $conn->prepare("
-                SELECT msaf.*, y.year_label 
+                SELECT msaf.*, y.year_label, dep.dept_name,
+                       mdf.file_type as dept_file_type, mdf.sub_file_type as dept_sub_file_type, mdf.event_details as dept_event_details
                 FROM documents d
                 LEFT JOIN academic_years y ON d.academic_year_id = y.year_id
+                LEFT JOIN departments dep ON d.dept_id = dep.dept_id
                 LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
+                LEFT JOIN meta_dept_file mdf ON d.doc_id = mdf.doc_id
                 WHERE d.doc_id = ?
             ");
             $meta = [];
@@ -637,8 +640,14 @@ class DocumentController extends BaseController {
             $event_title = !empty($meta['event_title']) ? $meta['event_title'] : $doc['title'];
             $agency = !empty($meta['resource_person']) ? $meta['resource_person'] : ($meta['publisher'] ?? ($meta['organisation'] ?? ''));
             $student_count = !empty($meta['participant_count']) ? (int)$meta['participant_count'] : 0;
-            $event_date = !empty($meta['date_from']) ? $meta['date_from'] : (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00' ? $doc['event_date'] : $doc['created_at']);
+            $event_date = !empty($meta['date_from']) ? $meta['date_from'] : (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00' ? $doc['event_date'] : substr($doc['created_at'], 0, 10));
             $date_to = $meta['date_to'] ?? '';
+            $event_mode = $meta['event_mode'] ?? '';
+            $location = $meta['location'] ?? '';
+            $target_audience = $meta['target_audience'] ?? '';
+            $activity_category = $meta['activity_category'] ?? ($meta['dept_file_type'] ?? '');
+            $topic_domain = $meta['topic_domain'] ?? ($meta['dept_sub_file_type'] ?? '');
+            $department = $meta['dept_name'] ?? ($doc['dept_name'] ?? '');
 
             $documents[] = [
                 'doc_id' => $id,
@@ -649,8 +658,12 @@ class DocumentController extends BaseController {
                 'event_date' => $event_date,
                 'date_from' => $event_date,
                 'date_to' => $date_to,
-                'activity_category' => $meta['activity_category'] ?? '',
-                'topic_domain' => $meta['topic_domain'] ?? ''
+                'event_mode' => $event_mode,
+                'location' => $location,
+                'target_audience' => $target_audience,
+                'activity_category' => $activity_category,
+                'topic_domain' => $topic_domain,
+                'department' => $department
             ];
         }
 

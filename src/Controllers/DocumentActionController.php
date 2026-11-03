@@ -745,7 +745,8 @@ class DocumentActionController extends BaseController {
             'criterion' => $this->stringParam('criterion', 'Criterion V - Student Support and Progression', 'post'),
             'key_indicator' => $this->stringParam('key_indicator', 'Key Indicator - 5.1 Student Support', 'post'),
             'metric' => $this->stringParam('metric', '', 'post'),
-            'sub_heading' => $this->stringParam('sub_heading', '', 'post')
+            'sub_heading' => $this->stringParam('sub_heading', '', 'post'),
+            'column_headers' => isset($_POST['column_headers']) && is_array($_POST['column_headers']) ? $_POST['column_headers'] : []
         ];
 
         $selected_columns = $_POST['columns'] ?? ['sno', 'event_name', 'year', 'student_count', 'agency', 'page_no'];
@@ -762,10 +763,13 @@ class DocumentActionController extends BaseController {
 
             $meta = [];
             $stmt = $this->conn->prepare("
-                SELECT msaf.*, y.year_label 
+                SELECT msaf.*, y.year_label, dep.dept_name,
+                       mdf.file_type as dept_file_type, mdf.sub_file_type as dept_sub_file_type, mdf.event_details as dept_event_details
                 FROM documents d
                 LEFT JOIN academic_years y ON d.academic_year_id = y.year_id
+                LEFT JOIN departments dep ON d.dept_id = dep.dept_id
                 LEFT JOIN meta_student_activity_file msaf ON d.doc_id = msaf.doc_id
+                LEFT JOIN meta_dept_file mdf ON d.doc_id = mdf.doc_id
                 WHERE d.doc_id = ?
             ");
             if ($stmt) {
@@ -779,9 +783,15 @@ class DocumentActionController extends BaseController {
             $eventName = !empty($custom['event_name']) ? trim($custom['event_name']) : (!empty($meta['event_title']) ? $meta['event_title'] : $doc['title']);
             $year = !empty($custom['year']) ? trim($custom['year']) : ($meta['year_label'] ?? ($doc['academic_year'] ?? ''));
             $studentCount = isset($custom['student_count']) && $custom['student_count'] !== '' ? (int)$custom['student_count'] : (!empty($meta['participant_count']) ? (int)$meta['participant_count'] : 0);
-            $agency = isset($custom['agency']) ? trim($custom['agency']) : (!empty($meta['resource_person']) ? $meta['resource_person'] : '');
-            $eventDate = !empty($custom['event_date']) ? trim($custom['event_date']) : (!empty($meta['date_from']) ? $meta['date_from'] : '');
-            $dateTo = $meta['date_to'] ?? '';
+            $agency = isset($custom['agency']) ? trim($custom['agency']) : (!empty($meta['resource_person']) ? $meta['resource_person'] : ($meta['publisher'] ?? ($meta['organisation'] ?? '')));
+            $eventDate = !empty($custom['event_date']) ? trim($custom['event_date']) : (!empty($meta['date_from']) ? $meta['date_from'] : (!empty($doc['event_date']) && $doc['event_date'] !== '0000-00-00' ? $doc['event_date'] : substr($doc['created_at'], 0, 10)));
+            $dateTo = !empty($custom['date_to']) ? trim($custom['date_to']) : ($meta['date_to'] ?? '');
+            $eventMode = !empty($custom['event_mode']) ? trim($custom['event_mode']) : ($meta['event_mode'] ?? '');
+            $location = !empty($custom['location']) ? trim($custom['location']) : ($meta['location'] ?? '');
+            $targetAudience = !empty($custom['target_audience']) ? trim($custom['target_audience']) : ($meta['target_audience'] ?? '');
+            $activityCategory = !empty($custom['activity_category']) ? trim($custom['activity_category']) : ($meta['activity_category'] ?? ($meta['dept_file_type'] ?? ''));
+            $topicDomain = !empty($custom['topic_domain']) ? trim($custom['topic_domain']) : ($meta['topic_domain'] ?? ($meta['dept_sub_file_type'] ?? ''));
+            $department = !empty($custom['department']) ? trim($custom['department']) : ($meta['dept_name'] ?? ($doc['dept_name'] ?? ''));
 
             $resolvedFilePath = '';
 
@@ -855,6 +865,12 @@ class DocumentActionController extends BaseController {
                 'event_date' => $eventDate,
                 'date_from' => $eventDate,
                 'date_to' => $dateTo,
+                'event_mode' => $eventMode,
+                'location' => $location,
+                'target_audience' => $targetAudience,
+                'activity_category' => $activityCategory,
+                'topic_domain' => $topicDomain,
+                'department' => $department,
                 'file_path' => $resolvedFilePath
             ];
         }
