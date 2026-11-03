@@ -49,14 +49,14 @@ $page_title = "User Management | GMRIT FMS";
             <!-- Search input -->
             <div style="flex: 2; min-width: 220px; position: relative;">
                 <label for="adminUserSearch" class="visually-hidden">Search users</label>
-                <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
-                <input type="text" id="adminUserSearch" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search by name, email, or personnel ID..." aria-label="Search by name, email, or personnel ID" autocomplete="off" style="width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; transition: border 0.2s;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+                <input type="text" id="adminUserSearch" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search by name, email, or personnel ID..." aria-label="Search by name, email, or personnel ID" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 9px 12px 9px 36px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; outline: none; transition: border 0.2s;">
             </div>
 
             <!-- Department filter -->
             <div style="flex: 1; min-width: 160px;">
                 <label for="adminUserDeptFilter" class="visually-hidden">Filter by department</label>
-                <select id="adminUserDeptFilter" name="dept_id" aria-label="Filter by department" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
+                <select id="adminUserDeptFilter" name="dept_id" aria-label="Filter by department" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
                     <option value="0">All Departments</option>
                     <?php foreach ($departments as $d): ?>
                         <option value="<?= (int)$d['dept_id'] ?>" <?= ($filter_dept_id === (int)$d['dept_id']) ? 'selected' : '' ?>>
@@ -69,7 +69,7 @@ $page_title = "User Management | GMRIT FMS";
             <!-- Role filter -->
             <div style="flex: 1; min-width: 150px;">
                 <label for="adminUserRoleFilter" class="visually-hidden">Filter by role</label>
-                <select id="adminUserRoleFilter" name="role_id" aria-label="Filter by role" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
+                <select id="adminUserRoleFilter" name="role_id" aria-label="Filter by role" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
                     <option value="0">All Roles</option>
                     <?php foreach ($roles as $r): ?>
                         <option value="<?= (int)$r['role_id'] ?>" <?= ($filter_role_id === (int)$r['role_id']) ? 'selected' : '' ?>>
@@ -82,7 +82,7 @@ $page_title = "User Management | GMRIT FMS";
             <!-- Status filter -->
             <div style="width: 140px;">
                 <label for="adminUserStatusFilter" class="visually-hidden">Filter by account status</label>
-                <select id="adminUserStatusFilter" name="status" aria-label="Filter by account status" style="width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
+                <select id="adminUserStatusFilter" name="status" aria-label="Filter by account status" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.92rem; background: white;">
                     <option value="">All Statuses</option>
                     <option value="active" <?= ($filter_status === 'active') ? 'selected' : '' ?>>Active Only</option>
                     <option value="inactive" <?= ($filter_status === 'inactive') ? 'selected' : '' ?>>Relieved Only</option>
