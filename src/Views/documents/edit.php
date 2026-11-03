@@ -32,9 +32,12 @@ $active_role = auth_active_role();
     </style>
 </head>
 <body>
-<?php include __DIR__ . '/../../../includes/header.php'; ?>
+<?php
+$custom_breadcrumb_title = 'Edit: ' . ($document['type_label'] ?? 'Document');
+include __DIR__ . '/../../../includes/header.php';
+?>
 
-<div class="upload-container">
+<main class="upload-container">
     <div class="form-title">Edit Document: <?= htmlspecialchars($document['type_label'] ?? 'Document') ?></div>
     
     <?php if(!empty($success_msg)): ?>
@@ -236,7 +239,7 @@ $active_role = auth_active_role();
         <button type="submit" class="btn-update">Update Document</button>
         <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$document['doc_id'] ?>" style="display:block; text-align:center; margin-top: 1rem; color: #6c757d;">Cancel</a>
     </form>
-</div>
+</main>
 
 <script>
 function addAuthorRow(btn, fieldName) {

@@ -8,10 +8,9 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .upload-wrapper { max-width: 960px; margin: 1.5rem auto 3rem auto; padding: 0 1rem; }
-        .page-nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem; }
-        .breadcrumb-trail a { color: #0284c7; text-decoration: none; }
-        .btn-nav-back { display: inline-flex; align-items: center; gap: 4px; background: #fff; color: #475569; border: 1px solid #cbd5e1; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.85rem; text-decoration: none; }
-        .btn-nav-back:hover { background: #f1f5f9; color: #0f172a; }
+        .page-nav-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 1rem; }
+        .btn-nav-back { display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #475569; border: 1px solid #cbd5e1; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: all 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .btn-nav-back:hover { background: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
         .upload-card { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
         .upload-card-header { background: linear-gradient(135deg, #003366, #1e3a8a); color: #fff; padding: 1.25rem 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
         .upload-card-header h1 { font-size: 1.3rem; margin: 0; color: #fff; font-weight: 700; }
@@ -50,16 +49,16 @@
     </style>
 </head>
 <body>
-<?php include __DIR__ . '/../../../includes/header.php'; ?>
+<?php
+$custom_breadcrumb_title = $page_title ?? 'Upload Document';
+include __DIR__ . '/../../../includes/header.php';
+?>
 
-<div class="upload-wrapper">
+<main class="upload-wrapper">
     <div class="page-nav-bar">
-        <div class="breadcrumb-trail">
-            <a href="<?= BASE_URL ?>/public/index.php?route=dashboard">Home</a> &rsaquo;
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads">My Uploads</a> &rsaquo;
-            <span><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></span>
-        </div>
-        <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads" class="btn-nav-back">&larr; Back to My Uploads</a>
+        <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }" class="btn-nav-back">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
     </div>
 
     <div class="upload-card">
@@ -151,13 +150,16 @@
                             <?php foreach ($meta_fields as $field): ?>
                                 <?php 
                                 $isHiddenDeptCategory = ($field['type'] === 'dept_category' && !empty($preselected_subtype)); 
+                                if ($isHiddenDeptCategory): ?>
+                                    <input type="hidden" id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($preselected_subtype) ?>">
+                                <?php continue; endif;
                                 $is_meta_req = $field['required'] && (!$is_stepcone_selected || $field['name'] === 'activity_category');
                                 $field_val = $old_input['meta'][$field['name']] ?? '';
                                 $is_full_width = in_array($field['type'], ['textarea', 'author_table'], true) 
                                     || in_array($field['name'], ['paper_title', 'conference_name', 'patent_title', 'description', 'event_name', 'scheme_name'], true);
                                 $dynamic_label = ($field['name'] === 'sub_file_type' && $preselected_subtype === 'Student Activities Files') ? 'Select an Activity' : $field['label'];
                                 ?>
-                                <div class="form-group <?= $is_full_width ? 'col-span-full' : '' ?>" <?= $isHiddenDeptCategory ? 'style="display:none;"' : '' ?>>
+                                <div class="form-group <?= $is_full_width ? 'col-span-full' : '' ?>">
                                     <?php if ($field['type'] === 'author_table'): ?>
                                         <label class="<?= $is_meta_req ? 'required' : '' ?>" for="upload_author_name_0"><?= htmlspecialchars($dynamic_label) ?></label>
                                     <?php elseif ($field['type'] === 'radio'): ?>
@@ -255,20 +257,16 @@
                                         </div>
                                         <button type="button" class="btn-add-author" onclick="addAuthorRow(this, '<?= $field['name'] ?>')">+ Add <?= $personLabel ?></button>
                                     <?php elseif ($field['type'] === 'dept_category'): ?>
-                                        <?php if (!empty($preselected_subtype)): ?>
-                                            <input type="hidden" name="meta[<?= $field['name'] ?>]" value="<?= htmlspecialchars($preselected_subtype) ?>">
-                                        <?php else: ?>
-                                            <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required data-required="true"' : '' ?>>
-                                                <option value="">-- Select Category --</option>
-                                                <?php
-                                                $categories = ['Admin Files', 'Faculty Files', 'Student Related Files', 'Exam Section Files', 'Student Activities Files'];
-                                                foreach ($categories as $cat) {
-                                                    $selected = (!empty($preselected_subtype) && $preselected_subtype === $cat) ? 'selected' : (!empty($old_input['meta'][$field['name']]) && $old_input['meta'][$field['name']] === $cat ? 'selected' : '');
-                                                    echo '<option value="' . htmlspecialchars($cat) . '" ' . $selected . '>' . htmlspecialchars($cat) . '</option>';
-                                                }
-                                                ?>
-                                            </select>
-                                        <?php endif; ?>
+                                        <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required data-required="true"' : '' ?>>
+                                            <option value="">-- Select Category --</option>
+                                            <?php
+                                            $categories = ['Admin Files', 'Faculty Files', 'Student Related Files', 'Exam Section Files', 'Student Activities Files'];
+                                            foreach ($categories as $cat) {
+                                                $selected = (!empty($preselected_subtype) && $preselected_subtype === $cat) ? 'selected' : (!empty($old_input['meta'][$field['name']]) && $old_input['meta'][$field['name']] === $cat ? 'selected' : '');
+                                                echo '<option value="' . htmlspecialchars($cat) . '" ' . $selected . '>' . htmlspecialchars($cat) . '</option>';
+                                            }
+                                            ?>
+                                        </select>
                                     <?php elseif ($field['type'] === 'sub_file_type'): ?>
                                         <select id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? 'required data-required="true"' : '' ?> onchange="handleStudentActivityChange(this)">
                                             <option value=""><?= htmlspecialchars($dynamic_label) ?></option>
@@ -333,7 +331,7 @@
             <?php endif; ?>
         </div>
     </div>
-</div>
+</main>
 
 <script>
 function addAuthorRow(btn, fieldName) {

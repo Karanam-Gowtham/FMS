@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        .breadcrumb { margin-bottom: 1rem; color: #6c757d; font-size: 0.9rem; }
-        .breadcrumb a { color: #4a90d9; text-decoration: none; }
         .doc-header { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
         .doc-header h1 { font-size: 1.5rem; margin: 0; flex: 1; }
         .status-badge { padding: 0.35rem 0.8rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
@@ -44,22 +42,20 @@
     </style>
 </head>
 <body>
-<?php include __DIR__ . '/../../../includes/header.php'; ?>
+<?php
+$custom_breadcrumb_title = 'View: ' . ($document['title'] ?: ($document['type_label'] ?? 'Document'));
+include __DIR__ . '/../../../includes/header.php';
+?>
 
-<div class="container">
+<main class="container">
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-        <div class="breadcrumb" style="margin-bottom: 0;">
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list">Documents</a> &rsaquo; 
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads">My Uploads</a> &rsaquo; 
-            <span><?= htmlspecialchars($document['title'] ?: ($document['type_label'] ?? 'Document'), ENT_QUOTES, 'UTF-8') ?></span>
-        </div>
+    <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
         <div style="display: flex; gap: 8px;">
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/my_uploads" style="display: inline-flex; align-items: center; gap: 5px; background: #e2e8f0; color: #334155; text-decoration: none; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s ease;">
-                &larr; Back to My Uploads
+            <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }" style="display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #475569; border: 1px solid #cbd5e1; text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: all 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                <i class="fas fa-arrow-left"></i> Back
             </a>
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="display: inline-flex; align-items: center; gap: 5px; background: #e2e8f0; color: #334155; text-decoration: none; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; transition: background 0.15s ease;">
-                All Documents
+            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: all 0.15s ease;">
+                <i class="fas fa-folder-open"></i> All Documents
             </a>
         </div>
     </div>
@@ -315,7 +311,7 @@
         </div>
     </div>
     <?php endif; ?>
-</div>
+</main>
 
 <?php if (isset($_GET['msg']) && is_string($_GET['msg'])): ?>
 <script>

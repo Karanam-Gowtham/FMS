@@ -10,7 +10,9 @@ if ($current_script === 'reg.php' || strpos($current_script, 'login') !== false 
     return;
 }
 
-if (session_status() === PHP_SESSION_NONE && !headers_sent()) { @session_start(); }
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    @session_start();
+}
 
 $dir_name = basename(dirname($_SERVER['SCRIPT_NAME']));
 $bc_base_url = (defined('BASE_URL') ? BASE_URL : '/mini/FMS');
@@ -40,7 +42,7 @@ $breadcrumbs = [];
 // Home link
 $home_icon_svg = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5M5 10v11h14V10M9 21v-6h6v6"/></svg>';
 $breadcrumbs[] = [
-    'label' => $home_icon_svg, 
+    'label' => $home_icon_svg,
     'url' => $bc_base_url . '/index.php',
     'title' => 'Home'
 ];
@@ -73,20 +75,20 @@ if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
     $page_name = htmlspecialchars($custom_breadcrumb_title, ENT_QUOTES, 'UTF-8');
 } elseif (!empty($route)) {
     $route_map = [
-        'dashboard'                     => 'Main Dashboard',
-        'documents/list'                => 'Documents',
-        'documents/upload'              => 'Upload Document',
-        'documents/view'                => 'View Document',
-        'documents/edit'                => 'Edit Document',
-        'documents/my_uploads'          => 'My Uploads',
-        'student/dashboard'             => 'Student Dashboard',
-        'student_activities/dashboard'  => 'Student Activities Dashboard',
-        'nba/dashboard'                 => 'NBA Dashboard',
-        'naac/dashboard'                => 'NAAC Dashboard',
-        'public/department'             => 'Department Overview',
-        'profile/view'                  => 'My Profile',
-        'profile/edit'                  => 'Edit Profile',
-        'academic_years/list'           => 'Academic Years',
+        'dashboard' => 'Main Dashboard',
+        'documents/list' => 'Documents',
+        'documents/upload' => 'Upload Document',
+        'documents/view' => 'View Document',
+        'documents/edit' => 'Edit Document',
+        'documents/my_uploads' => 'My Uploads',
+        'student/dashboard' => 'Student Dashboard',
+        'student_activities/dashboard' => 'Student Activities Dashboard',
+        'nba/dashboard' => 'NBA Dashboard',
+        'naac/dashboard' => 'NAAC Dashboard',
+        'public/department' => 'Department Overview',
+        'profile/view' => 'My Profile',
+        'profile/edit' => 'Edit Profile',
+        'academic_years/list' => 'Academic Years',
     ];
 
     if ($route === 'naac/criterion') {
@@ -94,13 +96,13 @@ if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
         $year_param = (!empty($raw_year) && is_string($raw_year)) ? '&year=' . urlencode($raw_year) : '';
         $breadcrumbs[] = ['label' => 'NAAC Dashboard', 'url' => $bc_base_url . '/public/index.php?route=naac/dashboard' . $year_param];
         $criterion_id = $_GET['id'] ?? ($_GET['amp;id'] ?? '1');
-        $page_name = 'Criterion ' . htmlspecialchars((string)$criterion_id, ENT_QUOTES, 'UTF-8');
+        $page_name = 'Criterion ' . htmlspecialchars((string) $criterion_id, ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'nba/criterion') {
         $raw_year = $_GET['year'] ?? ($_GET['amp;year'] ?? '');
         $year_param = (!empty($raw_year) && is_string($raw_year)) ? '&year=' . urlencode($raw_year) : '';
         $breadcrumbs[] = ['label' => 'NBA Dashboard', 'url' => $bc_base_url . '/public/index.php?route=nba/dashboard' . $year_param];
         $criterion_id = $_GET['id'] ?? ($_GET['amp;id'] ?? '1');
-        $page_name = 'Criterion ' . htmlspecialchars((string)$criterion_id, ENT_QUOTES, 'UTF-8');
+        $page_name = 'Criterion ' . htmlspecialchars((string) $criterion_id, ENT_QUOTES, 'UTF-8');
     } elseif ($route === 'documents/upload') {
         $upload_act = $_GET['activity'] ?? ($_GET['amp;activity'] ?? '');
         $upload_type = $_GET['type'] ?? ($_GET['amp;type'] ?? '');
@@ -126,6 +128,10 @@ if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
                 'exam_qual' => 'Competitive Exam Qualification',
             ];
             $display_type = $type_labels[$upload_type] ?? ucwords(str_replace('_', ' ', $upload_type));
+            $upload_subtype = $_GET['sub_type'] ?? ($_GET['amp;sub_type'] ?? '');
+            if (!empty($upload_subtype) && is_string($upload_subtype)) {
+                $display_type .= ' - ' . trim($upload_subtype);
+            }
             $page_name = 'Upload: ' . htmlspecialchars($display_type, ENT_QUOTES, 'UTF-8');
         } else {
             $page_name = 'Upload Document';
@@ -154,45 +160,51 @@ if (!$is_dashboard_page) {
 ?>
 
 <style>
-.custom-breadcrumb {
-    display: inline-flex;
-    align-items: center;
-    font-size: 13.5px;
-    font-weight: 500;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: #e2e8f0;
-    margin-left: 12px;
-    flex-wrap: nowrap;
-    white-space: nowrap;
-}
-.custom-breadcrumb a {
-    color: #94a3b8;
-    text-decoration: none;
-    transition: color 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-}
-.custom-breadcrumb a:hover {
-    color: #38bdf8;
-}
-.custom-breadcrumb .separator {
-    color: #64748b;
-    margin: 0 6px;
-    display: inline-flex;
-    align-items: center;
-}
-.custom-breadcrumb .current-page {
-    color: #38bdf8;
-    font-weight: 600;
-}
-@media (max-width: 900px) {
     .custom-breadcrumb {
-        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        font-size: 13.5px;
+        font-weight: 500;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        color: #e2e8f0;
+        margin-left: 12px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
     }
-    .custom-breadcrumb .hide-mobile {
-        display: none;
+
+    .custom-breadcrumb a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
     }
-}
+
+    .custom-breadcrumb a:hover {
+        color: #38bdf8;
+    }
+
+    .custom-breadcrumb .separator {
+        color: #64748b;
+        margin: 0 6px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .custom-breadcrumb .current-page {
+        color: #38bdf8;
+        font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+        .custom-breadcrumb {
+            font-size: 12px;
+        }
+
+        .custom-breadcrumb .hide-mobile {
+            display: none;
+        }
+    }
 </style>
 
 <div class="custom-breadcrumb">
