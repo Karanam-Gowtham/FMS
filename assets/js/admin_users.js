@@ -56,8 +56,8 @@ function openAssignModal(userId, userName, userEmail, primaryDeptId, primaryDept
             badgesContainer.innerHTML = '<span style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">No active roles assigned.</span>';
         } else {
             roles.forEach(r => {
-                const roleId = parseInt(r.role_id, 10);
-                const deptId = r.dept_id ? parseInt(r.dept_id, 10) : 0;
+                const roleId = Number.parseInt(r.role_id, 10);
+                const deptId = r.dept_id ? Number.parseInt(r.dept_id, 10) : 0;
                 const deptName = r.dept_name || '';
 
                 if (roleId === ROLE_IQAC) hasIqac = true;

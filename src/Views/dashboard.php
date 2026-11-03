@@ -1,8 +1,6 @@
 <?php
-include_once HEADER;
-
-$dept_name_display = $active_role ? $active_role['dept_name'] : 'Unknown';
-$role_name_display = $active_role ? $active_role['role_name'] : 'Unknown';
+$dept_name_display = $active_role ? ($active_role['dept_name'] ?? 'Unknown') : 'Unknown';
+$role_name_display = $active_role ? ($active_role['role_name'] ?? 'Unknown') : 'Unknown';
 
 // Determine breadcrumb based on role
 if ($active_role && in_array((int)$active_role['role_id'], [ROLE_FACULTY], true)) {
@@ -22,8 +20,20 @@ $is_faculty = ($role_id === ROLE_FACULTY);
 $is_reviewer = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_RND_DEAN, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
 $is_dept_manager = in_array($role_id, [ROLE_HOD, ROLE_DEPT_COORDINATOR, ROLE_JUNIOR_ASSISTANT, ROLE_IQAC, ROLE_CENTRAL_COORDINATOR], true);
 ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous" defer></script>
-<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/dashboard.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($breadcrumb ?? 'Dashboard', ENT_QUOTES, 'UTF-8') ?> - FMS</title>
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous" defer></script>
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/dashboard.css">
+</head>
+<body>
+<?php
+include_once HEADER;
+?>
 
 <main class="main-content">
     <div class="container12">

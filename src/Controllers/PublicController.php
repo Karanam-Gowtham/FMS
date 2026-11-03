@@ -5,18 +5,34 @@ class PublicController extends BaseController {
 
     public function department() {
         require_once __DIR__ . '/../../core/bootstrap.php';
-        $dept_param = (isset($_GET['dept']) && is_string($_GET['dept'])) ? trim($_GET['dept']) : '';
+        $dept_param = '';
+        if (isset($_GET['dept']) && is_string($_GET['dept'])) {
+            $dept_param = trim($_GET['dept']);
+        } elseif (isset($_GET['dept_id']) && (is_string($_GET['dept_id']) || is_numeric($_GET['dept_id']))) {
+            $dept_param = trim((string)$_GET['dept_id']);
+        }
         global $conn;
 
-        // Lookup department in database with alias support (e.g. AIML <-> CSE-AI&ML)
+        // Lookup department in database with alias and ID support
         $dept_info = null;
         if ($dept_param !== '') {
-            $stmt = $conn->prepare("SELECT * FROM departments WHERE dept_name = ?");
-            if ($stmt) {
-                $stmt->bind_param("s", $dept_param);
-                $stmt->execute();
-                $dept_info = $stmt->get_result()->fetch_assoc();
-                $stmt->close();
+            if (is_numeric($dept_param)) {
+                $dept_id_int = (int)$dept_param;
+                $stmt = $conn->prepare("SELECT * FROM departments WHERE dept_id = ?");
+                if ($stmt) {
+                    $stmt->bind_param("i", $dept_id_int);
+                    $stmt->execute();
+                    $dept_info = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+                }
+            } else {
+                $stmt = $conn->prepare("SELECT * FROM departments WHERE dept_name = ?");
+                if ($stmt) {
+                    $stmt->bind_param("s", $dept_param);
+                    $stmt->execute();
+                    $dept_info = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+                }
             }
 
             if (!$dept_info) {

@@ -157,7 +157,13 @@
                                 $dynamic_label = ($field['name'] === 'sub_file_type' && $preselected_subtype === 'Student Activities Files') ? 'Select an Activity' : $field['label'];
                                 ?>
                                 <div class="form-group <?= $is_full_width ? 'col-span-full' : '' ?>" <?= $isHiddenDeptCategory ? 'style="display:none;"' : '' ?>>
-                                    <label class="<?= $is_meta_req ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>"><?= htmlspecialchars($dynamic_label) ?></label>
+                                    <?php if ($field['type'] === 'author_table'): ?>
+                                        <label class="<?= $is_meta_req ? 'required' : '' ?>" for="upload_author_name_0"><?= htmlspecialchars($dynamic_label) ?></label>
+                                    <?php elseif ($field['type'] === 'radio'): ?>
+                                        <span class="form-label <?= $is_meta_req ? 'required' : '' ?>" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 0.35rem; display: block;"><?= htmlspecialchars($dynamic_label) ?></span>
+                                    <?php else: ?>
+                                        <label class="<?= $is_meta_req ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>"><?= htmlspecialchars($dynamic_label) ?></label>
+                                    <?php endif; ?>
                                     <?php if ($field['type'] === 'textarea'): ?>
                                         <textarea id="meta_<?= $field['name'] ?>" name="meta[<?= $field['name'] ?>]" <?= $field['required'] ? (($is_meta_req ? 'required ' : '') . 'data-required="true"') : '' ?>><?= htmlspecialchars($field_val) ?></textarea>
                                     <?php elseif ($field['type'] === 'date'): ?>

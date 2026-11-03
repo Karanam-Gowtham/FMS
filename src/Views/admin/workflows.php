@@ -8,10 +8,18 @@
  * - Document type to workflow routing matrix
  */
 $page_title = "Workflow Management | GMRIT FMS";
-require_once __DIR__ . '/../../../includes/header.php';
-
 $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'mappings' ? 'mappings' : 'pipelines';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></title>
+    <link rel="icon" href="data:,">
+</head>
+<body>
+<?php require_once __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="fms-container">
     
@@ -535,3 +543,5 @@ function escapeHtml(text) {
     return (text || '').replace(/[&<>"']/g, m => map[m]);
 }
 </script>
+</body>
+</html>

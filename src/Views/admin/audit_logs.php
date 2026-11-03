@@ -3,12 +3,21 @@
  * College-wide Audit Trail & Activity Monitoring View
  */
 require_once __DIR__ . '/../../../core/bootstrap.php';
-include __DIR__ . '/../../../includes/header.php';
 
 $auth = auth_context();
 $active_role = $auth['active_role'] ?? [];
 $is_admin = ((int)($active_role['role_id'] ?? 0) === ROLE_ADMIN);
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Audit Trail — FMS</title>
+    <link rel="icon" href="data:,">
+</head>
+<body>
+<?php include __DIR__ . '/../../../includes/header.php'; ?>
 
 <div class="container" style="max-width: 1400px; margin: 2rem auto; padding: 0 1.25rem;">
 

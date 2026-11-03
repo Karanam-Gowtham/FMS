@@ -93,9 +93,9 @@ function renderVisitingFaculty() {
     let tot1 = 0, tot2 = 0, tot3 = 0;
     
     visitingFacultyList.forEach((vf, idx) => {
-        if (vf.year === 'CAYm1') tot1 += parseFloat(vf.hours) || 0;
-        if (vf.year === 'CAYm2') tot2 += parseFloat(vf.hours) || 0;
-        if (vf.year === 'CAYm3') tot3 += parseFloat(vf.hours) || 0;
+        if (vf.year === 'CAYm1') tot1 += Number.parseFloat(vf.hours) || 0;
+        if (vf.year === 'CAYm2') tot2 += Number.parseFloat(vf.hours) || 0;
+        if (vf.year === 'CAYm3') tot3 += Number.parseFloat(vf.hours) || 0;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -137,11 +137,11 @@ function calculateAll() {
         const afEl = document.getElementById('t51_AF_' + yr);
         const ffEl = document.getElementById('t51_FF_' + yr);
 
-        const ds = dsEl ? (parseFloat(dsEl.value) || 0) : 0;
-        const as = asEl ? (parseFloat(asEl.value) || 0) : 0;
-        const df = dfEl ? (parseFloat(dfEl.value) || 0) : 0;
-        const af = afEl ? (parseFloat(afEl.value) || 0) : 0;
-        const ff = ffEl ? (parseFloat(ffEl.value) || 0) : 0;
+        const ds = dsEl ? (Number.parseFloat(dsEl.value) || 0) : 0;
+        const as = asEl ? (Number.parseFloat(asEl.value) || 0) : 0;
+        const df = dfEl ? (Number.parseFloat(dfEl.value) || 0) : 0;
+        const af = afEl ? (Number.parseFloat(afEl.value) || 0) : 0;
+        const ff = ffEl ? (Number.parseFloat(ffEl.value) || 0) : 0;
         
         const S = ds + as;
         const F = df + af;
@@ -177,8 +177,8 @@ function calculateAll() {
     ['cay', 'caym1', 'caym2'].forEach(yr => {
         const xEl = document.getElementById('t52_X_' + yr);
         const yEl = document.getElementById('t52_Y_' + yr);
-        const x = xEl ? (parseFloat(xEl.value) || 0) : 0;
-        const y = yEl ? (parseFloat(yEl.value) || 0) : 0;
+        const x = xEl ? (Number.parseFloat(xEl.value) || 0) : 0;
+        const y = yEl ? (Number.parseFloat(yEl.value) || 0) : 0;
         const rf = rfMap[yr] || 0;
         
         const rfEl = document.getElementById('t52_RF_' + yr);
@@ -228,7 +228,7 @@ function calculateAll() {
     let totalFR = 0, validFR = 0;
     ['caym1', 'caym2', 'caym3'].forEach(yr => {
         const rfEl = document.getElementById('t55_RF_' + yr);
-        let rf = rfEl ? (parseFloat(rfEl.value) || 0) : 0;
+        let rf = rfEl ? (Number.parseFloat(rfEl.value) || 0) : 0;
         
         const aEl = document.getElementById('t55_A_' + yr);
         const bEl = document.getElementById('t55_B_' + yr);
@@ -236,11 +236,11 @@ function calculateAll() {
         const dEl = document.getElementById('t55_D_' + yr);
         const eEl = document.getElementById('t55_E_' + yr);
 
-        const a = aEl ? (parseFloat(aEl.value) || 0) : 0;
-        const b = bEl ? (parseFloat(bEl.value) || 0) : 0;
-        const c = cEl ? (parseFloat(cEl.value) || 0) : 0;
-        const d = dEl ? (parseFloat(dEl.value) || 0) : 0;
-        const e = eEl ? (parseFloat(eEl.value) || 0) : 0;
+        const a = aEl ? (Number.parseFloat(aEl.value) || 0) : 0;
+        const b = bEl ? (Number.parseFloat(bEl.value) || 0) : 0;
+        const c = cEl ? (Number.parseFloat(cEl.value) || 0) : 0;
+        const d = dEl ? (Number.parseFloat(dEl.value) || 0) : 0;
+        const e = eEl ? (Number.parseFloat(eEl.value) || 0) : 0;
         
         const frEl = document.getElementById('t55_FR_' + yr);
         if (frEl) {
