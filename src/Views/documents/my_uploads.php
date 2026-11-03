@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Uploads — FMS</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }

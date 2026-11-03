@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $criterion_num = 4;
 $criterion_title = "Students' Performance";
 include __DIR__ . '/../partials/nba_header.php';
@@ -547,6 +547,6 @@ window.NBA_CONFIG = {
     initialData: <?= json_encode($criteria_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>
 };
 </script>
-<script src="<?= BASE_URL ?>/assets/js/nba_criterion4.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/nba_criterion4.js?v=2.3"></script>
 </body>
 </html>

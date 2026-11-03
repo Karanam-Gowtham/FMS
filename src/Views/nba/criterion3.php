@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $criterion_num = 3;
 $criterion_title = "Course Outcomes and Program Outcomes";
 $extra_head = '<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
@@ -285,7 +285,7 @@ window.NBA_CONFIG = {
     initialData: <?= json_encode($criteria_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>
 };
 </script>
-<script src="<?= BASE_URL ?>/assets/js/nba_criterion3.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/nba_criterion3.js?v=2.3"></script>
 </body>
 </html>
 

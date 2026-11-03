@@ -74,6 +74,7 @@ include_once HEADER;
     .chart-wrapper { width: 100%; height: 250px; position: relative; }
 </style>
 
+<main>
 <div class="dept-hero">
     <div class="dept-hero-left">
         <span class="tagline">Department Public Profile</span>
@@ -183,6 +184,7 @@ include_once HEADER;
         <?php endif; ?>
     </div>
 </div>
+</main>
 
 <?php
 $public_docs = !empty($public_docs) && is_array($public_docs) ? $public_docs : [];

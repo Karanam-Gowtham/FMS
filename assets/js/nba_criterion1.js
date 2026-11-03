@@ -1,4 +1,4 @@
-﻿    // €”€” Dynamic Level Logic €”€”
+    // €”€” Dynamic Level Logic €”€”
     let levelData = {};
     let currentLevel = 'dept_' + (window.NBA_CONFIG ? window.NBA_CONFIG.deptId : '');
     
@@ -76,12 +76,12 @@
         curriculumCourses.forEach((c, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.code}" onchange="updateCurriculum(${index}, 'code', this.value)"></td>
-                <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.title}" onchange="updateCurriculum(${index}, 'title', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.l || ''}" onchange="updateCurriculum(${index}, 'l', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.t || ''}" onchange="updateCurriculum(${index}, 't', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.p || ''}" onchange="updateCurriculum(${index}, 'p', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.sl || ''}" onchange="updateCurriculum(${index}, 'sl', this.value)"></td>
+                <td><input name="curriculum_code_${index}" aria-label="Course Code" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.code}" onchange="updateCurriculum(${index}, 'code', this.value)"></td>
+                <td><input name="curriculum_title_${index}" aria-label="Course Title" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.title}" onchange="updateCurriculum(${index}, 'title', this.value)"></td>
+                <td><input name="curriculum_l_${index}" aria-label="Lecture Hours" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.l || ''}" onchange="updateCurriculum(${index}, 'l', this.value)"></td>
+                <td><input name="curriculum_t_${index}" aria-label="Tutorial Hours" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.t || ''}" onchange="updateCurriculum(${index}, 't', this.value)"></td>
+                <td><input name="curriculum_p_${index}" aria-label="Practical Hours" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.p || ''}" onchange="updateCurriculum(${index}, 'p', this.value)"></td>
+                <td><input name="curriculum_sl_${index}" aria-label="Self-Learning Hours" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.sl || ''}" onchange="updateCurriculum(${index}, 'sl', this.value)"></td>
                 <td style="text-align:center; font-weight:bold; background:#f8f9fa;">${c.totalHours || 0}</td>
                 <td style="text-align:center; font-weight:bold; background:#f8f9fa;">${c.credits || 0}</td>
                 <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeCurriculumCourse(${index})" style="padding:2px 6px;">&times;</button></td>
@@ -151,10 +151,10 @@
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><input aria-label="Text Input" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.name}" onchange="updateComponent(${index}, 'name', this.value)"></td>
+                <td><input name="comp_name_${index}" aria-label="Component Name" type="text" style="width:100%; border:1px solid #ccc; padding:4px;" value="${c.name}" onchange="updateComponent(${index}, 'name', this.value)"></td>
                 <td style="text-align:center; background:#f8f9fa;">${pct}</td>
-                <td><input aria-label="Number Input" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.hours || ''}" onchange="updateComponent(${index}, 'hours', this.value)"></td>
-                <td><input aria-label="Number Input" type="number" min="0" step="0.1" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.credits || ''}" onchange="updateComponent(${index}, 'credits', this.value)"></td>
+                <td><input name="comp_hours_${index}" aria-label="Component Hours" type="number" min="0" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.hours || ''}" onchange="updateComponent(${index}, 'hours', this.value)"></td>
+                <td><input name="comp_credits_${index}" aria-label="Component Credits" type="number" min="0" step="0.1" style="width:100%; border:1px solid #ccc; padding:4px; text-align:center;" value="${c.credits || ''}" onchange="updateComponent(${index}, 'credits', this.value)"></td>
                 <td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeComponent(${index})" style="padding:2px 6px;">&times;</button></td>
             `;
             tbody.appendChild(tr);
@@ -192,7 +192,7 @@
             tbody.innerHTML += `
                 <tr>
                     <th scope="col" style="background: #f8f9fa;">${id}</th>
-                    <td><input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ccc; padding: 4px;" value="${val}" onchange="updatePoPsoCourseMapping('${id}', this.value)" placeholder="e.g. C101, C102..."></td>
+                    <td><input name="po_pso_map_${id}" aria-label="Course Mapping for ${id}" type="text" style="width: 100%; border: 1px solid #ccc; padding: 4px;" value="${val}" onchange="updatePoPsoCourseMapping('${id}', this.value)" placeholder="e.g. C101, C102..."></td>
                 </tr>
             `;
         }
@@ -204,7 +204,7 @@
             tbody.innerHTML += `
                 <tr>
                     <th scope="col" style="background: #e9ecef;">${id}</th>
-                    <td><input aria-label="Text Input" type="text" style="width: 100%; border: 1px solid #ccc; padding: 4px;" value="${val}" onchange="updatePoPsoCourseMapping('${id}', this.value)" placeholder="e.g. C101, C102..."></td>
+                    <td><input name="po_pso_map_${id}" aria-label="Course Mapping for ${id}" type="text" style="width: 100%; border: 1px solid #ccc; padding: 4px;" value="${val}" onchange="updatePoPsoCourseMapping('${id}', this.value)" placeholder="e.g. C101, C102..."></td>
                 </tr>
             `;
         });
@@ -239,13 +239,13 @@
                         <tbody>
                             <tr>
                                 <th scope="col" style="width: 20%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Semester No:</th>
-                                <td colspan="3" style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.semesterNo.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'semesterNo', this.value)"></td>
+                                <td colspan="3" style="border: 1px solid #000; padding: 0;"><input name="co_semester_${index}" aria-label="Semester Number" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.semesterNo.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'semesterNo', this.value)"></td>
                             </tr>
                             <tr>
                                 <th scope="col" style="width: 20%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Course Title:</th>
-                                <td style="width: 40%; border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseTitle.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseTitle', this.value)"></td>
+                                <td style="width: 40%; border: 1px solid #000; padding: 0;"><input name="co_title_${index}" aria-label="Course Title" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseTitle.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseTitle', this.value)"></td>
                                 <th scope="col" style="width: 15%; background: #fff3cd; border: 1px solid #000; padding: 8px;">Course Code:</th>
-                                <td style="width: 25%; border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseCode.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseCode', this.value)"></td>
+                                <td style="width: 25%; border: 1px solid #000; padding: 0;"><input name="co_code_${index}" aria-label="Course Code" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${course.courseCode.replace(/"/g, '&quot;')}" onchange="updateCOData(${index}, 'courseCode', this.value)"></td>
                             </tr>
                             <tr>
                                 <th scope="col" colspan="2" style="background: #fff3cd; border: 1px solid #000; text-align: center; padding: 8px;">Course Outcome No.</th>
@@ -258,7 +258,7 @@
                 html += `
                             <tr>
                                 <th scope="col" colspan="2" style="text-align: center; border: 1px solid #000; padding: 8px; background: #fff;">CO${i+1}</th>
-                                <td colspan="2" style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${coText.replace(/"/g, '&quot;')}" onchange="updateCOStatement(${index}, ${i}, this.value)"></td>
+                                <td colspan="2" style="border: 1px solid #000; padding: 0;"><input name="co_statement_${index}_${i}" aria-label="Course Outcome Statement CO${i+1}" type="text" style="width: 100%; border: none; padding: 8px; box-sizing: border-box; background: transparent;" value="${coText.replace(/"/g, '&quot;')}" onchange="updateCOStatement(${index}, ${i}, this.value)"></td>
                             </tr>
                 `;
             }
@@ -332,12 +332,12 @@
                 `;
                 for (let j = 1; j <= 11; j++) {
                     let val = course.coMapping[i][`PO${j}`] || '';
-                    html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, 'PO${j}', this.value)"></td>`;
+                    html += `<td style="border: 1px solid #000; padding: 0;"><input name="co_map_po_${index}_${i}_${j}" aria-label="CO-${i+1} to PO${j} mapping" type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, 'PO${j}', this.value)"></td>`;
                 }
                 activePSOs.forEach((pso, psoIdx) => {
                     let psoKey = `PSO${psoIdx+1}`;
                     let val = course.coMapping[i][psoKey] || '';
-                    html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, '${psoKey}', this.value)"></td>`;
+                    html += `<td style="border: 1px solid #000; padding: 0;"><input name="co_map_pso_${index}_${i}_${psoKey}" aria-label="CO-${i+1} to ${psoKey} mapping" type="text" style="width: 100%; border: none; text-align: center; background: transparent; font-size: 0.85rem;" value="${val}" onchange="updateCoMapping(${index}, ${i}, '${psoKey}', this.value)"></td>`;
                 });
                 html += `</tr>`;
             }
@@ -397,12 +397,12 @@
             
             for (let j = 1; j <= 11; j++) {
                 let val = course.programMapping[`PO${j}`] || '';
-                html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, 'PO${j}', this.value)"></td>`;
+                html += `<td style="border: 1px solid #000; padding: 0;"><input name="prog_map_po_${index}_${j}" aria-label="Program mapping PO${j}" type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, 'PO${j}', this.value)"></td>`;
             }
             activePSOs.forEach((pso, psoIdx) => {
                 let psoKey = `PSO${psoIdx+1}`;
                 let val = course.programMapping[psoKey] || '';
-                html += `<td style="border: 1px solid #000; padding: 0;"><input aria-label="Text Input" type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, '${psoKey}', this.value)"></td>`;
+                html += `<td style="border: 1px solid #000; padding: 0;"><input name="prog_map_pso_${index}_${psoKey}" aria-label="Program mapping ${psoKey}" type="text" style="width: 100%; border: none; text-align: center; background: transparent;" value="${val}" onchange="updateProgramMapping(${index}, '${psoKey}', this.value)"></td>`;
             });
             
             html += `</tr>`;
@@ -597,7 +597,7 @@
             div.className = 'dynamic-list-item';
             div.innerHTML = `
                 <div style="width: 60px; display: flex; align-items: center; font-weight: 600; color: #4a90d9;">${item.id}</div>
-                <input aria-label="Text Input" type="text" placeholder="Enter ${placeholderLabel} details..." value="${item.text.replace(/"/g, '&quot;')}" onchange="updateText(this, '${type}', ${index})">
+                <input name="${type.toLowerCase()}_text_${index}" aria-label="${placeholderLabel} ${item.id}" type="text" placeholder="Enter ${placeholderLabel} details..." value="${item.text.replace(/"/g, '&quot;')}" onchange="updateText(this, '${type}', ${index})">
                 <button type="button" class="btn-remove" onclick="removeItem('${type}', ${index})">&times;</button>
             `;
             container.appendChild(div);
@@ -756,7 +756,7 @@
             missions.forEach(m => {
                 const key = `${peo.id}_${m.id}`;
                 const val = matrixData[key] || '';
-                html += `<td><input aria-label="Text Input" type="text" class="matrix-input" value="${val}" onchange="updateMatrixVal(this, '${peo.id}', '${m.id}')" maxlength="1"></td>`;
+                html += `<td><input name="matrix_${peo.id}_${m.id}" aria-label="Matrix cell ${peo.id} to ${m.id}" type="text" class="matrix-input" value="${val}" onchange="updateMatrixVal(this, '${peo.id}', '${m.id}')" maxlength="1"></td>`;
             });
             html += '</tr>';
         });
@@ -800,16 +800,7 @@
         }
     }
 
-    // €”€” Save Logic €”€”
-    function saveCriterionData() {
-        saveCurrentLevel(); // Ensure currently focused level is saved to object
-        
-        const payload = {
-            levelData: levelData,
-            peos: peos,
-            matrix: matrixData
-        };
-
+    // Save Logic
     async function saveCriterionData() {
         saveCurrentLevel();
         const payload = {
@@ -850,7 +841,4 @@
 
     // Boot
     document.addEventListener('DOMContentLoaded', initData);
-</script>
-</body>
-</html>
 

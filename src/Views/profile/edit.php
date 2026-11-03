@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile &mdash; FMS</title>
+    <link rel="icon" href="data:,">
     <link href="<?= BASE_URL ?>/assets/css/layout.css" rel="stylesheet">
     <link href="<?= BASE_URL ?>/assets/css/nba_module.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -20,7 +21,7 @@
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div class="container">
+<main class="container">
 
     <div class="header-row">
         <h1>👤 Edit Profile</h1>
@@ -50,7 +51,7 @@
 
             <div class="form-group full-width">
                 <label for="name">Full Name *</label>
-                <input type="text" id="name" name="name" value="<?= htmlspecialchars($profile['name'] ?? '') ?>" required placeholder="e.g. Dr. John Doe">
+                <input type="text" id="name" name="name" value="<?= htmlspecialchars($profile['name'] ?? '') ?>" required placeholder="e.g. Dr. John Doe" autocomplete="name">
             </div>
 
             <div class="form-group">
@@ -156,7 +157,7 @@
             </div>
         </form>
     </div>
-</div>
+</main>
 
 <script>
     function toggleContractFields() {

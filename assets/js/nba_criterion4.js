@@ -1,4 +1,4 @@
-﻿    const year = window.NBA_CONFIG ? window.NBA_CONFIG.year : '';
+    const year = window.NBA_CONFIG ? window.NBA_CONFIG.year : '';
     const initialData = window.NBA_CONFIG ? (window.NBA_CONFIG.initialData || {}) : {};
     let levelData = {};
     let currentLevel = '';
@@ -435,4 +435,3 @@
     }
 
     document.addEventListener('DOMContentLoaded', initData);
-</script>

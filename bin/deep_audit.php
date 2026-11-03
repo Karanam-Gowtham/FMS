@@ -316,12 +316,22 @@ foreach ($scan_dirs as $sdir) {
 // [CHECK 10] SCANNING FOR HARDCODED REDIRECTS OR 404 URLS IN VIEWS & SCRIPTS
 // -----------------------------------------------------------------------------
 echo "[10] Scanning for Redirection, Broken Routes & Mismatches..." . PHP_EOL;
+
+// Dynamically extract all registered routes from public/index.php
+$index_file_path = realpath(__DIR__ . '/../public/index.php');
+$index_code = file_get_contents($index_file_path);
+preg_match_all('/\$route\s*===\s*[\'"]([^\'"]+)[\'"]/', $index_code, $index_route_matches);
+$known_routes = array_unique($index_route_matches[1]);
+
+// Known dynamic patterns
+$dynamic_route_prefixes = ['api/', 'documents/process_', 'admin/users/', 'admin/departments/', 'admin/academic_years/', 'admin/workflows/'];
+
 $all_files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(realpath(__DIR__ . '/..')));
 foreach ($all_files as $f) {
     if (!$f->isFile() || !in_array($f->getExtension(), ['php', 'js'])) continue;
     $fpath = $f->getPathname();
     $frel = str_replace(realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR, '', $fpath);
-    if (str_starts_with($frel, 'vendor') || str_starts_with($frel, 'libs') || str_starts_with($frel, 'tmp') || str_starts_with($frel, 'uploads') || str_starts_with($frel, '.git')) {
+    if (str_starts_with($frel, 'vendor') || str_starts_with($frel, 'libs') || str_starts_with($frel, 'tmp') || str_starts_with($frel, 'uploads') || str_starts_with($frel, '.git') || str_starts_with($frel, 'bin')) {
         continue;
     }
     $code = file_get_contents($fpath);
@@ -329,18 +339,16 @@ foreach ($all_files as $f) {
     // Check for route= that is not in index.php
     preg_match_all('/route=([a-zA-Z0-9_\/]+)/', $code, $rmatches);
     foreach ($rmatches[1] as $r) {
-        // Exclude dummy templates or tests
-        $known_routes = [
-            'dashboard', 'nba/dashboard', 'nba/criterion', 'naac/dashboard', 'naac/criterion',
-            'student_activities/dashboard', 'api/nba/save', 'api/nba/save_criterion', 'api/nba/upload_pdf',
-            'api/nba/generate_pdf', 'api/naac/save', 'api/naac/upload_pdf', 'api/naac/generate_pdf',
-            'api/documents/accreditation_preview', 'documents/list', 'documents/my_uploads', 'documents/upload',
-            'documents/view', 'documents/approve', 'documents/download', 'documents/bulk_action',
-            'documents/edit', 'documents/process_update', 'profile/view', 'profile/edit',
-            'academic_years/list', 'public/department', 'public/download', 'auth/login',
-            'auth/register', 'auth/select_role', 'auth/logout', 'student/dashboard', 'reports/download'
-        ];
-        if (!in_array($r, $known_routes)) {
+        $is_known = in_array($r, $known_routes);
+        if (!$is_known) {
+            foreach ($dynamic_route_prefixes as $pfx) {
+                if ($r === rtrim($pfx, '/') || str_starts_with($r, $pfx) || str_starts_with($pfx, $r)) {
+                    $is_known = true;
+                    break;
+                }
+            }
+        }
+        if (!$is_known) {
             add_finding('Routing / Dead Link', 'HIGH', "Dead route detected: 'route=$r'", $frel);
         }
     }

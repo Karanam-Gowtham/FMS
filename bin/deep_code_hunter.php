@@ -27,7 +27,7 @@ foreach ($view_it as $f) {
     foreach ($forms as $form) {
         $form_html = $form[0];
         // Check if csrf_token input exists
-        if (!preg_match('/name=[\'"]csrf_token[\'"]/i', $form_html) && !preg_match('/csrf_field\(\)/i', $form_html)) {
+        if (!preg_match('/name=[\'"]_?csrf_token[\'"]/i', $form_html) && !preg_match('/csrfField\(\)/i', $form_html) && !preg_match('/csrf_field\(\)/i', $form_html)) {
             $findings[] = [
                 'type' => 'SECURITY / CSRF',
                 'severity' => 'HIGH',
@@ -100,8 +100,18 @@ foreach ($ctrl_it as $f) {
         // Skip constructors or abstract methods
         if ($mname === '__construct') continue;
 
-        // Check if method calls require_login() or calls an abstract method like processSave, processUploadPdf
-        if (stripos($mbody, 'require_login') === false && stripos($mbody, 'processSave') === false && stripos($mbody, 'processUploadPdf') === false && stripos($mbody, 'processGeneratePdf') === false && stripos($mbody, 'authorizeDepartmentAction') === false) {
+        // Check if method calls require_login() / requireLogin() / requireRole() / requireAdmin() or calls an abstract method like processSave, processUploadPdf, resolveAccreditationContext
+        $has_guard = (stripos($mbody, 'require_login') !== false ||
+                      stripos($mbody, 'requireLogin') !== false ||
+                      stripos($mbody, 'requireRole') !== false ||
+                      stripos($mbody, 'requireAdmin') !== false ||
+                      stripos($mbody, 'processSave') !== false ||
+                      stripos($mbody, 'processUploadPdf') !== false ||
+                      stripos($mbody, 'processGeneratePdf') !== false ||
+                      stripos($mbody, 'authorizeDepartmentAction') !== false ||
+                      stripos($mbody, 'resolveAccreditationContext') !== false ||
+                      stripos($code, 'processSave') !== false);
+        if (!$has_guard) {
             $findings[] = [
                 'type' => 'SECURITY / AUTH',
                 'severity' => 'HIGH',

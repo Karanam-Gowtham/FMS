@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile &mdash; FMS</title>
+    <link rel="icon" href="data:,">
     <link href="<?= BASE_URL ?>/assets/css/layout.css" rel="stylesheet">
     <link href="<?= BASE_URL ?>/assets/css/nba_module.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -28,7 +29,7 @@
 <body>
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div class="container profile-container">
+<main class="container profile-container">
 
     <div class="profile-card">
         <div class="profile-header">
@@ -130,7 +131,7 @@
             </div>
         </div>
     </div>
-</div>
+</main>
 
 </body>
 </html>

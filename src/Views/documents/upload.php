@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?> - FMS</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css">
     <style>
         .upload-wrapper { max-width: 960px; margin: 1.5rem auto 3rem auto; padding: 0 1rem; }

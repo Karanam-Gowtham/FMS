@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title) ?> &mdash; FMS</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/styles.css?v=2.1">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.1">

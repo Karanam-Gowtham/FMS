@@ -17,6 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title ?? 'NBA Criterion', ENT_QUOTES, 'UTF-8') ?> &mdash; FMS</title>
+    <link rel="icon" href="data:,">
     <link href="<?= BASE_URL ?>/assets/css/layout.css?v=2.1" rel="stylesheet">
     <link href="<?= BASE_URL ?>/assets/css/nba_module.css?v=2.2" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
