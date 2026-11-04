@@ -71,13 +71,17 @@ class DocumentController extends BaseController {
                 break;
             case ROLE_FACULTY:
             default:
-                $forced_filters['uploaded_by'] = $user_id;
                 // If they specifically requested dept_file from the dashboard, show Dept Files.
                 // Otherwise, the default context for Faculty list views is ALWAYS 'My Achievements'.
                 if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
                     $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
+                    $forced_filters['faculty_dept_scope'] = [
+                        'dept_id' => $active_dept_id,
+                        'user_id' => $user_id
+                    ];
                     $scope_label = 'Department Files';
                 } else {
+                    $forced_filters['uploaded_by'] = $user_id;
                     $forced_filters['category'] = 'research';
                     $scope_label = 'My Achievements';
                 }

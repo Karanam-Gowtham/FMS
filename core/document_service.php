@@ -600,18 +600,29 @@ function doc_list(mysqli $conn, array $filters = [], int $limit = 50, int $offse
     $params = [];
     $types = '';
 
-    if (!empty($filters['uploaded_by'])) {
-        $where_clauses[] = 'd.uploaded_by = ?';
-        $params[] = (int)$filters['uploaded_by'];
-        $types .= 'i';
-    }
+    if (!empty($filters['faculty_dept_scope']) && is_array($filters['faculty_dept_scope'])) {
+        $f_dept_id = (int)($filters['faculty_dept_scope']['dept_id'] ?? 0);
+        $f_user_id = (int)($filters['faculty_dept_scope']['user_id'] ?? 0);
+        if ($f_dept_id > 0 && $f_user_id > 0) {
+            $where_clauses[] = '((d.dept_id = ? AND d.status = \'accepted\') OR d.uploaded_by = ?)';
+            $params[] = $f_dept_id;
+            $params[] = $f_user_id;
+            $types .= 'ii';
+        }
+    } else {
+        if (!empty($filters['uploaded_by'])) {
+            $where_clauses[] = 'd.uploaded_by = ?';
+            $params[] = (int)$filters['uploaded_by'];
+            $types .= 'i';
+        }
 
-    if (!empty($filters['dept_ids']) && is_array($filters['dept_ids'])) {
-        _doc_service_append_in_clause('d.dept_id', $filters['dept_ids'], 'int', $where_clauses, $params, $types);
-    } elseif (!empty($filters['dept_id'])) {
-        $where_clauses[] = 'd.dept_id = ?';
-        $params[] = (int)$filters['dept_id'];
-        $types .= 'i';
+        if (!empty($filters['dept_ids']) && is_array($filters['dept_ids'])) {
+            _doc_service_append_in_clause('d.dept_id', $filters['dept_ids'], 'int', $where_clauses, $params, $types);
+        } elseif (!empty($filters['dept_id'])) {
+            $where_clauses[] = 'd.dept_id = ?';
+            $params[] = (int)$filters['dept_id'];
+            $types .= 'i';
+        }
     }
 
     $type_id_filter = !empty($filters['type_id']) ? (int)$filters['type_id'] : (!empty($filters['doc_type_id']) ? (int)$filters['doc_type_id'] : 0);
@@ -1153,8 +1164,17 @@ function doc_can_view(mysqli $conn, array $auth, array $doc): bool
             return true;
         }
         
-        // CRITICAL FIX: Students and Faculty can NEVER view department-wide files (unless they uploaded them, caught above)
-        if ($role_id === ROLE_STUDENT || $role_id === ROLE_FACULTY) {
+        // Students can NEVER view department-wide files (unless they uploaded them, caught above)
+        if ($role_id === ROLE_STUDENT) {
+            continue;
+        }
+
+        // Faculty can view ACCEPTED files within their assigned department
+        if ($role_id === ROLE_FACULTY) {
+            $status = strtolower(trim((string)($doc['status'] ?? '')));
+            if ($status === 'accepted' && isset($doc['dept_id']) && $dept_id === (int)$doc['dept_id']) {
+                return true;
+            }
             continue;
         }
 
