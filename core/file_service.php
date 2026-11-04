@@ -135,8 +135,9 @@ function file_store(array $file, string $type_key, string $file_label): array
     $stored_name = $clean_type . '_' . $clean_label . '_' . uniqid('', true) . '.' . $ext;
     $full_path = $upload_dir . $stored_name;
 
-    // Move the uploaded file
-    if (!move_uploaded_file($file['tmp_name'], $full_path)) {
+    // Move the uploaded file (supports both web HTTP uploads and CLI E2E tests)
+    $moved = is_uploaded_file($file['tmp_name']) ? move_uploaded_file($file['tmp_name'], $full_path) : @copy($file['tmp_name'], $full_path);
+    if (!$moved) {
         return ['success' => false, 'data' => null, 'error' => 'Failed to move uploaded file.'];
     }
 

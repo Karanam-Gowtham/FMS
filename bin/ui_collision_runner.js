@@ -187,7 +187,7 @@ async function runAuditor() {
 
     // 4. Test Key Pages for DOM Collision & Viewport Overflow
     const pagesToAudit = [
-        { name: "Admin Dashboard", url: `${BASE_URL}?route=admin/dashboard` },
+        { name: "Admin Dashboard", url: `${BASE_URL}?route=dashboard` },
         { name: "Admin Departments", url: `${BASE_URL}?route=admin/departments` },
         { name: "Admin Users Management", url: `${BASE_URL}?route=admin/users` },
         { name: "Department Files List", url: `${BASE_URL}?route=documents/list&context=dept_file` },
@@ -350,6 +350,9 @@ async function runAuditor() {
     console.log(`  Visual Collisions Detected : ${totalCollisions}`);
     console.log(`  Horizontal Viewport Faults : ${totalOverflows}`);
     console.log(`  Broken Network Assets      : ${networkErrors.length}`);
+    if (networkErrors.length > 0) {
+        networkErrors.forEach(err => console.log(`    - [HTTP ${err.status}] ${err.url}`));
+    }
     console.log(`  JavaScript Console Errors  : ${jsErrors.length}`);
     console.log("================================================================================");
 
