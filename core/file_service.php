@@ -354,7 +354,11 @@ function file_stream_and_cleanup(string $filePath, string $downloadName, string 
     try {
         readfile($filePath);
     } finally {
-        $to_delete = array_unique(array_merge([$filePath], $tempFilesToCleanup));
+        $to_delete = array_unique($tempFilesToCleanup);
+        $norm_filepath = str_replace('\\', '/', $filePath);
+        if (strpos($norm_filepath, '/uploads/temp/') !== false || strpos($norm_filepath, '/tmp/') !== false) {
+            $to_delete[] = $filePath;
+        }
         foreach ($to_delete as $f) {
             if (!empty($f) && file_exists($f)) {
                 @unlink($f);

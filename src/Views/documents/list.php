@@ -390,11 +390,14 @@
                         <?php endif; ?>
                     </td>
                     <td>
-                        <div style="display: flex; gap: 6px; align-items: center;">
+                        <div style="display: flex; gap: 6px; align-items: center; white-space: nowrap;">
                             <?php if (doc_can_approve($conn, $auth, $doc)): ?>
                                 <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="background: #10b981; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-block; cursor: pointer; text-align: center;">Review</a>
                             <?php endif; ?>
                             <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #007bff; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-block; cursor: pointer; text-align: center;">View</a>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&amp;doc_id=<?= (int)$doc['doc_id'] ?>&amp;inline=1" target="_blank" style="background: #059669; color: white; border: none; padding: 0.4rem 0.75rem; font-size: 0.85rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; text-align: center;" title="View Merged / Primary PDF in new tab">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
                             <?php if (function_exists('doc_can_delete') && doc_can_delete($conn, $auth, $doc)): ?>
                                 <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=documents/delete" style="margin: 0; display: inline;" onsubmit="return confirm('Danger: Are you sure you want to permanently delete document #<?= (int)$doc['doc_id'] ?> and all its physical storage files? This action cannot be undone.');">
                                     <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken()) ?>">

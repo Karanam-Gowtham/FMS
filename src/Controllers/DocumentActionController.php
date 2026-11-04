@@ -225,35 +225,75 @@ class DocumentActionController extends BaseController {
     public function download(): void {
         $this->requireLogin();
         $file_id = $this->intParam('file_id', 0, 'get');
-        if ($file_id <= 0) {
-            $this->flashError("Invalid file ID.");
+        $doc_id = $this->intParam('doc_id', 0, 'get');
+
+        if ($file_id <= 0 && $doc_id <= 0) {
+            $this->flashError("Invalid file or document ID.");
             $this->redirectBack();
+            return;
         }
 
-        $stmt = $this->conn->prepare("SELECT doc_id, file_path, original_name as original_filename, file_size, mime_type, file_label FROM document_files WHERE file_id = ?");
-        if ($stmt) {
-            $stmt->bind_param('i', $file_id);
-            $stmt->execute();
-            $file_record = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
-        } else {
-            $file_record = null;
+        $file_record = null;
+        if ($file_id > 0) {
+            $stmt = $this->conn->prepare("SELECT doc_id, file_path, original_name as original_filename, file_size, mime_type, file_label FROM document_files WHERE file_id = ?");
+            if ($stmt) {
+                $stmt->bind_param('i', $file_id);
+                $stmt->execute();
+                $file_record = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+            }
+        } elseif ($doc_id > 0) {
+            // Priority 1: Check for official compiled merged_pdf
+            $stmt = $this->conn->prepare("SELECT file_id, doc_id, file_path, original_name as original_filename, file_size, mime_type, file_label FROM document_files WHERE doc_id = ? AND file_label = 'merged_pdf' LIMIT 1");
+            if ($stmt) {
+                $stmt->bind_param('i', $doc_id);
+                $stmt->execute();
+                $file_record = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+            }
+            // Priority 2: Single-file uploads or primary uploaded document file
+            if (!$file_record) {
+                $stmt = $this->conn->prepare("SELECT file_id, doc_id, file_path, original_name as original_filename, file_size, mime_type, file_label FROM document_files WHERE doc_id = ? ORDER BY file_id ASC LIMIT 1");
+                if ($stmt) {
+                    $stmt->bind_param('i', $doc_id);
+                    $stmt->execute();
+                    $file_record = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+                }
+            }
         }
 
-        if (!$file_record) {
-            $this->flashError("File not found.");
-            $this->redirectBack();
-        }
-
-        $doc = doc_get($this->conn, (int)$file_record['doc_id']);
+        $target_doc_id = $file_record ? (int)$file_record['doc_id'] : $doc_id;
+        $doc = doc_get($this->conn, $target_doc_id);
         if (!$doc) {
             $this->flashError("Associated document not found.");
             $this->redirectBack();
+            return;
         }
 
         if (!doc_can_view($this->conn, $this->auth, $doc)) {
             $this->flashError("You do not have permission to download this file.");
-            $this->redirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . (int)$file_record['doc_id']);
+            $this->redirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . $target_doc_id);
+            return;
+        }
+
+        // Fallback: If no document_files row existed, check documents.file_path
+        if (!$file_record && !empty($doc['file_path'])) {
+            $ext = strtolower(pathinfo($doc['file_path'], PATHINFO_EXTENSION));
+            $file_record = [
+                'doc_id' => $doc['doc_id'],
+                'file_path' => $doc['file_path'],
+                'original_filename' => ($doc['title'] ?: 'Document') . ($ext ? '.' . $ext : '.pdf'),
+                'file_size' => 0,
+                'mime_type' => ($ext === 'pdf') ? 'application/pdf' : 'application/octet-stream',
+                'file_label' => 'primary_file'
+            ];
+        }
+
+        if (!$file_record) {
+            $this->flashError("No attached file or PDF found for this document.");
+            $this->redirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . $target_doc_id);
+            return;
         }
 
         $raw_file_path = $file_record['file_path'];
@@ -265,7 +305,8 @@ class DocumentActionController extends BaseController {
 
         if (!$canonical_path || !$canonical_base || stripos($canonical_path, $canonical_base) !== 0 || !is_file($canonical_path)) {
             $this->flashError("The physical file is missing or invalid on the server.");
-            $this->redirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . (int)$file_record['doc_id']);
+            $this->redirectBack(BASE_URL . "/public/index.php?route=documents/view&id=" . $target_doc_id);
+            return;
         }
 
         // Auto-heal stale merged master PDF from fresh source files if available

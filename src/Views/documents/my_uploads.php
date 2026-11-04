@@ -170,13 +170,18 @@
                         <?php endif; ?>
                     </td>
                     <td>
-                        <?php if (doc_can_approve($conn, $auth, $doc)): ?>
-                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="color: #10b981; font-weight: 600;">Review</a> | 
-                        <?php endif; ?>
-                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>">View</a>
-                        <?php if (doc_can_edit($conn, $auth, $doc)): ?>
-                            | <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$doc['doc_id'] ?>" style="color: #007bff;">Edit</a>
-                        <?php endif; ?>
+                        <div style="display: flex; gap: 6px; align-items: center; white-space: nowrap;">
+                            <?php if (doc_can_approve($conn, $auth, $doc)): ?>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="background: #10b981; color: white; border: none; padding: 0.35rem 0.7rem; font-size: 0.82rem; border-radius: 4px; font-weight: 600; text-decoration: none;">Review</a>
+                            <?php endif; ?>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #007bff; color: white; border: none; padding: 0.35rem 0.7rem; font-size: 0.82rem; border-radius: 4px; font-weight: 600; text-decoration: none;">View</a>
+                            <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&amp;doc_id=<?= (int)$doc['doc_id'] ?>&amp;inline=1" target="_blank" style="background: #059669; color: white; border: none; padding: 0.35rem 0.65rem; font-size: 0.82rem; border-radius: 4px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="View Merged / Primary PDF in new tab">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <?php if (doc_can_edit($conn, $auth, $doc)): ?>
+                                <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #eab308; color: white; border: none; padding: 0.35rem 0.7rem; font-size: 0.82rem; border-radius: 4px; font-weight: 600; text-decoration: none;">Edit</a>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

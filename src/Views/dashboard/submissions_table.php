@@ -75,6 +75,9 @@
                             <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>&amp;mode=review" style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Review</a>
                         <?php endif; ?>
                         <a href="<?= BASE_URL ?>/public/index.php?route=documents/view&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">View</a>
+                        <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&amp;doc_id=<?= (int)$doc['doc_id'] ?>&amp;inline=1" target="_blank" style="background: #059669; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-weight: 500;" title="View Merged / Primary PDF in new tab">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
                         <?php if (doc_can_edit($conn, $auth, $doc)): ?>
                         <a href="<?= BASE_URL ?>/public/index.php?route=documents/edit&amp;id=<?= (int)$doc['doc_id'] ?>" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.875rem; display: inline-block; white-space: nowrap; font-weight: 500;">Update</a>
                         <?php endif; ?>
