@@ -331,6 +331,32 @@ function file_get_by_document(mysqli $conn, int $doc_id): array
         }
     }
     $stmt->close();
+
+    // Fallback for single-file or legacy documents where file_path is recorded directly on documents table
+    if (empty($files) && $doc_id > 0) {
+        $d_stmt = $conn->prepare("SELECT doc_id, title, file_path FROM documents WHERE doc_id = ?");
+        if ($d_stmt) {
+            $d_stmt->bind_param('i', $doc_id);
+            $d_stmt->execute();
+            $d_res = $d_stmt->get_result()->fetch_assoc();
+            $d_stmt->close();
+            if ($d_res && !empty($d_res['file_path'])) {
+                $ext = strtolower(pathinfo($d_res['file_path'], PATHINFO_EXTENSION));
+                $files[] = [
+                    'file_id' => 0,
+                    'doc_id' => (int)$d_res['doc_id'],
+                    'file_label' => 'primary_file',
+                    'original_name' => ($d_res['title'] ?: 'Document') . ($ext ? '.' . $ext : '.pdf'),
+                    'stored_name' => basename($d_res['file_path']),
+                    'file_path' => $d_res['file_path'],
+                    'mime_type' => ($ext === 'pdf') ? 'application/pdf' : 'application/octet-stream',
+                    'file_size' => 0,
+                    'uploaded_at' => null
+                ];
+            }
+        }
+    }
+
     return $files;
 }
 

@@ -273,8 +273,16 @@ include __DIR__ . '/../../../includes/header.php';
                     <span style="color: #6c757d; font-size: 0.85rem;">(<?= htmlspecialchars($f['original_name']) ?>)</span>
                 </div>
                 <div>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&amp;file_id=<?= (int)$f['file_id'] ?>&amp;inline=1" class="btn-download" style="background: #28a745; margin-right: 5px;" target="_blank">View File</a>
-                    <a href="<?= BASE_URL ?>/public/index.php?route=documents/download&amp;file_id=<?= (int)$f['file_id'] ?>" class="btn-download">Download</a>
+                    <?php 
+                        $view_link = ((int)($f['file_id'] ?? 0) > 0) 
+                            ? (BASE_URL . "/public/index.php?route=documents/download&amp;file_id=" . (int)$f['file_id'] . "&amp;inline=1")
+                            : (BASE_URL . "/public/index.php?route=documents/download&amp;doc_id=" . (int)$document['doc_id'] . "&amp;inline=1");
+                        $download_link = ((int)($f['file_id'] ?? 0) > 0) 
+                            ? (BASE_URL . "/public/index.php?route=documents/download&amp;file_id=" . (int)$f['file_id'])
+                            : (BASE_URL . "/public/index.php?route=documents/download&amp;doc_id=" . (int)$document['doc_id']);
+                    ?>
+                    <a href="<?= $view_link ?>" class="btn-download" style="background: #28a745; margin-right: 5px;" target="_blank">View File</a>
+                    <a href="<?= $download_link ?>" class="btn-download">Download</a>
                 </div>
             </li>
             <?php endforeach; ?>

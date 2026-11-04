@@ -99,6 +99,14 @@ if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
         'profile/view' => 'My Profile',
         'profile/edit' => 'Edit Profile',
         'academic_years/list' => 'Academic Years',
+        'admin/academic_years' => 'Academic Years',
+        'admin/departments' => 'Department Management',
+        'departments/list' => 'Department Management',
+        'admin/users' => 'User Management',
+        'admin/workflows' => 'Workflow Engine',
+        'workflows/list' => 'Workflow Engine',
+        'admin/audit_logs' => 'System Audit Logs',
+        'audit_logs' => 'System Audit Logs',
     ];
 
     if ($route === 'naac/criterion') {

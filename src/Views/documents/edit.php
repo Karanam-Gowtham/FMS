@@ -33,6 +33,9 @@ $active_role = auth_active_role();
 </head>
 <body>
 <?php
+$custom_breadcrumb_parents = [
+    ['label' => 'View Document', 'url' => BASE_URL . '/public/index.php?route=documents/view&id=' . (int)$document['doc_id']]
+];
 $custom_breadcrumb_title = 'Edit: ' . ($document['type_label'] ?? 'Document');
 include __DIR__ . '/../../../includes/header.php';
 ?>
