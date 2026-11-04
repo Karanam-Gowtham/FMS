@@ -156,7 +156,20 @@ include __DIR__ . '/../../../includes/header.php';
                                 $is_meta_req = $field['required'] && (!$is_stepcone_selected || $field['name'] === 'activity_category');
                                 $field_val = $old_input['meta'][$field['name']] ?? '';
                                 $is_full_width = in_array($field['type'], ['textarea', 'author_table'], true) 
-                                    || in_array($field['name'], ['paper_title', 'conference_name', 'patent_title', 'description', 'event_name', 'scheme_name'], true);
+                                    || in_array($field['name'], [
+                                        'paper_title', 
+                                        'journal_name', 
+                                        'conference_name', 
+                                        'published_paper_name', 
+                                        'patent_title', 
+                                        'event_title', 
+                                        'event_name', 
+                                        'award_name', 
+                                        'sub_category', 
+                                        'scheme_name', 
+                                        'description',
+                                        'publication_link'
+                                    ], true);
                                 $dynamic_label = ($field['name'] === 'sub_file_type' && $preselected_subtype === 'Student Activities Files') ? 'Select an Activity' : $field['label'];
                                 ?>
                                 <div class="form-group <?= $is_full_width ? 'col-span-full' : '' ?>">

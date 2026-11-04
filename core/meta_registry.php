@@ -86,6 +86,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'indexing',           'label' => 'Indexing',           'type' => 'select', 'options' => ['SCI', 'SCIE', 'ESCI', 'SCOPUS', 'WOS', 'NON-INDEXED'], 'required' => true],
             ['name' => 'date_of_publication','label' => 'Date of Publication','type' => 'date',   'required' => true],
             ['name' => 'impact_factor',      'label' => 'Impact Factor',      'type' => 'number', 'required' => false],
+            ['name' => 'quality_factor',     'label' => 'Quality Factor',     'type' => 'number', 'required' => false],
             ['name' => 'payment',            'label' => 'Publication',        'type' => 'select', 'options' => ['Open Access', 'Subscription'], 'required' => true],
         ],
         'conference' => [
@@ -193,6 +194,7 @@ function meta_get_fields(string $type_key): array
             ['name' => 'indexing',            'label' => 'Indexing',            'type' => 'select', 'options' => ['SCI', 'SCIE', 'ESCI', 'SCOPUS', 'WOS', 'NON-INDEXED'], 'required' => true],
             ['name' => 'date_of_submission',  'label' => 'Date of Submission',  'type' => 'date',   'required' => true],
             ['name' => 'impact_factor',       'label' => 'Impact Factor',       'type' => 'number', 'required' => false],
+            ['name' => 'quality_factor',      'label' => 'Quality Factor',      'type' => 'number', 'required' => false],
             ['name' => 'payment',             'label' => 'Publication',         'type' => 'select', 'options' => ['Open Access', 'Subscription'], 'required' => true],
         ],
         'student_conference' => [

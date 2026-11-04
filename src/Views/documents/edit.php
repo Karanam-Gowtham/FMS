@@ -103,7 +103,7 @@ include __DIR__ . '/../../../includes/header.php';
                         continue;
                     }
                     $is_f_req = $field['required'] && (!$is_stepcone_doc || $field['name'] === 'activity_category');
-                    $is_full_width = ($field['type'] === 'text' || $field['type'] === 'textarea' || $field['type'] === 'author_table' || $field['name'] === 'title');
+                    $is_full_width = ($field['type'] === 'text' || $field['type'] === 'textarea' || $field['type'] === 'author_table' || $field['type'] === 'url' || $field['name'] === 'title');
                     ?>
                     <div class="form-group <?= $is_full_width ? 'full-width' : '' ?>">
                         <label class="<?= $is_f_req ? 'required' : '' ?>" for="meta_<?= $field['name'] ?>">

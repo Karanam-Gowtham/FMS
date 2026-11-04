@@ -191,7 +191,9 @@ async function runAuditor() {
         { name: "Admin Departments", url: `${BASE_URL}?route=admin/departments` },
         { name: "Admin Users Management", url: `${BASE_URL}?route=admin/users` },
         { name: "Department Files List", url: `${BASE_URL}?route=documents/list&context=dept_file` },
-        { name: "Document View Page", url: `${BASE_URL}?route=documents/view&id=41` }
+        { name: "Document View Page", url: `${BASE_URL}?route=documents/view&id=41` },
+        { name: "Upload Journal Form", url: `${BASE_URL}?route=documents/upload&type=journal` },
+        { name: "Upload Conference Form", url: `${BASE_URL}?route=documents/upload&type=conference` }
     ];
 
     console.log("\n[3] Auditing Core Pages for Visual Collisions, Overlaps & Layout Integrity...");
