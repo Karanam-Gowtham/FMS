@@ -69,7 +69,17 @@ if (!in_array($route, $institutional_routes, true)) {
     $breadcrumbs[] = ['label' => $role_label, 'url' => $role_url];
 }
 
-
+// Support explicit intermediate parent breadcrumbs if provided by the view
+if (!empty($custom_breadcrumb_parents) && is_array($custom_breadcrumb_parents)) {
+    foreach ($custom_breadcrumb_parents as $p_crumb) {
+        if (!empty($p_crumb['label']) && !empty($p_crumb['url'])) {
+            $breadcrumbs[] = [
+                'label' => htmlspecialchars($p_crumb['label'], ENT_QUOTES, 'UTF-8'),
+                'url'   => $p_crumb['url']
+            ];
+        }
+    }
+}
 
 if (isset($custom_breadcrumb_title) && is_string($custom_breadcrumb_title)) {
     $page_name = htmlspecialchars($custom_breadcrumb_title, ENT_QUOTES, 'UTF-8');

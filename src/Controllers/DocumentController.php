@@ -76,7 +76,7 @@ class DocumentController extends BaseController {
                 // Otherwise, the default context for Faculty list views is ALWAYS 'My Achievements'.
                 if (isset($_GET['context']) && $_GET['context'] === 'dept_file') {
                     $forced_filters['type_keys'] = ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'];
-                    $scope_label = 'My Dept Files';
+                    $scope_label = 'Department Files';
                 } else {
                     $forced_filters['category'] = 'research';
                     $scope_label = 'My Achievements';

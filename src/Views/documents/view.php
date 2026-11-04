@@ -43,6 +43,27 @@
 </head>
 <body>
 <?php
+$user_role_id = (int)($auth['active_role']['role_id'] ?? 0);
+$is_dept_doc  = in_array($document['type_key'] ?? '', ['dept_file', 'student_activity_file', 'student_journal', 'student_conference', 'student_body', 'exam_qual'], true);
+$from_param   = (isset($_GET['from']) && is_string($_GET['from'])) ? $_GET['from'] : '';
+
+if ($from_param === 'my_uploads') {
+    $parent_label = 'My Uploads';
+    $parent_url   = BASE_URL . '/public/index.php?route=documents/my_uploads';
+} elseif ($is_dept_doc || $from_param === 'dept_file') {
+    $parent_label = 'Department Files';
+    $parent_url   = BASE_URL . '/public/index.php?route=documents/list&context=dept_file';
+} elseif ($user_role_id === ROLE_FACULTY) {
+    $parent_label = 'My Achievements';
+    $parent_url   = BASE_URL . '/public/index.php?route=documents/list';
+} else {
+    $parent_label = 'Documents';
+    $parent_url   = BASE_URL . '/public/index.php?route=documents/list';
+}
+
+$custom_breadcrumb_parents = [
+    ['label' => $parent_label, 'url' => $parent_url]
+];
 $custom_breadcrumb_title = 'View: ' . ($document['title'] ?: ($document['type_label'] ?? 'Document'));
 include __DIR__ . '/../../../includes/header.php';
 ?>
@@ -51,11 +72,11 @@ include __DIR__ . '/../../../includes/header.php';
 
     <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
         <div style="display: flex; gap: 8px;">
-            <a href="<?= BASE_URL ?>/public/index.php?route=dashboard" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }" style="display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #475569; border: 1px solid #cbd5e1; text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: all 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+            <a href="<?= htmlspecialchars($parent_url, ENT_QUOTES, 'UTF-8') ?>" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }" style="display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #475569; border: 1px solid #cbd5e1; text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: all 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
-            <a href="<?= BASE_URL ?>/public/index.php?route=documents/list" style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: all 0.15s ease;">
-                <i class="fas fa-folder-open"></i> All Documents
+            <a href="<?= htmlspecialchars($parent_url, ENT_QUOTES, 'UTF-8') ?>" style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; text-decoration: none; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: all 0.15s ease;">
+                <i class="fas fa-folder-open"></i> <?= htmlspecialchars($parent_label) ?>
             </a>
         </div>
     </div>
@@ -141,7 +162,7 @@ include __DIR__ . '/../../../includes/header.php';
                 <div class="detail-value"><?= htmlspecialchars($document['type_label']) ?></div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Category</div>
+                <div class="detail-label">Classification</div>
                 <div class="detail-value"><?= ucfirst(htmlspecialchars($document['category'] ?? 'other')) ?></div>
             </div>
             <div class="detail-item">
