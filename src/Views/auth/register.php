@@ -1,15 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration &mdash; File Management System (FMS)</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="<?= BASE_URL ?>/assets/js/main.js" defer></script>
     <style>
-        :root { --primary: #0b353d; --secondary: #0e454f; --accent: #17a2b8; --light: #f4f7f6; --text: #333; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #0b353d;
+            --secondary: #0e454f;
+            --accent: #17a2b8;
+            --light: #f4f7f6;
+            --text: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background: linear-gradient(rgba(244, 247, 246, 0.9), rgba(226, 232, 240, 0.9)), url('<?= BASE_URL ?>/assets/img/gmr_landing_page.jpg') center/cover;
@@ -23,9 +37,35 @@
         }
 
         /* Top Nav inside Login to match */
-        .main-nav { background: #fff; padding: 15px 40px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; }
-        .nav-brand { font-size: 1.1rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .nav-brand span { font-size: 0.75rem; color: #64748b; font-weight: normal; }
+        .main-nav {
+            background: #fff;
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-brand span {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: normal;
+        }
 
         .card {
             background: #ffffff;
@@ -40,12 +80,32 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .card h1 { font-size: 1.8rem; margin-bottom: 5px; color: var(--primary); text-align: center; }
-        .card .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 24px; text-align: center; font-weight: 500; letter-spacing: 1px; }
+        .card h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .card .subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
 
         .role-note {
             background: #e0f2fe;
@@ -74,8 +134,10 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-        
-        .form-group.full-width { grid-column: 1 / -1; }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
 
         .form-group label {
             display: block;
@@ -87,7 +149,8 @@
             letter-spacing: 0.5px;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #cbd5e1;
@@ -99,9 +162,13 @@
             transition: all 0.3s;
         }
 
-        .form-group select option { background: #fff; color: #333; }
+        .form-group select option {
+            background: #fff;
+            color: #333;
+        }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.15);
         }
@@ -122,20 +189,58 @@
             transition: 0.3s;
         }
 
-        .btn-register:hover { background: #138496; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(23,162,184,0.3); }
+        .btn-register:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+        }
 
-        .error-msg { background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 12px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; }
-        .success-msg { background: #d1fae5; border: 1px solid #6ee7b7; color: #047857; padding: 12px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; text-align: center; }
+        .error-msg {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
 
-        .footer-links { margin-top: 30px; text-align: center; font-size: 0.9rem; color: #64748b; }
-        .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
-        .footer-links a:hover { text-decoration: underline; }
+        .success-msg {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+            color: #047857;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .footer-links a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
 
         @media (max-width: 640px) {
-            .form-grid { grid-template-columns: 1fr; }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
     <nav class="main-nav">
         <a href="<?= BASE_URL ?>/" class="nav-brand">
@@ -151,7 +256,8 @@
         <p class="subtitle">Create your Student or Faculty account</p>
 
         <div class="role-note">
-            ℹ️ Please select your role. Students must use their JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in or 21341A0501@gmritdu.edu.in). Faculty fields will hide if Student is selected.
+            ℹ️ Please select your role. Students must use their JNTU Roll Number email (e.g., 21341A0501@gmrit.edu.in or
+            21341A0501@gmritdu.edu.in). Faculty fields will hide if Student is selected.
         </div>
 
         <?php if (!empty($error)): ?>
@@ -160,149 +266,173 @@
         <?php if (!empty($success)): ?>
             <div class="success-msg">
                 <?= htmlspecialchars($success) ?><br><br>
-                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login" style="color: #065f46; text-decoration: underline; font-weight: bold;">Click here to login</a>
+                <a href="<?= BASE_URL ?>/public/index.php?route=auth/login"
+                    style="color: #065f46; text-decoration: underline; font-weight: bold;">Click here to login</a>
             </div>
         <?php else: ?>
 
-        <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=auth/register" id="regForm" enctype="multipart/form-data">
-            <?= csrfField() ?>
+            <form method="POST" action="<?= BASE_URL ?>/public/index.php?route=auth/register" id="regForm"
+                enctype="multipart/form-data">
+                <?= csrfField() ?>
 
-            <h3 class="section-title">1. Account Credentials</h3>
-            <div class="form-grid">
-                <div class="form-group full-width">
-                    <label for="role_type">I am a: *</label>
-                    <select id="role_type" name="role_type" required>
-                        <option value="faculty" <?= (isset($_POST['role_type']) && $_POST['role_type'] === 'faculty') ? 'selected' : '' ?>>Faculty Member</option>
-                        <option value="student" <?= (isset($_POST['role_type']) && $_POST['role_type'] === 'student') ? 'selected' : '' ?>>Student</option>
-                    </select>
+                <h3 class="section-title">1. Account Credentials</h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="role_type">I am a: *</label>
+                        <select id="role_type" name="role_type" required>
+                            <option value="faculty" <?= (isset($_POST['role_type']) && $_POST['role_type'] === 'faculty') ? 'selected' : '' ?>>Faculty Member</option>
+                            <option value="student" <?= (isset($_POST['role_type']) && $_POST['role_type'] === 'student') ? 'selected' : '' ?>>Student</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="full_name">Full Name *</label>
+                        <input type="text" id="full_name" name="full_name"
+                            value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                            placeholder="you@gmrit.edu.in or you@gmritdu.edu.in" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" minlength="6" required
+                            autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" minlength="6" required
+                            autocomplete="new-password">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="dept_id">Department *</label>
+                        <select id="dept_id" name="dept_id" required>
+                            <option value="">&mdash; Select Department &mdash;</option>
+                            <?php foreach ($departments as $d): ?>
+                                <option value="<?= (int) ($d['dept_id'] ?? 0) ?>" <?= (isset($_POST['dept_id']) && (int) $_POST['dept_id'] === (int) ($d['dept_id'] ?? 0)) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($d['dept_name'] ?? 'Department') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="full_name">Full Name *</label>
-                    <input type="text" id="full_name" name="full_name" value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required autocomplete="name">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email Address *</label>
-                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="you@gmrit.edu.in or you@gmritdu.edu.in" required autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" minlength="6" required autocomplete="new-password">
-                </div>
-                <div class="form-group">
-                    <label for="confirm_password">Confirm Password *</label>
-                    <input type="password" id="confirm_password" name="confirm_password" minlength="6" required autocomplete="new-password">
-                </div>
-                <div class="form-group full-width">
-                    <label for="dept_id">Department *</label>
-                    <select id="dept_id" name="dept_id" required>
-                        <option value="">&mdash; Select Department &mdash;</option>
-                        <?php foreach ($departments as $d): ?>
-                            <option value="<?= (int)($d['dept_id'] ?? 0) ?>" <?= (isset($_POST['dept_id']) && (int)$_POST['dept_id'] === (int)($d['dept_id'] ?? 0)) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($d['dept_name'] ?? 'Department') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+
+                <div id="faculty_sections">
+                    <h3 class="section-title">2. Professional Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="per_no">Per No (Personel Number) *</label>
+                            <input type="text" id="per_no" name="per_no"
+                                value="<?= htmlspecialchars($_POST['per_no'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pan_no">PAN No. *</label>
+                            <input type="text" id="pan_no" name="pan_no"
+                                value="<?= htmlspecialchars($_POST['pan_no'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apaar_id">APAAR faculty ID (if any)</label>
+                            <input type="text" id="apaar_id" name="apaar_id"
+                                value="<?= htmlspecialchars($_POST['apaar_id'] ?? '') ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="highest_degree">Highest Degree *</label>
+                            <input type="text" id="highest_degree" name="highest_degree"
+                                value="<?= htmlspecialchars($_POST['highest_degree'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="university">University *</label>
+                            <input type="text" id="university" name="university"
+                                value="<?= htmlspecialchars($_POST['university'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="specialization">Area of Specialization *</label>
+                            <input type="text" id="specialization" name="specialization"
+                                value="<?= htmlspecialchars($_POST['specialization'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="profile_photo">Profile Photo</label>
+                            <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">3. Employment History</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="doj_institution">Date of Joining (Institution) *</label>
+                            <input type="date" id="doj_institution" name="doj_institution"
+                                value="<?= htmlspecialchars($_POST['doj_institution'] ?? '') ?>" required
+                                max="<?= date('Y-m-d') ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="doj_department">Date of Joining (Department)</label>
+                            <input type="date" id="doj_department" name="doj_department"
+                                value="<?= htmlspecialchars($_POST['doj_department'] ?? '') ?>"
+                                title="In case of transfer from one Department to another" max="<?= date('Y-m-d') ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="designation_joining">Designation at Time of Joining *</label>
+                            <input type="text" id="designation_joining" name="designation_joining"
+                                value="<?= htmlspecialchars($_POST['designation_joining'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="designation_present">Present Designation *</label>
+                            <input type="text" id="designation_present" name="designation_present"
+                                value="<?= htmlspecialchars($_POST['designation_present'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date_designated_prof">Date Designated as Prof/Assoc. Prof (if any)</label>
+                            <input type="date" id="date_designated_prof" name="date_designated_prof"
+                                value="<?= htmlspecialchars($_POST['date_designated_prof'] ?? '') ?>"
+                                max="<?= date('Y-m-d') ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="experience_years">Experience in current institute (Years) *</label>
+                            <input type="number" step="0.1" min="0" id="experience_years" name="experience_years"
+                                value="<?= htmlspecialchars($_POST['experience_years'] ?? '') ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="association_nature">Nature of Association *</label>
+                            <select id="association_nature" name="association_nature" required
+                                onchange="toggleContractFields()">
+                                <option value="">&mdash; Select &mdash;</option>
+                                <option value="Regular" <?= (isset($_POST['association_nature']) && $_POST['association_nature'] === 'Regular') ? 'selected' : '' ?>>Regular</option>
+                                <option value="Contract" <?= (isset($_POST['association_nature']) && $_POST['association_nature'] === 'Contract') ? 'selected' : '' ?>>Contract</option>
+                                <option value="Ad hoc" <?= (isset($_POST['association_nature']) && $_POST['association_nature'] === 'Ad hoc') ? 'selected' : '' ?>>Ad hoc</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="contract_type_grp" style="display: none;">
+                            <label for="contract_type">Contract Type</label>
+                            <select id="contract_type" name="contract_type">
+                                <option value="">&mdash; Select &mdash;</option>
+                                <option value="Full time" <?= (isset($_POST['contract_type']) && $_POST['contract_type'] === 'Full time') ? 'selected' : '' ?>>Full time</option>
+                                <option value="Part time" <?= (isset($_POST['contract_type']) && $_POST['contract_type'] === 'Part time') ? 'selected' : '' ?>>Part time</option>
+                                <option value="Hourly based" <?= (isset($_POST['contract_type']) && $_POST['contract_type'] === 'Hourly based') ? 'selected' : '' ?>>Hourly based</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="is_currently_associated">Currently Associated? *</label>
+                            <select id="is_currently_associated" name="is_currently_associated" required
+                                onchange="toggleLeavingDate()">
+                                <option value="1" <?= (isset($_POST['is_currently_associated']) && $_POST['is_currently_associated'] === '1') ? 'selected' : '' ?>>Yes</option>
+                                <option value="0" <?= (isset($_POST['is_currently_associated']) && $_POST['is_currently_associated'] === '0') ? 'selected' : '' ?>>No</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="date_leaving_grp" style="display: none;">
+                            <label for="date_of_leaving">Date of Leaving *</label>
+                            <input type="date" id="date_of_leaving" name="date_of_leaving"
+                                value="<?= htmlspecialchars($_POST['date_of_leaving'] ?? '') ?>">
+                        </div>
+                    </div>
+                </div> <!-- End faculty_sections -->
+
+                <button type="submit" class="btn-register">Complete Registration</button>
+            </form>
+
+            <div class="footer-links">
+                Already have an account? <a href="<?= BASE_URL ?>/public/index.php?route=auth/login">Log in</a>
             </div>
 
-            <div id="faculty_sections">
-            <h3 class="section-title">2. Professional Details</h3>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="per_no">Per No (Personnel Number) *</label>
-                    <input type="text" id="per_no" name="per_no" value="<?= htmlspecialchars($_POST['per_no'] ?? '') ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="pan_no">PAN No. *</label>
-                    <input type="text" id="pan_no" name="pan_no" value="<?= htmlspecialchars($_POST['pan_no'] ?? '') ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="apaar_id">APAAR faculty ID (if any)</label>
-                    <input type="text" id="apaar_id" name="apaar_id" value="<?= htmlspecialchars($_POST['apaar_id'] ?? '') ?>">
-                </div>
-                <div class="form-group">
-                    <label for="highest_degree">Highest Degree *</label>
-                    <input type="text" id="highest_degree" name="highest_degree" value="<?= htmlspecialchars($_POST['highest_degree'] ?? '') ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="university">University *</label>
-                    <input type="text" id="university" name="university" value="<?= htmlspecialchars($_POST['university'] ?? '') ?>" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="specialization">Area of Specialization *</label>
-                    <input type="text" id="specialization" name="specialization" value="<?= htmlspecialchars($_POST['specialization'] ?? '') ?>" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="profile_photo">Profile Photo</label>
-                    <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
-                </div>
-            </div>
-
-            <h3 class="section-title">3. Employment History</h3>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="doj_institution">Date of Joining (Institution) *</label>
-                    <input type="date" id="doj_institution" name="doj_institution" value="<?= htmlspecialchars($_POST['doj_institution'] ?? '') ?>" required max="<?= date('Y-m-d') ?>">
-                </div>
-                <div class="form-group">
-                    <label for="doj_department">Date of Joining (Department)</label>
-                    <input type="date" id="doj_department" name="doj_department" value="<?= htmlspecialchars($_POST['doj_department'] ?? '') ?>" title="In case of transfer from one Department to another" max="<?= date('Y-m-d') ?>">
-                </div>
-                <div class="form-group">
-                    <label for="designation_joining">Designation at Time of Joining *</label>
-                    <input type="text" id="designation_joining" name="designation_joining" value="<?= htmlspecialchars($_POST['designation_joining'] ?? '') ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="designation_present">Present Designation *</label>
-                    <input type="text" id="designation_present" name="designation_present" value="<?= htmlspecialchars($_POST['designation_present'] ?? '') ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="date_designated_prof">Date Designated as Prof/Assoc. Prof (if any)</label>
-                    <input type="date" id="date_designated_prof" name="date_designated_prof" value="<?= htmlspecialchars($_POST['date_designated_prof'] ?? '') ?>" max="<?= date('Y-m-d') ?>">
-                </div>
-                <div class="form-group">
-                    <label for="experience_years">Experience in current institute (Years) *</label>
-                    <input type="number" step="0.1" min="0" id="experience_years" name="experience_years" value="<?= htmlspecialchars($_POST['experience_years'] ?? '') ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="association_nature">Nature of Association *</label>
-                    <select id="association_nature" name="association_nature" required onchange="toggleContractFields()">
-                        <option value="">&mdash; Select &mdash;</option>
-                        <option value="Regular" <?= (isset($_POST['association_nature']) && $_POST['association_nature'] === 'Regular') ? 'selected' : '' ?>>Regular</option>
-                        <option value="Contract" <?= (isset($_POST['association_nature']) && $_POST['association_nature'] === 'Contract') ? 'selected' : '' ?>>Contract</option>
-                        <option value="Ad hoc" <?= (isset($_POST['association_nature']) && $_POST['association_nature'] === 'Ad hoc') ? 'selected' : '' ?>>Ad hoc</option>
-                    </select>
-                </div>
-                <div class="form-group" id="contract_type_grp" style="display: none;">
-                    <label for="contract_type">Contract Type</label>
-                    <select id="contract_type" name="contract_type">
-                        <option value="">&mdash; Select &mdash;</option>
-                        <option value="Full time" <?= (isset($_POST['contract_type']) && $_POST['contract_type'] === 'Full time') ? 'selected' : '' ?>>Full time</option>
-                        <option value="Part time" <?= (isset($_POST['contract_type']) && $_POST['contract_type'] === 'Part time') ? 'selected' : '' ?>>Part time</option>
-                        <option value="Hourly based" <?= (isset($_POST['contract_type']) && $_POST['contract_type'] === 'Hourly based') ? 'selected' : '' ?>>Hourly based</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="is_currently_associated">Currently Associated? *</label>
-                    <select id="is_currently_associated" name="is_currently_associated" required onchange="toggleLeavingDate()">
-                        <option value="1" <?= (isset($_POST['is_currently_associated']) && $_POST['is_currently_associated'] === '1') ? 'selected' : '' ?>>Yes</option>
-                        <option value="0" <?= (isset($_POST['is_currently_associated']) && $_POST['is_currently_associated'] === '0') ? 'selected' : '' ?>>No</option>
-                    </select>
-                </div>
-                <div class="form-group" id="date_leaving_grp" style="display: none;">
-                    <label for="date_of_leaving">Date of Leaving *</label>
-                    <input type="date" id="date_of_leaving" name="date_of_leaving" value="<?= htmlspecialchars($_POST['date_of_leaving'] ?? '') ?>">
-                </div>
-            </div>
-            </div> <!-- End faculty_sections -->
-
-            <button type="submit" class="btn-register">Complete Registration</button>
-        </form>
-
-        <div class="footer-links">
-            Already have an account? <a href="<?= BASE_URL ?>/public/index.php?route=auth/login">Log in</a>
-        </div>
-        
         <?php endif; ?>
     </div>
 
@@ -334,7 +464,7 @@
         }
 
         // Auto-calculate experience from Date of Joining
-        document.getElementById('doj_institution').addEventListener('change', function() {
+        document.getElementById('doj_institution').addEventListener('change', function () {
             if (this.value) {
                 const doj = new Date(this.value);
                 const today = new Date();
@@ -351,17 +481,17 @@
         // Enforce Non-Negative Number Inputs
         document.querySelectorAll('input[type="number"]').forEach(input => {
             if (!input.hasAttribute('min')) input.setAttribute('min', '0');
-            input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function (e) {
                 if (e.key === '-' || e.key === 'Minus') {
                     e.preventDefault();
                 }
             });
-            input.addEventListener('input', function() {
+            input.addEventListener('input', function () {
                 if (Number.parseFloat(this.value) < 0) {
                     this.value = '0';
                 }
             });
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
                 if (Number.parseFloat(this.value) < 0) {
                     this.value = '0';
                 }
@@ -371,10 +501,10 @@
         // Toggle faculty sections based on selected role
         const roleSelect = document.getElementById('role_type');
         const facultySections = document.getElementById('faculty_sections');
-        
+
         function toggleFacultySections() {
             const isStudent = roleSelect.value === 'student';
-            
+
             if (isStudent) {
                 facultySections.style.display = 'none';
                 // Remove required attributes from faculty fields
@@ -400,7 +530,7 @@
         roleSelect.addEventListener('change', toggleFacultySections);
 
         // Initialize on load to restore state if form submission failed
-        window.onload = function() {
+        window.onload = function () {
             toggleContractFields();
             toggleLeavingDate();
             toggleFacultySections();
@@ -409,7 +539,7 @@
             const regForm = document.querySelector('form');
             if (regForm) {
                 let isRegistering = false;
-                regForm.addEventListener('submit', function(e) {
+                regForm.addEventListener('submit', function (e) {
                     if (isRegistering) {
                         e.preventDefault();
                         return false;
@@ -425,4 +555,5 @@
         };
     </script>
 </body>
+
 </html>
